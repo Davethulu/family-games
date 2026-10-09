@@ -8,6 +8,7 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Mathlings | `games/mathlings/` |
 | Math Hopper | `games/math-hopper/` |
 | Math Hopper 3D | `games/math-hopper-3d/` |
+| Duck Name Generator | `games/duck-names/` |
 
 ## Adding a game
 1. Make a new folder under `games/` and save the game as `index.html` inside it (plus any files it needs).

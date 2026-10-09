@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duck Name Generator 🦆</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pond-deep:   #4a7c6f;
+      --pond-mid:    #6aab98;
+      --pond-light:  #a8d5c8;
+      --pond-pale:   #d6ede8;
+      --cream:       #fdf8f0;
+      --sand:        #f2e8d5;
+      --gold:        #c9954a;
+      --gold-light:  #e8c07a;
+      --text-dark:   #2d3a35;
+      --text-mid:    #4a5e57;
+      --text-light:  #7a9990;
+      --shadow:      rgba(74, 124, 111, 0.18);
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #c8e6df 0%, #dff0e8 40%, #eef7f3 70%, #f5f0e6 100%);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      color: var(--text-dark);
+      padding: 2rem 1rem 4rem;
+      /* Squarespace overrides body flex — centering is handled by .duck-app instead */
+    }
+
+    /* Self-contained centering wrapper — immune to host-page layout overrides */
+    .duck-app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* ── Ripple background decoration ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 40% at 20% 90%, rgba(106,171,152,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 30% at 80% 10%, rgba(168,213,200,0.15) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .site-duck {
+      font-size: 3.5rem;
+      line-height: 1;
+      display: block;
+      margin-bottom: 0.4rem;
+      filter: drop-shadow(0 2px 6px rgba(74,124,111,0.25));
+      animation: bobble 3s ease-in-out infinite;
+    }
+
+    @keyframes bobble {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50%       { transform: translateY(-6px) rotate(2deg); }
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      color: var(--pond-deep);
+      letter-spacing: 0.02em;
+      font-weight: normal;
+      text-shadow: 0 1px 3px rgba(255,255,255,0.7);
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      font-style: italic;
+      font-size: 0.95rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Main card ── */
+    .main-card {
+      position: relative;
+      z-index: 1;
+      background: var(--cream);
+      border-radius: 24px;
+      padding: 2rem 2.2rem;
+      width: 100%;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow:
+        0 4px 20px var(--shadow),
+        0 1px 4px rgba(255,255,255,0.8) inset;
+      border: 1.5px solid rgba(168,213,200,0.6);
+    }
+
+    /* ── Input section ── */
+    .input-group {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .name-input {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border: 2px solid var(--pond-light);
+      border-radius: 14px;
+      background: white;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text-dark);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .name-input:focus {
+      border-color: var(--pond-mid);
+      box-shadow: 0 0 0 3px rgba(106,171,152,0.18);
+    }
+
+    .name-input::placeholder { color: var(--text-light); }
+
+    .generate-btn {
+      padding: 0.7rem 1.3rem;
+      background: linear-gradient(135deg, var(--pond-mid), var(--pond-deep));
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 8px rgba(74,124,111,0.35);
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+      white-space: nowrap;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(74,124,111,0.45);
+      filter: brightness(1.06);
+    }
+
+    .generate-btn:active { transform: translateY(0); }
+
+    /* ── Result card ── */
+    .result-wrap {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+    }
+
+    .result-wrap.visible {
+      max-height: 600px;
+      opacity: 1;
+    }
+
+    .result-card {
+      background: linear-gradient(145deg, var(--sand), #f8f0e0);
+      border: 2px solid var(--gold-light);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Lily pad decoration */
+    .result-card::before {
+      content: '🌿';
+      position: absolute;
+      bottom: 8px;
+      right: 14px;
+      font-size: 1.4rem;
+      opacity: 0.35;
+    }
+    .result-card::after {
+      content: '🌿';
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 1rem;
+      opacity: 0.25;
+      transform: scaleX(-1);
+    }
+
+    .result-duck-icon {
+      font-size: 2.6rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .result-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-light);
+      margin-bottom: 0.3rem;
+    }
+
+    .duck-name {
+      font-size: clamp(1.4rem, 6vw, 2rem);
+      color: var(--pond-deep);
+      font-style: italic;
+      line-height: 1.2;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+    }
+
+    .style-badge {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .style-badge.cute    { background: #ffe8f0; color: #c4607a; border: 1px solid #f0b8cc; }
+    .style-badge.punny   { background: #fff3d6; color: #a07020; border: 1px solid #e8ca80; }
+    .style-badge.elegant { background: #e8eef8; color: #4060a0; border: 1px solid #b0c0e0; }
+
+    .divider {
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+      margin: 0 auto 1rem;
+    }
+
+    .blurb {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* ── Action buttons ── */
+    .actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: none;
+    }
+
+    .action-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px var(--shadow); }
+    .action-btn:active { transform: translateY(0); }
+
+    .btn-again {
+      background: var(--pond-pale);
+      color: var(--pond-deep);
+      border: 1.5px solid var(--pond-light);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: white;
+      border: none;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(201,149,74,0.3);
+    }
+
+    /* ── Ripple footer decor ── */
+    .pond-waves {
+      position: relative;
+      z-index: 1;
+      margin-top: 2.5rem;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    .wave-line {
+      display: block;
+      font-size: 1.3rem;
+      letter-spacing: 0.15em;
+      opacity: 0.45;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ── Hidden canvas for download ── */
+    #downloadCanvas { display: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .main-card { padding: 1.5rem 1rem; }
+      .result-card { padding: 1.2rem 1rem; }
+
+      /* Stack input and button vertically so nothing overflows */
+      .input-group {
+        flex-direction: column;
+      }
+
+      .generate-btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
+
+      .name-input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="duck-app">
+
+<header>
+  <span class="site-duck">🦆</span>
+  <h1>Duck Name Generator</h1>
+  <p class="subtitle">Every person deserves a duck name.</p>
+</header>
+
+<div class="main-card">
+  <div class="input-group">
+    <input
+      class="name-input"
+      id="nameInput"
+      type="text"
+      placeholder="Enter your name…"
+      maxlength="60"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="generate-btn" id="generateBtn">Generate ✨</button>
+  </div>
+
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-card" id="resultCard">
+      <span class="result-duck-icon" id="duckIcon">🦆</span>
+      <p class="result-label">Your duck name is</p>
+      <div class="duck-name" id="duckName"></div>
+      <span class="style-badge" id="styleBadge"></span>
+      <div class="divider"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+    <div class="actions">
+      <button class="action-btn btn-again" id="againBtn">🎲 Try again</button>
+      <button class="action-btn btn-download" id="downloadBtn">⬇ Download PNG</button>
+    </div>
+  </div>
+</div>
+
+<div class="pond-waves">
+  <span class="wave-line">〰〰〰〰〰</span>
+  Quack responsibly.
+</div>
+
+<canvas id="downloadCanvas"></canvas>
+
+</div><!-- /.duck-app -->
+
+<script>
+// ─────────────────────────────────────────────
+//  WORD LISTS
+// ─────────────────────────────────────────────
+
+const CUTE_TITLES    = ['Sir', 'Dame', 'Little', 'Tiny', 'Fluffy', 'Sweet', 'Brave', 'Jolly', 'Pudgy', 'Wiggly', 'Grumpy', 'Sleepy', 'Snuggly', 'Bouncy'];
+const CUTE_FIRST     = ['Quackers', 'Waddles', 'Puddles', 'Bubbles', 'Ducky', 'Fluffles', 'Pebbles', 'Squiggles', 'Nibbles', 'Wobbles', 'Giggles', 'Sprinkles', 'Muffin', 'Biscuit', 'Noodle', 'Dumpling', 'Pudding', 'Tater', 'Marshmallow', 'Pipsqueak'];
+const CUTE_LAST      = ['McQuack', 'von Flap', 'Ploppington', 'Beaksworth', 'Flapsworth', 'McWaddle', 'Splashbottom', 'McFeathers', 'Pondsworth', 'of the Reeds', 'Dipperton', 'Quackleberry'];
+
+const PUNNY_FIRST    = ['Duckie', 'Bill', 'Drake', 'Aflac', 'Donald', 'Daffy', 'Howard', 'Scrooge', 'Phil', 'Quack', 'Beaky', 'Webster'];
+const PUNNY_COMBOS   = [
+  'Duckie Chan', 'Quack Nicholson', 'Drake Skywalker', 'Feather Locklear',
+  'Pond Jovi', 'Ducky Montana', 'Bill Nye the Pond Guy', 'Eider Scissorwings',
+  'Mallard Hitchcock', 'Ringo Starling', 'Duck Norris', 'Quackie Robinson',
+  'Shaquille O\'Queal', 'Waddle Smith', 'Feather Mercury', 'Pond Eastwood',
+  'Quacklemore Holmes', 'Beak Obama', 'Duck Jagger', 'Moby Duck',
+  'Leonardo DiFeathrio', 'Flipper Eastwood', 'Puddle Cruise', 'Teal Swift',
+  'Katy Plerry', 'Demi Moorer', 'Duckstiny\'s Child', 'Flock Sinatra',
+  'Bill Shakesbeak', 'Quack Black', 'Sir Waddle Scott', 'Oprah Wingfrey',
+  'Beak-yoncé', 'Flap Diesel', 'Pond Damon',
+];
+
+const ELEGANT_TITLES = ['Lord', 'Lady', 'Baroness', 'Viscount', 'Duchess', 'Earl', 'Countess', 'His Grace', 'Her Grace', 'Baron', 'Marchioness', 'Archduke'];
+const ELEGANT_FIRST  = ['Reginald', 'Arabella', 'Cornelius', 'Evangeline', 'Thaddeus', 'Persephone', 'Alistair', 'Seraphina', 'Montgomery', 'Cordelia', 'Archibald', 'Isadora', 'Beaumont', 'Celestine', 'Aldous', 'Valentina', 'Peregrine', 'Florentina'];
+const ELEGANT_LAST   = ['Featherton', 'de la Marsh', 'Plumsworth', 'Watercrest', 'Pondingsley', 'Downing', 'von Quackenburg', 'Fetherstonhaugh', 'Reedsmore', 'Wattlesby', 'Brakeshire', 'Billington', 'Drakely', 'Plumforth', 'Marshington', 'Cresthollow'];
+
+// Personality blurb fragments
+const TEMPERAMENTS = [
+  'a philosophical sort who believes every ripple tells a story',
+  'deeply enthusiastic about breakfast, particularly if it involves crumbs',
+  'known for their dramatic monologue-style quacking at dusk',
+  'surprisingly opinionated about which lily pads have the best view',
+  'the kind of duck who maintains an aura of serene mystery',
+  'a natural leader who has never once followed directions successfully',
+  'an absolute romantic who falls in love with every passing reflection',
+  'a creature of intense habit who circles the same reed precisely seven times before settling',
+  'warmly chaotic in the most endearing way possible',
+  'philosophical about molting season and surprisingly eloquent on the subject',
+  'a notorious hoarder of shiny pebbles and half-eaten breadcrumbs',
+  'surprisingly competitive at duck racing, though denies it entirely',
+  'deeply spiritual — firmly believes the pond is sentient',
+  'an enthusiastic singer whose pitch is debatable but whose passion is not',
+  'the self-appointed social director of the entire marsh',
+];
+
+const QUIRKS = [
+  'Has strong opinions about bread quality and will not hesitate to express them.',
+  'Refuses to swim counter-clockwise under any circumstances.',
+  'Always arrives fashionably late to morning feeding, and always looks great doing it.',
+  'Keeps a mental map of every interesting stick within a three-pond radius.',
+  'Blinks exactly three times before making any important decision.',
+  'Unironically collects shed feathers as a hobby.',
+  'Can sense rain approaching forty-five seconds before anyone else.',
+  'Maintains an extremely detailed grudge list regarding past bread-stealers.',
+  'Has never successfully landed gracefully but remains wildly overconfident.',
+  'Considers themselves an excellent judge of character after seven seconds.',
+  'Wakes up each morning with the energy of someone who has never had a bad day.',
+  'Periodically loses track of own reflection and finds it deeply alarming.',
+  'Is beloved by exactly one particular frog, relationship unclear.',
+  'Takes unsolicited naps in unusually public locations.',
+  'Has successfully convinced several other ducks that they invented swimming.',
+];
+
+const ACTIVITIES = [
+  'Favourite pond activity: floating in silence and thinking important thoughts.',
+  'Spends most afternoons aggressively chasing their own shadow.',
+  'Their crowning hobby is competitive splashing (self-ranked world-class).',
+  'Peak happiness: a warm flat rock, overcast skies, absolute nothing to do.',
+  'Unwinds by dabbling dramatically, tail fully vertical, for an audience of none.',
+  'Favourite pastime: reorganising their corner of the reeds in ways nobody asked for.',
+  'Happiest while preening for an imaginary documentary crew.',
+  'Best day ever: shallow water, mild sunlight, and unlimited mosquitoes.',
+  'Recreational activity of choice: honking across the pond until someone honks back.',
+  'Enjoys an evening drift along the reeds, narrating it to themselves in third person.',
+  'Enthusiastically participates in every splash fight, win or lose.',
+  'Finds deep joy in locating the exact spot with the finest silt and standing there.',
+  'Favourite ritual: three laps of the pond at dawn, loudly and with purpose.',
+  'Passionately defends a particular patch of muddy bank as \'their area.\'',
+  'Greatest pleasure: the warm moment when sunlight hits the water just so.',
+];
+
+const DUCK_ICONS = ['🦆', '🦢', '🐥', '🐣', '🐤'];
+
+// ─────────────────────────────────────────────
+//  SEEDED PSEUDO-RANDOM (xorshift)
+// ─────────────────────────────────────────────
+
+function hashName(name) {
+  // djb2-style hash → 32-bit int
+  let h = 5381;
+  for (let i = 0; i < name.length; i++) {
+    h = ((h << 5) + h) ^ name.charCodeAt(i);
+    h = h >>> 0; // keep unsigned
+  }
+  return h;
+}
+
+function makeRng(seed) {
+  // xorshift32 with a salt so seed=0 works
+  let s = (seed >>> 0) | 0x12345678;
+  return function () {
+    s ^= s << 13; s = s >>> 0;
+    s ^= s >> 17; s = s >>> 0;
+    s ^= s << 5;  s = s >>> 0;
+    return (s >>> 0) / 0x100000000;
+  };
+}
+
+// ─────────────────────────────────────────────
+//  GENERATION
+// ─────────────────────────────────────────────
+
+let lastSeed = null; // for "try again" extra randomness
+
+function pick(arr, rng) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+function generateDuckName(rawName) {
+  // Blend name-hash seed with time so same name yields variation
+  const nameSeed = hashName(rawName.trim().toLowerCase() || 'duck');
+  const timeSalt = Date.now() & 0xffff; // low bits of current time
+  const blendSeed = (nameSeed ^ (timeSalt * 0x9e3779b9)) >>> 0;
+  lastSeed = blendSeed;
+  const rng = makeRng(blendSeed);
+
+  // Style bucket: 0=cute, 1=punny, 2=elegant — bias toward middle third of name hash
+  // but still random enough for variety
+  const stylePick = Math.floor(rng() * 3);
+  const styles = ['cute', 'punny', 'elegant'];
+  const style   = styles[stylePick];
+
+  let duckName;
+  if (style === 'cute') {
+    // e.g. "Sir Puddles McWaddle"
+    const title  = pick(CUTE_TITLES, rng);
+    const first  = pick(CUTE_FIRST,  rng);
+    const last   = pick(CUTE_LAST,   rng);
+    duckName = `${title} ${first} ${last}`;
+  } else if (style === 'punny') {
+    // e.g. "Duckie Chan" — use a pre-made punny combo or build one
+    if (rng() < 0.6) {
+      duckName = pick(PUNNY_COMBOS, rng);
+    } else {
+      const first = pick(PUNNY_FIRST, rng);
+      const last  = pick(CUTE_LAST, rng); // borrow for variety
+      duckName = `${first} ${last}`;
+    }
+  } else {
+    // e.g. "Lady Arabella Featherton"
+    const title = pick(ELEGANT_TITLES, rng);
+    const first = pick(ELEGANT_FIRST,  rng);
+    const last  = pick(ELEGANT_LAST,   rng);
+    duckName = `${title} ${first} ${last}`;
+  }
+
+  // Blurb: one temperament + one quirk + one activity
+  const temperament = pick(TEMPERAMENTS, rng);
+  const quirk       = pick(QUIRKS,       rng);
+  const activity    = pick(ACTIVITIES,   rng);
+  const blurb = `${duckName.split(' ')[Math.min(1, duckName.split(' ').length-1)]} is ${temperament}. ${quirk} ${activity}`;
+
+  // Duck icon — vary by style
+  const icon = style === 'elegant' ? '🦢' : style === 'punny' ? '🐤' : pick(DUCK_ICONS, rng);
+
+  return { duckName, style, blurb, icon };
+}
+
+// ─────────────────────────────────────────────
+//  UI
+// ─────────────────────────────────────────────
+
+const nameInput   = document.getElementById('nameInput');
+const generateBtn = document.getElementById('generateBtn');
+const resultWrap  = document.getElementById('resultWrap');
+const duckNameEl  = document.getElementById('duckName');
+const styleBadge  = document.getElementById('styleBadge');
+const blurbEl     = document.getElementById('blurb');
+const duckIconEl  = document.getElementById('duckIcon');
+const againBtn    = document.getElementById('againBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let currentName = '';
+let currentResult = null;
+
+function showResult(result) {
+  currentResult = result;
+  duckIconEl.textContent  = result.icon;
+  duckNameEl.textContent  = result.duckName;
+  blurbEl.textContent     = result.blurb;
+
+  styleBadge.textContent  = result.style === 'cute'    ? '✨ Cute & Whimsical'
+                           : result.style === 'punny'  ? '😄 Punny'
+                           :                             '👑 Elegant & Fancy';
+  styleBadge.className    = `style-badge ${result.style}`;
+
+  resultWrap.classList.add('visible');
+}
+
+function handleGenerate() {
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.focus();
+    nameInput.style.borderColor = '#e07070';
+    setTimeout(() => { nameInput.style.borderColor = ''; }, 1000);
+    return;
+  }
+  currentName = name;
+  showResult(generateDuckName(name));
+}
+
+generateBtn.addEventListener('click', handleGenerate);
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleGenerate(); });
+
+againBtn.addEventListener('click', () => {
+  if (currentName) showResult(generateDuckName(currentName));
+});
+
+// ─────────────────────────────────────────────
+//  CANVAS DOWNLOAD
+// ─────────────────────────────────────────────
+
+downloadBtn.addEventListener('click', () => {
+  if (!currentResult) return;
+  renderToCanvas(currentResult);
+});
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  // Returns array of lines actually rendered, for height calculation
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push({ text: line, x, y });
+      y += lineHeight;
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push({ text: line, x, y });
+  return lines;
+}
+
+function renderToCanvas(result) {
+  const canvas = document.getElementById('downloadCanvas');
+  const scale  = 2; // retina
+  const W = 520, H = 360;
+  canvas.width  = W * scale;
+  canvas.height = H * scale;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0,   '#f8f0e0');
+  bgGrad.addColorStop(1,   '#ede0c8');
+  ctx.fillStyle = bgGrad;
+
+  // Rounded rect background
+  roundRect(ctx, 0, 0, W, H, 22);
+  ctx.fill();
+
+  // Outer border
+  ctx.strokeStyle = '#e8c07a';
+  ctx.lineWidth   = 3;
+  roundRect(ctx, 2, 2, W-4, H-4, 20);
+  ctx.stroke();
+
+  // Inner decorative border
+  ctx.strokeStyle = 'rgba(201,149,74,0.3)';
+  ctx.lineWidth   = 1;
+  roundRect(ctx, 10, 10, W-20, H-20, 15);
+  ctx.stroke();
+
+  // Subtle top radial shimmer
+  const shimmer = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, H*0.7);
+  shimmer.addColorStop(0, 'rgba(255,255,255,0.22)');
+  shimmer.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = shimmer;
+  roundRect(ctx, 0, 0, W, H, 22);
+  ctx.fill();
+
+  // Decorative leaf corners
+  ctx.font = '20px serif';
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = '#4a7c6f';
+  ctx.fillText('🌿', 18, 36);
+  ctx.save();
+  ctx.translate(W - 18, H - 22);
+  ctx.scale(-1, 1);
+  ctx.fillText('🌿', 0, 0);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+
+  // Duck icon
+  ctx.font = '40px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(result.icon, W/2, 68);
+
+  // "Your duck name is" label
+  ctx.font = '11px Arial, sans-serif';
+  ctx.fillStyle = '#7a9990';
+  ctx.letterSpacing = '1.5px';
+  ctx.fillText('YOUR DUCK NAME IS', W/2, 92);
+
+  // Duck name
+  ctx.font = 'italic 30px Georgia, serif';
+  ctx.fillStyle = '#4a7c6f';
+  ctx.shadowColor = 'rgba(255,255,255,0.7)';
+  ctx.shadowBlur  = 4;
+  ctx.fillText(result.duckName, W/2, 132);
+  ctx.shadowBlur = 0;
+
+  // Style badge pill
+  const badgeW = 120, badgeH = 22, badgeX = W/2 - badgeW/2, badgeY = 142;
+  const badgeColors = {
+    cute:    { bg: '#ffe8f0', text: '#c4607a', border: '#f0b8cc' },
+    punny:   { bg: '#fff3d6', text: '#a07020', border: '#e8ca80' },
+    elegant: { bg: '#e8eef8', text: '#4060a0', border: '#b0c0e0' },
+  };
+  const bc = badgeColors[result.style];
+  ctx.fillStyle = bc.bg;
+  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 11);
+  ctx.fill();
+  ctx.strokeStyle = bc.border;
+  ctx.lineWidth = 1;
+  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 11);
+  ctx.stroke();
+
+  ctx.font = '9px Arial, sans-serif';
+  ctx.fillStyle = bc.text;
+  const badgeLabel = result.style === 'cute' ? '✨ CUTE & WHIMSICAL'
+                   : result.style === 'punny' ? '😄 PUNNY'
+                   : '👑 ELEGANT & FANCY';
+  ctx.fillText(badgeLabel, W/2, badgeY + 14.5);
+
+  // Divider line
+  const divGrad = ctx.createLinearGradient(W/2 - 40, 0, W/2 + 40, 0);
+  divGrad.addColorStop(0,   'rgba(232,192,122,0)');
+  divGrad.addColorStop(0.5, 'rgba(232,192,122,0.85)');
+  divGrad.addColorStop(1,   'rgba(232,192,122,0)');
+  ctx.fillStyle = divGrad;
+  ctx.fillRect(W/2 - 40, 174, 80, 1.5);
+
+  // Blurb
+  ctx.font = 'italic 11.5px Georgia, serif';
+  ctx.fillStyle = '#4a5e57';
+  ctx.textAlign = 'center';
+  const blurbLines = wrapText(ctx, result.blurb, W/2, 192, W - 80, 17);
+  for (const l of blurbLines) {
+    ctx.fillText(l.text, l.x, l.y);
+  }
+
+  // Bottom wave decoration
+  ctx.font = '14px serif';
+  ctx.fillStyle = 'rgba(106,171,152,0.45)';
+  ctx.fillText('〰〰〰〰〰〰〰', W/2, H - 22);
+
+  // Site tag
+  ctx.font = '9px Arial, sans-serif';
+  ctx.fillStyle = 'rgba(122,153,144,0.7)';
+  ctx.fillText('Duck Name Generator 🦆', W/2, H - 8);
+
+  // Trigger download
+  const link  = document.createElement('a');
+  link.href   = canvas.toDataURL('image/png');
+  link.download = `${result.duckName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+  link.click();
+}
+
+// Canvas rounded rectangle helper (works on all browsers, no Path2D reliance)
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>
