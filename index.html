@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Family Game Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1b1442;
+    --bg2: #2a1d63;
+    --card: #ffffff;
+    --ink: #1b1442;
+    --muted: #6b6290;
+    --accent: #ffcc33;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Fredoka', system-ui, sans-serif;
+    color: #fff;
+    background: radial-gradient(circle at 20% 0%, var(--bg2), var(--bg) 60%);
+    background-attachment: fixed;
+    min-height: 100dvh;
+  }
+
+  /* ---------- Menu ---------- */
+  #menu { max-width: 960px; margin: 0 auto; padding: 40px 16px 60px; }
+  header { text-align: center; margin-bottom: 36px; }
+  header h1 {
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    letter-spacing: 1px;
+    text-shadow: 0 4px 0 #0e0a26;
+  }
+  header h1 span { color: var(--accent); }
+  header p { color: #c9c0f2; font-size: 1.15rem; margin-top: 6px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: var(--card);
+    color: var(--ink);
+    border-radius: 22px;
+    overflow: hidden;
+    text-decoration: none;
+    box-shadow: 0 8px 0 #0e0a26;
+    transition: transform .15s ease, box-shadow .15s ease;
+    display: flex; flex-direction: column;
+  }
+  .card:hover, .card:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 0 #0e0a26;
+    outline: none;
+  }
+  .card:active { transform: translateY(2px); box-shadow: 0 4px 0 #0e0a26; }
+  .art {
+    height: 140px;
+    display: grid; place-items: center;
+    font-size: 72px;
+  }
+  .info { padding: 16px 18px 20px; }
+  .info h2 { font-size: 1.45rem; }
+  .info p { color: var(--muted); margin-top: 4px; line-height: 1.35; }
+  .tag {
+    display: inline-block; margin-top: 12px;
+    font-size: .85rem; padding: 3px 10px; border-radius: 99px;
+    background: #f0ecff; color: #5a3fd1;
+  }
+
+  /* ---------- Player ---------- */
+  #player {
+    position: fixed; inset: 0;
+    background: #000;
+    display: none;
+    z-index: 10;
+  }
+  #player.open { display: block; }
+  #player iframe { width: 100%; height: 100%; border: 0; display: block; }
+  #home {
+    position: fixed; z-index: 11;
+    top: calc(10px + env(safe-area-inset-top));
+    left: calc(10px + env(safe-area-inset-left));
+    font: 700 15px 'Fredoka', system-ui, sans-serif;
+    background: rgba(255,255,255,.92); color: var(--ink);
+    border: 0; border-radius: 99px;
+    padding: 8px 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.35);
+    cursor: pointer;
+    opacity: .55;
+    transition: opacity .15s;
+  }
+  #home:hover, #home:focus-visible { opacity: 1; }
+  body.playing { overflow: hidden; }
+  body.playing #menu { display: none; }
+</style>
+</head>
+<body>
+
+<main id="menu">
+  <header>
+    <h1>🎮 Family <span>Arcade</span></h1>
+    <p>Pick a game to play!</p>
+  </header>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div id="player">
+  <button id="home" type="button" aria-label="Back to menu">🏠 Menu</button>
+  <iframe id="frame" title="Game" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+</div>
+
+<script>
+  /*
+   * ADDING A NEW GAME:
+   *   1. Make a folder in games/ (e.g. games/my-new-game/) and put the game's
+   *      html in it as index.html (plus any files it needs).
+   *   2. Add an entry to this list. That's it — push to GitHub and the site updates.
+   */
+  const GAMES = [
+    {
+      id: 'mathlings',
+      title: 'Mathlings',
+      emoji: '👾',
+      color: 'linear-gradient(135deg,#0c1220,#3a2a7a)',
+      description: 'Blast the invaders by solving math problems.',
+      tag: 'Math',
+    },
+    {
+      id: 'math-hopper',
+      title: 'Math Hopper',
+      emoji: '🐥',
+      color: 'linear-gradient(135deg,#7ed957,#3fb5e8)',
+      description: 'Cross the road by answering math questions. Don\'t get squished!',
+      tag: 'Math',
+    },
+    {
+      id: 'math-hopper-3d',
+      title: 'Math Hopper 3D',
+      emoji: '🐤',
+      color: 'linear-gradient(135deg,#ffb347,#ff5f6d)',
+      description: 'The 3D version of Math Hopper.',
+      tag: 'Math · 3D',
+    },
+  ];
+
+  const grid = document.getElementById('grid');
+  const player = document.getElementById('player');
+  const frame = document.getElementById('frame');
+
+  for (const g of GAMES) {
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = '#' + g.id;
+    a.innerHTML = `
+      <div class="art" style="background:${g.color}">${g.emoji}</div>
+      <div class="info">
+        <h2></h2><p></p>${g.tag ? '<span class="tag"></span>' : ''}
+      </div>`;
+    a.querySelector('h2').textContent = g.title;
+    a.querySelector('p').textContent = g.description;
+    if (g.tag) a.querySelector('.tag').textContent = g.tag;
+    grid.appendChild(a);
+  }
+
+  // The URL hash decides what's on screen, so the browser Back button
+  // returns to the menu and each game has its own shareable link.
+  function route() {
+    const game = GAMES.find(g => '#' + g.id === location.hash);
+    if (game) {
+      frame.src = 'games/' + game.id + '/';
+      document.title = game.title + ' · Family Arcade';
+      player.classList.add('open');
+      document.body.classList.add('playing');
+      frame.addEventListener('load', () => frame.focus(), { once: true });
+    } else {
+      frame.src = 'about:blank';
+      document.title = 'Family Game Arcade';
+      player.classList.remove('open');
+      document.body.classList.remove('playing');
+    }
+  }
+
+  document.getElementById('home').addEventListener('click', () => {
+    location.hash = '';
+  });
+  window.addEventListener('hashchange', route);
+  route();
+</script>
+</body>
+</html>
