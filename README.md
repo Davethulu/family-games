@@ -8,6 +8,7 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Mathlings | `games/mathlings/` |
 | Math Hopper | `games/math-hopper/` |
 | Math Hopper 3D | `games/math-hopper-3d/` |
+| Word Miner (spelling) | `games/word-miner/` |
 | Duck Name Generator | `games/duck-names/` |
 
 ## Adding a game

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Word Miner ⛏️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ui: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+    --pix: "Press Start 2P", ui-monospace, monospace;
+    --gold: #ffd54a;
+    --green: #5ed25e;
+    --red: #ff5a4f;
+    --bs: 64px;   /* block size, set by JS */
+    --ss: 48px;   /* slot size, set by JS */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background-color: #241f1b;
+    background-size: 48px 48px;
+    image-rendering: pixelated;
+    color: #fff;
+    font-family: var(--ui);
+    font-weight: 800;
+    overflow: hidden;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  input, textarea, select { -webkit-user-select: text; user-select: text; font-family: var(--ui); font-size: 16px; }
+  button { font-family: inherit; font-weight: 900; border: 0; cursor: pointer; color: inherit; background: none; touch-action: manipulation; }
+  [hidden] { display: none !important; }
+
+  .screen {
+    position: fixed; inset: 0;
+    display: none; flex-direction: column; align-items: center;
+    padding: calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 14px);
+  }
+  .screen.on { display: flex; }
+  .col { width: 100%; max-width: 560px; display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Blocky buttons ---------- */
+  .mcbtn {
+    font-family: var(--pix); font-size: 14px; line-height: 1.2;
+    padding: 16px 20px; min-height: 52px;
+    background: #8b8b8b; color: #fff;
+    border: 3px solid #111;
+    box-shadow: inset -4px -5px 0 #555, inset 4px 4px 0 #bdbdbd;
+    text-shadow: 2px 2px 0 #333;
+  }
+  .mcbtn:active { transform: translateY(2px); }
+  .mcbtn.green { background: #3f8b2a; box-shadow: inset -4px -5px 0 #22541a, inset 4px 4px 0 #74c955; }
+  .mcbtn.gold  { background: #c9932a; box-shadow: inset -4px -5px 0 #7d5a14, inset 4px 4px 0 #ffd36b; }
+  .mcbtn.wide  { width: 100%; max-width: 320px; }
+  .mcbtn.off   { opacity: .45; }
+
+  .chip {
+    font-size: 16px; padding: 8px 12px; border-radius: 10px;
+    background: rgba(0,0,0,.45); border: 2px solid rgba(255,255,255,.12);
+    white-space: nowrap;
+  }
+
+  /* ---------- Title ---------- */
+  #title { justify-content: center; text-align: center; gap: 14px; }
+  .logo { display: flex; flex-direction: column; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .logo-row { display: flex; gap: 5px; }
+  .logo .blk { --bs: clamp(40px, 12vw, 58px); pointer-events: none; }
+  .tagline { font-size: 18px; color: #e9dcc8; max-width: 320px; line-height: 1.3; }
+  .linkbtn { font-size: 16px; color: #cbbfae; padding: 10px; text-decoration: underline; }
+  .note { font-size: 14px; color: #a99c8a; max-width: 300px; line-height: 1.35; }
+
+  /* ---------- Play ---------- */
+  .topbar { width: 100%; max-width: 560px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  body.in-arcade .topbar { padding-left: 86px; }  /* room for the arcade's Menu button */
+  body.in-arcade #btnParentBack { margin-left: 86px; }
+  .prompt { display: flex; gap: 8px; margin-top: 12px; width: 100%; max-width: 560px; }
+  .speak {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    background: #2f6db5; border: 3px solid #111;
+    box-shadow: inset -4px -5px 0 #1b4378, inset 4px 4px 0 #5b9be3;
+    font-size: 28px; padding: 8px 4px; min-height: 66px;
+  }
+  .speak span { font-size: 14px; }
+  .speak.main { flex: 1.6; background: #3f8b2a; box-shadow: inset -4px -5px 0 #22541a, inset 4px 4px 0 #74c955; }
+  .speak:active { transform: translateY(2px); }
+  .flash {
+    min-height: 0; font-size: 40px; letter-spacing: 2px; color: var(--gold);
+    text-shadow: 0 3px 0 #000; margin-top: 8px; height: 0; overflow: visible; text-align: center;
+  }
+  .flash.show { height: 52px; }
+
+  .craft {
+    width: 100%; max-width: 560px; margin-top: 12px;
+    background: #c6c6c6; border: 3px solid #111;
+    box-shadow: inset -4px -4px 0 #7a7a7a, inset 4px 4px 0 #fff;
+    padding: 10px; color: #3a3a3a;
+  }
+  .craft-label { font-family: var(--pix); font-size: 10px; margin-bottom: 8px; color: #404040; }
+  .slots { display: flex; justify-content: center; gap: 4px; flex-wrap: nowrap; }
+  .slot {
+    width: var(--ss); height: calc(var(--ss) * 1.15);
+    background: #8b8b8b;
+    box-shadow: inset 3px 3px 0 #373737, inset -3px -3px 0 #fff;
+    display: grid; place-items: center;
+    font-size: calc(var(--ss) * .68); color: #fff; line-height: 1;
+    text-shadow: 2px 2px 0 #3a3a3a;
+  }
+  .slot.filled { cursor: pointer; }
+  .slot.incoming { color: transparent; text-shadow: none; }
+  .slot.locked { background: #3f8b2a; box-shadow: inset 3px 3px 0 #22541a, inset -3px -3px 0 #8be36a; }
+  .slot.wrong  { background: #b3352c; animation: shake .4s; }
+  .slot.win    { background: #3f8b2a; animation: hop .5s ease both; }
+  .craft-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .craft-actions .mcbtn { flex: 1; padding: 12px 8px; }
+  #btnBack { flex: 0 0 76px; font-size: 18px; }
+  #btnCraft.ready { animation: pulse 1s ease-in-out infinite; }
+
+  .cave { flex: 1; min-height: 0; width: 100%; max-width: 560px; margin-top: 12px; display: grid; place-items: center; }
+  .grid { display: grid; gap: 6px; }
+
+  .blk {
+    width: var(--bs); height: var(--bs);
+    background-color: #7f7f7f; background-size: 100% 100%;
+    image-rendering: pixelated;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,.25), inset 3px 3px 0 rgba(255,255,255,.18);
+    display: grid; place-items: center;
+    font-size: calc(var(--bs) * .56); color: #fff; line-height: 1;
+    text-shadow: -2px 0 #111, 2px 0 #111, 0 -2px #111, 0 2px #111, 0 4px 0 #111;
+    position: relative;
+  }
+  .blk:active { transform: scale(.92); }
+  .blk.mined { box-shadow: inset 4px 4px 8px rgba(0,0,0,.6); border-color: #111; pointer-events: none; }
+  .blk.glow { animation: glow .8s ease-in-out infinite; z-index: 1; }
+
+  .px { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 50; }
+  .flyer {
+    position: fixed; z-index: 40; pointer-events: none;
+    display: grid; place-items: center; color: #fff; line-height: 1;
+    text-shadow: -2px 0 #111, 2px 0 #111, 0 -2px #111, 0 2px #111;
+  }
+
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  @keyframes hop { 0%{transform:translateY(0)} 40%{transform:translateY(-14px)} 100%{transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.3)} }
+  @keyframes glow { 0%,100%{ box-shadow: 0 0 0 3px var(--gold), 0 0 14px 4px rgba(255,213,74,.7);} 50%{ box-shadow: 0 0 0 5px var(--gold), 0 0 26px 10px rgba(255,213,74,.9);} }
+
+  /* ---------- World ---------- */
+  #world { background: #151210; gap: 14px; justify-content: center; }
+  #world .topbar { position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 16px; right: 16px; width: auto; margin: 0 auto; }
+  .world-title { font-family: var(--pix); font-size: 14px; color: var(--gold); text-align: center; line-height: 1.5; margin-top: 4px; }
+  .canvas-wrap { width: 100%; max-width: 720px; display: flex; justify-content: center; }
+  #worldCanvas { border: 3px solid #000; image-rendering: pixelated; }
+  .world-msg { font-size: 17px; color: #e9dcc8; text-align: center; max-width: 360px; line-height: 1.35; }
+
+  /* ---------- Parent ---------- */
+  #parent { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #f4efe6; color: #2b241d; font-weight: 700; }
+  #parent.on { display: block; }
+  #parent .col { margin: 0 auto; align-items: stretch; gap: 12px; padding-bottom: 40px; }
+  #parent .chip { background: #2b241d; color: #fff; border: 0; align-self: flex-start; }
+  #parent h2 { font-size: 22px; margin-top: 14px; }
+  #parent p, #parent label { font-size: 16px; line-height: 1.4; }
+  #parent code { background: #e4dccd; padding: 1px 5px; border-radius: 4px; }
+  #parent textarea, #parent input[type=text], #parent select {
+    width: 100%; padding: 12px; border: 2px solid #c9bda9; border-radius: 10px; background: #fff; color: #2b241d;
+  }
+  #parent textarea { min-height: 220px; line-height: 1.45; }
+  .pbtn { background: #2f6db5; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 16px; }
+  .pbtn.secondary { background: #e4dccd; color: #2b241d; }
+  .pbtn.danger { background: #fff; color: #b3352c; border: 2px solid #e2b4ae; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .saved { color: #2f7d22; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #eee4d4; }
+  th { background: #e9e1d2; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; }
+  .check input { width: 22px; height: 22px; margin-top: 1px; flex: none; }
+
+  /* ---------- Modal + toast ---------- */
+  .modal { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 16px; }
+  .modal.on { display: flex; }
+  .modal-box {
+    width: 100%; max-width: 380px; text-align: center;
+    background: #c6c6c6; color: #2f2f2f; border: 3px solid #111;
+    box-shadow: inset -5px -5px 0 #7a7a7a, inset 5px 5px 0 #fff;
+    padding: 22px 18px;
+  }
+  .modal-box h3 { font-family: var(--pix); font-size: 16px; line-height: 1.5; margin-bottom: 12px; color: #2f2f2f; }
+  .modal-box p { font-size: 18px; line-height: 1.4; margin: 6px 0; }
+  .modal-box .big { font-size: 44px; }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; align-items: center; }
+  .tricky { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
+  .tricky span { background: #fff; padding: 4px 10px; border-radius: 8px; font-size: 18px; }
+
+  #toast {
+    position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 64px); z-index: 70;
+    transform: translate(-50%, -20px); opacity: 0; transition: .25s;
+    background: rgba(0,0,0,.82); border: 2px solid var(--gold); color: #fff;
+    padding: 10px 16px; font-size: 18px; display: flex; align-items: center; gap: 10px; pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  #toast img { width: 28px; height: 28px; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+
+<!-- ===== Title ===== -->
+<section id="title" class="screen on">
+  <div class="logo" id="logo"></div>
+  <div class="tagline">Mine the letters. Spell the word. Build your world!</div>
+  <button class="mcbtn green wide" id="btnPlay">▶ PLAY</button>
+  <button class="mcbtn wide" id="btnWorld">🏠 MY WORLD</button>
+  <button class="linkbtn" id="btnParent">🔒 Grown-ups: spelling list</button>
+  <div class="note">🔊 Turn the sound up. The game says each word out loud.</div>
+</section>
+
+<!-- ===== Play ===== -->
+<section id="play" class="screen">
+  <div class="topbar">
+    <button class="chip" id="btnToWorld">🏠 <span id="buildPct">0%</span></button>
+    <div class="chip" id="roundInfo">Word 1 / 10</div>
+    <button class="chip" id="btnQuit" aria-label="Quit to title">✕</button>
+  </div>
+  <div class="prompt">
+    <button class="speak main" id="btnSay">🔊<span id="sayLabel">Hear word</span></button>
+    <button class="speak" id="btnSentence">💬<span>Sentence</span></button>
+    <button class="speak" id="btnHint">💡<span>Hint</span></button>
+  </div>
+  <div class="flash" id="flashWord"></div>
+  <div class="craft">
+    <div class="craft-label">CRAFTING TABLE</div>
+    <div class="slots" id="slots"></div>
+    <div class="craft-actions">
+      <button class="mcbtn" id="btnBack" aria-label="Remove last letter">⌫</button>
+      <button class="mcbtn green off" id="btnCraft">⚒ CRAFT</button>
+    </div>
+  </div>
+  <div class="cave" id="caveWrap"><div class="grid" id="grid"></div></div>
+</section>
+
+<!-- ===== World ===== -->
+<section id="world" class="screen">
+  <div class="topbar">
+    <button class="chip" id="btnWorldBack">← Back</button>
+    <div class="chip" id="worldInfo"></div>
+  </div>
+  <div class="world-title" id="worldTitle"></div>
+  <div class="canvas-wrap" id="canvasWrap"><canvas id="worldCanvas"></canvas></div>
+  <div class="world-msg" id="worldMsg"></div>
+  <button class="mcbtn gold wide" id="btnNextBuild" hidden>🏗 START NEXT BUILD</button>
+  <button class="mcbtn green wide" id="btnWorldPlay">⛏ KEEP MINING</button>
+</section>
+
+<!-- ===== Grown-ups ===== -->
+<section id="parent" class="screen">
+  <div class="col">
+    <button class="chip" id="btnParentBack">← Back to game</button>
+
+    <div id="gate">
+      <h2>Grown-ups only</h2>
+      <p id="gateQ"></p>
+      <div class="row">
+        <input type="text" id="gateA" inputmode="numeric" autocomplete="off" style="max-width:140px">
+        <button class="pbtn" id="gateGo">Enter</button>
+      </div>
+    </div>
+
+    <div id="panel" hidden>
+      <h2>Spelling list</h2>
+      <p>One word per line. To add a sentence the game reads aloud (great for <i>their / there</i>), put it after a dash:<br><code>their - The kids put on their shoes.</code></p>
+      <p id="listNote"></p>
+      <textarea id="listBox" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+      <div class="row">
+        <button class="pbtn" id="saveList">Save list</button>
+        <button class="pbtn secondary" id="useSample">Use sample 3rd-grade list</button>
+        <span class="saved" id="saveMsg"></span>
+      </div>
+
+      <h2>Settings</h2>
+      <label class="check"><input type="checkbox" id="setFlash"> <span>Easier: show the word for 3 seconds before spelling</span></label>
+      <label>Words per round
+        <select id="setRound"><option>5</option><option>10</option><option>15</option><option>20</option></select>
+      </label>
+
+      <h2>Progress</h2>
+      <p>⭐ Mastered = spelled right on the first try 3 times in a row. ⚠️ Tricky words come up more often.</p>
+      <table id="progTable"></table>
+      <div class="row" style="margin-top:6px">
+        <button class="pbtn danger" id="resetProg">Reset progress</button>
+        <button class="pbtn danger" id="resetWorld">Reset world</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box"><div id="modalBody"></div><div class="modal-btns" id="modalBtns"></div></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const KEY = 'wordminer_v1';
+
+if (window.self !== window.top) document.body.classList.add('in-arcade');
+
+/* ================= Word list ================= */
+const SAMPLE_LIST = `because - I wore a coat because it was cold.
+friend - My friend likes to play tag with me.
+people - Lots of people came to the party.
+again - Let's play that game again.
+before - Brush your teeth before bed.
+every - I read a book every night.
+together - We built the fort together.
+school - I ride the bus to school.
+around - The dog ran around the yard.
+thought - I thought it was going to rain.
+enough - Do we have enough snacks?
+always - I always wear my seatbelt.
+different - Every snowflake is different.
+laugh - That joke made me laugh.
+write - Please write your name on the paper.
+their - The kids put on their shoes.
+there - Put the box over there.
+which - Which color do you like best?
+caught - The cat caught a mouse.
+answer - I know the answer!`;
+
+function parseList(text) {
+  const out = [], seen = new Set();
+  const add = (w, s) => {
+    w = w.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z']/g, '').replace(/^'+|'+$/g, '');
+    if (!w || seen.has(w)) return;
+    seen.add(w); out.push({ w, s: (s || '').trim() });
+  };
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([^\-–—:]+?)\s*[\-–—:]\s+(.+)$/);
+    if (m && /\s/.test(m[2].trim())) add(m[1].trim(), m[2]);
+    else line.split(/[\s,;]+/).forEach(w => add(w));
+  }
+  return out;
+}
+const listToText = list => list.map(x => x.s ? `${x.w} - ${x.s}` : x.w).join('\n');
+
+/* ================= Saved state ================= */
+function fixup(j) {
+  j = j || {};
+  if (!Array.isArray(j.list) || !j.list.length) { j.list = parseList(SAMPLE_LIST); j.custom = false; }
+  j.stats = j.stats || {};
+  j.world = Object.assign({ map: 0, placed: 0, seen: 0, done: false, announced: true, extra: 0, built: 0 }, j.world || {});
+  j.settings = Object.assign({ flash: false, perRound: 10 }, j.settings || {});
+  return j;
+}
+function load() { try { return fixup(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return fixup(null); } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+let S = load();
+
+/* ================= Helpers ================= */
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const statOf = w => S.stats[w] || (S.stats[w] = { t: 0, p: 0, m: 0, k: 0 });
+
+/* ================= Pixel textures ================= */
+const TEX = {};
+function seeded(str) { let s = 0; for (const c of str) s = (s * 31 + c.charCodeAt(0)) >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function makeTex(type) {
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const g = c.getContext('2d'), r = seeded(type);
+  const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
+  const noise = (cols, y0 = 0, y1 = 8) => { for (let y = y0; y < y1; y++) for (let x = 0; x < 8; x++) px(x, y, cols[Math.floor(r() * cols.length)]); };
+  const sprite = (rows, pal) => rows.forEach((row, y) => [...row].forEach((ch, x) => { if (pal[ch]) px(x, y, pal[ch]); }));
+  switch (type) {
+    case 'stone': noise(['#7f7f7f', '#8a8a8a', '#747474', '#6b6b6b', '#959595']); break;
+    case 'cave':  noise(['#2b2724', '#312c28', '#26221f', '#36302b']); break;
+    case 'D': noise(['#866043', '#795539', '#6b4a30', '#966c4a']); break;
+    case 'G':
+      noise(['#866043', '#795539', '#6b4a30', '#966c4a']);
+      noise(['#5fa83a', '#6cbb44', '#4f9530', '#79c94f'], 0, 2);
+      for (let x = 0; x < 8; x++) if (r() < .5) px(x, 2, '#4f9530');
+      break;
+    case 'P':
+      noise(['#b8945f', '#ad8953', '#c29f69']);
+      for (let x = 0; x < 8; x++) { px(x, 3, '#7d5f35'); px(x, 7, '#7d5f35'); }
+      px(2, 1, '#7d5f35'); px(2, 2, '#7d5f35'); px(6, 5, '#7d5f35'); px(6, 6, '#7d5f35');
+      break;
+    case 'L':
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) px(x, y, ['#6b5133', '#5a432a', '#7a5c3a', '#5a432a'][(x + (r() < .2 ? 1 : 0)) % 4]);
+      break;
+    case 'W':
+      g.fillStyle = '#bfe8ff'; g.fillRect(0, 0, 8, 8);
+      g.fillStyle = '#7d5f35'; g.fillRect(0, 0, 8, 1); g.fillRect(0, 7, 8, 1); g.fillRect(0, 0, 1, 8); g.fillRect(7, 0, 1, 8);
+      px(2, 2, '#fff'); px(3, 2, '#fff'); px(2, 3, '#fff'); px(5, 4, '#e6f6ff');
+      break;
+    case 'R':
+      noise(['#8e3b2e', '#9c4536', '#823427']);
+      for (let x = 0; x < 8; x++) { px(x, 2, '#5e2219'); px(x, 5, '#5e2219'); }
+      px(3, 0, '#5e2219'); px(3, 1, '#5e2219'); px(7, 3, '#5e2219'); px(7, 4, '#5e2219'); px(1, 6, '#5e2219'); px(1, 7, '#5e2219');
+      break;
+    case 'C':
+      noise(['#8c8c8c', '#6e6e6e', '#a0a0a0', '#7a7a7a']);
+      [[2, 1], [5, 3], [1, 5], [6, 6], [3, 4]].forEach(([x, y]) => px(x, y, '#555'));
+      break;
+    case 'd':
+      noise(['#7a5230', '#6e4828', '#845a36']);
+      for (let y = 0; y < 8; y++) { px(0, y, '#4a3018'); px(7, y, '#4a3018'); px(3, y, '#5a3a1e'); }
+      px(5, 4, '#ffd54a');
+      break;
+    case 'T':
+      sprite(['...yy...', '..yoOy..', '...oo...', '...ss...', '...ss...', '...ss...', '...ss...', '...ss...'],
+             { y: '#ffe680', o: '#ff9a1f', O: '#fff3b0', s: '#6b4a2a' });
+      break;
+    case 'F':
+      sprite(['........', '..r.r...', '...y....', '..r.r...', '...g....', '.g.g....', '..gg....', '...g....'],
+             { r: '#e0322b', y: '#ffd54a', g: '#3f8f2f' });
+      break;
+    case 'Y':
+      sprite(['........', '...y....', '..yoy...', '...y....', '...g.g..', '...gg...', '...g....', '...g....'],
+             { y: '#ffd54a', o: '#e08a1f', g: '#3f8f2f' });
+      break;
+    case 'l':
+      noise(['#3f8f2f', '#367a28', '#4ea63a', '#2d6b22', '#3f8f2f']);
+      break;
+    case 'f':
+      sprite(['.pp..pp.', '.pp..pp.', 'pppppppp', '.pp..pp.', '.pp..pp.', 'pppppppp', '.pp..pp.', '.pp..pp.'],
+             { p: '#9c7a4b' });
+      break;
+    case 'A':
+      sprite(['........', '......b.', 'b....wwb', 'b...wkww', '.wwwwwwk', '.wwwwww.', '.w.w.w.w', '........'],
+             { w: '#ecdcbc', b: '#8a5a2b', k: '#1a1a1a' });
+      break;
+    case 'Q': // flag
+      sprite(['ssrrrr..', 'ssrrrrr.', 'ssrrrr..', 'ss......', 'ss......', 'ss......', 'ss......', 'ss......'],
+             { s: '#6b4a2a', r: '#d23a2f' });
+      break;
+  }
+  return c;
+}
+const tex = t => TEX[t] || (TEX[t] = makeTex(t));
+const texURL = {};
+const url = t => texURL[t] || (texURL[t] = tex(t).toDataURL());
+
+const ORE_COLORS = ['#ffd54a', '#5fe3e0', '#ff5a4f', '#7cff6b', '#c58cff', '#ff9a3c', '#6fa8ff'];
+const oreURL = {};
+function oreFor(ch) {
+  const color = ORE_COLORS[ch.charCodeAt(0) % ORE_COLORS.length];
+  if (oreURL[color]) return oreURL[color];
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const g = c.getContext('2d'); g.fillStyle = color;
+  [[1, 1], [2, 1], [5, 2], [6, 5], [1, 6], [2, 5], [6, 1]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
+  return (oreURL[color] = c.toDataURL());
+}
+function styleBlock(el, ch) { el.style.backgroundImage = `url(${oreFor(ch)}), url(${url('stone')})`; }
+document.body.style.backgroundImage = `url(${url('cave')})`;
+
+/* ================= Sound ================= */
+let AC = null;
+function ac() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(freq, dur, type = 'square', vol = .06, slide = 0, delay = 0) {
+  const a = ac(); if (!a) return;
+  const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+}
+function crunch(dur, vol, freq) {
+  const a = ac(); if (!a) return;
+  const n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = buf; f.type = 'lowpass'; f.frequency.value = freq; g.gain.value = vol;
+  s.connect(f).connect(g).connect(a.destination); s.start();
+}
+const sfx = {
+  mine()  { crunch(.09, .3, 1400); tone(170, .06, 'square', .03, -60); },
+  pop()   { tone(520, .08, 'triangle', .08, 300); },
+  good()  { [523, 659, 784, 1047].forEach((f, i) => tone(f, .14, 'square', .045, 0, i * .08)); },
+  bad()   { tone(170, .28, 'sawtooth', .05, -70); },
+  place() { crunch(.05, .15, 600); },
+  win()   { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .16, 'square', .045, 0, i * .1)); },
+};
+
+/* ================= Speech ================= */
+const HAS_TTS = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let voice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices();
+  voice = vs.find(v => /en[-_]US/i.test(v.lang) && /samantha/i.test(v.name))
+       || vs.find(v => /en[-_]US/i.test(v.lang) && v.localService)
+       || vs.find(v => /en[-_]US/i.test(v.lang))
+       || vs.find(v => /^en/i.test(v.lang)) || null;
+}
+if (HAS_TTS) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(parts) {
+  if (!HAS_TTS) return;
+  speechSynthesis.cancel();
+  for (const text of parts) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = .82; if (voice) u.voice = voice;
+    speechSynthesis.speak(u);
+  }
+}
+// iOS only allows audio + speech after a tap, so unlock both on the first touch.
+addEventListener('pointerdown', function unlock() {
+  ac();
+  if (HAS_TTS) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }
+  removeEventListener('pointerdown', unlock);
+});
+
+/* ================= Screens, toast, modal ================= */
+let current = 'title';
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  current = id;
+}
+let toastTimer;
+function toast(html) {
+  const t = $('toast'); t.innerHTML = html; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 1600);
+}
+function modal(html, buttons) {
+  $('modalBody').innerHTML = html;
+  const box = $('modalBtns'); box.innerHTML = '';
+  for (const b of buttons) {
+    const el = document.createElement('button');
+    el.className = 'mcbtn wide ' + (b.cls || '');
+    el.textContent = b.label;
+    el.onclick = () => { $('modal').classList.remove('on'); b.fn && b.fn(); };
+    box.appendChild(el);
+  }
+  $('modal').classList.add('on');
+}
+function burst(x, y, colors, n = 8) {
+  for (let k = 0; k < n; k++) {
+    const p = document.createElement('div');
+    p.className = 'px'; p.style.left = x + 'px'; p.style.top = y + 'px';
+    p.style.background = colors[k % colors.length];
+    document.body.appendChild(p);
+    const a = Math.random() * Math.PI * 2, d = 26 + Math.random() * 40;
+    p.animate([{ transform: 'translate(0,0)', opacity: 1 },
+               { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d + 34}px) rotate(${Math.random() * 180}deg)`, opacity: 0 }],
+              { duration: 420 + Math.random() * 220, easing: 'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => p.remove();
+    setTimeout(() => p.remove(), 900);  // in case the animation stalls (e.g. tab hidden)
+  }
+}
+
+/* ================= World maps ================= */
+// Each map is 24 columns x 12 rows sitting on 2 rows of ground. Built bottom-up,
+// one structure at a time (order = column ranges).
+const MAPS = [
+  { name: 'The House', night: false, order: [[4, 13], [14, 16], [17, 21], [0, 3], [22, 23]], rows: [
+    '........................',
+    '........................',
+    '..........C......lll....',
+    '.......RRRC.....lllll...',
+    '......RRRRRR....lllll...',
+    '.....RRRRRRRR...lllll...',
+    '....RRRRRRRRRR...lLl....',
+    '.....LPPPPPPL.....L.....',
+    '.....PWWPPWWP.....L.....',
+    '.....PWWPPWWP.....L.....',
+    '.....LPPPdPPL..T..L.....',
+    '.FY..LPPPdPPL..f.fLf..A.',
+  ]},
+  { name: 'The Castle', night: true, order: [[3, 20], [0, 2], [21, 23]], rows: [
+    '...Q............Q.......',
+    '...C.C.C........C.C.C...',
+    '...CCCCC........CCCCC...',
+    '...CCWCC........CCWCC...',
+    '...CCCCC.C.C.C..CCCCC...',
+    '...CCWCCCCCCCCCCCCWCC...',
+    '...CCCCCCCCCCCCCCCCCC...',
+    '...CCCCCCCCdddCCCCCCC...',
+    '...CCWCCCCCdddCCCCWCC...',
+    '...CCCCCCCCdddCCCCCCC...',
+    '.T.CCCCCCCCdddCCCCCCC.T.',
+    '.f.CCCCCCCCdddCCCCCCC.fA',
+  ]},
+  { name: 'The Treehouse', night: false, order: [[0, 23]], rows: [
+    '........................',
+    '.......lllllllll........',
+    '......lllllllllll.......',
+    '.....llllPPPPPllll......',
+    '.....lllPWPPWPPlll......',
+    '......llPPPdPPPll.......',
+    '.......PPPPLPPPP........',
+    '...........L............',
+    '.....f.....L.....F......',
+    '.....f.....L....Y.F.....',
+    '..F..f.....L.......A....',
+    '.FYF.fffffLLLfff.FYF....',
+  ]},
+];
+const tileCache = {};
+function mapTiles(mi) {
+  if (tileCache[mi]) return tileCache[mi];
+  const m = MAPS[mi], tiles = [];
+  m.rows.forEach((row, y) => [...row].forEach((t, x) => { if (t !== '.') tiles.push({ x, y, t }); }));
+  const grp = x => { const g = m.order.findIndex(([a, b]) => x >= a && x <= b); return g < 0 ? 99 : g; };
+  tiles.sort((a, b) => grp(a.x) - grp(b.x) || b.y - a.y || a.x - b.x);
+  return (tileCache[mi] = tiles);
+}
+function giveBlocks(n) {
+  const w = S.world, total = mapTiles(w.map).length;
+  if (w.done) { w.extra += n; return; }
+  w.placed += n;
+  if (w.placed >= total) { w.extra += w.placed - total; w.placed = total; w.done = true; w.announced = false; }
+}
+function startNextBuild() {
+  const w = S.world, extra = w.extra;
+  w.built++; w.map = (w.map + 1) % MAPS.length;
+  w.placed = 0; w.seen = 0; w.extra = 0; w.done = false; w.announced = true;
+  giveBlocks(extra);
+  save();
+}
+function buildPctText() {
+  const w = S.world;
+  return w.done ? '🏆' : Math.floor(w.placed / mapTiles(w.map).length * 100) + '%';
+}
+
+/* ================= World screen ================= */
+const COLS = 24, ROWS = 14;
+let worldRAF = 0;
+function drawSky(g, m, W, H, ts) {
+  const grad = g.createLinearGradient(0, 0, 0, H);
+  if (m.night) { grad.addColorStop(0, '#1d1b4a'); grad.addColorStop(.75, '#6a4a8c'); grad.addColorStop(1, '#e98d6b'); }
+  else { grad.addColorStop(0, '#6ec3ff'); grad.addColorStop(1, '#d4f0ff'); }
+  g.fillStyle = grad; g.fillRect(0, 0, W, H);
+  if (m.night) {
+    const r = seeded('stars'); g.fillStyle = '#fff';
+    for (let i = 0; i < 40; i++) g.fillRect(Math.floor(r() * W), Math.floor(r() * H * .55), 2, 2);
+    g.fillStyle = '#f4f1d8'; g.fillRect(ts * 1, ts * 1, ts * 1.5, ts * 1.5);
+  } else {
+    g.fillStyle = '#ffe766'; g.fillRect(ts * 1, ts * .8, ts * 1.6, ts * 1.6);
+    g.fillStyle = 'rgba(255,255,255,.9)';
+    [[5, 1.2, 3], [12, .6, 4], [20, 1.6, 3]].forEach(([x, y, w]) => { g.fillRect(x * ts, y * ts, w * ts, ts * .6); g.fillRect((x + .5) * ts, (y - .4) * ts, (w - 1) * ts, ts * .5); });
+  }
+}
+function drawWorld(animate) {
+  const cv = $('worldCanvas');
+  const avail = Math.min($('canvasWrap').clientWidth, 720);
+  const ts = Math.max(8, Math.floor(avail / COLS));
+  const W = ts * COLS, H = ts * ROWS, dpr = window.devicePixelRatio || 1;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false;
+
+  const w = S.world, m = MAPS[w.map], tiles = mapTiles(w.map), shown = w.placed;
+  const from = animate ? Math.min(w.seen, shown) : shown;
+  const n = shown - from, stagger = n ? Math.min(110, 2200 / n) : 0, dur = 300, t0 = performance.now();
+  let landed = 0;
+
+  cancelAnimationFrame(worldRAF);
+  const frame = now => {
+    drawSky(g, m, W, H, ts);
+    for (let x = 0; x < COLS; x++) { g.drawImage(tex('G'), x * ts, 12 * ts, ts, ts); g.drawImage(tex('D'), x * ts, 13 * ts, ts, ts); }
+    // Faint outline of what's still to build, so there's always a goal in sight.
+    g.globalAlpha = .16;
+    for (let i = shown; i < tiles.length; i++) g.drawImage(tex(tiles[i].t), tiles[i].x * ts, tiles[i].y * ts, ts, ts);
+    g.globalAlpha = 1;
+    let busy = false;
+    for (let i = 0; i < shown; i++) {
+      const t = tiles[i];
+      let y = t.y * ts, alpha = 1;
+      if (i >= from) {
+        const k = (now - t0 - (i - from) * stagger) / dur;
+        if (k < 1) {
+          busy = true;
+          if (k <= 0) continue;
+          const e = 1 - Math.pow(1 - k, 3);
+          y -= (1 - e) * ts * 3; alpha = Math.min(1, k * 2);
+        } else if (i - from >= landed) {
+          landed++;
+          if (n < 16 || landed % 3 === 0) sfx.place();
+        }
+      }
+      if (t.t === 'T' && m.night) {
+        const rg = g.createRadialGradient((t.x + .5) * ts, y + ts * .3, 1, (t.x + .5) * ts, y + ts * .3, ts * 2.2);
+        rg.addColorStop(0, 'rgba(255,200,80,.45)'); rg.addColorStop(1, 'rgba(255,200,80,0)');
+        g.fillStyle = rg; g.fillRect((t.x - 2) * ts, y - 2 * ts, ts * 5, ts * 5);
+      }
+      g.globalAlpha = alpha; g.drawImage(tex(t.t), t.x * ts, y, ts, ts); g.globalAlpha = 1;
+    }
+    if (busy) worldRAF = requestAnimationFrame(frame);
+    else if (w.seen !== shown) { w.seen = shown; save(); }
+  };
+  worldRAF = requestAnimationFrame(frame);
+}
+function openWorld() {
+  const w = S.world, total = mapTiles(w.map).length;
+  $('worldTitle').textContent = `BUILD #${w.built + 1}: ${MAPS[w.map].name.toUpperCase()}`;
+  $('worldInfo').textContent = `🧱 ${w.placed} / ${total}`;
+  $('btnNextBuild').hidden = !w.done;
+  $('worldMsg').textContent = w.done
+    ? `You finished ${MAPS[w.map].name.toLowerCase()}! Start the next build when you're ready.`
+    : w.placed === 0 ? 'Spell words to earn blocks. Every word you get right builds this up!'
+    : `${total - w.placed} more blocks to finish. Perfect words earn 4 blocks!`;
+  $('btnWorldPlay').textContent = R && R.idx < R.queue.length ? '⛏ BACK TO MINING' : '⛏ KEEP MINING';
+  show('world');
+  drawWorld(true);
+}
+
+/* ================= Round + word logic ================= */
+let R = null;   // current round
+let Wd = null;  // current word
+
+function buildRound() {
+  const n = S.settings.perRound;
+  const pri = it => { const st = S.stats[it.w] || {}; return ((st.k || 0) >= 3 ? 100 : 0) + (st.k || 0) * 10 - (st.m || 0) * 3 + Math.random() * 8; };
+  const ranked = S.list.slice().sort((a, b) => pri(a) - pri(b));
+  let q = ranked.slice(0, n);
+  while (q.length < n) q = q.concat(shuffle(S.list.slice()).slice(0, n - q.length));
+  q = shuffle(q);
+  for (let i = 1; i < q.length; i++) if (q[i].w === q[i - 1].w) {
+    for (let j = i + 1; j < q.length; j++) if (q[j].w !== q[i].w && q[j].w !== q[i - 1].w) { [q[i], q[j]] = [q[j], q[i]]; break; }
+  }
+  return q;
+}
+function startRound() {
+  R = { queue: buildRound(), idx: 0, requeued: new Set(), perfect: 0, done: 0, missed: [], blocks: 0 };
+  show('play');
+  startWord();
+}
+
+const CONFUSE = { a: 'eou', e: 'ai', i: 'ey', o: 'au', u: 'oa', c: 'ks', k: 'c', s: 'cz', b: 'd', d: 'bt', t: 'd', m: 'n', n: 'm',
+                  g: 'j', j: 'g', y: 'ie', f: 'v', v: 'f', w: 'u', h: 'w', r: 'w', p: 'b', q: 'k', x: 'z', z: 's', l: 'l' };
+function makeBlocks(word) {
+  const letters = [...word], cols = 5;
+  const total = Math.max(15, Math.ceil((letters.length + 4) / cols) * cols);
+  const need = total - letters.length, decoys = [];
+  for (const c of shuffle(letters.flatMap(ch => [...(CONFUSE[ch] || '')]))) { if (decoys.length >= Math.ceil(need * .6)) break; decoys.push(c); }
+  const common = 'aeiourstlnmdhcbgpwyk';
+  while (decoys.length < need) decoys.push(pick([...common]));
+  return shuffle(letters.concat(decoys));
+}
+
+function startWord(silent) {
+  const item = R.queue[R.idx];
+  Wd = {
+    item, word: item.w, attempts: 0, hinted: false, guided: false, hintSlot: -1, busy: false,
+    slots: [...item.w].map(() => ({ ch: null, from: -1, locked: false })),
+    blocks: makeBlocks(item.w).map(ch => ({ ch, mined: false })),
+  };
+  renderPlay();
+  if (silent) return;  // prepared while another screen is showing; spoken on return
+  if (S.settings.flash || !HAS_TTS) flashWord();
+  sayWord();
+}
+function resumePlay() {
+  show('play'); renderPlay();
+  if (S.settings.flash || !HAS_TTS) flashWord();
+  sayWord();
+}
+function sayWord() { say([Wd.word]); }
+function saySentence() { if (Wd.item.s) say([Wd.word, Wd.item.s, Wd.word]); }
+let flashTimer;
+function flashWord() {
+  const f = $('flashWord'); f.textContent = Wd.word; f.classList.add('show');
+  clearTimeout(flashTimer); flashTimer = setTimeout(() => { f.textContent = ''; f.classList.remove('show'); layoutPlay(); }, 3000);
+  layoutPlay();
+}
+
+const nextSlot = () => Wd.slots.findIndex(s => !s.ch && !s.locked);
+
+function renderPlay() {
+  $('roundInfo').textContent = `Word ${Math.min(R.idx + 1, R.queue.length)} / ${R.queue.length}`;
+  $('buildPct').textContent = buildPctText();
+  $('btnSentence').style.visibility = Wd.item.s ? 'visible' : 'hidden';
+  $('sayLabel').textContent = HAS_TTS ? 'Hear word' : 'Peek';
+  renderSlots(); renderGrid(); layoutPlay();
+}
+function renderSlots(incoming = -1) {
+  const box = $('slots'); box.innerHTML = '';
+  Wd.slots.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'slot' + (s.ch ? ' filled' : '') + (s.locked ? ' locked' : '') + (i === incoming ? ' incoming' : '');
+    el.textContent = s.ch || '';
+    el.dataset.i = i;
+    box.appendChild(el);
+  });
+  const full = Wd.slots.every(s => s.ch);
+  $('btnCraft').classList.toggle('off', !full);
+  $('btnCraft').classList.toggle('ready', full && !Wd.busy);
+}
+function renderGrid() {
+  const grid = $('grid'); grid.innerHTML = '';
+  Wd.blocks.forEach((b, i) => {
+    const el = document.createElement('button');
+    el.className = 'blk' + (b.mined ? ' mined' : '');
+    el.dataset.i = i;
+    if (b.mined) el.style.backgroundImage = `url(${url('cave')})`;
+    else { el.textContent = b.ch; styleBlock(el, b.ch); }
+    grid.appendChild(el);
+  });
+  updateGuide();
+}
+function updateGuide() {
+  document.querySelectorAll('#grid .glow').forEach(el => el.classList.remove('glow'));
+  const i = nextSlot();
+  if (i < 0 || !(Wd.guided || Wd.hintSlot === i)) return;
+  const bi = Wd.blocks.findIndex(b => !b.mined && b.ch === Wd.word[i]);
+  if (bi >= 0) $('grid').children[bi].classList.add('glow');
+}
+function layoutPlay() {
+  if (!Wd || current !== 'play') return;
+  const wrap = $('caveWrap'), grid = $('grid');
+  const cols = 5, rows = Math.ceil(Wd.blocks.length / cols), gap = 6;
+  const size = Math.floor(Math.min((wrap.clientWidth - gap * (cols - 1)) / cols, (wrap.clientHeight - gap * (rows - 1)) / rows, 84));
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${Math.max(size, 30)}px)`;
+  grid.style.setProperty('--bs', Math.max(size, 30) + 'px');
+  const n = Wd.word.length, slotsW = $('slots').clientWidth;
+  $('slots').style.setProperty('--ss', Math.floor(Math.min(54, (slotsW - 4 * (n - 1)) / n)) + 'px');
+}
+
+function fly(fromRect, toEl, ch, done) {
+  const f = document.createElement('div');
+  f.className = 'flyer'; f.textContent = ch;
+  Object.assign(f.style, { left: fromRect.left + 'px', top: fromRect.top + 'px', width: fromRect.width + 'px', height: fromRect.height + 'px', fontSize: fromRect.width * .56 + 'px' });
+  document.body.appendChild(f);
+  const tr = toEl.getBoundingClientRect();
+  const dx = tr.left + tr.width / 2 - (fromRect.left + fromRect.width / 2);
+  const dy = tr.top + tr.height / 2 - (fromRect.top + fromRect.height / 2);
+  const sc = tr.width / fromRect.width;
+  let finished = false;
+  const finish = () => { if (finished) return; finished = true; f.remove(); done && done(); };
+  f.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${sc})` }],
+            { duration: 260, easing: 'cubic-bezier(.3,.6,.4,1)' }).onfinish = finish;
+  setTimeout(finish, 450);  // in case the animation stalls (e.g. tab hidden)
+}
+
+function mineBlock(i) {
+  if (!Wd || Wd.busy) return;
+  const b = Wd.blocks[i];
+  if (!b || b.mined) return;
+  const si = nextSlot();
+  if (si < 0) { sfx.bad(); $('btnCraft').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }], 300); return; }
+  const el = $('grid').children[i], rect = el.getBoundingClientRect();
+  b.mined = true;
+  Object.assign(Wd.slots[si], { ch: b.ch, from: i });
+  sfx.mine();
+  burst(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#8a8a8a', '#6b6b6b', '#a0a0a0', '#555']);
+  renderGrid(); renderSlots(si);
+  fly(rect, $('slots').children[si], b.ch, () => { const s = $('slots').children[si]; s && s.classList.remove('incoming'); });
+}
+function unslot(i) {
+  if (!Wd || Wd.busy) return;
+  const s = Wd.slots[i];
+  if (!s || !s.ch || s.locked) return;
+  Wd.blocks[s.from].mined = false;
+  Object.assign(s, { ch: null, from: -1 });
+  sfx.pop(); renderSlots(); renderGrid();
+}
+function backspace() {
+  for (let i = Wd.slots.length - 1; i >= 0; i--) if (Wd.slots[i].ch && !Wd.slots[i].locked) return unslot(i);
+}
+function hint() {
+  if (!Wd || Wd.busy) return;
+  const i = nextSlot(); if (i < 0) return;
+  Wd.hinted = true; Wd.hintSlot = i; sfx.pop(); updateGuide();
+}
+
+function craft() {
+  if (!Wd || Wd.busy || Wd.slots.some(s => !s.ch)) return;
+  const word = Wd.word, wrong = [];
+  Wd.slots.forEach((s, i) => { if (s.ch === word[i]) s.locked = true; else wrong.push(i); });
+  if (!wrong.length) return success();
+
+  Wd.attempts++; Wd.busy = true; sfx.bad();
+  renderSlots();
+  wrong.forEach(i => $('slots').children[i].classList.add('wrong'));
+  setTimeout(() => {
+    wrong.forEach(i => {
+      const el = $('slots').children[i], r = el.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, ['#b3352c', '#7a1f18', '#ddd'], 6);
+      const s = Wd.slots[i]; Wd.blocks[s.from].mined = false; Object.assign(s, { ch: null, from: -1 });
+    });
+    if (Wd.attempts >= 2) Wd.guided = true;
+    Wd.busy = false;
+    renderSlots(); renderGrid();
+    toast(Wd.guided ? '✨ Follow the glowing blocks!' : '🟩 Green letters are right. Try the others!');
+    sayWord();
+  }, 750);
+}
+
+function success() {
+  Wd.busy = true;
+  const word = Wd.word, perfect = Wd.attempts === 0 && !Wd.hinted, st = statOf(word);
+  st.t++;
+  if (perfect) { st.p++; st.k++; R.perfect++; }
+  else {
+    st.m++; st.k = 0;
+    if (!R.missed.includes(word)) R.missed.push(word);
+    if (!R.requeued.has(word)) { R.requeued.add(word); R.queue.splice(Math.min(R.idx + 4, R.queue.length), 0, Wd.item); }
+  }
+  const earned = perfect ? 4 : 2;
+  const nextTile = mapTiles(S.world.map)[Math.min(S.world.placed, mapTiles(S.world.map).length - 1)];
+  giveBlocks(earned); R.blocks += earned; R.done++;
+  save();
+
+  sfx.good();
+  renderSlots();
+  [...$('slots').children].forEach((el, i) => { el.classList.add('win'); el.style.animationDelay = i * 50 + 'ms'; });
+  const r = $('slots').getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2, ['#5ed25e', '#ffd54a', '#fff', '#5fe3e0'], 14);
+  toast(`<img src="${url(nextTile ? nextTile.t : 'P')}" alt="">${perfect ? 'Perfect!' : 'You got it!'} +${earned} blocks`);
+  $('buildPct').textContent = buildPctText();
+  say([word, perfect ? pick(['Awesome!', 'Perfect!', 'Great spelling!', 'Nailed it!']) : pick(['You got it!', 'Nice work!'])]);
+  setTimeout(nextWord, 1500);
+}
+
+function nextWord() {
+  if (S.world.done && !S.world.announced) {
+    S.world.announced = true; save(); sfx.win();
+    modal(`<div class="big">🏆</div><h3>BUILD COMPLETE!</h3><p>You finished ${MAPS[S.world.map].name.toLowerCase()}!</p>`,
+      [{ label: '👀 SEE IT!', cls: 'gold', fn: () => { openWorld(); if (advance()) startWord(true); } },
+       { label: '⛏ KEEP MINING', cls: 'green', fn: () => { if (advance()) startWord(current !== 'play'); } }]);
+    return;
+  }
+  if (advance()) startWord(current !== 'play');
+}
+// Moves to the next word; returns false (and shows the summary) when the round is over.
+function advance() {
+  R.idx++;
+  if (R.idx < R.queue.length) return true;
+  endRound();
+  return false;
+}
+function endRound() {
+  sfx.win();
+  const tricky = R.missed.length
+    ? `<p>Practice these again:</p><div class="tricky">${R.missed.map(w => `<span>${w}</span>`).join('')}</div>`
+    : '<p>No mistakes. Amazing!</p>';
+  modal(`<div class="big">⛏️</div><h3>ROUND COMPLETE!</h3>
+    <p>⭐ ${R.perfect} perfect out of ${R.done} words</p><p>🧱 +${R.blocks} blocks for your world</p>${tricky}`,
+    [{ label: '🏠 SEE MY WORLD', cls: 'gold', fn: () => { R = null; openWorld(); } },
+     { label: '▶ PLAY AGAIN', cls: 'green', fn: startRound }]);
+}
+
+/* ================= Grown-ups ================= */
+let gateAnswer = 0;
+function openParent() {
+  const a = 11 + Math.floor(Math.random() * 9), b = 3 + Math.floor(Math.random() * 7);
+  gateAnswer = a * b;
+  $('gateQ').textContent = `What is ${a} × ${b}?`;
+  $('gateA').value = '';
+  $('gate').hidden = false; $('panel').hidden = true;
+  show('parent');
+}
+function openPanel() {
+  $('gate').hidden = true; $('panel').hidden = false;
+  $('listBox').value = listToText(S.list);
+  $('listNote').textContent = S.custom ? `${S.list.length} words in your list.` : 'This is a sample 3rd-grade list. Replace it with this week\'s words.';
+  $('setFlash').checked = S.settings.flash;
+  $('setRound').value = String(S.settings.perRound);
+  $('saveMsg').textContent = '';
+  renderProgress();
+}
+function renderProgress() {
+  const rows = S.list.map(({ w }) => {
+    const st = S.stats[w] || { t: 0, p: 0, m: 0, k: 0 };
+    let status = '—', rank = 2;
+    if ((st.k || 0) >= 3) { status = '⭐ Mastered'; rank = 3; }
+    else if (st.m > 0) { status = '⚠️ Tricky'; rank = 0; }
+    else if (st.t > 0) { status = 'Learning'; rank = 1; }
+    return { w, st, status, rank };
+  }).sort((a, b) => a.rank - b.rank || a.w.localeCompare(b.w));
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  $('progTable').innerHTML = '<tr><th>Word</th><th>Tries</th><th>1st try</th><th>Status</th></tr>' +
+    rows.map(r => `<tr><td>${esc(r.w)}</td><td>${r.st.t}</td><td>${r.st.p}</td><td>${r.status}</td></tr>`).join('');
+}
+
+/* ================= Wiring ================= */
+function buildLogo() {
+  const logo = $('logo');
+  for (const word of ['WORD', 'MINER']) {
+    const row = document.createElement('div'); row.className = 'logo-row';
+    for (const ch of word) { const b = document.createElement('div'); b.className = 'blk'; b.textContent = ch; styleBlock(b, ch.toLowerCase()); row.appendChild(b); }
+    logo.appendChild(row);
+  }
+}
+buildLogo();
+
+$('btnPlay').onclick = startRound;
+$('btnWorld').onclick = openWorld;
+$('btnParent').onclick = openParent;
+
+$('btnSay').onclick = () => { if (HAS_TTS) sayWord(); else flashWord(); };
+$('btnSentence').onclick = saySentence;
+$('btnHint').onclick = hint;
+$('btnBack').onclick = backspace;
+$('btnCraft').onclick = craft;
+$('grid').addEventListener('click', e => { const el = e.target.closest('.blk'); if (el) mineBlock(+el.dataset.i); });
+$('slots').addEventListener('click', e => { const el = e.target.closest('.slot'); if (el) unslot(+el.dataset.i); });
+$('btnToWorld').onclick = openWorld;
+$('btnQuit').onclick = () => { if (HAS_TTS) speechSynthesis.cancel(); show('title'); };
+
+$('btnWorldBack').onclick = () => { cancelAnimationFrame(worldRAF); show('title'); };
+$('btnWorldPlay').onclick = () => {
+  cancelAnimationFrame(worldRAF);
+  if (R && R.idx < R.queue.length && Wd) resumePlay();
+  else startRound();
+};
+$('btnNextBuild').onclick = () => { startNextBuild(); sfx.pop(); openWorld(); };
+
+$('btnParentBack').onclick = () => show('title');
+$('gateGo').onclick = () => { if (parseInt($('gateA').value, 10) === gateAnswer) openPanel(); else { $('gateA').value = ''; $('gateA').focus(); } };
+$('gateA').addEventListener('keydown', e => { if (e.key === 'Enter') $('gateGo').click(); });
+$('saveList').onclick = () => {
+  const list = parseList($('listBox').value);
+  if (!list.length) { $('saveMsg').textContent = 'Add at least one word.'; return; }
+  S.list = list; S.custom = true; R = null; save();
+  $('saveMsg').textContent = `✓ Saved ${list.length} words`;
+  $('listBox').value = listToText(S.list);
+  $('listNote').textContent = `${S.list.length} words in your list.`;
+  renderProgress();
+};
+$('useSample').onclick = () => { $('listBox').value = SAMPLE_LIST; $('saveMsg').textContent = 'Press Save to use it.'; };
+$('setFlash').onchange = e => { S.settings.flash = e.target.checked; save(); };
+$('setRound').onchange = e => { S.settings.perRound = parseInt(e.target.value, 10) || 10; R = null; save(); };
+$('resetProg').onclick = () => { if (confirm('Clear all spelling progress? (The world stays.)')) { S.stats = {}; save(); renderProgress(); } };
+$('resetWorld').onclick = () => { if (confirm('Start the world over from an empty plot?')) { S.world = fixup({}).world; save(); } };
+
+// Keyboard play, handy on a computer: type letters, Backspace, Enter.
+addEventListener('keydown', e => {
+  if (current !== 'play' || !Wd || $('modal').classList.contains('on')) return;
+  if (e.key === 'Backspace') { e.preventDefault(); backspace(); return; }
+  if (e.key === 'Enter') { craft(); return; }
+  const k = e.key.toLowerCase();
+  if (k.length === 1) { const i = Wd.blocks.findIndex(b => !b.mined && b.ch === k); if (i >= 0) mineBlock(i); }
+});
+
+addEventListener('resize', () => { if (current === 'play') layoutPlay(); else if (current === 'world') drawWorld(false); });
+</script>
+</body>
+</html>
