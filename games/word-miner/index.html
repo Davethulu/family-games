@@ -205,6 +205,74 @@
   }
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
   #toast img { width: 28px; height: 28px; image-rendering: pixelated; }
+
+  /* ---------- Pickaxe chip ---------- */
+  .chip.pick { display: flex; align-items: center; gap: 4px; padding: 5px 10px; }
+  .chip.pick img { width: 26px; height: 26px; image-rendering: pixelated; }
+  .chip.pick.l5 img { filter: drop-shadow(0 0 4px #c58cff) drop-shadow(0 0 8px #c58cff); }
+  .title-stats { font-size: 16px; color: #e9dcc8; }
+
+  /* ---------- Boss ---------- */
+  #bossPanel {
+    width: 100%; max-width: 560px; margin-top: 10px;
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(90, 10, 5, .6); border: 3px solid #111; padding: 6px 12px;
+  }
+  .boss-emoji { font-size: 50px; line-height: 1; }
+  .boss-info { flex: 1; }
+  .boss-name { font-family: var(--pix); font-size: 11px; color: #ffb3ad; margin-bottom: 6px; line-height: 1.4; }
+  .hp { height: 16px; background: #2a0d0b; border: 2px solid #111; }
+  #bossHp { height: 100%; width: 100%; background: linear-gradient(#ff6b5e, #c4271c); transition: width .4s; }
+  .dmg { position: fixed; z-index: 55; font-size: 34px; pointer-events: none; }
+
+  /* ---------- TNT ---------- */
+  .craft.tnt { background: #ffd9d4; box-shadow: inset -4px -4px 0 #b3352c, inset 4px 4px 0 #fff; }
+  .tnt-label { font-size: 15px; color: #b3352c; margin-bottom: 6px; }
+  .fuse { height: 14px; background: #3a3a3a; border: 2px solid #111; margin-bottom: 8px; }
+  #fuse { height: 100%; width: 100%; background: linear-gradient(90deg, #ff5a1f, #ffd54a); }
+
+  /* ---------- Effects ---------- */
+  #banner {
+    position: fixed; left: 50%; top: 36%; z-index: 80; pointer-events: none; opacity: 0;
+    font-family: var(--pix); font-size: clamp(16px, 5.4vw, 26px); color: var(--gold);
+    text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+    white-space: nowrap; text-align: center;
+  }
+  #banner.on { animation: bannerPop 1.5s ease forwards; }
+  @keyframes bannerPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+    15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    25%  { transform: translate(-50%, -50%) scale(1); }
+    80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+  }
+  #fx { position: fixed; inset: 0; z-index: 75; pointer-events: none; opacity: 0; }
+
+  /* ---------- Chests + collection ---------- */
+  .chest-img { width: 120px; height: 120px; image-rendering: pixelated; cursor: pointer; display: block; margin: 8px auto; }
+  .chest-img.wiggle { animation: wiggle 1.1s ease-in-out infinite; }
+  @keyframes wiggle { 0%,55%,100% { transform: rotate(0) } 65% { transform: rotate(-9deg) } 75% { transform: rotate(9deg) } 85% { transform: rotate(-5deg) } }
+  .loot-item {
+    font-size: 80px; line-height: 1; width: 140px; height: 140px; margin: 4px auto;
+    display: grid; place-items: center; border-radius: 50%;
+    animation: lootPop .6s cubic-bezier(.2, 1.6, .4, 1) both;
+  }
+  @keyframes lootPop { 0% { transform: scale(0) rotate(-30deg); } 100% { transform: scale(1) rotate(0); } }
+  .loot-item.common    { background: radial-gradient(circle, rgba(255,255,255,.9), transparent 70%); }
+  .loot-item.rare      { background: radial-gradient(circle, rgba(74,163,255,.9), transparent 70%); }
+  .loot-item.epic      { background: radial-gradient(circle, rgba(181,108,255,.95), transparent 70%); }
+  .loot-item.legendary { background: radial-gradient(circle, rgba(255,194,58,1), transparent 70%); }
+  .rarity { font-family: var(--pix); font-size: 12px; margin-top: 2px; }
+
+  #book { overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 12px; background: #151210; }
+  .book-count { font-size: 16px; color: #e9dcc8; }
+  .book-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 520px; }
+  .card { background: #2a2420; border: 3px solid var(--rc); padding: 8px 2px 6px; text-align: center; }
+  .card .e { font-size: 34px; line-height: 1.15; }
+  .card .n { font-size: 12px; color: #e9dcc8; margin-top: 3px; line-height: 1.2; }
+  .card.locked .e { filter: brightness(0) opacity(.4); }
+  .card.locked .n { color: #6d6257; }
+  .card .x { font-size: 11px; color: #a99c8a; }
 </style>
 </head>
 <body>
@@ -215,6 +283,8 @@
   <div class="tagline">Mine the letters. Spell the word. Build your world!</div>
   <button class="mcbtn green wide" id="btnPlay">▶ PLAY</button>
   <button class="mcbtn wide" id="btnWorld">🏠 MY WORLD</button>
+  <button class="mcbtn wide" id="btnBook">📖 COLLECTION</button>
+  <div class="title-stats" id="titleStats"></div>
   <button class="linkbtn" id="btnParent">🔒 Grown-ups: spelling list</button>
   <div class="note">🔊 Turn the sound up. The game says each word out loud.</div>
 </section>
@@ -223,8 +293,13 @@
 <section id="play" class="screen">
   <div class="topbar">
     <button class="chip" id="btnToWorld">🏠 <span id="buildPct">0%</span></button>
-    <div class="chip" id="roundInfo">Word 1 / 10</div>
+    <div class="chip pick" id="pickChip"></div>
+    <div class="chip" id="roundInfo">1/10</div>
     <button class="chip" id="btnQuit" aria-label="Quit to title">✕</button>
+  </div>
+  <div id="bossPanel" hidden>
+    <div class="boss-emoji" id="bossEmoji"></div>
+    <div class="boss-info"><div class="boss-name" id="bossName"></div><div class="hp"><div id="bossHp"></div></div></div>
   </div>
   <div class="prompt">
     <button class="speak main" id="btnSay">🔊<span id="sayLabel">Hear word</span></button>
@@ -232,7 +307,11 @@
     <button class="speak" id="btnHint">💡<span>Hint</span></button>
   </div>
   <div class="flash" id="flashWord"></div>
-  <div class="craft">
+  <div class="craft" id="craftBox">
+    <div id="tntBar" hidden>
+      <div class="tnt-label">🧨 TNT WORD! Spell it before the fuse burns out!</div>
+      <div class="fuse"><div id="fuse"></div></div>
+    </div>
     <div class="craft-label">CRAFTING TABLE</div>
     <div class="slots" id="slots"></div>
     <div class="craft-actions">
@@ -247,6 +326,7 @@
 <section id="world" class="screen">
   <div class="topbar">
     <button class="chip" id="btnWorldBack">← Back</button>
+    <button class="chip" id="btnWorldBook">📖</button>
     <div class="chip" id="worldInfo"></div>
   </div>
   <div class="world-title" id="worldTitle"></div>
@@ -254,6 +334,19 @@
   <div class="world-msg" id="worldMsg"></div>
   <button class="mcbtn gold wide" id="btnNextBuild" hidden>🏗 START NEXT BUILD</button>
   <button class="mcbtn green wide" id="btnWorldPlay">⛏ KEEP MINING</button>
+</section>
+
+<!-- ===== Collection ===== -->
+<section id="book" class="screen">
+  <div class="topbar">
+    <button class="chip" id="btnBookBack">← Back</button>
+    <div class="chip" id="bookGems">💎 0</div>
+  </div>
+  <div class="world-title">COLLECTION</div>
+  <div class="book-count" id="bookCount"></div>
+  <div class="book-grid" id="bookGrid"></div>
+  <button class="mcbtn gold wide" id="btnBuyChest">🎁 OPEN A CHEST: 10 💎</button>
+  <div class="note">Pets you find live in your world. Doubles turn into diamonds.</div>
 </section>
 
 <!-- ===== Grown-ups ===== -->
@@ -294,12 +387,24 @@
         <button class="pbtn danger" id="resetProg">Reset progress</button>
         <button class="pbtn danger" id="resetWorld">Reset world</button>
       </div>
+
+      <h2>Backup</h2>
+      <p>Progress (words, builds, pickaxe, collection) is saved on this device only. To move it to another device, or restore it if it's ever lost, copy this code and paste it back in with Restore.</p>
+      <textarea id="backupBox" spellcheck="false" autocapitalize="off" autocorrect="off" style="min-height:90px"></textarea>
+      <div class="row">
+        <button class="pbtn secondary" id="makeBackup">Show my code</button>
+        <button class="pbtn secondary" id="copyBackup">Copy</button>
+        <button class="pbtn" id="restoreBackup">Restore from code</button>
+        <span class="saved" id="backupMsg"></span>
+      </div>
     </div>
   </div>
 </section>
 
 <div class="modal" id="modal"><div class="modal-box"><div id="modalBody"></div><div class="modal-btns" id="modalBtns"></div></div></div>
 <div id="toast"></div>
+<div id="banner"></div>
+<div id="fx"></div>
 
 <script>
 'use strict';
@@ -355,6 +460,10 @@ function fixup(j) {
   j.stats = j.stats || {};
   j.world = Object.assign({ map: 0, placed: 0, seen: 0, done: false, announced: true, extra: 0, built: 0 }, j.world || {});
   j.settings = Object.assign({ flash: false, perRound: 10 }, j.settings || {});
+  j.pick = Object.assign({ level: 0, streak: 0, best: 0 }, j.pick || {});
+  j.gems = j.gems || 0;
+  j.items = j.items || {};
+  j.bossN = j.bossN || 0;
   return j;
 }
 function load() { try { return fixup(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return fixup(null); } }
@@ -365,6 +474,63 @@ let S = load();
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const statOf = w => S.stats[w] || (S.stats[w] = { t: 0, p: 0, m: 0, k: 0 });
+
+/* ================= Pickaxes, loot, bosses ================= */
+// Two perfect words in a row upgrade the pickaxe; a miss knocks it down one level.
+const PICKS = [
+  { name: 'Wooden',    color: '#b08452', dark: '#6b4a2a' },
+  { name: 'Stone',     color: '#a3a3a3', dark: '#5e5e5e' },
+  { name: 'Iron',      color: '#f0f0f0', dark: '#a0a0a0' },
+  { name: 'Gold',      color: '#ffd54a', dark: '#c99a1c' },
+  { name: 'Diamond',   color: '#5fe3e0', dark: '#1fa5a2' },
+  { name: 'Enchanted', color: '#d7a6ff', dark: '#8a4ae0' },
+];
+const ITEMS = [
+  { id: 'chicken', e: '🐔', n: 'Chicken', r: 'common', pet: 1 },
+  { id: 'pig', e: '🐷', n: 'Pig', r: 'common', pet: 1 },
+  { id: 'sheep', e: '🐑', n: 'Sheep', r: 'common', pet: 1 },
+  { id: 'cow', e: '🐮', n: 'Cow', r: 'common', pet: 1 },
+  { id: 'frog', e: '🐸', n: 'Frog', r: 'common', pet: 1 },
+  { id: 'bee', e: '🐝', n: 'Bee', r: 'common', pet: 1, fly: 1 },
+  { id: 'apple', e: '🍎', n: 'Apple', r: 'common' },
+  { id: 'pumpkin', e: '🎃', n: 'Pumpkin', r: 'common' },
+  { id: 'cake', e: '🍰', n: 'Cake', r: 'common' },
+  { id: 'sunflower', e: '🌻', n: 'Sunflower', r: 'common' },
+  { id: 'dog', e: '🐶', n: 'Puppy', r: 'rare', pet: 1 },
+  { id: 'cat', e: '🐱', n: 'Kitten', r: 'rare', pet: 1 },
+  { id: 'fox', e: '🦊', n: 'Fox', r: 'rare', pet: 1 },
+  { id: 'turtle', e: '🐢', n: 'Turtle', r: 'rare', pet: 1 },
+  { id: 'parrot', e: '🦜', n: 'Parrot', r: 'rare', pet: 1, fly: 1 },
+  { id: 'compass', e: '🧭', n: 'Compass', r: 'rare' },
+  { id: 'lantern', e: '🏮', n: 'Lantern', r: 'rare' },
+  { id: 'wolf', e: '🐺', n: 'Wolf', r: 'epic', pet: 1 },
+  { id: 'panda', e: '🐼', n: 'Panda', r: 'epic', pet: 1 },
+  { id: 'octopus', e: '🐙', n: 'Octopus', r: 'epic', pet: 1 },
+  { id: 'potion', e: '🧪', n: 'Magic Potion', r: 'epic' },
+  { id: 'spellbook', e: '📕', n: 'Spell Book', r: 'epic' },
+  { id: 'dragon', e: '🐉', n: 'Dragon', r: 'legendary', pet: 1, fly: 1 },
+  { id: 'unicorn', e: '🦄', n: 'Unicorn', r: 'legendary', pet: 1 },
+  { id: 'crown', e: '👑', n: 'Golden Crown', r: 'legendary' },
+];
+const RARITY_COLOR = { common: '#b5b5b5', rare: '#4aa3ff', epic: '#b56cff', legendary: '#ffc23a' };
+const DUP_GEMS = { common: 3, rare: 6, epic: 12, legendary: 25 };
+const CHEST_ODDS = {
+  normal: { common: 60, rare: 28, epic: 10, legendary: 2 },
+  tnt:    { common: 40, rare: 37, epic: 18, legendary: 5 },
+  bought: { common: 50, rare: 32, epic: 14, legendary: 4 },
+  boss:   { common: 20, rare: 42, epic: 28, legendary: 10 },
+};
+const BOSSES = [
+  { e: '🕷️', n: 'Cave Spider' }, { e: '🧟', n: 'Zombie' }, { e: '💀', n: 'Skeleton' },
+  { e: '🦇', n: 'Bat Swarm' }, { e: '👹', n: 'Cave Troll' }, { e: '🐉', n: 'Cave Dragon' },
+];
+function rollItem(kind) {
+  const odds = CHEST_ODDS[kind] || CHEST_ODDS.normal;
+  let roll = Math.random() * 100, rarity = 'common';
+  for (const [r, w] of Object.entries(odds)) { if ((roll -= w) < 0) { rarity = r; break; } }
+  const pool = ITEMS.filter(i => i.r === rarity), fresh = pool.filter(i => !S.items[i.id]);
+  return fresh.length && Math.random() < .75 ? pick(fresh) : pick(pool);
+}
 
 /* ================= Pixel textures ================= */
 const TEX = {};
@@ -434,6 +600,12 @@ function makeTex(type) {
       sprite(['........', '......b.', 'b....wwb', 'b...wkww', '.wwwwwwk', '.wwwwww.', '.w.w.w.w', '........'],
              { w: '#ecdcbc', b: '#8a5a2b', k: '#1a1a1a' });
       break;
+    case 'chest': case 'chestGold': {
+      const gold = type === 'chestGold';
+      sprite(['........', '.bbbbbb.', 'bwwwwwwb', 'bbbbbbbb', 'bwwggwwb', 'bwwggwwb', 'bwwwwwwb', 'bbbbbbbb'],
+             { w: gold ? '#e2b236' : '#a8742f', b: gold ? '#7a5a10' : '#4a2f14', g: gold ? '#fff3b0' : '#ffd54a' });
+      break;
+    }
     case 'Q': // flag
       sprite(['ssrrrr..', 'ssrrrrr.', 'ssrrrr..', 'ss......', 'ss......', 'ss......', 'ss......', 'ss......'],
              { s: '#6b4a2a', r: '#d23a2f' });
@@ -442,6 +614,16 @@ function makeTex(type) {
   return c;
 }
 const tex = t => TEX[t] || (TEX[t] = makeTex(t));
+const pickURLs = {};
+function pickURL(level) {
+  if (pickURLs[level]) return pickURLs[level];
+  const p = PICKS[level], c = document.createElement('canvas'); c.width = c.height = 8;
+  const g = c.getContext('2d');
+  const rows = ['.hhhhh..', 'h...hHh.', '....sHH.', '...s.hH.', '..s...h.', '.s......', 's.......', '........'];
+  const pal = { h: p.color, H: p.dark, s: '#6b4a2a' };
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); } }));
+  return (pickURLs[level] = c.toDataURL());
+}
 const texURL = {};
 const url = t => texURL[t] || (texURL[t] = tex(t).toDataURL());
 
@@ -482,7 +664,16 @@ function crunch(dur, vol, freq) {
   s.connect(f).connect(g).connect(a.destination); s.start();
 }
 const sfx = {
-  mine()  { crunch(.09, .3, 1400); tone(170, .06, 'square', .03, -60); },
+  mine(l = 0) { crunch(.09, .3, 1400 + l * 350); tone(170 + l * 45, .06, 'square', .03, -60); if (l >= 4) tone(1800 + l * 100, .08, 'sine', .03); },
+  levelUp() { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .12, 'square', .05, 0, i * .06)); },
+  hit()   { crunch(.15, .45, 900); tone(110, .2, 'square', .07, -50); },
+  roar()  { tone(220, .5, 'sawtooth', .07, -160); crunch(.3, .15, 400); },
+  boom()  { crunch(.9, .7, 500); tone(70, .7, 'sine', .3, -40); },
+  tick()  { tone(1200, .03, 'square', .04); },
+  fuse()  { crunch(.45, .08, 4000); },
+  fizzle(){ crunch(.35, .12, 3000); tone(300, .3, 'triangle', .04, -200); },
+  chest() { [784, 988, 1175, 1568].forEach((f, i) => tone(f, .18, 'triangle', .07, 0, i * .09)); },
+  gem()   { tone(1568, .1, 'sine', .08); tone(2093, .15, 'sine', .06, 0, .08); },
   pop()   { tone(520, .08, 'triangle', .08, 300); },
   good()  { [523, 659, 784, 1047].forEach((f, i) => tone(f, .14, 'square', .045, 0, i * .08)); },
   bad()   { tone(170, .28, 'sawtooth', .05, -70); },
@@ -522,6 +713,43 @@ let current = 'title';
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   current = id;
+  if (id !== 'world') cancelAnimationFrame(worldRAF);
+  if (id === 'title') refreshTitle();
+}
+function refreshTitle() {
+  const found = ITEMS.filter(i => S.items[i.id]).length;
+  $('titleStats').textContent = `💎 ${S.gems}  ·  ⛏ ${PICKS[S.pick.level].name}  ·  📖 ${found}/${ITEMS.length}`;
+}
+let bannerTimer;
+function banner(text, color) {
+  const b = $('banner');
+  b.textContent = text; b.style.color = color || '';
+  b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+  clearTimeout(bannerTimer); bannerTimer = setTimeout(() => b.classList.remove('on'), 1500);
+}
+function flashFx(color) {
+  const f = $('fx'); f.style.background = color || '#fff';
+  f.animate([{ opacity: .75 }, { opacity: 0 }], { duration: 380, easing: 'ease-out' });
+}
+function shake(strength = 8) {
+  const s = strength;
+  document.querySelector('.screen.on').animate(
+    [{ transform: 'translate(0,0)' }, { transform: `translate(${-s}px,${s / 2}px)` }, { transform: `translate(${s}px,${-s / 2}px)` },
+     { transform: `translate(${-s / 2}px,${s / 3}px)` }, { transform: `translate(${s / 2}px,0)` }, { transform: 'translate(0,0)' }],
+    { duration: 380 });
+}
+function floatAt(el, text) {
+  const r = el.getBoundingClientRect(), d = document.createElement('div');
+  d.className = 'dmg'; d.textContent = text;
+  d.style.left = r.left + r.width / 2 - 17 + 'px'; d.style.top = r.top + 'px';
+  document.body.appendChild(d);
+  d.animate([{ transform: 'translateY(0) scale(.6)', opacity: 1 }, { transform: 'translateY(-60px) scale(1.3)', opacity: 0 }], { duration: 800, easing: 'ease-out' })
+   .onfinish = () => d.remove();
+  setTimeout(() => d.remove(), 1200);
+}
+function runEvents(list, done) {
+  if (!list.length) return done();
+  list.shift()(() => runEvents(list, done));
 }
 let toastTimer;
 function toast(html) {
@@ -690,10 +918,32 @@ function drawWorld(animate) {
       }
       g.globalAlpha = alpha; g.drawImage(tex(t.t), t.x * ts, y, ts, ts); g.globalAlpha = 1;
     }
-    if (busy) worldRAF = requestAnimationFrame(frame);
-    else if (w.seen !== shown) { w.seen = shown; save(); }
+    drawPets(g, ts, now);
+    if (!busy && w.seen !== shown) { w.seen = shown; save(); }
+    if (current === 'world') worldRAF = requestAnimationFrame(frame);  // keep pets moving
   };
   worldRAF = requestAnimationFrame(frame);
+}
+// Pets from the collection wander along the ground (fliers bob in the sky).
+function drawPets(g, ts, now) {
+  const pets = ITEMS.filter(i => i.pet && S.items[i.id]);
+  if (!pets.length) return;
+  g.save();
+  g.font = `${Math.round(ts * 1.25)}px "Apple Color Emoji","Segoe UI Emoji",sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'bottom';
+  pets.forEach((p, i) => {
+    const speed = 2600 + (i * 397) % 1500, phase = i * 1.7;
+    const home = (2 + (i * 7) % 20) * ts, range = ts * (1.5 + (i % 3));
+    const x = home + Math.sin(now / speed + phase) * range;
+    const goingRight = Math.cos(now / speed + phase) > 0;
+    const y = p.fly ? (2.5 + (i % 3)) * ts + Math.sin(now / 500 + phase) * ts * .4
+                    : 12 * ts + ts * .1 - Math.abs(Math.sin(now / 180 + phase)) * ts * .12;
+    g.save(); g.translate(x, y);
+    if (goingRight) g.scale(-1, 1);  // emoji face left; flip when walking right
+    g.fillText(p.e, 0, 0);
+    g.restore();
+  });
+  g.restore();
 }
 function openWorld() {
   const w = S.world, total = mapTiles(w.map).length;
@@ -703,8 +953,8 @@ function openWorld() {
   $('worldMsg').textContent = w.done
     ? `You finished ${MAPS[w.map].name.toLowerCase()}! Start the next build when you're ready.`
     : w.placed === 0 ? 'Spell words to earn blocks. Every word you get right builds this up!'
-    : `${total - w.placed} more blocks to finish. Perfect words earn 4 blocks!`;
-  $('btnWorldPlay').textContent = R && R.idx < R.queue.length ? '⛏ BACK TO MINING' : '⛏ KEEP MINING';
+    : `${total - w.placed} more blocks to finish. Perfect words and a better pickaxe earn more!`;
+  $('btnWorldPlay').textContent = R && (R.pending || R.boss || R.idx < R.queue.length) ? '⛏ BACK TO MINING' : '⛏ KEEP MINING';
   show('world');
   drawWorld(true);
 }
@@ -726,10 +976,12 @@ function buildRound() {
   return q;
 }
 function startRound() {
-  R = { queue: buildRound(), idx: 0, requeued: new Set(), perfect: 0, done: 0, missed: [], blocks: 0 };
+  R = { queue: buildRound(), idx: 0, requeued: new Set(), perfect: 0, done: 0, missed: [], missedItems: [],
+        blocks: 0, gems: 0, chests: 0, tnt: 0, tntTried: 0, boss: null, bossWon: null, pending: null };
   show('play');
   startWord();
 }
+const currentItem = () => R.boss ? R.boss.words[R.boss.i] : R.queue[R.idx];
 
 const CONFUSE = { a: 'eou', e: 'ai', i: 'ey', o: 'au', u: 'oa', c: 'ks', k: 'c', s: 'cz', b: 'd', d: 'bt', t: 'd', m: 'n', n: 'm',
                   g: 'j', j: 'g', y: 'ie', f: 'v', v: 'f', w: 'u', h: 'w', r: 'w', p: 'b', q: 'k', x: 'z', z: 's', l: 'l' };
@@ -744,16 +996,52 @@ function makeBlocks(word) {
 }
 
 function startWord(silent) {
-  const item = R.queue[R.idx];
+  const item = currentItem();
   Wd = {
-    item, word: item.w, attempts: 0, hinted: false, guided: false, hintSlot: -1, busy: false,
+    item, word: item.w, attempts: 0, hinted: false, guided: false, hintSlot: -1, busy: false, tnt: null,
     slots: [...item.w].map(() => ({ ch: null, from: -1, locked: false })),
     blocks: makeBlocks(item.w).map(ch => ({ ch, mined: false })),
   };
+  // TNT words: only for words he has already spelled perfectly at least once,
+  // so the timer never lands on a brand-new word.
+  const st = S.stats[item.w];
+  if (!R.boss && R.idx > 0 && st && st.p > 0 && R.tntTried < 2 && Math.random() < .22) {
+    R.tntTried++;
+    Wd.tnt = { total: 9000 + item.w.length * 1300, left: 0, delay: 1400, active: true };
+    Wd.tnt.left = Wd.tnt.total;
+    runTnt(Wd);
+  }
   renderPlay();
   if (silent) return;  // prepared while another screen is showing; spoken on return
+  if (Wd.tnt) { banner('🧨 TNT WORD!', '#ff6b5e'); sfx.fuse(); }
   if (S.settings.flash || !HAS_TTS) flashWord();
   sayWord();
+}
+function runTnt(me) {
+  const t = me.tnt;
+  let last = performance.now(), lastTick = 0;
+  const step = now => {
+    if (Wd !== me || !t.active) return;
+    const dt = Math.min(100, now - last); last = now;
+    if (current === 'play' && !$('modal').classList.contains('on')) {
+      if (t.delay > 0) t.delay -= dt; else t.left -= dt;
+    }
+    $('fuse').style.width = Math.max(0, t.left / t.total * 100) + '%';
+    if (t.left < 3000 && t.left > 0 && now - lastTick > 450) { lastTick = now; sfx.tick(); }
+    if (t.left <= 0) {
+      t.active = false;
+      sfx.fizzle(); toast('💨 The fuse went out. Keep spelling!');
+      if (Wd === me) renderTnt();
+      return;
+    }
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function renderTnt() {
+  const on = !!(Wd && Wd.tnt && Wd.tnt.active);
+  $('craftBox').classList.toggle('tnt', on);
+  $('tntBar').hidden = !on;
 }
 function resumePlay() {
   show('play'); renderPlay();
@@ -772,11 +1060,24 @@ function flashWord() {
 const nextSlot = () => Wd.slots.findIndex(s => !s.ch && !s.locked);
 
 function renderPlay() {
-  $('roundInfo').textContent = `Word ${Math.min(R.idx + 1, R.queue.length)} / ${R.queue.length}`;
-  $('buildPct').textContent = buildPctText();
+  $('roundInfo').textContent = R.boss ? '⚔ BOSS' : `${Math.min(R.idx + 1, R.queue.length)}/${R.queue.length}`;
+  updateTopbar();
   $('btnSentence').style.visibility = Wd.item.s ? 'visible' : 'hidden';
   $('sayLabel').textContent = HAS_TTS ? 'Hear word' : 'Peek';
+  $('bossPanel').hidden = !R.boss;
+  if (R.boss) {
+    $('bossEmoji').textContent = R.boss.e;
+    $('bossName').textContent = R.boss.n.toUpperCase();
+    $('bossHp').style.width = (R.boss.hp / R.boss.max * 100) + '%';
+  }
+  renderTnt();
   renderSlots(); renderGrid(); layoutPlay();
+}
+function updateTopbar() {
+  $('buildPct').textContent = buildPctText();
+  const P = S.pick;
+  $('pickChip').className = 'chip pick l' + P.level;
+  $('pickChip').innerHTML = `<img src="${pickURL(P.level)}" alt="${PICKS[P.level].name} pickaxe">${P.streak > 0 ? '🔥' + P.streak : ''}`;
 }
 function renderSlots(incoming = -1) {
   const box = $('slots'); box.innerHTML = '';
@@ -846,8 +1147,9 @@ function mineBlock(i) {
   const el = $('grid').children[i], rect = el.getBoundingClientRect();
   b.mined = true;
   Object.assign(Wd.slots[si], { ch: b.ch, from: i });
-  sfx.mine();
-  burst(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#8a8a8a', '#6b6b6b', '#a0a0a0', '#555']);
+  const lvl = S.pick.level, pc = PICKS[lvl].color;
+  sfx.mine(lvl);
+  burst(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#8a8a8a', '#6b6b6b', pc, '#555', pc], 8 + lvl * 2);
   renderGrid(); renderSlots(si);
   fly(rect, $('slots').children[si], b.ch, () => { const s = $('slots').children[si]; s && s.classList.remove('incoming'); });
 }
@@ -877,6 +1179,10 @@ function craft() {
   Wd.attempts++; Wd.busy = true; sfx.bad();
   renderSlots();
   wrong.forEach(i => $('slots').children[i].classList.add('wrong'));
+  if (R.boss) {
+    sfx.roar(); shake(10); flashFx('#ff2a1a');
+    $('bossEmoji').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.6) translateY(10px)' }, { transform: 'scale(1)' }], { duration: 450 });
+  }
   setTimeout(() => {
     wrong.forEach(i => {
       const el = $('slots').children[i], r = el.getBoundingClientRect();
@@ -886,63 +1192,173 @@ function craft() {
     if (Wd.attempts >= 2) Wd.guided = true;
     Wd.busy = false;
     renderSlots(); renderGrid();
-    toast(Wd.guided ? '✨ Follow the glowing blocks!' : '🟩 Green letters are right. Try the others!');
+    toast(R.boss ? `${R.boss.e} It attacks! Fix the red letters!`
+        : Wd.guided ? '✨ Follow the glowing blocks!' : '🟩 Green letters are right. Try the others!');
     sayWord();
   }, 750);
 }
 
 function success() {
   Wd.busy = true;
-  const word = Wd.word, perfect = Wd.attempts === 0 && !Wd.hinted, st = statOf(word);
+  const word = Wd.word, perfect = Wd.attempts === 0 && !Wd.hinted, st = statOf(word), P = S.pick;
+  const tntHit = !!(Wd.tnt && Wd.tnt.active);
+  if (Wd.tnt) Wd.tnt.active = false;
+  let levelUp = false;
+
   st.t++;
-  if (perfect) { st.p++; st.k++; R.perfect++; }
-  else {
+  if (perfect) {
+    st.p++; st.k++; R.perfect++;
+    P.streak++; P.best = Math.max(P.best, P.streak);
+    if (P.streak % 2 === 0 && P.level < PICKS.length - 1) { P.level++; levelUp = true; }
+  } else {
     st.m++; st.k = 0;
-    if (!R.missed.includes(word)) R.missed.push(word);
-    if (!R.requeued.has(word)) { R.requeued.add(word); R.queue.splice(Math.min(R.idx + 4, R.queue.length), 0, Wd.item); }
+    P.streak = 0; if (P.level > 0) P.level--;
+    if (!R.missed.includes(word)) { R.missed.push(word); R.missedItems.push(Wd.item); }
+    if (!R.boss && !R.requeued.has(word)) { R.requeued.add(word); R.queue.splice(Math.min(R.idx + 4, R.queue.length), 0, Wd.item); }
   }
-  const earned = perfect ? 4 : 2;
-  const nextTile = mapTiles(S.world.map)[Math.min(S.world.placed, mapTiles(S.world.map).length - 1)];
+
+  let earned = perfect ? 4 + P.level : 2;
+  let gems = perfect ? 1 + (P.level >= 3 ? 1 : 0) : 0;
+  if (tntHit) { earned += 5; gems += 3; R.tnt++; }
+  const chest = tntHit ? Math.random() < .6 : Math.random() < (perfect ? .1 + .04 * P.level : .04);
+  if (R.boss) R.boss.hp--;
+
+  const tiles = mapTiles(S.world.map), nextTile = tiles[Math.min(S.world.placed, tiles.length - 1)];
   giveBlocks(earned); R.blocks += earned; R.done++;
+  S.gems += gems; R.gems += gems;
   save();
 
+  // ---- effects ----
   sfx.good();
-  renderSlots();
+  renderSlots(); renderTnt();
   [...$('slots').children].forEach((el, i) => { el.classList.add('win'); el.style.animationDelay = i * 50 + 'ms'; });
-  const r = $('slots').getBoundingClientRect();
-  burst(r.left + r.width / 2, r.top + r.height / 2, ['#5ed25e', '#ffd54a', '#fff', '#5fe3e0'], 14);
-  toast(`<img src="${url(nextTile ? nextTile.t : 'P')}" alt="">${perfect ? 'Perfect!' : 'You got it!'} +${earned} blocks`);
-  $('buildPct').textContent = buildPctText();
+  const r = $('slots').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  burst(cx, cy, ['#5ed25e', '#ffd54a', '#fff', '#5fe3e0'], 14);
+  if (tntHit) {
+    sfx.boom(); shake(14); flashFx('#fff1c2');
+    for (let k = 0; k < 4; k++) setTimeout(() => burst(cx + (Math.random() - .5) * 200, cy + (Math.random() - .5) * 120, ['#ff5a1f', '#ffd54a', '#d23a2f', '#555', '#fff'], 18), k * 90);
+    banner('💥 BOOM! 💥', '#ff8a3c');
+  }
+  if (R.boss) {
+    sfx.hit(); shake(8);
+    $('bossHp').style.width = (R.boss.hp / R.boss.max * 100) + '%';
+    $('bossEmoji').animate([{ transform: 'translateX(0)', filter: 'none' }, { transform: 'translateX(-10px)', filter: 'brightness(3) saturate(0)' },
+                            { transform: 'translateX(10px)' }, { transform: 'translateX(0)', filter: 'none' }], { duration: 400 });
+    floatAt($('bossEmoji'), '💥');
+  }
+  if (gems) setTimeout(sfx.gem, 250);
+  toast(`<img src="${url(nextTile ? nextTile.t : 'P')}" alt="">${perfect ? 'Perfect!' : 'You got it!'} +${earned}${gems ? ` · +${gems} 💎` : ''}`);
+  updateTopbar();
+  if (levelUp) setTimeout(() => { banner(`⛏ ${PICKS[P.level].name.toUpperCase()} PICKAXE!`, PICKS[P.level].color); sfx.levelUp(); flashFx(PICKS[P.level].color); }, tntHit ? 1300 : 450);
+  else if (perfect && P.streak >= 2 && !tntHit) setTimeout(() => banner(`🔥 ${P.streak} IN A ROW!`, '#ffb13c'), 400);
   say([word, perfect ? pick(['Awesome!', 'Perfect!', 'Great spelling!', 'Nailed it!']) : pick(['You got it!', 'Nice work!'])]);
-  setTimeout(nextWord, 1500);
+
+  const events = [];
+  if (chest) events.push(cb => openChest(tntHit ? 'tnt' : 'normal', cb));
+  if (S.world.done && !S.world.announced) events.push(buildCompleteEvent);
+  setTimeout(() => runEvents(events, proceed), levelUp || tntHit ? 2100 : 1500);
 }
 
-function nextWord() {
-  if (S.world.done && !S.world.announced) {
-    S.world.announced = true; save(); sfx.win();
-    modal(`<div class="big">🏆</div><h3>BUILD COMPLETE!</h3><p>You finished ${MAPS[S.world.map].name.toLowerCase()}!</p>`,
-      [{ label: '👀 SEE IT!', cls: 'gold', fn: () => { openWorld(); if (advance()) startWord(true); } },
-       { label: '⛏ KEEP MINING', cls: 'green', fn: () => { if (advance()) startWord(current !== 'play'); } }]);
-    return;
+function buildCompleteEvent(cb) {
+  S.world.announced = true; save(); sfx.win();
+  modal(`<div class="big">🏆</div><h3>BUILD COMPLETE!</h3><p>You finished ${MAPS[S.world.map].name.toLowerCase()}!</p>`,
+    [{ label: '👀 SEE IT!', cls: 'gold', fn: () => { R.pending = cb; openWorld(); } },
+     { label: '⛏ KEEP MINING', cls: 'green', fn: cb }]);
+}
+
+// Called once a word (and any chests/popups after it) is finished.
+function proceed() {
+  if (R.boss) {
+    if (R.boss.hp <= 0) return bossDefeated();
+    R.boss.i++;
+    return startWord(current !== 'play');
   }
-  if (advance()) startWord(current !== 'play');
-}
-// Moves to the next word; returns false (and shows the summary) when the round is over.
-function advance() {
   R.idx++;
-  if (R.idx < R.queue.length) return true;
-  endRound();
-  return false;
+  if (R.idx < R.queue.length) return startWord(current !== 'play');
+  startBoss();
 }
+
+function startBoss() {
+  const b = BOSSES[S.bossN % BOSSES.length];
+  // Missed words first, topped up with other words from this round.
+  const words = [], seen = new Set();
+  const add = it => { if (!seen.has(it.w)) { seen.add(it.w); words.push(it); } };
+  R.missedItems.slice(0, 5).forEach(add);
+  for (const it of shuffle(R.queue.slice())) { if (words.length >= 3) break; add(it); }
+  for (const it of shuffle(S.list.slice())) { if (words.length >= 3) break; add(it); }
+  R.boss = { ...b, words, i: 0, hp: words.length, max: words.length };
+  sfx.roar(); shake(10);
+  modal(`<div class="big" style="font-size:72px">${b.e}</div><h3>BOSS BATTLE!</h3>
+    <p>A ${b.n} blocks the tunnel!</p><p>Spell <b>${words.length} words</b> to defeat it.</p>`,
+    [{ label: '⚔ FIGHT!', cls: 'green', fn: () => { show('play'); startWord(); } }]);
+}
+
+function bossDefeated() {
+  const b = R.boss;
+  R.bossWon = b; R.boss = null;
+  S.bossN++;
+  giveBlocks(10); R.blocks += 10;
+  S.gems += 5; R.gems += 5;
+  save();
+  $('bossPanel').hidden = true;
+  sfx.win(); flashFx('#ffd54a'); banner(`🏆 ${b.n.toUpperCase()} DEFEATED!`, '#ffd54a');
+  const events = [cb => setTimeout(cb, 1300), cb => openChest('boss', cb)];
+  if (S.world.done && !S.world.announced) events.push(buildCompleteEvent);
+  runEvents(events, endRound);
+}
+
+function openChest(kind, done) {
+  R && R.chests++;
+  const gold = kind === 'boss';
+  sfx.chest();
+  modal(`<h3>${gold ? 'BOSS CHEST!' : kind === 'tnt' ? 'TNT LOOT!' : 'TREASURE CHEST!'}</h3>
+    <img class="chest-img wiggle" id="chestImg" src="${url(gold ? 'chestGold' : 'chest')}" alt="Treasure chest">
+    <p>Tap the chest to open it!</p>`, []);
+  $('chestImg').onclick = () => {
+    const item = rollItem(kind), isNew = !S.items[item.id];
+    S.items[item.id] = (S.items[item.id] || 0) + 1;
+    let extra = '';
+    if (isNew) extra = item.pet ? '<p>NEW! It will live in your world.</p>' : '<p>NEW! Added to your collection.</p>';
+    else { const g = DUP_GEMS[item.r]; S.gems += g; if (R) R.gems += g; extra = `<p>You already have one, so it turns into <b>+${g} 💎</b></p>`; }
+    save();
+    const r = $('chestImg').getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, [RARITY_COLOR[item.r], '#ffd54a', '#fff'], 22);
+    sfx.levelUp(); if (item.r === 'legendary' || item.r === 'epic') flashFx(RARITY_COLOR[item.r]);
+    modal(`<div class="loot-item ${item.r}">${item.e}</div>
+      <div class="rarity" style="color:${item.r === 'common' ? '#555' : RARITY_COLOR[item.r]};text-shadow:1px 1px 0 ${item.r === 'common' ? '#fff' : '#000'}">${item.r.toUpperCase()}</div>
+      <h3 style="margin:8px 0 0">${item.n.toUpperCase()}</h3>${extra}`,
+      [{ label: '⭐ AWESOME!', cls: 'green', fn: done }]);
+  };
+}
+
 function endRound() {
   sfx.win();
   const tricky = R.missed.length
     ? `<p>Practice these again:</p><div class="tricky">${R.missed.map(w => `<span>${w}</span>`).join('')}</div>`
     : '<p>No mistakes. Amazing!</p>';
   modal(`<div class="big">⛏️</div><h3>ROUND COMPLETE!</h3>
-    <p>⭐ ${R.perfect} perfect out of ${R.done} words</p><p>🧱 +${R.blocks} blocks for your world</p>${tricky}`,
+    ${R.bossWon ? `<p>${R.bossWon.e} Defeated the ${R.bossWon.n}!</p>` : ''}
+    <p>⭐ ${R.perfect} perfect out of ${R.done} words</p>
+    <p>🧱 +${R.blocks} blocks · 💎 +${R.gems}${R.tnt ? ` · 💥 ${R.tnt} TNT` : ''}</p>
+    <p><img src="${pickURL(S.pick.level)}" style="width:22px;height:22px;image-rendering:pixelated;vertical-align:-4px" alt=""> ${PICKS[S.pick.level].name} pickaxe</p>${tricky}`,
     [{ label: '🏠 SEE MY WORLD', cls: 'gold', fn: () => { R = null; openWorld(); } },
      { label: '▶ PLAY AGAIN', cls: 'green', fn: startRound }]);
+}
+
+/* ================= Collection book ================= */
+let bookFrom = 'title';
+function openBook() {
+  if (current !== 'book') bookFrom = current;
+  const found = ITEMS.filter(i => S.items[i.id]).length;
+  $('bookGems').textContent = `💎 ${S.gems}`;
+  $('bookCount').textContent = `${found} / ${ITEMS.length} found`;
+  $('bookGrid').innerHTML = ITEMS.map(i => {
+    const n = S.items[i.id] || 0;
+    return `<div class="card ${n ? '' : 'locked'}" style="--rc:${RARITY_COLOR[i.r]}"><div class="e">${i.e}</div>
+      <div class="n">${n ? i.n : '???'}</div>${n > 1 ? `<div class="x">×${n}</div>` : ''}</div>`;
+  }).join('');
+  $('btnBuyChest').classList.toggle('off', S.gems < 10);
+  show('book');
 }
 
 /* ================= Grown-ups ================= */
@@ -1003,13 +1419,22 @@ $('slots').addEventListener('click', e => { const el = e.target.closest('.slot')
 $('btnToWorld').onclick = openWorld;
 $('btnQuit').onclick = () => { if (HAS_TTS) speechSynthesis.cancel(); show('title'); };
 
-$('btnWorldBack').onclick = () => { cancelAnimationFrame(worldRAF); show('title'); };
+$('btnWorldBack').onclick = () => show('title');
 $('btnWorldPlay').onclick = () => {
-  cancelAnimationFrame(worldRAF);
-  if (R && R.idx < R.queue.length && Wd) resumePlay();
+  if (R && R.pending) { const f = R.pending; R.pending = null; show('play'); f(); }
+  else if (R && Wd && !Wd.busy && (R.boss || R.idx < R.queue.length)) resumePlay();
+  else if (R && Wd && Wd.busy) show('play');   // a word is wrapping up; it continues on its own
   else startRound();
 };
 $('btnNextBuild').onclick = () => { startNextBuild(); sfx.pop(); openWorld(); };
+$('btnBook').onclick = openBook;
+$('btnWorldBook').onclick = openBook;
+$('btnBookBack').onclick = () => { if (bookFrom === 'world') openWorld(); else show('title'); };
+$('btnBuyChest').onclick = () => {
+  if (S.gems < 10) { toast('💎 Earn 10 diamonds by spelling words perfectly!'); return; }
+  S.gems -= 10; save();
+  openChest('bought', openBook);
+};
 
 $('btnParentBack').onclick = () => show('title');
 $('gateGo').onclick = () => { if (parseInt($('gateA').value, 10) === gateAnswer) openPanel(); else { $('gateA').value = ''; $('gateA').focus(); } };
@@ -1028,6 +1453,22 @@ $('setFlash').onchange = e => { S.settings.flash = e.target.checked; save(); };
 $('setRound').onchange = e => { S.settings.perRound = parseInt(e.target.value, 10) || 10; R = null; save(); };
 $('resetProg').onclick = () => { if (confirm('Clear all spelling progress? (The world stays.)')) { S.stats = {}; save(); renderProgress(); } };
 $('resetWorld').onclick = () => { if (confirm('Start the world over from an empty plot?')) { S.world = fixup({}).world; save(); } };
+const toCode = () => btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+$('makeBackup').onclick = () => { $('backupBox').value = toCode(); $('backupMsg').textContent = ''; };
+$('copyBackup').onclick = async () => {
+  const code = toCode(); $('backupBox').value = code;
+  try { await navigator.clipboard.writeText(code); $('backupMsg').textContent = '✓ Copied'; }
+  catch (e) { $('backupBox').select(); $('backupMsg').textContent = 'Select the code and copy it.'; }
+};
+$('restoreBackup').onclick = () => {
+  let data;
+  try { data = JSON.parse(decodeURIComponent(escape(atob($('backupBox').value.trim())))); } catch (e) { data = null; }
+  if (!data || !data.list) { $('backupMsg').textContent = 'That code didn\'t work. Paste the whole thing.'; return; }
+  if (!confirm('Replace the progress on this device with the code?')) return;
+  S = fixup(data); R = null; save(); openPanel();
+  $('backupMsg').textContent = '✓ Restored';
+};
+refreshTitle();
 
 // Keyboard play, handy on a computer: type letters, Backspace, Enter.
 addEventListener('keydown', e => {
