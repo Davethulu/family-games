@@ -2,155 +2,126 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Math Hopper 🐥 — a math Crossy Road</title>
+<title>Math Hopper 🐸</title>
 <style>
-  :root{
-    --grass1:#7ec850; --grass2:#74bd48;
-    --road:#4a4a55; --roadline:#6c6c7a;
-    --water:#3aa3e0; --water2:#369ad6;
-    --pad:#3fae5a; --padcorrect:#3fae5a;
-    --ui:#1c2540; --accent:#ffcf3f;
-  }
+  :root{ --ui:#1c2540; --accent:#ffcf3f; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;height:100%;overflow:hidden;background:#1b2336;
-    font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#fff;}
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b1020;
+    font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#fff;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;}
   #game{display:block;width:100vw;height:100vh;touch-action:none;}
 
   /* HUD */
-  #hud{position:fixed;top:0;left:0;right:0;padding:10px 14px;
-    display:flex;justify-content:space-between;align-items:flex-start;
-    pointer-events:none;z-index:5;}
-  .pill{background:rgba(15,20,40,.62);border-radius:14px;padding:7px 12px;
-    font-weight:700;font-size:15px;line-height:1.1;backdrop-filter:blur(3px);}
-  #lives{font-size:18px;letter-spacing:2px;}
-  #question{position:fixed;left:50%;top:54px;transform:translateX(-50%);
-    background:rgba(15,20,40,.72);border:2px solid var(--accent);border-radius:16px;
-    padding:8px 18px;font-size:clamp(20px,6vw,30px);font-weight:800;z-index:5;
-    text-align:center;pointer-events:none;white-space:nowrap;
-    box-shadow:0 4px 14px rgba(0,0,0,.3);}
-  #question small{display:block;font-size:12px;font-weight:600;color:var(--accent);
-    letter-spacing:1px;opacity:.9;margin-bottom:1px;}
+  #hud{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:0;right:0;padding:0 12px;
+    display:flex;justify-content:space-between;align-items:center;gap:6px;pointer-events:none;z-index:5;}
+  body.in-arcade #hud{padding-left:96px;}
+  .pill{background:rgba(15,20,40,.75);border-radius:14px;padding:7px 11px;
+    font-weight:800;font-size:15px;line-height:1.1;white-space:nowrap;}
+  #question{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 48px);transform:translateX(-50%);
+    background:rgba(15,20,40,.85);border:2px solid var(--accent);border-radius:14px;
+    padding:4px 16px 6px;font-size:clamp(20px,6vw,28px);font-weight:900;z-index:5;
+    text-align:center;pointer-events:none;white-space:nowrap;}
+  #question small{display:block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;}
+
+  /* On-screen arrows (touch devices) */
+  #pad{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 8px);
+    width:min(100% - 24px, 420px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;z-index:6;}
+  #pad button{height:64px;border:0;border-radius:16px;background:rgba(255,255,255,.14);
+    color:#fff;font-size:28px;font-weight:900;touch-action:none;}
+  #pad button:active, #pad button.down{background:rgba(255,207,63,.55);}
 
   /* Overlays */
   .overlay{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
     align-items:center;justify-content:center;text-align:center;padding:24px;
-    background:radial-gradient(circle at 50% 30%,#2a3a64,#141a2e);}
-  .overlay.hide{display:none;}
+    background:radial-gradient(circle at 50% 30%,#1f4a3a,#0b1a16);}
   .hide{display:none !important;}
-  h1{margin:.1em 0;font-size:clamp(30px,9vw,52px);
-    text-shadow:0 3px 0 #0003;letter-spacing:1px;}
-  h1 .sub{display:block;font-size:.34em;letter-spacing:3px;color:var(--accent);
-    font-weight:700;margin-top:4px;}
-  p.lead{max-width:440px;opacity:.9;line-height:1.5;margin:.4em 0 1.2em;}
-  .label{font-size:13px;letter-spacing:2px;opacity:.75;margin:14px 0 8px;text-transform:uppercase;}
+  h1{margin:.1em 0;font-size:clamp(32px,9vw,52px);text-shadow:0 3px 0 #0005;letter-spacing:1px;}
+  h1 .sub{display:block;font-size:.34em;letter-spacing:3px;color:var(--accent);font-weight:700;margin-top:4px;}
+  p.lead{max-width:440px;opacity:.92;line-height:1.5;margin:.4em 0 1em;}
+  .label{font-size:13px;letter-spacing:2px;opacity:.75;margin:12px 0 8px;text-transform:uppercase;}
   #grades{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:340px;}
-  .grade{background:#2c3860;border:2px solid transparent;color:#fff;border-radius:12px;
-    padding:12px 0;font-size:17px;font-weight:800;cursor:pointer;transition:.12s;}
-  .grade:hover{background:#39477a;}
+  .grade{background:#2c5a48;border:2px solid transparent;color:#fff;border-radius:12px;
+    padding:12px 0;font-size:17px;font-weight:800;cursor:pointer;}
   .grade.sel{background:var(--accent);color:#1c2540;border-color:#fff;transform:scale(1.05);}
-  .toggle{margin-top:16px;background:#2c3860;border:2px solid #4a5a8c;color:#fff;border-radius:12px;
-    padding:11px 20px;font-size:16px;font-weight:800;cursor:pointer;transition:.12s;}
-  .toggle.off{background:#9b5bd6;border-color:#fff;color:#fff;}
-  .btn{margin-top:22px;background:var(--accent);color:#1c2540;border:none;border-radius:16px;
-    padding:15px 40px;font-size:22px;font-weight:900;cursor:pointer;
-    box-shadow:0 5px 0 #b8901f;transition:.08s;}
+  .toggle{margin-top:14px;background:#2c5a48;border:2px solid #4f8a72;color:#fff;border-radius:12px;
+    padding:11px 20px;font-size:16px;font-weight:800;cursor:pointer;}
+  .toggle.off{background:#9b5bd6;border-color:#fff;}
+  .btn{margin-top:20px;background:var(--accent);color:#1c2540;border:none;border-radius:16px;
+    padding:15px 40px;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #b8901f;}
   .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b8901f;}
-  .hint{margin-top:18px;font-size:13px;opacity:.7;line-height:1.6;}
-  .big{font-size:clamp(40px,14vw,80px);margin:0;}
+  .btn.ghost{background:#2c5a48;color:#fff;box-shadow:0 5px 0 #1b3a2e;}
+  .hint{margin-top:16px;font-size:13px;opacity:.7;line-height:1.6;}
+  .big{font-size:clamp(44px,14vw,80px);margin:0;}
   .stat{font-size:20px;margin:4px 0;}
   .stat b{color:var(--accent);font-size:26px;}
-  /* hitch-a-ride popup */
-  .overlay.dim{background:rgba(8,12,24,.72);}
-  .card{background:#222c4e;border:2px solid var(--accent);border-radius:20px;
-    padding:22px 26px;max-width:360px;box-shadow:0 12px 40px rgba(0,0,0,.45);}
-  .card h2{margin:.2em 0;font-size:28px;}
-  .lead2{opacity:.92;line-height:1.4;margin:.3em 0 .6em;font-size:17px;}
-  .btnrow{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
-  .btnrow .btn{padding:13px 26px;font-size:19px;}
-  .btn.ghost{background:#3a4778;color:#fff;box-shadow:0 5px 0 #28335c;}
-  .btn.ghost:active{box-shadow:0 2px 0 #28335c;}
-  .btn:disabled{filter:grayscale(.6);cursor:not-allowed;}
-  /* fight peck button */
-  .peck{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:8;
-    background:var(--accent);color:#1c2540;border:3px solid #fff;border-radius:50%;
-    width:96px;height:96px;font-size:18px;font-weight:900;cursor:pointer;
-    box-shadow:0 6px 0 #b8901f;line-height:1.05;user-select:none;-webkit-user-select:none;}
-  .peck:active{transform:translateX(-50%) translateY(4px);box-shadow:0 2px 0 #b8901f;}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 
 <div id="hud" class="hide">
-  <div class="pill" id="score">Score 0</div>
-  <div class="pill" id="coins">🪙 0</div>
-  <div class="pill" id="lives">❤️❤️❤️</div>
+  <div class="pill" id="score">0</div>
+  <div class="pill" id="level">LV 1</div>
+  <div class="pill" id="lives">🐸🐸🐸</div>
 </div>
 <div id="question" class="hide"></div>
-<button id="peckBtn" class="peck hide">🐤 PECK!</button>
+<div id="pad" class="hide">
+  <button data-d="left" aria-label="Left">◀</button>
+  <button data-d="up" aria-label="Up">▲</button>
+  <button data-d="down" aria-label="Down">▼</button>
+  <button data-d="right" aria-label="Right">▶</button>
+</div>
 
 <!-- MENU -->
 <div id="menu" class="overlay">
-  <h1>Math Hopper <span class="sub">a math crossy road</span></h1>
-  <p class="lead">Hop across roads and rivers — but to cross the water, land on the lily pad with the <b>correct answer</b>. Dodge cars 🚗, trucks 🚚, racecars 🏎️, and trains 🚆!</p>
+  <h1>Math Hopper <span class="sub">CLASSIC FROG HOP</span></h1>
+  <p class="lead">Get the frog home! Dodge the cars 🚗, ride the logs and turtles 🐢 across the river, then hop into the home with the <b>correct answer</b>. Fill all 5 homes to clear the level.</p>
   <div class="label">Pick a grade level</div>
   <div id="grades"></div>
-  <button class="toggle" id="noMathBtn">🧮 Math lanes: ON</button>
+  <button class="toggle" id="noMathBtn">🧮 Math homes: ON</button>
   <button class="btn" id="startBtn">Start ▶</button>
-  <div class="hint">📱 <b>Swipe</b> to hop (up = forward) &nbsp;•&nbsp; 💻 <b>Arrow keys</b> / WASD</div>
-</div>
-
-<!-- HITCH-A-RIDE OFFER -->
-<div id="offer" class="overlay dim hide">
-  <div class="card">
-    <div class="big">🚐</div>
-    <h2>Hitch a ride?</h2>
-    <p class="lead2">Trade <b>15 🪙</b> to hop in the van and skip ahead!</p>
-    <p class="stat" id="offerCoins">You have 0 🪙</p>
-    <div class="btnrow">
-      <button class="btn" id="rideYes">Yes 🚐</button>
-      <button class="btn ghost" id="rideNo">No thanks</button>
-    </div>
-  </div>
+  <div class="hint">📱 Tap the arrows or swipe &nbsp;•&nbsp; 💻 Arrow keys / WASD</div>
 </div>
 
 <!-- GAME OVER -->
 <div id="over" class="overlay hide">
   <h1>Game Over</h1>
-  <p class="big">🐥💫</p>
+  <p class="big">🐸💫</p>
   <p class="stat">Score <b id="finalScore">0</b></p>
-  <p class="stat">Correct answers <b id="finalCorrect">0</b></p>
+  <p class="stat">Level <b id="finalLevel">1</b> &nbsp; Correct <b id="finalCorrect">0</b></p>
   <p class="stat" id="bestLine"></p>
   <button class="btn" id="againBtn">Play again ↺</button>
-  <div class="hint" id="overGrade"></div>
+  <button class="btn ghost" id="menuBtn">Change grade</button>
 </div>
 
 <script>
 "use strict";
 /* ============================================================
-   Math Hopper — single-file canvas game
+   Math Hopper: classic top-down frog hopping with math homes
    ============================================================ */
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+if (window.self !== window.top) document.body.classList.add('in-arcade');
 
-const COLS = 5;                 // playfield width in cells
-let cell = 70;                  // pixel size of a cell (set on resize)
-let W = 0, H = 0, DPR = 1;
-let CW = 30, CH = 16, CZ = 26;  // isometric voxel projection scale (set in isoScale)
-let originX = 0;                // left offset to center the COLS lanes
+const COLS = 9, ROWS = 13;
+// Row layout (top to bottom): 0 homes, 1-5 river, 6 safe median, 7-11 road, 12 start.
+const isRiver = r => r >= 1 && r <= 5;
+const isRoad  = r => r >= 7 && r <= 11;
+const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 
+let W = 0, H = 0, DPR = 1, cell = 40, ox = 0, oy = 0;
 function resize(){
   DPR = Math.min(window.devicePixelRatio || 1, 2.5);
   W = window.innerWidth; H = window.innerHeight;
   canvas.width = W * DPR; canvas.height = H * DPR;
-  canvas.style.width = W+'px'; canvas.style.height = H+'px';
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-  cell = Math.min(Math.floor(W / COLS), Math.floor(H / 9));
-  cell = Math.max(48, cell);
-  originX = Math.floor((W - cell*COLS)/2);
-  if(typeof isoScale==='function') isoScale();
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const top = 104, bottom = 24 + (isTouch ? 86 : 8);
+  cell = Math.max(24, Math.floor(Math.min(W / COLS, (H - top - bottom) / ROWS)));
+  ox = Math.floor((W - cell * COLS) / 2);
+  oy = top + Math.max(0, Math.floor((H - top - bottom - cell * ROWS) / 2));
 }
 window.addEventListener('resize', resize);
 resize();
@@ -158,7 +129,7 @@ resize();
 /* ---------------- Math question generator ---------------- */
 const GRADES = ['K','1','2','3','4','5','6','7','8'];
 let grade = 1;
-let noMath = false;   // when true, no quiz rivers — just dodge everything
+let noMath = false;   // when true, homes have no answers: any empty home works
 
 function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -186,19 +157,18 @@ function strOptions(ans, distractors){
 }
 
 // returns {q, ans (string), options (array of 3 strings)}
-// lvl (0+) grows as the run goes on, widening number ranges within a grade.
 function makeQuestion(g, lvl){
   lvl = lvl || 0;
-  const s = 1 + Math.min(lvl,6)*0.4;        // magnitude multiplier 1 → ~3.4
+  const s = 1 + Math.min(lvl,6)*0.4;
   const cap = n => Math.max(1, Math.round(n));
   let q, ans, options;
   switch(g){
-    case 0: { // Kindergarten stays gentle — no scaling
+    case 0: { // Kindergarten stays gentle
       if(Math.random()<0.5){ const a=ri(0,5),b=ri(0,5); q=`${a} + ${b}`; ans=a+b; }
       else { const a=ri(2,9),b=ri(0,a); q=`${a} − ${b}`; ans=a-b; }
       options=intOptions(ans,2); ans=String(ans); break;
     }
-    case 1: { // add/sub within 20 (grows)
+    case 1: { // add/sub within 20
       if(Math.random()<0.5){ const a=ri(1,cap(12*s)),b=ri(1,cap(8*s)); q=`${a} + ${b}`; ans=a+b; }
       else { const a=ri(5,cap(20*s)),b=ri(1,a); q=`${a} − ${b}`; ans=a-b; }
       options=intOptions(ans,3); ans=String(ans); break;
@@ -266,1054 +236,488 @@ function makeQuestion(g, lvl){
   }
   return {q, ans, options};
 }
-// Difficulty is fixed to the chosen grade's standard — no ramp over time.
-function difficulty(){
-  return {lvl: 0, effGrade: grade};
+
+// Five homes need four wrong answers; extend the generator's options to match.
+function wrongAnswers(Q){
+  const ans = Q.ans, set = new Set(Q.options.map(String)); set.delete(ans);
+  const isInt = /^-?\d+$/.test(ans), frac = ans.match(/^(\d+)\/(\d+)$/), dec = /^-?\d+\.\d$/.test(ans);
+  let guard = 0;
+  while(set.size < 4 && guard++ < 300){
+    const k = ri(1, 6) * (Math.random() < .5 ? -1 : 1);
+    let v;
+    if(isInt){ const n = +ans + k; if(n < 0 && +ans >= 0) continue; v = String(n); }
+    else if(frac){ const a = +frac[1] + k; if(a <= 0) continue; v = `${a}/${frac[2]}`; }
+    else if(dec){ const n = +ans + k / 10; if(n < 0) continue; v = n.toFixed(1); }
+    else v = String(ri(0, 20));
+    if(v !== ans) set.add(v);
+  }
+  return shuffle([...set]).slice(0, 4);
 }
 
-/* ---------------- World / rows ---------------- */
-let rows = [];           // rows[i] = row object at row index i
-let rowsSinceQuiz = 0;
-let progress = 0;        // difficulty ramps with rows reached
-let adTrucks = [];       // huge slow 3-lane "cooked chicken" ad trucks that flatten cars
-let adZoneLeft = 0;      // rows still forced to road for the current ad-truck zone
-let lastAdRow = -999;
+/* ---------------- Sound ---------------- */
+let AC = null;
+function ac(){
+  if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(f, dur, type='square', vol=.05, slide=0, delay=0){
+  const a = ac(); if(!a) return;
+  const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+}
+function noise(dur, vol, freq){
+  const a = ac(); if(!a) return;
+  const n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for(let i = 0; i < n; i++) d[i] = (Math.random()*2-1) * (1 - i/n);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = buf; f.type = 'lowpass'; f.frequency.value = freq; g.gain.value = vol;
+  s.connect(f).connect(g).connect(a.destination); s.start();
+}
+const sfx = {
+  hop(){ tone(520, .06, 'square', .035, 260); },
+  squish(){ noise(.25, .35, 900); tone(160, .25, 'sawtooth', .05, -90); },
+  splash(){ noise(.5, .3, 2200); },
+  bonk(){ tone(140, .2, 'square', .06, -40); },
+  home(){ [523,659,784,1047].forEach((f,i)=>tone(f, .14, 'square', .045, 0, i*.08)); },
+  wrong(){ tone(200, .35, 'sawtooth', .05, -100); },
+  level(){ [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f, .15, 'square', .045, 0, i*.1)); },
+  tick(){ tone(1100, .03, 'square', .03); },
+};
+addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('pointerdown', unlock); });
 
-// attach a collectible to a row; val>=3 renders as a higher-value gem
-function addCoin(row, chance, val){
-  if(Math.random()>=chance) return;
-  let col;
-  if(row.obstacles){
-    const open=[0,1,2,3,4].filter(c=>row.obstacles[c]===undefined);
-    if(!open.length) return; col=pick(open);
-  } else col=ri(0,COLS-1);
-  row.coin=true; row.coinCol=col; row.coinVal=val;
-}
-function makeGrass(allowObs){
-  // trees & rocks block movement — at most 2 so a row is always passable
-  const obstacles = {};
-  if(allowObs!==false){
-    const count = Math.random()<0.55 ? ri(1,2) : 0;
-    for(const c of shuffle([0,1,2,3,4]).slice(0,count)){
-      obstacles[c] = Math.random()<0.6 ? 'tree' : 'rock';
-    }
+/* ---------------- Lanes ---------------- */
+// Base speeds are cells per second; each level multiplies them.
+const LANE_DEFS = {
+  1:  { type:'log',    dir: 1, speed:1.3, len:4, count:3 },
+  2:  { type:'turtle', dir:-1, speed:1.5, len:2, count:4, dive:true },
+  3:  { type:'log',    dir: 1, speed:2.0, len:5, count:2 },
+  4:  { type:'log',    dir: 1, speed:1.0, len:3, count:3 },
+  5:  { type:'turtle', dir:-1, speed:1.2, len:3, count:3, dive:true },
+  7:  { type:'truck',  dir:-1, speed:1.1, len:2, count:2 },
+  8:  { type:'race',   dir: 1, speed:3.0, len:1, count:1 },
+  9:  { type:'car',    dir:-1, speed:1.5, len:1, count:3, color:'#ff5fa2' },
+  10: { type:'dozer',  dir: 1, speed:0.9, len:1, count:3 },
+  11: { type:'car',    dir:-1, speed:1.2, len:1, count:3, color:'#ffd23f' },
+};
+let lanes = {};
+function makeLanes(){
+  lanes = {};
+  for(const [r, def] of Object.entries(LANE_DEFS)){
+    const span = COLS + def.len + 3, gap = span / def.count, off = Math.random() * gap;
+    const items = [];
+    for(let i = 0; i < def.count; i++) items.push({ x: -def.len - 1.5 + off + i*gap, dive: !!def.dive && i === 0, phase: Math.random()*7 });
+    lanes[r] = { ...def, row: +r, span, items };
   }
-  const row = {type:'grass', obstacles, coin:false, coinCol:-1, coinVal:1};
-  addCoin(row, 0.45, 1);
-  return row;
 }
-function makeLogRoad(){
-  // a logging truck that drops rolling logs out the back as it drives
-  const dir = Math.random()<0.5?1:-1;
-  const speed = 1.0 + Math.random()*0.4;
-  const truck = {x: -COLS + Math.random()*(3*COLS), isTruck:true, len:2.5, sp:speed};
-  const row = {type:'road', kind:'log', dir, speed, len:1, color:'#5a4632',
-    cars:[truck], dropTimer:0.8, logSpeed:speed*0.6, maxLogs:5};
-  addCoin(row, 0.35, 1);
-  return row;
+const speedMul = () => Math.min(1.9, 1 + 0.13 * (level - 1));
+function turtleState(item){
+  if(!item.dive) return 'up';
+  const p = (clock + item.phase) % 7;
+  return p < 4 ? 'up' : p < 4.8 ? 'sinking' : p < 6 ? 'under' : 'rising';
 }
-function makeRoad(kind){
-  kind = kind || 'car';
-  if(kind==='log') return makeLogRoad();
-  const truck = kind==='truck';
-  const race  = kind==='race';
-  const dir = Math.random()<0.5?1:-1;
-  const base = truck ? 0.8 : race ? 2.7 : 1.0;
-  const speed = (base + Math.random()*(race?1.2:0.55)); // cells/sec — constant (no time ramp)
-  const len = truck ? 2 : 1;
-  const n = truck ? (Math.random()<0.7?1:2) : ri(1,2);
-  const color = race  ? pick(['#e23b3b','#2b7fe2','#f5c518','#19b562','#ff7a1a'])
-              : truck ? pick(['#e8643c','#3f7fd6','#e0b341','#5bbf6a','#9b5bd6'])
-                      : pick(['#e64a4a','#4a8fe6','#f2c14e','#5ec46a','#e67ee6','#ff944d']);
-  const cars=[];
-  // spread the initial vehicles across the lane's travel span
-  const span = 3*COLS + len;
-  const gap = span / n;
-  for(let k=0;k<n;k++){ cars.push({x: -COLS - len + k*gap + Math.random()*gap*0.5}); }
-  const row = {type:'road', kind, dir, speed, len, color, cars};
-  // racetrack coins are gems (worth more) for the higher risk
-  addCoin(row, race ? 0.55 : 0.4, race ? 3 : 1);
-  return row;
+function supportAt(row, x){
+  const L = lanes[row];
+  return L.items.find(it => x >= it.x - .15 && x <= it.x + L.len + .15 && (L.type !== 'turtle' || turtleState(it) !== 'under'));
 }
-function makeRail(){
-  // long enough to span the whole lane width
-  const trainLen = COLS + 4;
-  const row = {type:'rail', phase:'idle', timer: 2.0 + Math.random()*2.8,
-    dir: 1, trainLen, trainSpeed: 12,
-    trainX: 0, color: pick(['#9c3b3b','#3b5a9c','#c98a2b']) };
-  // rail coins are gems (worth more) for the train risk
-  addCoin(row, 0.55, 3);
-  return row;
-}
-function pickDanger(){
-  const r=Math.random();
-  if(r<0.14) return makeRail();
-  if(r<0.30) return makeRoad('race');
-  if(r<0.46) return makeRoad('truck');
-  if(r<0.62) return makeRoad('log');
-  return makeRoad('car');
-}
-function makeQuiz(){
-  const {lvl, effGrade} = difficulty();
-  const {q, ans, options} = makeQuestion(effGrade, lvl);
-  const cols = shuffle([0,1,2,3,4]).slice(0,3);
-  const pads = {}; let correctCol = cols[0];
-  options.forEach((opt,idx)=>{ pads[cols[idx]] = opt; if(opt===ans) correctCol=cols[idx]; });
-  return {type:'quiz', q, ans, qgrade:effGrade, pads, correctCol, answered:false, wrongCols:{}};
+function hitCar(row, x){
+  const L = lanes[row];
+  return L.items.some(it => x + .32 > it.x + .08 && x - .32 < it.x + L.len - .08);
 }
 
-function genRow(i){
-  // first rows are safe, clear grass (no obstacles)
-  if(i < 4) return makeGrass(false);
-  const prev = rows[i-1];
-  // continue an ad-truck zone: the remaining lanes must be road
-  if(adZoneLeft>0){ adZoneLeft--; return makeRoad('car'); }
-  // continue the station's vertical road for a row or two
-  if(roadStripAfter>0){ roadStripAfter--; const g=makeGrass(false); g.roadCol=2; return g; }
-  // build a river, clearing the grass approach below it so every pad is reachable
-  const quizRow = ()=>{
-    if(noMath) return pickDanger();   // no-math mode: replace rivers with traffic
-    if(prev && prev.type==='grass') prev.obstacles={};
-    return makeQuiz();
-  };
-  // force a CLEAR grass buffer after a quiz (river) or a rail crossing
-  if(prev && (prev.type==='quiz' || prev.type==='rail')){
-    if(prev.type==='quiz') rowsSinceQuiz=0;
-    return makeGrass(false);
-  }
-  // hitch-a-ride station every ~50-60 rows, in a clear grassy spot
-  if(i>=nextStationAt && prev && prev.type==='grass'){
-    nextStationAt = i + ri(50,60); roadStripAfter = 1;
-    prev.obstacles = {}; prev.roadCol = 2;           // vertical road runs through the approach too
-    const g = makeGrass(false); g.roadCol=2; g.station=true; g.used=false;
-    return g;
-  }
-  const recentDanger = prev && prev.type!=='grass';
-  // occasionally roll out a giant slow cooked-chicken ad truck across 3 road lanes
-  if(i>24 && !recentDanger && i-lastAdRow>28 && Math.random()<0.06){
-    lastAdRow = i + 3; adZoneLeft = 2;   // this row + next 2 are the truck's lanes
-    adTrucks.push({row0:i, x:-3, len:3, speed:0.34, dir: Math.random()<0.5?1:-1});
-    return makeRoad('car');
-  }
-  rowsSinceQuiz++;
-  if(rowsSinceQuiz >= 4 && !recentDanger && Math.random()<0.7){ rowsSinceQuiz=0; return quizRow(); }
-  if(recentDanger){
-    // allow another road/truck next to traffic, but never stack a rail
-    if(Math.random()<0.5) return Math.random()<0.4 ? makeRoad('truck') : makeRoad('car');
-    return makeGrass();
-  }
-  const r=Math.random();
-  if(r<0.5) return pickDanger();
-  if(r<0.6 && rowsSinceQuiz>=3){ rowsSinceQuiz=0; return quizRow(); }
-  return makeGrass();
-}
-function ensureRows(upto){
-  while(rows.length <= upto){ rows.push(genRow(rows.length)); }
-}
+/* ---------------- Game state ---------------- */
+const TIME = 45;          // seconds per life to get a frog home
+const HOMES = [0, 2, 4, 6, 8];
+let homes = [];           // {col, filled, label, correct}
+let Q = null;             // current question
+let frog = null;
+let state = 'menu';       // menu | play | dying | levelup | over
+let score = 0, lives = 3, level = 1, correctCount = 0, timeLeft = TIME, clock = 0;
+let death = null, levelT = 0, floats = [], lastTick = 0;
 
-/* ---------------- Player ---------------- */
-let player = {col:2, row:1, vx:2, vy:1, // vx/vy = visual position (animated)
-  moving:false, fromC:2, fromR:1, toC:2, toR:1, t:0};
-const MOVE_DUR = 0.12; // seconds per hop
-const AUTO_SCROLL = 0.4; // cells/sec the camera creeps forward on its own
-let lastSafeRow = 1;
-let invuln = 0;        // seconds of invulnerability after spawn/hit
-
-let state = 'menu';    // menu | play | offer | riding | dying | over
-let death = null;      // McDiabetes delivery-truck pickup when you run out of lives
-let ride = null;       // hitch-a-ride van animation
-let fight = null;      // station brawl (50/50 vs the ride offer)
-let squish = null;     // "flattened" death when hit by a vehicle/hazard
-let kabooms = [];      // explosion bursts where a vehicle hits
-let score = 0, lives = 3, correctCount = 0, maxRow = 1, coins = 0;
-let nextStationAt = 55; // row index of the next hitch-a-ride station
-let roadStripAfter = 0; // rows still needing the station's vertical road drawn
-// localStorage can throw on file:// origins — wrap it so a failure never breaks the game.
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-let best = +(lsGet('mathhopper_best')||0);
+let best = +(lsGet('mathhopper2d_best') || 0);
+grade = Math.min(8, Math.max(0, +(lsGet('mathhopper2d_grade') ?? 1) || 0));
 
-function resetGame(){
-  rows = []; rowsSinceQuiz=0; progress=0;
-  nextStationAt = ri(50,60); roadStripAfter=0;
-  adTrucks=[]; adZoneLeft=0; lastAdRow=-999;
-  ensureRows(40);
-  player.col=2; player.row=1; player.vx=2; player.vy=1;
-  player.moving=false; player.t=0; player.toC=2; player.toR=1; player.fromC=2; player.fromR=1;
-  camRow=1;
-  lastSafeRow=1; invuln=1.2; ride=null; death=null; fight=null; squish=null; kabooms=[]; floatMsgs=[];
-  document.getElementById('peckBtn').classList.add('hide');
-  // no spare lives at any grade — a single hit ends the run
-  score=0; lives = 1; correctCount=0; maxRow=1; coins=0;
-  updateHUD(); updateQuestion();
-}
+function newFrog(){ return { x: 4.5, row: 12, bestRow: 12, face: 0, hop: null }; }
 
-/* ---------------- Input ---------------- */
-function tryMove(dc, dr){
-  if(state!=='play' || player.moving) return;
-  let nc = player.col + dc;
-  let nr = player.row + dr;
-  if(nc<0||nc>=COLS) return;     // walls on the sides
-  // can't retreat past the bottom border of the screen (forward/side always ok)
-  const floor = Math.max(0, Math.ceil(camRow - 2.6));
-  if(nr < floor) return;
-  ensureRows(nr+1);
-  // trees & rocks block the cell you'd hop into
-  const dest = rows[nr];
-  if(dest && dest.type==='grass' && dest.obstacles && dest.obstacles[nc]!==undefined) return;
-  player.moving=true; player.t=0;
-  player.fromC=player.col; player.fromR=player.row;
-  player.toC=nc; player.toR=nr;
+function nextQuestion(){
+  Q = noMath ? null : makeQuestion(grade, Math.max(0, level - 1));
+  assignHomes();
 }
-function finishMove(){
-  player.col=player.toC; player.row=player.toR;
-  player.moving=false;
-  if(player.row>maxRow){ maxRow=player.row; progress=maxRow; score += 1; }
-  evaluateLanding();
-  updateHUD(); updateQuestion();
-}
-function evaluateLanding(){
-  const row = rows[player.row];
-  if(!row) return;
-  // collect a coin/gem on any lane type
-  if(row.coin && row.coinCol===player.col){ row.coin=false; coins+=(row.coinVal||1); score+=2; updateHUD(); }
-  if(row.type==='grass'){
-    lastSafeRow = player.row;
-    if(row.station && !row.used){ row.used=true; if(Math.random()<0.5) openOffer(); else startFight(); }
-  } else if(row.type==='quiz'){
-    // the correct pad is the only safe footing — even after it's answered
-    if(player.col===row.correctCol){
-      if(!row.answered){ row.answered=true; correctCount++; score+=5; updateHUD(); }
-      lastSafeRow = player.row;
-    } else if(row.pads[player.col]===undefined){
-      loseLife('splash');        // open water
-    } else {
-      row.wrongCols[player.col]=true;
-      loseLife('wrong');         // a wrong-answer pad
-    }
+function assignHomes(){
+  if(noMath){ homes.forEach(h => { h.label = ''; h.correct = !h.filled; }); updateQuestion(); return; }
+  const empty = homes.filter(h => !h.filled);
+  const right = pick(empty), wrong = wrongAnswers(Q);
+  let k = 0;
+  // Filled homes also get wrong answers, so there are always five choices to read.
+  for(const h of homes){
+    if(h === right){ h.label = Q.ans; h.correct = true; }
+    else { h.label = wrong[k++ % wrong.length]; h.correct = false; }
   }
-  // road collisions handled continuously in update()
+  updateQuestion();
 }
-function loseLife(reason){
-  if(invuln>0) return;
+
+function startGame(){
+  score = 0; lives = 3; level = 1; correctCount = 0; floats = [];
+  homes = HOMES.map(col => ({ col, filled: false, label: '', correct: false }));
+  makeLanes(); nextQuestion();
+  frog = newFrog(); timeLeft = TIME; state = 'play';
+  document.getElementById('menu').classList.add('hide');
+  document.getElementById('over').classList.add('hide');
+  document.getElementById('hud').classList.remove('hide');
+  document.getElementById('question').classList.toggle('hide', noMath);
+  document.getElementById('pad').classList.toggle('hide', !isTouch);
+  updateHUD();
+}
+
+function tryMove(dx, dy){
+  if(state !== 'play' || frog.hop) return;
+  const tr = frog.row + dy;
+  if(tr > 12 || tr < 0) return;
+  const tx = Math.min(COLS - .5, Math.max(.5, frog.x + dx));
+  frog.face = dy < 0 ? 0 : dy > 0 ? Math.PI : dx > 0 ? Math.PI/2 : -Math.PI/2;
+  frog.hop = { fx: frog.x, fr: frog.row, tx, tr, t: 0 };
+  sfx.hop();
+}
+function land(){
+  const h = frog.hop; frog.hop = null;
+  frog.row = h.tr; frog.x = h.tx;
+  if(frog.row >= 6) frog.x = Math.floor(frog.x) + .5;  // snap to the grid on solid ground
+  if(frog.row < frog.bestRow){ frog.bestRow = frog.row; score += 10; updateHUD(); }
+  if(frog.row === 0) return enterHome();
+  if(isRiver(frog.row) && !supportAt(frog.row, frog.x)) return die('splash');
+  if(isRoad(frog.row) && hitCar(frog.row, frog.x)) return die('squish');
+}
+function enterHome(){
+  const bc = 2 * Math.round((frog.x - .5) / 2), home = homes.find(h => h.col === bc);
+  if(!home || Math.abs(frog.x - (bc + .5)) > .6) return die('hedge');
+  frog.x = bc + .5;
+  if(home.filled) return die('taken');
+  if(!home.correct) return die('wrong');
+  home.filled = true;
+  const bonus = Math.floor(timeLeft) * 2;
+  score += 50 + bonus; if(!noMath) correctCount++;
+  sfx.home();
+  floatText(noMath ? `Home! +${50 + bonus}` : `✓ ${Q.q} = ${Q.ans}`, bc + .5, 1, '#7dff7a');
+  updateHUD();
+  if(homes.every(h => h.filled)){
+    state = 'levelup'; levelT = 0; score += 200; sfx.level(); updateHUD();
+    return;
+  }
+  nextQuestion();
+  frog = newFrog(); timeLeft = TIME;
+}
+function die(kind){
+  state = 'dying';
+  death = { kind, x: frog.x, row: frog.row, t: 0, hold: kind === 'wrong' ? 2.2 : 1.1 };
+  ({ squish: sfx.squish, splash: sfx.splash, wrong: sfx.wrong }[kind] || sfx.bonk)();
+  const msg = { squish: '💥 Squished!', splash: '💦 Splash!', hedge: '🌿 Bonk! Aim for a home', taken: '🐸 That home is taken!',
+                wrong: Q ? `❌ ${Q.q} = ${Q.ans}` : '❌ Oops!', swept: '🌊 Swept away!', time: '⏰ Out of time!' }[kind];
+  floatText(msg, Math.min(COLS - 2, Math.max(2, frog.x)), Math.max(1, frog.row), kind === 'wrong' ? '#ffd23f' : '#fff');
   lives--; updateHUD();
-  if(lives<=0){ squishDeath(); return; }   // hit → get flattened (truck is for stalling only)
-  // bounce back to last safe row
-  player.row = Math.min(lastSafeRow, player.row);
-  player.col = Math.max(0, Math.min(COLS-1, player.col));
-  // don't land on a tree/rock — slide to the nearest open column
-  const sr = rows[player.row];
-  if(sr && sr.type==='grass' && sr.obstacles && sr.obstacles[player.col]!==undefined){
-    const open=[0,1,2,3,4].filter(c=>sr.obstacles[c]===undefined);
-    if(open.length) player.col = open.reduce((a,b)=>Math.abs(b-player.col)<Math.abs(a-player.col)?b:a);
-  }
-  player.toC=player.col; player.toR=player.row; player.moving=false;
-  invuln = 1.2;
-  const msg = reason==='wrong' ? '❌ Try again!'
-            : reason==='splash' ? '💦 Splash!'
-            : reason==='train'  ? '🚆 Whoosh!'
-            : '💥 Ouch!';
-  floatMsg(msg);
 }
-
-// keyboard
-window.addEventListener('keydown', e=>{
-  const k=e.key.toLowerCase();
-  if(k==='b'){ if(state==='fight') peck(); return; }   // peck during a brawl
-  if(state!=='play') return;
-  if(k==='arrowup'||k==='w'){ tryMove(0,1); e.preventDefault(); }
-  else if(k==='arrowdown'||k==='s'){ tryMove(0,-1); e.preventDefault(); }
-  else if(k==='arrowleft'||k==='a'){ tryMove(-1,0); e.preventDefault(); }
-  else if(k==='arrowright'||k==='d'){ tryMove(1,0); e.preventDefault(); }
-});
-// touch swipe
-let tStart=null;
-canvas.addEventListener('touchstart', e=>{ const t=e.changedTouches[0]; tStart={x:t.clientX,y:t.clientY}; e.preventDefault(); }, {passive:false});
-canvas.addEventListener('touchend', e=>{
-  if(!tStart) return; const t=e.changedTouches[0];
-  const dx=t.clientX-tStart.x, dy=t.clientY-tStart.y;
-  const ax=Math.abs(dx), ay=Math.abs(dy);
-  if(ax<22 && ay<22){ tryMove(0,1); } // tap = forward
-  else if(ax>ay){ tryMove(dx>0?1:-1,0); }
-  else { tryMove(0, dy<0?1:-1); }
-  tStart=null; e.preventDefault();
-}, {passive:false});
-// mouse drag (desktop nicety)
-let mStart=null;
-canvas.addEventListener('mousedown', e=>{ mStart={x:e.clientX,y:e.clientY}; });
-canvas.addEventListener('mouseup', e=>{
-  if(!mStart) return; const dx=e.clientX-mStart.x, dy=e.clientY-mStart.y;
-  const ax=Math.abs(dx),ay=Math.abs(dy);
-  if(ax<18&&ay<18){ tryMove(0,1); }
-  else if(ax>ay){ tryMove(dx>0?1:-1,0); } else { tryMove(0,dy<0?1:-1); }
-  mStart=null;
-});
-
-/* ---------------- HUD ---------------- */
-const elScore=document.getElementById('score'), elLives=document.getElementById('lives');
-const elCoins=document.getElementById('coins');
-const elQ=document.getElementById('question'), elHud=document.getElementById('hud');
-function updateHUD(){ elScore.textContent='Score '+score; elCoins.textContent='🪙 '+coins; elLives.textContent='❤️'.repeat(Math.max(0,lives)); }
-function updateQuestion(){
-  // show the nearest unanswered quiz row ahead
-  let found=null;
-  for(let r=player.row; r<rows.length && r<player.row+12; r++){
-    if(rows[r] && rows[r].type==='quiz' && !rows[r].answered){ found=rows[r]; break; }
-  }
-  if(found){ elQ.classList.remove('hide');
-    const lbl = found.qgrade!==undefined ? 'GRADE '+GRADES[found.qgrade]+' — SOLVE TO CROSS' : 'SOLVE TO CROSS';
-    elQ.innerHTML='<small>'+lbl+'</small>'+found.q+' = ?'; }
-  else { elQ.classList.add('hide'); }
+function afterDeath(){
+  if(lives <= 0) return gameOver();
+  if(death.kind === 'wrong') assignHomes();  // same question, answers reshuffled
+  frog = newFrog(); timeLeft = TIME; state = 'play'; death = null;
 }
-let floatMsgs=[];
-function floatMsg(txt){ floatMsgs.push({txt, t:0}); }
-function kaboom(col,row){ kabooms.push({col, row, t:0}); }
-function drawKaboom(){
-  for(const k of kabooms){
-    const p=proj(k.col+0.5, k.row+0.5, 0.4), x=p[0], y=p[1];
-    const t=k.t/0.6, R=CW*(0.5+t*1.3);
-    ctx.save(); ctx.globalAlpha=1-t; ctx.translate(x,y);
-    ctx.fillStyle='#ff7a1a'; ctx.beginPath();
-    const spikes=11;
-    for(let i=0;i<spikes*2;i++){ const a=Math.PI*i/spikes, rr2=(i%2===0)?R:R*0.52; ctx.lineTo(Math.cos(a)*rr2, Math.sin(a)*rr2); }
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#ffd23f'; ctx.beginPath(); ctx.arc(0,0,R*0.5,0,7); ctx.fill();
-    ctx.restore();
-    ctx.save(); ctx.globalAlpha=1-t;
-    ctx.font=`900 ${CW*(0.6+t*0.3)}px 'Segoe UI',Arial,sans-serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.lineWidth=Math.max(4,CW*0.09); ctx.strokeStyle='#7a1f1f'; ctx.strokeText('KABOOM!', x, y-R-CW*0.35);
-    ctx.fillStyle='#ffd23f'; ctx.fillText('KABOOM!', x, y-R-CW*0.35);
-    ctx.restore();
-  }
-  ctx.globalAlpha=1;
+function gameOver(){
+  state = 'over';
+  if(score > best){ best = score; lsSet('mathhopper2d_best', best); }
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalLevel').textContent = level;
+  document.getElementById('finalCorrect').textContent = correctCount;
+  document.getElementById('bestLine').innerHTML = `Best <b>${best}</b>`;
+  document.getElementById('hud').classList.add('hide');
+  document.getElementById('question').classList.add('hide');
+  document.getElementById('pad').classList.add('hide');
+  document.getElementById('over').classList.remove('hide');
 }
 
 /* ---------------- Update ---------------- */
-let last=performance.now();
 function update(dt){
-  if(kabooms.length){ for(const k of kabooms) k.t+=dt; kabooms=kabooms.filter(k=>k.t<0.6); }
-  if(state==='dying'){ updateDeath(dt); return; }
-  if(state==='riding'){ updateRide(dt); return; }
-  if(state==='fight'){ updateFight(dt); return; }
-  if(state==='squish'){ squish.t += dt/0.85; if(squish.t>=1) finishGameOver(); return; }
-  if(state!=='play') return;   // 'offer' and others are frozen
-  if(invuln>0) invuln-=dt;
-  // player hop animation
-  if(player.moving){
-    player.t += dt/MOVE_DUR;
-    if(player.t>=1){ player.t=1; player.vx=player.toC; player.vy=player.toR; finishMove(); }
-    else { player.vx = player.fromC + (player.toC-player.fromC)*player.t;
-           player.vy = player.fromR + (player.toR-player.fromR)*player.t; }
-  } else { player.vx=player.col; player.vy=player.row; }
-  // camera: creep forward for urgency, and snap up when the player leaps ahead
-  camRow += AUTO_SCROLL*dt;
-  if(player.vy > camRow) camRow += (player.vy - camRow)*0.12;
-  // caught by the advancing bottom edge → lose a life, recenter the camera
-  if(!player.moving && invuln<=0 && player.row < camRow - 2.6){
-    lives--; updateHUD();
-    if(lives<=0){ gameOver(); return; }
-    camRow = player.row;
-    invuln = 1.4; floatMsg('🦅 Keep moving!');
-  }
-  // vehicles & trains
-  ensureRows(player.row+20);
-  // lane travel bounds in column units; vehicles wrap once well off the lane
-  const leftX = -COLS-1;
-  const rightX = 2*COLS+1;
-  for(let r=Math.max(0,player.row-3); r<rows.length && r<player.row+18; r++){
-    const row=rows[r]; if(!row) continue;
-    if(row.type==='road'){
-      // logging truck drops rolling logs out the back
-      if(row.kind==='log'){
-        row.dropTimer -= dt;
-        if(row.dropTimer<=0 && row.cars.filter(c=>c.isLog).length < row.maxLogs){
-          const tr=row.cars.find(c=>c.isTruck);
-          if(tr) row.cars.push({x: tr.x - row.dir*(tr.len*0.55), isLog:true, len:0.9, sp:row.logSpeed, spin:0});
-          row.dropTimer = 1.2;
-        }
-      }
-      for(const car of row.cars){
-        const sp = car.sp || row.speed, L = car.len || row.len;
-        if(car.flat) continue;                            // flattened cars stay put
-        car.x += row.dir*sp*dt;
-        if(car.isLog) car.spin = (car.spin||0) + sp*dt;   // rolling
-        if(row.dir>0 && car.x > rightX + 0.5)    car.x = leftX - L - 0.5;
-        if(row.dir<0 && car.x < leftX - L - 0.5) car.x = rightX + 0.5;
-      }
-      if(!player.moving && player.row===r && invuln<=0){
-        const pc = player.col + 0.5;   // player's cell centre
-        for(const car of row.cars){
-          if(car.flat) continue;       // a flat pancake is harmless to step over
-          const L = car.len || row.len;
-          // small forgiveness on each end so only a real overlap is fatal
-          if(pc > car.x + 0.15 && pc < car.x + L - 0.15){ loseLife('car'); break; }
-        }
-      }
-    } else if(row.type==='rail'){
-      row.timer -= dt;
-      if(row.phase==='idle'){ if(row.timer<=0){ row.phase='warn'; row.timer=1.6; } }
-      else if(row.phase==='warn'){ if(row.timer<=0){ row.phase='pass';
-        row.dir = Math.random()<0.5?1:-1;
-        row.trainX = row.dir>0 ? leftX - row.trainLen - 0.5 : rightX + 0.5; } }
-      else if(row.phase==='pass'){
-        row.trainX += row.dir*row.trainSpeed*dt;
-        if((row.dir>0 && row.trainX > rightX + 0.5) || (row.dir<0 && row.trainX < leftX - row.trainLen - 0.5)){
-          row.phase='idle'; row.timer = 2.4 + Math.random()*2.8;
-        }
-        // a passing train is deadly even mid-hop (small forgiveness at the ends)
-        const pc = player.col + 0.5;
-        if(player.row===r && invuln<=0 &&
-           pc > row.trainX+0.15 && pc < row.trainX+row.trainLen-0.15){
-          loseLife('train');
-        }
-      }
+  clock += dt;
+  const mul = speedMul();
+  for(const L of Object.values(lanes)){
+    for(const it of L.items){
+      it.x += L.dir * L.speed * mul * dt;
+      if(L.dir > 0 && it.x > COLS + 1.5) it.x -= L.span;
+      if(L.dir < 0 && it.x < -L.len - 1.5) it.x += L.span;
     }
   }
-  // giant slow ad trucks: crawl across 3 lanes, flatten any car they touch
-  for(const at of adTrucks){
-    at.x += at.dir*at.speed*dt;
-    if(at.dir>0 && at.x > rightX+0.5)      at.x = leftX - at.len - 0.5;
-    if(at.dir<0 && at.x < leftX - at.len - 0.5) at.x = rightX + 0.5;
-    for(let rr=at.row0; rr<at.row0+3; rr++){
-      const row=rows[rr];
-      if(row && row.type==='road' && row.cars){
-        for(const c of row.cars){
-          if(c.flat) continue;
-          const cl=c.x, cr=c.x+(c.len||row.len);
-          if(cr > at.x+0.2 && cl < at.x+at.len-0.2) c.flat=true;   // squished flat (stays put)
-        }
-      }
-    }
-    if(!player.moving && invuln<=0 && player.row>=at.row0 && player.row<at.row0+3){
-      const pc=player.col+0.5;
-      if(pc > at.x+0.2 && pc < at.x+at.len-0.2) loseLife('car');
-    }
-  }
-  adTrucks = adTrucks.filter(at => at.row0 > player.row - 14);   // drop ones we've passed
-  // float messages
-  for(const m of floatMsgs){ m.t+=dt; } floatMsgs=floatMsgs.filter(m=>m.t<1.1);
-}
+  floats = floats.filter(f => (f.t += dt) < 1.8);
 
-/* ---------------- Render (isometric voxels) ---------------- */
-let camRow=1;
-// chunky voxel projection: c = column (x), r = row/depth (forward = up), z = height
-function isoScale(){ const s=Math.max(1.15, Math.min(2.7, W/330)); CW=34*s; CH=18*s; CZ=30*s; }
-function proj(c,r,z){
-  const ax = c - (COLS-1)/2, ay = r - camRow;
-  return [ W/2 + (ax - ay)*CW, H*0.74 - (ax + ay)*CH - (z||0)*CZ ];
-}
-// legacy flat helpers (still used by cinematic overlays until those are voxelised)
-function rowScreenY(r){ return H*0.66 - (r - camRow)*2*CH; }
-function cellX(c){ return W/2 + (c - (COLS-1)/2)*2*CW; }
-function shade(hex,f){
-  if(typeof hex!=='string' || hex[0]!=='#') return hex;
-  const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
-  r=Math.min(255,r*f)|0; g=Math.min(255,g*f)|0; b=Math.min(255,b*f)|0;
-  return 'rgb('+r+','+g+','+b+')';
-}
-function vpoly(p,fill){
-  ctx.beginPath(); ctx.moveTo(p[0][0],p[0][1]);
-  for(let i=1;i<p.length;i++) ctx.lineTo(p[i][0],p[i][1]);
-  ctx.closePath(); ctx.fillStyle=fill; ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.07)'; ctx.lineWidth=1; ctx.stroke();
-}
-// voxel cuboid spanning [c,c+dc] x [r,r+dr] x [z,z+dz]
-function vbox(c,r,z,dc,dr,dz,col){
-  const z2=z+dz;
-  vpoly([proj(c,r,z),proj(c,r+dr,z),proj(c,r+dr,z2),proj(c,r,z2)], shade(col,0.70));        // left (col=c)
-  vpoly([proj(c,r,z),proj(c+dc,r,z),proj(c+dc,r,z2),proj(c,r,z2)], shade(col,0.86));        // right (row=r)
-  vpoly([proj(c,r,z2),proj(c+dc,r,z2),proj(c+dc,r+dr,z2),proj(c,r+dr,z2)], shade(col,1.0)); // top
-}
-function vshadow(c,r){ const p=proj(c+0.5,r+0.5,0); ctx.fillStyle='rgba(0,0,0,.16)';
-  ctx.beginPath(); ctx.ellipse(p[0],p[1],CW*0.7,CH*0.7,0,0,7); ctx.fill(); }
-// paint text onto a vertical voxel face (skewed to match the iso projection)
-function isoText(txt, colAnchor, wCols, faceRow, zBaseline, hZ, color){
-  const S=48; ctx.save();
-  ctx.font=`900 ${S}px 'Segoe UI',Arial,sans-serif`;
-  const Wt=ctx.measureText(txt).width||1, sx=wCols/Wt, sy=hZ/S;
-  const O=proj(colAnchor, faceRow, zBaseline);
-  ctx.translate(O[0],O[1]);
-  ctx.transform(sx*CW, -sx*CH, 0, sy*CZ, 0, 0);   // align with the column & height axes
-  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  ctx.fillStyle=color; ctx.fillText(txt, 0, 0);
-  ctx.restore();
-}
-
-function render(){
-  ctx.clearRect(0,0,W,H);
-  if(state==='menu' || state==='over'){ return; }
-  const topR = Math.ceil(camRow + (H*0.74)/CH + 4);
-  const botR = Math.floor(camRow - 13);
-  ensureRows(topR+1);
-  for(let r=topR; r>=botR; r--){               // far rows first (painter's order)
-    const row=rows[r];
-    if(row) drawRow(row, r);
-    else if(r<0) vbox(GX, r, 0, GW, 1, 0.2, (((r%2)+2)%2)?'#7ec850':'#75bb47'); // grass behind the start (no void)
-    // draw a giant ad truck once we've laid down its nearest lane (correct occlusion)
-    for(const at of adTrucks) if(at.row0===r) drawAdTruck(at);
-  }
-  if(state==='dying') drawDeath();
-  else if(state==='riding') drawRideVan();
-  else if(state==='fight') drawFight();
-  else if(state==='squish') drawSquish();
-  else drawPlayer();
-  drawKaboom();
-  drawFloatMsgs();
-}
-
-const GX=-20, GW=COLS+40;   // ground slabs run far past the lanes to fill the screen
-function drawRow(row, r){
-  if(row.type==='grass'){
-    vbox(GX, r, 0, GW, 1, 0.20, (r%2)?'#7ec850':'#75bb47');   // one flat strip, striped by row
-    if(row.roadCol!==undefined){                  // station's vertical road
-      vbox(row.roadCol, r, 0.20, 1, 1, 0.02, '#4a4a55');
-      vbox(row.roadCol+0.44, r+0.05, 0.22, 0.12, 0.9, 0.01, '#d9d97a');
+  if(state === 'dying'){ death.t += dt; if(death.t > death.hold) afterDeath(); return; }
+  if(state === 'levelup'){
+    levelT += dt;
+    if(levelT > 2.2){
+      level++; homes.forEach(h => h.filled = false);
+      makeLanes(); nextQuestion(); frog = newFrog(); timeLeft = TIME; state = 'play'; updateHUD();
     }
-    if(row.obstacles) for(const cStr in row.obstacles){
-      if(row.obstacles[cStr]==='tree') drawTree(+cStr, r); else drawRock(+cStr, r);
-    }
-    if(row.station) drawParkedVan(row.roadCol, r);
-  } else if(row.type==='road'){
-    const race=row.kind==='race';
-    vbox(GX, r, 0, GW, 1, 0.14, race?'#3d3d47':'#4a4a55');     // flat road strip
-    for(let c=-6;c<COLS+6;c++) vbox(c+0.2, r+0.46, 0.14, 0.55, 0.07, 0.012, race?'#f5c518':'#e3e3e3'); // dashes
-    const list=row.cars.slice().sort((a,b)=>b.x-a.x);   // far (high col) first
-    for(const car of list){
-      if(car.flat) drawFlatCar(car.x, r, row);
-      else if(car.isLog) drawLog(car.x, r, car, row);
-      else if(car.isTruck) drawLogTruck(car.x, r, row, car);
-      else if(row.kind==='truck') drawTruck(car.x, r, row);
-      else if(race) drawRace(car.x, r, row);
-      else drawCar(car.x, r, row);
-    }
-    if(race){ drawFlag(-1.1, r); drawFlag(COLS+0.1, r); }
-  } else if(row.type==='rail'){
-    drawRail(row, r);
-  } else if(row.type==='quiz'){
-    vbox(GX, r, 0, GW, 1, 0.10, row.answered?'#5fb0e6':'#3aa3e0'); // flat water strip
-    drawPads(row, r);
-  }
-  if(row.coin) drawCoin(row.coinCol, r, row.coinVal||1);
-}
-function drawCoin(c, r, val){
-  const t=performance.now()/300, bob=Math.sin(t)*0.06+0.34, gem=val>=3;
-  vshadow(c, r);
-  if(gem){ vbox(c+0.36,r+0.36,bob,0.28,0.28,0.28,'#46d6e0'); vbox(c+0.42,r+0.42,bob+0.28,0.16,0.16,0.14,'#bff6fb'); }
-  else   { vbox(c+0.34,r+0.42,bob,0.32,0.16,0.30,'#ffcf3f'); vbox(c+0.40,r+0.46,bob+0.08,0.2,0.08,0.16,'#fff0a8'); }
-}
-function drawPads(row, r){
-  for(const cStr in row.pads){
-    const c=+cStr, wrong=row.wrongCols[c], solved=row.answered&&c===row.correctCol;
-    const col = solved?'#ffd84d': wrong?'#c94b4b':'#3fae5a';
-    vbox(c+0.12, r+0.12, 0, 0.76, 0.76, 0.16, col);   // lily pad slab
-    const p=proj(c+0.5, r+0.5, 0.18);
-    const txt=row.pads[c]; let fs=CW*0.7; if(txt.length>2) fs=CW*0.5; if(txt.length>4) fs=CW*0.4;
-    ctx.font=`800 ${fs}px 'Segoe UI',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle=solved?'#3a2e00':'#fff'; ctx.fillText(txt, p[0], p[1]);
-  }
-}
-
-// rounded-rectangle path helper
-function rr(x,y,w,h,r){ r=Math.min(r,h/2,w/2);
-  ctx.beginPath(); ctx.moveTo(x+r,y);
-  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
-}
-function drawTree(c, r){
-  vshadow(c, r);
-  vbox(c+0.42, r+0.42, 0,   0.16, 0.16, 0.5, '#7a4a23');   // trunk
-  vbox(c+0.22, r+0.22, 0.5, 0.56, 0.56, 0.5, '#2f9e44');   // canopy
-  vbox(c+0.32, r+0.32, 1.0, 0.36, 0.36, 0.3, '#37b552');   // top tuft
-}
-function drawRock(c, r){
-  vshadow(c, r);
-  vbox(c+0.18, r+0.18, 0,    0.62, 0.62, 0.34, '#888e98');
-  vbox(c+0.34, r+0.3,  0.34, 0.34, 0.34, 0.22, '#9aa0aa');
-}
-function drawRace(x, r, row){
-  const d0=r+0.24, dr=0.52;
-  vshadow(x, r);
-  wheels(x, r, 1, 0.66, 0.1);
-  vbox(x+0.04, d0, 0.1,  0.92, dr, 0.18, row.color);                // body
-  vbox(x+0.34, d0+0.08, 0.28, 0.3, dr-0.16, 0.16, '#15151b');       // cockpit
-  vbox(x+0.4,  d0+0.12, 0.44, 0.2, dr-0.24, 0.04, '#bfe6ff');       // visor
-  vbox(row.dir>0? x : x+0.9, d0, 0.1, 0.1, dr, 0.3, '#1b1b22');     // rear wing
-}
-function drawFlag(c, r){
-  vbox(c+0.45, r+0.45, 0, 0.06, 0.06, 0.72, '#23232b');              // pole
-  for(let i=0;i<3;i++) for(let j=0;j<2;j++)
-    vbox(c+0.5+i*0.12, r+0.45, 0.5+j*0.12, 0.12, 0.04, 0.12, ((i+j)%2)?'#fff':'#111');
-}
-// four dark wheels tucked under a vehicle spanning [x,x+L] across lane depth dr
-function wheels(x, r, L, dr, inset){
-  inset=inset||0.12; const d0=r+(0.5-dr/2);
-  for(const wx of [x+inset, x+L-inset-0.22])
-    for(const wy of [d0-0.05, d0+dr-0.13])
-      vbox(wx, wy, -0.06, 0.22, 0.18, 0.24, '#15151b');
-}
-function drawFlatCar(x, r, row){   // a car squished flat by the ad truck
-  const L=(row.len||1), d0=r+0.16, dr=0.68;
-  vbox(x+0.04, d0, 0, L-0.08, dr, 0.07, shade(row.color,0.9));      // flattened body
-  vbox(x+0.18, d0+0.12, 0.07, (L-0.08)*0.5, dr-0.24, 0.01, '#bcd9ef'); // smushed roof/window
-}
-function drawCar(x, r, row){
-  const L=row.len, d0=r+0.2, dr=0.6;
-  vshadow(x, r);
-  wheels(x, r, L, dr);
-  vbox(x+0.05, d0,      0.1,  L-0.1,  dr,      0.26, row.color);             // body
-  vbox(x+0.22, d0+0.07, 0.36, L*0.5,  dr-0.14, 0.20, shade(row.color,1.1));  // cabin
-  vbox(x+0.24, d0-0.02, 0.40, L*0.46, 0.06,    0.14, '#cdebff');             // windshield (camera side)
-  vbox(x+0.26, d0+0.1,  0.40, L*0.42, dr-0.22, 0.04, '#dff1ff');             // roof window
-  vbox(row.dir>0? x+L-0.1 : x+0.02, d0+0.22, 0.16, 0.07, 0.16, 0.1, '#fff3b0'); // headlight
-}
-function drawTruck(x, r, row){
-  const L=row.len, d0=r+0.16, dr=0.68, front=row.dir>0;
-  vshadow(x, r); vshadow(x+1, r);
-  wheels(x, r, L, dr, 0.16);
-  vbox(x+L*0.5-0.02, r+(0.5-dr/2)-0.05, -0.06, 0.22,0.18,0.24,'#15151b');    // middle wheels
-  vbox(x+L*0.5-0.02, r+(0.5+dr/2)-0.13, -0.06, 0.22,0.18,0.24,'#15151b');
-  const cabL=0.6, bedL=L-cabL;
-  const bedX = front ? x+0.02 : x+cabL;
-  const cabX = front ? x+bedL : x+0.02;
-  const drawBed=()=> vbox(bedX, d0, 0.08, bedL, dr, 0.5, '#eaeef3');
-  const drawCab=()=>{ vbox(cabX, d0, 0.08, cabL+0.02, dr, 0.58, row.color);   // taller cab
-                      vbox(cabX+0.08, d0-0.02, 0.30, cabL-0.16, 0.06, 0.26, '#cdebff'); };
-  if(front){ drawCab(); drawBed(); }   // cab sits at higher col → draw it first
-  else     { drawBed(); drawCab(); }
-}
-function drawLog(x, r, car, row){
-  const L=car.len||0.9, d0=r+0.2, dr=0.6;
-  vshadow(x, r);
-  vbox(x, d0, 0, L, dr, 0.34, '#8a5a2b');                            // log body
-  vbox(x+0.04, d0+0.06, 0.34, L-0.08, dr-0.12, 0.03, '#9c6a35');     // top highlight
-  vbox(row.dir>0? x+L-0.05 : x, d0+0.16, 0.06, 0.05, dr-0.32, 0.24, '#c8945a'); // cut end ring
-}
-function drawLogTruck(x, r, row, car){
-  const L=car.len||2.5, d0=r+0.16, dr=0.68, front=row.dir>0;
-  vshadow(x, r); vshadow(x+1, r);
-  wheels(x, r, L, dr, 0.16);
-  vbox(x+L*0.5-0.02, r+(0.5-dr/2)-0.05, -0.06, 0.22,0.18,0.24,'#15151b');
-  vbox(x+L*0.5-0.02, r+(0.5+dr/2)-0.13, -0.06, 0.22,0.18,0.24,'#15151b');
-  const cabL=0.6, bedL=L-cabL;
-  const bedX = front ? x+0.02 : x+cabL;
-  const cabX = front ? x+bedL : x+0.02;
-  const drawBed=()=>{
-    vbox(bedX, d0, 0.08, bedL, dr, 0.16, '#3a2e20');                 // flatbed
-    for(const o of [0.08,0.4,0.72]) vbox(bedX+o*bedL, d0+0.04, 0.24, bedL*0.24, dr-0.08, 0.22, '#8a5a2b');
-    for(const o of [0.24,0.56])     vbox(bedX+o*bedL, d0+0.14, 0.46, bedL*0.24, dr-0.26, 0.2, '#9c6a35');
-  };
-  const drawCab=()=>{ vbox(cabX, d0, 0.08, cabL+0.02, dr, 0.6, '#d6232a');   // taller cab
-                      vbox(cabX+0.08, d0-0.02, 0.32, cabL-0.16, 0.06, 0.26, '#cdebff'); };
-  if(front){ drawCab(); drawBed(); }   // cab at higher col → draw it first
-  else     { drawBed(); drawCab(); }
-}
-function drawSignal(c, r, on){
-  vbox(c+0.45, r+0.45, 0,   0.08, 0.08, 0.5, '#23232b');             // post
-  vbox(c+0.38, r+0.38, 0.5, 0.2,  0.2,  0.2, on?'#ff3b3b':'#5a1f1f'); // light
-}
-function drawTrain(row, r){
-  const d0=r+0.14, dr=0.72, segs=row.trainLen, tx=row.trainX;
-  // solid body sitting right on the track (z from 0 — no gap underneath)
-  vbox(tx, d0, 0, segs, dr, 0.6, row.color);
-  // darker engine block at the leading end
-  vbox(row.dir>0 ? tx+segs-1.1 : tx, d0-0.02, 0, 1.1, dr+0.04, 0.64, '#272b34');
-  // windows + car dividers as decals protruding from the camera-facing side
-  for(let s=0;s<segs;s++){
-    vbox(tx+s+0.16, d0-0.03, 0.30, 0.66, 0.05, 0.18, '#cfe6ff');        // window
-    vbox(tx+s+0.97, d0-0.02, 0,    0.06, 0.05, 0.60, shade(row.color,0.5)); // divider
-  }
-}
-function drawRail(row, r){
-  vbox(GX, r, 0, GW, 1, 0.14, '#5a554f');                            // flat ballast strip
-  for(let c=-6;c<COLS+6;c++) vbox(c+0.08, r+0.12, 0.14, 0.84, 0.14, 0.03, '#6e4a2f'); // ties
-  vbox(GX, r+0.28, 0.16, GW, 0.06, 0.05, '#c2c2cc');                 // rail
-  vbox(GX, r+0.64, 0.16, GW, 0.06, 0.05, '#c2c2cc');                 // rail
-  if(row.phase==='pass') drawTrain(row, r);
-  const on = (row.phase==='warn'||row.phase==='pass') && Math.floor(performance.now()/250)%2===0;
-  drawSignal(-1.0, r, on); drawSignal(COLS, r, on);
-}
-/* ---------------- Death sequence: McDiabetes delivery-truck pickup ---------------- */
-const DDUR = {arrive:1.1, out:0.85, throw:0.9, shut:0.55, leave:1.3};
-function easeOut(t){ return 1-(1-t)*(1-t); }
-function easeIn(t){ return t*t; }
-function easeInOut(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
-function updateDeath(dt){
-  const d=death; if(!d) return;
-  d.t += dt / DDUR[d.phase];
-  if(d.t>=1){
-    d.t=0;
-    if(d.phase==='arrive') d.phase='out';
-    else if(d.phase==='out') d.phase='throw';
-    else if(d.phase==='throw') d.phase='shut';
-    else if(d.phase==='shut') d.phase='leave';
-    else if(d.phase==='leave') finishGameOver();
-  }
-}
-function chickShadow(x, feetY){
-  ctx.fillStyle='rgba(0,0,0,.22)';
-  ctx.beginPath(); ctx.ellipse(x, feetY-cell*0.18, cell*0.26, cell*0.12, 0,0,7); ctx.fill();
-}
-function drawAliveChick(x, y, rot){
-  ctx.save(); ctx.translate(x,y); if(rot) ctx.rotate(rot);
-  ctx.font=`${cell*0.74}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('🐥', 0, 0);
-  ctx.restore();
-}
-function drawStickman(x, feetY, moving, throwing){
-  const s=cell;
-  ctx.strokeStyle='#15151b'; ctx.fillStyle='#15151b';
-  ctx.lineWidth=Math.max(2,s*0.05); ctx.lineCap='round';
-  const headY=feetY-s*0.92, shY=feetY-s*0.74, hipY=feetY-s*0.42;
-  ctx.beginPath(); ctx.arc(x, headY, s*0.1, 0,7); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(x, shY); ctx.lineTo(x, hipY); ctx.stroke();
-  const sw = moving ? Math.sin(performance.now()/90)*0.34 : 0.12;
-  ctx.beginPath(); ctx.moveTo(x,hipY); ctx.lineTo(x + Math.sin(sw)*s*0.22, feetY); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x,hipY); ctx.lineTo(x - Math.sin(sw)*s*0.22, feetY); ctx.stroke();
-  if(throwing){
-    ctx.beginPath(); ctx.moveTo(x, shY+s*0.04); ctx.lineTo(x + s*0.26, shY - s*0.18); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, shY+s*0.04); ctx.lineTo(x + s*0.22, shY - s*0.04); ctx.stroke();
-  } else {
-    ctx.beginPath(); ctx.moveTo(x, shY+s*0.06); ctx.lineTo(x + Math.cos(sw)*s*0.18, shY+s*0.22); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, shY+s*0.06); ctx.lineTo(x - Math.cos(sw)*s*0.18, shY+s*0.22); ctx.stroke();
-  }
-  ctx.lineCap='butt';
-}
-// Always faces/drives right: cab (front) on the right, rear roll-up door on the left.
-function drawDeliveryTruck(boxLeft, top, w, h, bottom, open){
-  ctx.fillStyle='rgba(0,0,0,.25)';
-  ctx.beginPath(); ctx.ellipse(boxLeft+w*0.5, bottom+h*0.04, w*0.5, h*0.12, 0,0,7); ctx.fill();
-  const cabW=w*0.22, cabX=boxLeft+w-cabW;   // cab/front on the RIGHT
-  const boxX=boxLeft, boxW=w-cabW;          // cargo box fills the rest
-  // cargo box (white)
-  ctx.fillStyle='#f3f4f7'; rr(boxX, top, boxW, h*0.9, 7); ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.1)'; ctx.lineWidth=2; rr(boxX, top, boxW, h*0.9, 7); ctx.stroke();
-  // red roof + skirt (delivery livery)
-  ctx.fillStyle='#d6232a'; rr(boxX, top, boxW, h*0.16, 7); ctx.fill();
-  ctx.fillStyle='#d6232a'; ctx.fillRect(boxX, top+h*0.72, boxW, h*0.18);
-  // cab (red) windshield + headlight at the front (right)
-  ctx.fillStyle='#d6232a'; rr(cabX, top+h*0.18, cabW, h*0.72, 6); ctx.fill();
-  ctx.fillStyle='rgba(235,245,255,.92)'; rr(cabX+cabW*0.30, top+h*0.24, cabW*0.56, h*0.3, 3); ctx.fill();
-  ctx.fillStyle='#fff3b0'; ctx.beginPath(); ctx.arc(cabX+cabW*0.94, top+h*0.66, h*0.05,0,7); ctx.fill();
-  // "McDiabetes" branding (golden arch + wordmark), scaled to fit the box
-  const cx0=boxX+boxW*0.54, cy0=top+h*0.42, label='Diabetes';
-  ctx.font=`900 ${h*0.34}px 'Segoe UI',Arial,sans-serif`; ctx.textAlign='left'; ctx.textBaseline='middle';
-  const archW=h*0.34, textW=ctx.measureText(label).width, total=archW+textW;
-  const sc=Math.min(1,(boxW*0.82)/total);
-  ctx.save(); ctx.translate(cx0,cy0); ctx.scale(sc,1); ctx.translate(-total/2,0);
-  ctx.fillStyle='#ffc72c'; ctx.font=`900 ${h*0.42}px 'Segoe UI',Arial,sans-serif`; ctx.fillText('M',0,-h*0.01);
-  ctx.font=`900 ${h*0.34}px 'Segoe UI',Arial,sans-serif`;
-  ctx.lineWidth=h*0.05; ctx.strokeStyle='#7a1f1f'; ctx.strokeText(label,archW,0);
-  ctx.fillStyle='#ffc72c'; ctx.fillText(label,archW,0);
-  ctx.restore();
-  // rear roll-up door on the LEFT (back) — closes during 'shut'
-  const diw=boxW*0.18, ix=boxLeft;
-  ctx.fillStyle='#15151b'; rr(ix, top+h*0.14, diw, h*0.62, 4); ctx.fill();
-  const cw=diw*(1-open);
-  ctx.fillStyle='#c9ccd2'; rr(ix, top+h*0.12, cw, h*0.66, 4); ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1.5;
-  for(let yy=top+h*0.2; yy<top+h*0.74; yy+=h*0.1){ ctx.beginPath(); ctx.moveTo(ix,yy); ctx.lineTo(ix+cw,yy); ctx.stroke(); }
-  // wheels
-  ctx.fillStyle='#16161c';
-  for(const f of [0.22,0.78]){ ctx.beginPath(); ctx.arc(boxLeft+w*f, bottom, h*0.15,0,7); ctx.fill(); }
-  ctx.fillStyle='#3a3a44';
-  for(const f of [0.22,0.78]){ ctx.beginPath(); ctx.arc(boxLeft+w*f, bottom, h*0.07,0,7); ctx.fill(); }
-}
-// voxel McDiabetes box truck spanning [tc, tc+TL] columns on row r
-function drawVoxTruck(tc, r, TL, open){
-  const d0=r+0.06, dr=0.92, H=0.96, cabL=0.85, boxL=TL-cabL;
-  for(let k=0;k<TL;k++) vshadow(tc+k, r);
-  wheels(tc, r, TL, dr, 0.2);
-  vbox(tc+TL*0.5-0.1, r+(0.5-dr/2)-0.05, -0.06, 0.22,0.18,0.24,'#15151b');  // middle wheel
-  // ONE solid box, full length & height — no seams or gaps anywhere
-  vbox(tc, d0, 0, TL, dr, H, '#f3f4f7');                  // white body (entire truck)
-  vbox(tc+boxL, d0, 0, cabL, dr, H, '#d6232a');           // red cab section (flush, same height)
-  vbox(tc, d0, H, TL, dr, 0.08, '#d6232a');               // red roof line (full length)
-  vbox(tc, d0, 0, TL, dr, 0.14, '#d6232a');               // red skirt (full length)
-  vbox(tc+boxL+0.08, d0-0.03, 0.44, cabL-0.16, 0.06, 0.34, '#cdebff'); // windshield
-  vbox(tc+TL-0.05, d0+0.32, 0.16, 0.05, dr-0.64, 0.14, '#fff3b0');     // headlight
-  // logo painted onto the white cargo side → reads as 3D
-  isoText('McDiabetes', tc+0.14, boxL*0.84, d0, 0.66, 0.34, '#ffc72c');
-  // rear roll-up door over the back face, closing
-  vbox(tc+0.0, d0+0.08, 0.08, 0.08, dr-0.16, (H-0.2)*(1-open)+0.06, '#b9bcc4');
-}
-function drawVoxStickman(c, r, z){
-  vbox(c+0.36, r+0.40, z,      0.1, 0.1, 0.30, '#15151b'); // legs
-  vbox(c+0.30, r+0.36, z+0.30, 0.24,0.24,0.34, '#15151b'); // torso
-  vbox(c+0.34, r+0.38, z+0.64, 0.18,0.18,0.18, '#e8c9a0'); // head
-}
-function drawDeath(){
-  const d=death; if(!d) return;
-  const t=Math.min(d.t,1);
-  const pc=player.vx, pr=player.vy, TL=3;
-  const stopTc = pc - 0.4 - TL;                 // truck rests just left of the player
-  const startTc = -TL-2, leaveTc = COLS+3;
-  let tc;
-  if(d.phase==='arrive') tc = startTc + (stopTc-startTc)*easeOut(t);
-  else if(d.phase==='leave') tc = stopTc + (leaveTc-stopTc)*easeIn(t);
-  else tc = stopTc;
-  const cabFront = tc + TL;                      // nearest the player
-  const tossC = tc + 0.55;                       // into the rear of the box
-  const open = (d.phase==='out'||d.phase==='throw') ? 1 : d.phase==='shut' ? 1-t : 0;
-  drawVoxTruck(tc, pr, TL, open);
-  if(d.phase==='arrive'){ vshadow(pc,pr); drawChickVox(pc, pr, 0); }
-  else if(d.phase==='out'){
-    vshadow(pc,pr); drawChickVox(pc, pr, 0);
-    drawVoxStickman(cabFront + (pc-cabFront)*easeInOut(t), pr, 0);
-  } else if(d.phase==='throw'){
-    drawVoxStickman(pc + (cabFront-pc)*easeInOut(t), pr, 0);
-    const cc = pc + (tossC-pc)*t;
-    const cz = 0.5*t + Math.sin(Math.PI*t)*1.4;  // arc over the roof into the box
-    drawChickVox(cc, pr, cz);
-  }
-}
-// voxel van pointing forward, used at a station and while you ride it
-function drawParkedVan(c, r){
-  vshadow(c, r);
-  vbox(c+0.22, r+0.14, 0,    0.56, 0.66, 0.6, '#3f7fd6');          // body
-  vbox(c+0.30, r+0.64, 0.12, 0.40, 0.10, 0.34, '#bfe6ff');        // windshield (front)
-  vbox(c+0.28, r+0.18, 0.6,  0.44, 0.5,  0.05, shade('#3f7fd6',1.25)); // roof
-}
-function drawRideVan(){
-  const pr=player.vy;
-  if(ride && ride.phase==='toss'){               // chucked out the side at the end
-    drawParkedVan(2, pr);
-    const t=Math.min(ride.t,1);
-    drawChickVox(2 + 2*t, pr, 0.4 + Math.sin(Math.PI*t)*1.0);
     return;
   }
-  drawParkedVan(player.vx, pr);
-  drawChickVox(player.vx, pr, 0.5);              // riding on top
+  if(state !== 'play') return;
+
+  timeLeft -= dt;
+  if(timeLeft < 8 && clock - lastTick > 1){ lastTick = clock; sfx.tick(); }
+  if(timeLeft <= 0) return die('time');
+
+  if(frog.hop){
+    frog.hop.t += dt / .11;
+    if(frog.hop.t >= 1) land();
+    return;
+  }
+  if(isRiver(frog.row)){
+    const L = lanes[frog.row];
+    if(!supportAt(frog.row, frog.x)) return die('splash');
+    frog.x += L.dir * L.speed * mul * dt;
+    if(frog.x < .15 || frog.x > COLS - .15) return die('swept');
+  } else if(isRoad(frog.row) && hitCar(frog.row, frog.x)) return die('squish');
 }
-// giant slow "cooked chicken" ad truck spanning 3 lanes (rows r..r+2)
-function drawAdTruck(at){
-  const x=at.x, r=at.row0, L=at.len, D=3, front=at.dir>0;
-  for(let k=0;k<=Math.ceil(L);k++){ vshadow(x+k,r); vshadow(x+k,r+1); vshadow(x+k,r+2); }
-  // big wheels along both long sides
-  for(const wy of [r+0.06, r+D-0.3])
-    for(const wx of [x+0.2, x+L*0.5-0.13, x+L-0.46])
-      vbox(wx, wy, -0.1, 0.28, 0.24, 0.32, '#15151b');
-  // trailer body (huge blue box across all 3 lanes)
-  vbox(x, r+0.14, 0, L, D-0.28, 1.05, '#3a78c8');
-  vbox(x, r+0.14, 0, L, D-0.28, 0.14, '#2a5fa0');               // darker skirt
-  // cab (red) at the leading end
-  const cabL=0.7, cabX = front ? x+L : x-cabL;
-  vbox(cabX, r+0.2, 0, cabL, D-0.4, 0.82, '#d6232a');
-  vbox(cabX+0.12, r+0.32, 0.42, cabL-0.24, 0.08, 0.3, '#cdebff');
-  // billboard sign on top, facing the camera
-  vbox(x+0.1, r+0.06, 1.05, L-0.2, 0.1, 0.64, '#fff3d0');       // sign panel
-  vbox(x+0.1, r+0.06, 1.62, L-0.2, 0.1, 0.07, '#d6232a');       // sign top trim
-  vbox(x+0.1, r+0.06, 1.05, L-0.2, 0.1, 0.07, '#d6232a');       // sign bottom trim
-  isoText('🍗 COOKED CHICKEN 🍗', x+0.2, L-0.4, r+0.05, 1.46, 0.34, '#c0341f');
+
+/* ---------------- Drawing ---------------- */
+const px = x => ox + x * cell, py = r => oy + r * cell;
+function rrect(x, y, w, h, r){
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
 }
-// voxel chicken at grid cell (c,r), raised by z
-function drawChickVox(c, r, z){
-  vbox(c+0.32, r+0.30, z,      0.13,0.13,0.16,'#e0892b');  // leg
-  vbox(c+0.55, r+0.30, z,      0.13,0.13,0.16,'#e0892b');  // leg
-  vbox(c+0.24, r+0.24, z+0.16, 0.52,0.52,0.36,'#f5f5f5');  // body
-  vbox(c+0.30, r+0.26, z+0.52, 0.40,0.40,0.32,'#fcfcfc');  // head
-  vbox(c+0.40, r+0.64, z+0.60, 0.18,0.12,0.12,'#ef9a1e');  // beak (front)
-  vbox(c+0.42, r+0.18, z+0.82, 0.16,0.16,0.13,'#e0463b');  // comb
-  vbox(c+0.32, r+0.52, z+0.66, 0.07,0.07,0.07,'#222');     // eye
-  vbox(c+0.61, r+0.52, z+0.66, 0.07,0.07,0.07,'#222');     // eye
+function ellipse(x, y, rx, ry, rot = 0){ ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI*2); ctx.fill(); }
+
+function drawBoard(){
+  const c = cell, w = COLS * c;
+  // Homes row: hedge with five water bays
+  ctx.fillStyle = '#1d6b2c'; ctx.fillRect(ox, py(0), w, c);
+  ctx.fillStyle = '#2a8a3a';
+  for(let i = 0; i < COLS * 2; i++) ellipse(ox + (i + .5) * c / 2, py(0) + c * .18, c * .28, c * .2);
+  // River
+  ctx.fillStyle = '#1f5fbf'; ctx.fillRect(ox, py(1), w, c * 5);
+  ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 2;
+  for(let r = 1; r <= 5; r++) for(let i = 0; i < COLS; i++){
+    const x = px(i + ((clock * .3 + r * .37) % 1)), y = py(r) + c * (.3 + (i % 2) * .4);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + c * .2, y - c * .08, x + c * .4, y); ctx.stroke();
+  }
+  // Sidewalks (median + start)
+  for(const r of [6, 12]){
+    ctx.fillStyle = '#7a4bb5'; ctx.fillRect(ox, py(r), w, c);
+    ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = 1;
+    for(let i = 0; i <= COLS * 2; i++){ ctx.beginPath(); ctx.moveTo(ox + i * c / 2, py(r)); ctx.lineTo(ox + i * c / 2, py(r) + c); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(ox, py(r) + c / 2); ctx.lineTo(ox + w, py(r) + c / 2); ctx.stroke();
+  }
+  // Road
+  ctx.fillStyle = '#25252d'; ctx.fillRect(ox, py(7), w, c * 5);
+  ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2; ctx.setLineDash([c * .35, c * .3]);
+  for(let r = 8; r <= 11; r++){ ctx.beginPath(); ctx.moveTo(ox, py(r)); ctx.lineTo(ox + w, py(r)); ctx.stroke(); }
+  ctx.setLineDash([]);
+  // Home bays
+  for(const h of homes){
+    const x = px(h.col), y = py(0);
+    ctx.fillStyle = '#1f5fbf'; ctx.fillRect(x + c * .05, y + c * .25, c * .9, c * .75);
+    ctx.fillStyle = '#3fae5a'; ellipse(x + c / 2, y + c * .66, c * .34, c * .26);
+    ctx.fillStyle = '#1f5fbf'; ctx.beginPath(); ctx.moveTo(x + c / 2, y + c * .66); ctx.lineTo(x + c * .84, y + c * .5); ctx.lineTo(x + c * .84, y + c * .7); ctx.fill();
+    if(h.filled) drawFrog(x + c / 2, y + c * .62, 0, .8);
+  }
 }
-function drawPlayer(){
-  const c=player.vx, r=player.vy;
-  const z = player.moving ? Math.sin(Math.PI*player.t)*0.5 : 0;
-  vshadow(c, r);
-  if(invuln>0 && Math.floor(invuln*12)%2===0) ctx.globalAlpha=0.5;
-  drawChickVox(c, r, z);
-  ctx.globalAlpha=1;
-}
-function drawFloatMsgs(){
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  for(const m of floatMsgs){
-    const p=proj(player.vx+0.5, player.vy+0.5, 1.4 + m.t*1.6);
-    ctx.globalAlpha=1-m.t/1.1;
-    ctx.font=`800 ${CW*0.5}px 'Segoe UI',sans-serif`;
-    ctx.lineWidth=4; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.strokeText(m.txt,p[0],p[1]);
-    ctx.fillStyle='#fff'; ctx.fillText(m.txt,p[0],p[1]);
-    ctx.globalAlpha=1;
+function drawLabels(){
+  const c = cell;
+  for(const h of homes){
+    if(!h.label) continue;
+    const x = px(h.col) + c / 2, y = py(0) + c * .3;
+    let size = Math.min(c * .46, 20);
+    ctx.font = `900 ${size}px system-ui, sans-serif`;
+    let tw = ctx.measureText(h.label).width;
+    if(tw > c * 1.75){ size *= c * 1.75 / tw; ctx.font = `900 ${size}px system-ui, sans-serif`; tw = ctx.measureText(h.label).width; }
+    ctx.fillStyle = h.filled ? 'rgba(0,0,0,.45)' : 'rgba(10,20,40,.88)';
+    rrect(x - tw / 2 - 6, y - size * .62, tw + 12, size * 1.25, 8); ctx.fill();
+    ctx.fillStyle = h.filled ? 'rgba(255,255,255,.45)' : '#fff';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(h.label, x, y + 1);
   }
 }
 
-/* ---------------- Loop ---------------- */
-function loop(now){
-  let dt=(now-last)/1000; last=now; if(dt>0.05) dt=0.05;
-  update(dt); render();
-  requestAnimationFrame(loop);
+function drawLog(L, it){
+  const c = cell, x = px(it.x), y = py(L.row) + c * .14, w = L.len * c, h = c * .72;
+  ctx.fillStyle = '#7a4a22'; rrect(x, y, w, h, h / 2); ctx.fill();
+  ctx.fillStyle = '#93602f'; rrect(x + h * .3, y + h * .12, w - h * .6, h * .28, h * .14); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 2;
+  for(let k = 1; k < L.len * 2; k++){ const lx = x + k * c / 2; ctx.beginPath(); ctx.moveTo(lx, y + h * .55); ctx.lineTo(lx + c * .2, y + h * .55); ctx.stroke(); }
+  ctx.fillStyle = '#d4a46b'; ellipse(x + w - h * .32, y + h / 2, h * .26, h * .42);
+  ctx.strokeStyle = '#9c6a36'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(x + w - h * .32, y + h / 2, h * .13, h * .22, 0, 0, Math.PI * 2); ctx.stroke();
 }
-requestAnimationFrame(loop);
+function drawTurtles(L, it){
+  const c = cell, st = turtleState(it), cy = py(L.row) + c / 2;
+  const alpha = st === 'up' ? 1 : st === 'under' ? .22 : .55;
+  ctx.save(); ctx.globalAlpha = alpha;
+  for(let k = 0; k < L.len; k++){
+    const cx = px(it.x + k + .5), r = c * .36 * (st === 'under' ? .85 : 1);
+    ctx.fillStyle = '#2f8a3a';
+    for(const [fx, fy] of [[-.6,-.7],[.6,-.7],[-.6,.7],[.6,.7]]) ellipse(cx + fx * r, cy + fy * r, r * .28, r * .18);
+    ellipse(cx + L.dir * r * 1.05, cy, r * .3, r * .26);
+    ctx.fillStyle = st === 'under' ? '#1a3f80' : '#c0392b'; ellipse(cx, cy, r, r * .9);
+    if(st !== 'under'){
+      ctx.fillStyle = '#e8644f';
+      for(const [sx, sy] of [[0,0],[-.45,-.35],[.45,-.35],[-.45,.35],[.45,.35]]) ellipse(cx + sx * r, cy + sy * r, r * .2, r * .18);
+    }
+  }
+  ctx.restore();
+}
+function drawVehicle(L, it){
+  const c = cell, x = px(it.x) + c * .06, w = L.len * c - c * .12, y = py(L.row) + c * .16, h = c * .68;
+  const front = L.dir > 0 ? x + w : x, f = L.dir > 0 ? -1 : 1;  // f points from the front toward the back
+  ctx.fillStyle = '#111';
+  for(const wx of [x + w * .18, x + w * .82 - c * .18]){ ctx.fillRect(wx, y - c * .05, c * .18, c * .1); ctx.fillRect(wx, y + h - c * .05, c * .18, c * .1); }
+  if(L.type === 'truck'){
+    ctx.fillStyle = '#eceff1'; rrect(x + (L.dir > 0 ? 0 : c * .62), y, w - c * .62, h, 4); ctx.fill();
+    ctx.fillStyle = '#e67e22'; rrect(L.dir > 0 ? x + w - c * .58 : x, y + h * .06, c * .58, h * .88, 6); ctx.fill();
+    ctx.fillStyle = '#9fd8ff'; ctx.fillRect(front + f * c * .14 - (L.dir > 0 ? c * .12 : 0), y + h * .18, c * .12, h * .64);
+  } else if(L.type === 'dozer'){
+    ctx.fillStyle = '#f2c230'; rrect(x + c * .1, y, w - c * .2, h, 4); ctx.fill();
+    ctx.fillStyle = '#7f8c8d'; ctx.fillRect(L.dir > 0 ? x + w - c * .12 : x, y - c * .06, c * .12, h + c * .12);
+    ctx.fillStyle = '#333'; ctx.fillRect(x + w / 2 - c * .12, y + h * .25, c * .24, h * .5);
+  } else if(L.type === 'race'){
+    ctx.fillStyle = '#f5f5f5'; rrect(x, y + h * .12, w, h * .76, h * .38); ctx.fill();
+    ctx.fillStyle = '#e74c3c'; ctx.fillRect(x + w * .1, y + h * .42, w * .8, h * .16);
+    ctx.fillStyle = '#2c3e50'; ellipse(x + w / 2 - f * w * .08, y + h / 2, w * .14, h * .22);
+  } else {
+    ctx.fillStyle = L.color; rrect(x, y, w, h, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; rrect(x + w * .25, y + h * .2, w * .5, h * .6, 4); ctx.fill();
+    ctx.fillStyle = '#9fd8ff'; ctx.fillRect(front + f * w * .14 - (L.dir > 0 ? w * .12 : 0), y + h * .16, w * .12, h * .68);
+  }
+}
+function drawFrog(cx, cy, angle, s = 1, squash = 1){
+  const u = cell * .42 * s;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle); ctx.scale(1, squash);
+  ctx.fillStyle = '#2d8f2d';
+  ellipse(-u * .78, u * .55, u * .38, u * .2, -.7); ellipse(u * .78, u * .55, u * .38, u * .2, .7);
+  ellipse(-u * .62, -u * .42, u * .3, u * .15, .6); ellipse(u * .62, -u * .42, u * .3, u * .15, -.6);
+  ctx.fillStyle = '#4fc94f'; ellipse(0, 0, u * .6, u * .78);
+  ctx.fillStyle = '#7be07b'; ellipse(0, u * .1, u * .25, u * .38);
+  ctx.fillStyle = '#fff'; ellipse(-u * .3, -u * .6, u * .2, u * .2); ellipse(u * .3, -u * .6, u * .2, u * .2);
+  ctx.fillStyle = '#111'; ellipse(-u * .3, -u * .64, u * .1, u * .1); ellipse(u * .3, -u * .64, u * .1, u * .1);
+  ctx.restore();
+}
+function floatText(text, x, row, color){ floats.push({ text, x, row, color, t: 0 }); }
 
-/* ---------------- Screens ---------------- */
-const menu=document.getElementById('menu'), over=document.getElementById('over'), offer=document.getElementById('offer');
-const gradesEl=document.getElementById('grades');
-GRADES.forEach((g,idx)=>{
-  const b=document.createElement('button'); b.className='grade'+(idx===1?' sel':'');
-  b.textContent=g; b.onclick=()=>{ grade=idx; [...gradesEl.children].forEach(c=>c.classList.remove('sel')); b.classList.add('sel'); };
+function draw(){
+  ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, W, H);
+  if(!frog) return;
+  drawBoard();
+  for(const L of Object.values(lanes)){
+    ctx.save(); ctx.beginPath(); ctx.rect(ox, py(L.row), COLS * cell, cell); ctx.clip();
+    for(const it of L.items){
+      if(L.type === 'log') drawLog(L, it);
+      else if(L.type === 'turtle') drawTurtles(L, it);
+      else drawVehicle(L, it);
+    }
+    ctx.restore();
+  }
+  drawLabels();
+
+  // Frog / death
+  if(state === 'dying'){
+    const cx = px(death.x), cy = py(death.row) + cell / 2, t = death.t;
+    if(death.kind === 'splash' || death.kind === 'swept' || death.kind === 'wrong'){
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3;
+      for(let k = 0; k < 3; k++){ const r = cell * (.2 + t * .9 - k * .18); if(r > 0){ ctx.globalAlpha = Math.max(0, 1 - t); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); } }
+      ctx.globalAlpha = 1;
+    } else {
+      drawFrog(cx, cy, 0, 1.1, .35);
+      ctx.font = `${cell * .5}px system-ui`; ctx.textAlign = 'center'; ctx.fillText('💫', cx, cy - cell * .45);
+    }
+  } else if(state !== 'levelup'){
+    let x = frog.x, r = frog.row, s = 1;
+    if(frog.hop){ const k = Math.min(1, frog.hop.t); x = frog.hop.fx + (frog.hop.tx - frog.hop.fx) * k; r = frog.hop.fr + (frog.hop.tr - frog.hop.fr) * k; s = 1 + Math.sin(k * Math.PI) * .25; }
+    drawFrog(px(x), py(r) + cell / 2, frog.face, s);
+  }
+
+  // Floating messages
+  for(const f of floats){
+    const a = Math.min(1, 2 - f.t * 1.1);
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.font = `900 ${Math.max(15, cell * .45)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const x = Math.min(W - 80, Math.max(80, px(f.x))), y = py(f.row) - f.t * cell * .6;
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.85)'; ctx.strokeText(f.text, x, y);
+    ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
+  }
+  ctx.globalAlpha = 1;
+
+  // Time bar
+  const bw = COLS * cell, by = py(ROWS) + 8, frac = Math.max(0, timeLeft / TIME);
+  ctx.fillStyle = 'rgba(255,255,255,.12)'; rrect(ox, by, bw, 10, 5); ctx.fill();
+  ctx.fillStyle = frac > .33 ? '#5ed25e' : frac > .15 ? '#ffcf3f' : '#ff5a4f'; rrect(ox, by, bw * frac, 10, 5); ctx.fill();
+
+  if(state === 'levelup'){
+    ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(ox, py(4), COLS * cell, cell * 3);
+    ctx.font = `900 ${Math.min(40, cell * .9)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffcf3f'; ctx.fillText(`LEVEL ${level} CLEAR!`, W / 2, py(5) + cell * .2);
+    ctx.font = `800 ${Math.min(20, cell * .45)}px system-ui, sans-serif`; ctx.fillStyle = '#fff';
+    ctx.fillText('+200 · Things get faster…', W / 2, py(6) + cell * .1);
+  }
+}
+
+/* ---------------- HUD ---------------- */
+function updateHUD(){
+  document.getElementById('score').textContent = score;
+  document.getElementById('level').textContent = 'LV ' + level;
+  document.getElementById('lives').textContent = '🐸'.repeat(Math.max(0, lives)) || '—';
+}
+function updateQuestion(){
+  const el = document.getElementById('question');
+  if(noMath || !Q){ el.classList.add('hide'); return; }
+  el.innerHTML = `<small>HOP INTO THE RIGHT ANSWER</small>${Q.q} = ?`;
+}
+
+/* ---------------- Input ---------------- */
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  const map = { arrowup: [0,-1], w: [0,-1], arrowdown: [0,1], s: [0,1], arrowleft: [-1,0], a: [-1,0], arrowright: [1,0], d: [1,0] };
+  if(map[k]){ e.preventDefault(); tryMove(...map[k]); }
+});
+let tStart = null;
+canvas.addEventListener('touchstart', e => { const t = e.changedTouches[0]; tStart = { x: t.clientX, y: t.clientY }; e.preventDefault(); }, { passive: false });
+canvas.addEventListener('touchend', e => {
+  if(!tStart) return;
+  const t = e.changedTouches[0], dx = t.clientX - tStart.x, dy = t.clientY - tStart.y, ax = Math.abs(dx), ay = Math.abs(dy);
+  if(ax < 22 && ay < 22) tryMove(0, -1);
+  else if(ax > ay) tryMove(dx > 0 ? 1 : -1, 0);
+  else tryMove(0, dy < 0 ? -1 : 1);
+  tStart = null; e.preventDefault();
+}, { passive: false });
+const DIRS = { left: [-1,0], up: [0,-1], down: [0,1], right: [1,0] };
+document.querySelectorAll('#pad button').forEach(b => {
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); tryMove(...DIRS[b.dataset.d]); });
+  for(const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, () => b.classList.remove('down'));
+});
+
+/* ---------------- Menu ---------------- */
+const gradesEl = document.getElementById('grades');
+GRADES.forEach((g, i) => {
+  const b = document.createElement('button');
+  b.className = 'grade' + (i === grade ? ' sel' : ''); b.textContent = g;
+  b.onclick = () => { grade = i; lsSet('mathhopper2d_grade', i); gradesEl.querySelectorAll('.grade').forEach((x, j) => x.classList.toggle('sel', j === i)); };
   gradesEl.appendChild(b);
 });
-const noMathBtn=document.getElementById('noMathBtn');
-noMathBtn.onclick=()=>{
-  noMath=!noMath;
-  noMathBtn.classList.toggle('off', noMath);
-  noMathBtn.textContent = noMath ? '🚫 Math lanes: OFF' : '🧮 Math lanes: ON';
-};
-function startGame(){
-  state='play'; resetGame();
-  menu.classList.add('hide'); over.classList.add('hide');
-  elHud.classList.remove('hide');
-  last=performance.now();
-}
-// stalling (caught by the scroll) → the McDiabetes delivery-truck pickup
-function gameOver(){
-  if(state!=='play') return;
-  state='dying';
-  invuln=0; player.moving=false; player.vx=player.col; player.vy=player.row;
-  death = { phase:'arrive', t:0 };
-  elQ.classList.add('hide');
-}
-// hit by a vehicle/hazard → the chick gets squished flat, then the score screen
-function squishDeath(){
-  if(state!=='play' && state!=='fight') return;
-  state='squish'; squish={t:0};
-  invuln=0; player.moving=false; player.vx=player.col; player.vy=player.row;
-  elQ.classList.add('hide');
-}
-function finishGameOver(){
-  state='over'; death=null;
-  if(score>best){ best=score; lsSet('mathhopper_best',best); }
-  document.getElementById('finalScore').textContent=score;
-  document.getElementById('finalCorrect').textContent=correctCount;
-  document.getElementById('bestLine').innerHTML='Best <b>'+best+'</b>';
-  document.getElementById('overGrade').textContent='Grade '+GRADES[grade]+'  •  Tap a grade on the menu to change';
-  elHud.classList.add('hide'); elQ.classList.add('hide');
-  over.classList.remove('hide');
-}
-// ---- hitch-a-ride offer ----
-function openOffer(){
-  state='offer';
-  document.getElementById('offerCoins').textContent='You have '+coins+' 🪙';
-  const yes=document.getElementById('rideYes'), ok=coins>=15;
-  yes.disabled=!ok; yes.style.opacity=ok?1:0.5; yes.textContent= ok ? 'Yes 🚐' : 'Need 15 🪙';
-  offer.classList.remove('hide');
-}
-function startRide(){
-  const from=player.row, to=from + ri(30,40);
-  ensureRows(to+3);
-  rows[to]=makeGrass(false);            // guarantee a safe landing strip
-  ride={from, to, t:0, dur:(to-from)/12, lastRow:from, phase:'drive'}; // ~12 cells/sec — a steady cruise
-  state='riding';
-  player.col=2; player.vx=2;
-  last=performance.now();
-}
-function updateRide(dt){
-  if(!ride) return;
-  if(ride.phase==='toss'){          // rudely chucked out the side at the end
-    ride.t += dt/0.45;
-    if(ride.t>=1){
-      player.row=ride.to; player.col=4; player.vy=ride.to; player.vx=4;
-      player.toC=4; player.toR=ride.to; player.fromC=4; player.fromR=ride.to; player.moving=false;
-      if(ride.to>maxRow){ score += (ride.to-maxRow); maxRow=ride.to; progress=maxRow; }
-      lastSafeRow=ride.to; invuln=1.0; ride=null; state='play';
-      floatMsg('💢 Out you go!'); updateHUD(); updateQuestion();
-    }
-    return;
-  }
-  ride.t += dt/ride.dur;
-  const t=Math.min(ride.t,1);
-  player.vy = ride.from + (ride.to-ride.from)*easeInOut(t);
-  player.vx = 2; camRow = player.vy;    // camera rides forward with the van
-  // the van plows through everything in its path → KABOOM
-  const cur=Math.floor(player.vy);
-  for(let r=ride.lastRow+1; r<=cur && r<=ride.to; r++){
-    const row=rows[r]; if(!row) continue;
-    if(row.type==='road' && row.cars && row.cars.length){ kaboom(2,r); row.cars=[]; }
-    else if(row.type==='rail'){ kaboom(2,r); row.phase='idle'; row.timer=2.5; }
-    else if(row.type==='grass' && row.obstacles && row.obstacles[2]!==undefined){ kaboom(2,r); delete row.obstacles[2]; }
-  }
-  ride.lastRow=cur;
-  if(t>=1){ ride.phase='toss'; ride.t=0; }   // arrived → get thrown out the side
-}
-document.getElementById('rideYes').onclick=()=>{
-  if(coins<15) return;
-  coins-=15; updateHUD(); offer.classList.add('hide'); startRide();
-};
-document.getElementById('rideNo').onclick=()=>{ offer.classList.add('hide'); state='play'; last=performance.now(); };
+const noMathBtn = document.getElementById('noMathBtn');
+noMathBtn.onclick = () => { noMath = !noMath; noMathBtn.textContent = noMath ? '🐸 Math homes: OFF' : '🧮 Math homes: ON'; noMathBtn.classList.toggle('off', noMath); };
+document.getElementById('startBtn').onclick = startGame;
+document.getElementById('againBtn').onclick = startGame;
+document.getElementById('menuBtn').onclick = () => { document.getElementById('over').classList.add('hide'); document.getElementById('menu').classList.remove('hide'); state = 'menu'; };
 
-// ---- station brawl ----
-const peckBtn=document.getElementById('peckBtn');
-function startFight(){
-  state='fight';
-  player.moving=false; player.vx=player.col; player.vy=player.row;
-  fight={ phase:'crash', t:0, vanCol:COLS+3, men:[], peckT:0, loot:0 };
-  elQ.classList.add('hide');
+/* ---------------- Loop ---------------- */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if(state !== 'menu' && state !== 'over') update(dt);
+  draw();
+  requestAnimationFrame(loop);
 }
-function cleanupFight(){ fight=null; peckBtn.classList.add('hide'); }
-function endFightWin(){
-  const loot=fight.loot||0; cleanupFight();
-  if(loot){ coins+=loot; updateHUD(); floatMsg('🪙 +'+loot+' loot!'); }
-  state='play'; invuln=1.0; last=performance.now();
-}
-function peck(){
-  const f=fight; if(!f || f.phase!=='fight') return;
-  f.peckT=0.15;
-  const pc=player.col;
-  let best=-1, bestd=1e9;
-  f.men.forEach((m,i)=>{ if(m.defeated) return; const d=m.c-pc; if(d>=-0.6 && d<=1.7 && d<bestd){ bestd=d; best=i; } });
-  if(best>=0){ const m=f.men[best]; m.defeated=true; f.loot+=3; kaboom(m.c, player.row); }
-}
-function updateFight(dt){
-  const f=fight; if(!f) return;
-  if(f.peckT>0) f.peckT-=dt;
-  const pc=player.col;
-  if(f.phase==='crash'){
-    f.t += dt/0.9;
-    const tt=Math.min(f.t,1);
-    f.vanCol = (COLS+3) + ((pc+1.0) - (COLS+3))*easeIn(tt);   // rams in from the right
-    if(tt>=1){
-      kaboom(2, player.row);                 // van smashes the parked ride
-      const base=Math.max(f.vanCol, pc+1.4); // thugs approach from the right
-      for(let i=0;i<4;i++) f.men.push({c: base + i*0.62, defeated:false});
-      f.phase='fight'; peckBtn.classList.remove('hide');
-    }
-    return;
-  }
-  for(const m of f.men){
-    if(m.defeated) continue;
-    m.c -= 1.1*dt;                           // advance toward the chick (columns/sec)
-    if(m.c <= pc + 0.45){                    // reached you → it lands a hit
-      m.defeated=true; lives--; updateHUD(); floatMsg('💢 Ow!');
-      if(lives<=0){ cleanupFight(); squishDeath(); return; }
-    }
-  }
-  if(f.men.length && f.men.every(m=>m.defeated)) endFightWin();
-}
-function drawCrashVan(f){
-  const tc=f.vanCol, r=player.row, TL=3.4, d0=r+0.0, dr=0.94;
-  for(let k=0;k<4;k++) vshadow(tc+k, r);
-  vbox(tc, d0, 0, TL-0.9, dr, 1.1, '#b83227');        // cargo box (big, mean)
-  vbox(tc+TL-0.9, d0, 0, 0.9, dr, 0.85, '#7a1f1f');   // cab
-  vbox(tc+TL-0.8, d0+0.14, 0.85, 0.7, dr-0.28, 0.05, '#bfe6ff');
-}
-function drawFight(){
-  const f=fight; if(!f) return;
-  const pc=player.col, pr=player.row;
-  drawCrashVan(f);
-  f.men.slice().sort((a,b)=>b.c-a.c).forEach(m=>{ if(!m.defeated) drawVoxStickman(m.c, pr, 0); });
-  const lunge = f.peckT>0 ? Math.sin((f.peckT/0.15)*Math.PI)*0.3 : 0;
-  drawChickVox(pc+lunge, pr, 0);
-  // banner (screen space)
-  ctx.font=`900 ${Math.min(W*0.07,36)}px 'Segoe UI',Arial,sans-serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.lineWidth=5; ctx.strokeStyle='#7a1f1f';
-  const msg = f.phase==='crash' ? 'AMBUSH! 🥊' : 'PECK them!  (B)';
-  ctx.strokeText(msg, W/2, H*0.15); ctx.fillStyle='#ffd23f'; ctx.fillText(msg, W/2, H*0.15);
-}
-peckBtn.onclick = peck;
-
-document.getElementById('startBtn').onclick=startGame;
-document.getElementById('againBtn').onclick=()=>{ over.classList.add('hide'); menu.classList.remove('hide'); state='menu'; };
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
