@@ -195,7 +195,8 @@
   function route() {
     const game = GAMES.find(g => '#' + g.id === location.hash);
     if (game) {
-      frame.src = 'games/' + game.id + '/';
+      // The ?v= stamp skips the phone's saved copy, so a game update shows up right away.
+      frame.src = 'games/' + game.id + '/?v=' + Date.now();
       document.title = game.title + ' · Family Arcade';
       player.classList.add('open');
       document.body.classList.add('playing');
