@@ -205,7 +205,7 @@ function makeQuestion(g, lvl){
       if(Math.random()<0.5){ const p=pick([10,20,25,50]); const base=pick([20,40,60,80,100,200,120,160])*(lvl>3?2:1);
         q=`${p}% of ${base}`; ans=base*p/100; options=intOptions(ans,Math.max(3,Math.round(ans*0.25)));
         ans=String(ans);
-      } else { const a=ri(cap(-12*s),-1),b=ri(1,cap(15*s)); q=`${a} + ${b}`; ans=a+b;
+      } else { const a=-ri(1,cap(12*s)),b=ri(1,cap(15*s)); q=`${a} + ${b}`; ans=a+b;
         const set=new Set([ans]); while(set.size<3){let v=ans+ri(-3,3); if(v!==ans)set.add(v);}
         options=shuffle([...set]).map(String); ans=String(ans);
       }

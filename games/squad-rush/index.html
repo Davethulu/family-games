@@ -27,10 +27,15 @@
   h1 .sub{display:block;font-size:.3em;letter-spacing:3px;color:var(--accent);margin-top:4px;}
   p.lead{max-width:420px;opacity:.92;line-height:1.5;margin:.4em 0 1em;}
   .label{font-size:13px;letter-spacing:2px;opacity:.75;margin:10px 0 8px;text-transform:uppercase;}
-  .modes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
-  .mode{background:#2c3a66;border:2px solid transparent;color:#fff;border-radius:12px;padding:10px 14px;font-size:16px;font-weight:900;cursor:pointer;}
-  .mode.sel{background:var(--accent);color:#1c2540;border-color:#fff;}
-  .mode small{display:block;font-size:11px;font-weight:700;opacity:.8;}
+  #grades{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:340px;}
+  .grade{background:#2c3a66;border:2px solid transparent;color:#fff;border-radius:12px;padding:12px 0;font-size:17px;font-weight:900;cursor:pointer;}
+  .grade.sel{background:var(--accent);color:#1c2540;border-color:#fff;transform:scale(1.05);}
+  #quiz{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 50px);transform:translateX(-50%);z-index:5;pointer-events:none;
+    background:rgba(40,16,80,.88);border:3px solid #c39bff;border-radius:16px;padding:4px 18px 8px;text-align:center;white-space:nowrap;
+    font-size:clamp(24px,7.5vw,36px);font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,.35);}
+  #quiz small{display:block;font-size:11px;letter-spacing:1px;color:#e2cfff;font-weight:800;}
+  #quiz.pop{animation:quizPop .35s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes quizPop{0%{transform:translateX(-50%) scale(.4)}100%{transform:translateX(-50%) scale(1)}}
   .btn{margin-top:20px;background:var(--accent);color:#1c2540;border:none;border-radius:16px;padding:15px 40px;
     font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #b8901f;}
   .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b8901f;}
@@ -50,15 +55,13 @@
   <div class="pill" id="scoreP">0</div>
 </div>
 
+<div id="quiz" class="hide"></div>
+
 <div id="menu" class="overlay">
   <h1>Squad Rush <span class="sub">MATH GATE SHOOTER</span></h1>
-  <p class="lead">Drag to steer your squad. They shoot on their own! Run through the <b>best math gate</b> to grow your squad, blast the zombie horde, and take down the giant boss.</p>
-  <div class="label">Math gates</div>
-  <div class="modes" id="modes">
-    <button class="mode" data-m="0">+ −<small>Easy</small></button>
-    <button class="mode" data-m="1">+ − ×<small>Medium</small></button>
-    <button class="mode" data-m="2">+ − × ÷<small>Hard</small></button>
-  </div>
+  <p class="lead">Drag to steer your squad. They shoot on their own! When a <b>math problem</b> pops up, run through the gate with the right answer to double your squad. Then blast the zombie horde and take down the giant boss.</p>
+  <div class="label">Pick a grade level</div>
+  <div id="grades"></div>
   <button class="btn" id="startBtn">Start ▶</button>
   <div class="hint" id="bestLine"></div>
   <div class="hint">📱 Drag left / right &nbsp;•&nbsp; 💻 Arrow keys or mouse drag<br>💡 Shoot a gate to make its number go up!</div>
@@ -109,6 +112,96 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = ri(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ---------------- Math questions (same generator as Math Hopper) ---------------- */
+function intOptions(ans, spread){
+  spread = spread || 3;
+  const opts = new Set([ans]);
+  let guard = 0;
+  while (opts.size < 3 && guard++ < 50){ const d = ri(-spread, spread); if (d === 0) continue; const v = ans + d; if (v < 0) continue; opts.add(v); }
+  while (opts.size < 3) opts.add(ri(0, ans + spread + 2));
+  return shuffle([...opts].slice(0, 3)).map(String);
+}
+function strOptions(ans, distractors){
+  const opts = new Set([ans]);
+  for (const d of shuffle(distractors)) if (opts.size < 3) opts.add(d);
+  return shuffle([...opts].slice(0, 3));
+}
+// returns {q, ans (string), options (3 strings, one is ans)}
+function makeQuestion(g, lvl){
+  lvl = lvl || 0;
+  const s = 1 + Math.min(lvl, 6) * 0.4, cap = n => Math.max(1, Math.round(n));
+  let q, ans, options;
+  switch (g){
+    case 0: {
+      if (Math.random() < .5){ const a = ri(0, 5), b = ri(0, 5); q = `${a} + ${b}`; ans = a + b; }
+      else { const a = ri(2, 9), b = ri(0, a); q = `${a} − ${b}`; ans = a - b; }
+      options = intOptions(ans, 2); ans = String(ans); break;
+    }
+    case 1: {
+      if (Math.random() < .5){ const a = ri(1, cap(12 * s)), b = ri(1, cap(8 * s)); q = `${a} + ${b}`; ans = a + b; }
+      else { const a = ri(5, cap(20 * s)), b = ri(1, a); q = `${a} − ${b}`; ans = a - b; }
+      options = intOptions(ans, 3); ans = String(ans); break;
+    }
+    case 2: {
+      const r = Math.random();
+      if (r < .4){ const a = ri(10, cap(60 * s)), b = ri(5, cap(39 * s)); q = `${a} + ${b}`; ans = a + b; }
+      else if (r < .75){ const a = ri(20, cap(99 * s)), b = ri(5, a); q = `${a} − ${b}`; ans = a - b; }
+      else { const a = pick([2, 5, 10]), b = ri(2, cap(9 + lvl)); q = `${a} × ${b}`; ans = a * b; }
+      options = intOptions(ans, 4); ans = String(ans); break;
+    }
+    case 3: {
+      const mx = Math.min(12, 9 + lvl);
+      if (Math.random() < .55){ const a = ri(2, mx), b = ri(2, mx); q = `${a} × ${b}`; ans = a * b; }
+      else { const b = ri(2, mx), x = ri(2, mx); q = `${b * x} ÷ ${b}`; ans = x; }
+      options = intOptions(ans, 3); ans = String(ans); break;
+    }
+    case 4: {
+      if (Math.random() < .55){ const a = ri(11, cap(29 + lvl * 6)), b = ri(3, Math.min(9, 6 + lvl)); q = `${a} × ${b}`; ans = a * b; options = intOptions(ans, 8); }
+      else { const b = ri(3, 9), x = ri(4, cap(12 + lvl * 2)); q = `${b * x} ÷ ${b}`; ans = x; options = intOptions(ans, 3); }
+      ans = String(ans); break;
+    }
+    case 5: {
+      if (Math.random() < .5){ const d = ri(3, Math.min(12, 8 + lvl)); const a = ri(1, d - 2), b = ri(1, d - a);
+        q = `${a}/${d} + ${b}/${d}`; ans = `${a + b}/${d}`;
+        options = strOptions(ans, [`${a + b + 1}/${d}`, `${a + b}/${d + 1}`, `${Math.max(1, a + b - 1)}/${d}`, `${a * b}/${d}`]);
+      } else { const a = ri(1, 8), b = ri(1, 8), sum = (a + b) / 10;
+        q = `${(a / 10).toFixed(1)} + ${(b / 10).toFixed(1)}`; ans = sum.toFixed(1);
+        options = strOptions(ans, [(sum + .1).toFixed(1), Math.max(0, sum - .1).toFixed(1), (sum + .2).toFixed(1)]);
+      }
+      break;
+    }
+    case 6: {
+      if (Math.random() < .5){ const p = pick([10, 20, 25, 50]), base = pick([20, 40, 60, 80, 100, 200, 120, 160]) * (lvl > 3 ? 2 : 1);
+        q = `${p}% of ${base}`; ans = base * p / 100; options = intOptions(ans, Math.max(3, Math.round(ans * .25))); ans = String(ans);
+      } else { const a = -ri(1, cap(12 * s)), b = ri(1, cap(15 * s)); q = `${a} + ${b}`; ans = a + b;
+        const set = new Set([ans]); while (set.size < 3){ const v = ans + ri(-3, 3); if (v !== ans) set.add(v); }
+        options = shuffle([...set]).map(String); ans = String(ans);
+      }
+      break;
+    }
+    case 7: {
+      if (Math.random() < .4){ const a = ri(-9, 9) || 3, b = ri(-9, 9) || 2; q = `(${a}) × (${b})`; ans = a * b;
+        const set = new Set([ans]); while (set.size < 3){ const v = ans + (ri(-6, 6) || 5); if (v !== ans) set.add(v); }
+        options = shuffle([...set]).map(String); ans = String(ans);
+      } else { const x = ri(-8, 9), a = ri(2, cap(12 * s)), b = x + a; q = `x + ${a} = ${b}, x = ?`; ans = x;
+        const set = new Set([ans]); while (set.size < 3){ const v = ans + ri(-4, 4); if (v !== ans) set.add(v); }
+        options = shuffle([...set]).map(String); ans = String(ans);
+      }
+      break;
+    }
+    case 8: {
+      const r = Math.random();
+      if (r < .34){ const a = ri(2, Math.min(12, 9 + lvl)), e = pick([2, 2, 3]); q = `${a}${e === 2 ? '²' : '³'}`; ans = Math.pow(a, e); options = intOptions(ans, Math.max(4, Math.round(ans * .2))); }
+      else if (r < .6){ const a = ri(2, Math.min(15, 12 + lvl)); q = `√${a * a}`; ans = a; options = intOptions(ans, 3); }
+      else { const x = ri(2, Math.min(12, 9 + lvl)), a = ri(2, 6), b = ri(1, 12), c = a * x + b; q = `${a}x + ${b} = ${c}, x = ?`; ans = x; options = intOptions(ans, 3); }
+      ans = String(ans); break;
+    }
+  }
+  return { q, ans, options };
+}
+
 const spriteCache = {};
 function sprite(e){
   if (spriteCache[e]) return spriteCache[e];
@@ -155,7 +248,8 @@ addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('po
 const BOSSES = [
   { e: '🧟‍♂️', n: 'Big Zombie' }, { e: '🦖', n: 'Kaiju' }, { e: '👹', n: 'Ogre' }, { e: '🐲', n: 'Dragon' }, { e: '🦍', n: 'Mega Ape' },
 ];
-let mode = +(lsGet('squadrush_mode') ?? 1) || 0, level = 1, best = +(lsGet('squadrush_best') || 0);
+const GRADES = ['K', '1', '2', '3', '4', '5', '6', '7', '8'];
+let grade = clamp(+(lsGet('squadrush_grade') ?? 3) || 0, 0, 8), level = 1, best = +(lsGet('squadrush_best') || 0);
 let state = 'menu';
 let squad, enemies, bullets, gates, fx, floats, timeline, tlIdx, levelTime, levelEnd, scroll, fireT, flashT, shake, score, boss, keyDir = 0;
 
@@ -178,8 +272,11 @@ function startLevel(){
 function buildTimeline(){
   const tl = []; let t = 1.2;
   const events = 8 + Math.min(level, 8);
+  // Every other event is a gate: mostly math-question gates, with an operation-gate pair every third time.
+  const gateKinds = ['quiz', 'quiz', 'gates'];
+  let g = 0;
   for (let i = 0; i < events; i++){
-    tl.push({ t, k: i % 3 === 0 ? 'gates' : Math.random() < .22 ? 'crate' : 'wave' });
+    tl.push({ t, k: i % 2 === 0 ? gateKinds[g++ % 3] : Math.random() < .22 ? 'crate' : 'wave' });
     t += 3.4 + Math.random() * 1.2;
   }
   tl.push({ t: t + 1.5, k: 'boss' });
@@ -189,6 +286,7 @@ function buildTimeline(){
 /* ---------------- Spawning ---------------- */
 function spawn(k){
   if (k === 'gates') return spawnGates();
+  if (k === 'quiz') return spawnQuiz();
   if (k === 'crate'){ spawnCrate(); return spawnWave(.6); }
   if (k === 'wave') return spawnWave(1);
   if (k === 'boss') return spawnBoss();
@@ -218,7 +316,7 @@ function spawnBoss(){
   sfx.roar(); shake = .5;
 }
 function gateOp(){
-  const ops = mode === 0 ? ['+', '+', '-'] : mode === 1 ? ['+', '+', '-', 'x'] : ['+', '-', 'x', '/'];
+  const ops = grade <= 2 ? ['+', '+', '-'] : grade <= 4 ? ['+', '+', '-', 'x'] : ['+', '-', 'x', '/'];
   const op = pick(ops);
   if (op === '+') return { op: 'add', v: ri(3, 6 + level * 2) };
   if (op === '-') return { op: 'add', v: -ri(2, 3 + level * 2) };
@@ -231,6 +329,39 @@ function spawnGates(){
   if (!isGood(a) && !isGood(b)) a = { op: 'add', v: ri(3, 6 + level * 2) };
   gates.push({ z: FAR, sides: [{ ...a, hits: 0 }, { ...b, hits: 0 }], passed: false, chosen: -1, fade: 1 });
 }
+// Question gates: three look-alike gates with possible answers; only one is right.
+const QUIZ_LANES = [[-.97, -.35], [-.31, .31], [.35, .97]];
+function spawnQuiz(){
+  const Q = makeQuestion(grade, Math.min(level - 1, 6));
+  const sides = shuffle(Q.options.slice()).map(label => ({ label, correct: label === Q.ans }));
+  gates.push({ z: FAR, quiz: Q, sides, passed: false, chosen: -1, fade: 1 });
+}
+function quizLane(x){ return x < -.33 ? 0 : x > .33 ? 2 : 1; }
+function applyQuiz(g){
+  const s = g.sides[g.chosen], before = squad.n;
+  if (s.correct){
+    const gain = Math.min(before, 15 + level * 10);  // doubles small squads; capped for big ones
+    squad.n = Math.min(999, before + gain);
+    sfx.good();
+    addFloat(`✓ ${g.quiz.q} = ${g.quiz.ans}   +${gain}`, squad.x, PZ + 1.5, '#7dff7a', 1.8);
+  } else {
+    const loss = Math.max(2, Math.ceil(before * .35));
+    squad.n = before - loss;
+    sfx.bad(); shake = .3;
+    addFloat(`✗ ${g.quiz.q} = ${g.quiz.ans}   −${loss}`, squad.x, PZ + 1.5, '#ff8a80', 2.2);
+    if (squad.n <= 0){ squad.n = 0; lose(`Wrong gate! ${g.quiz.q} = ${g.quiz.ans}`); }
+  }
+}
+function updateQuizBanner(){
+  const el = $('quiz'), g = gates.find(g => g.quiz && !g.passed);
+  if (!g || state !== 'play'){ el.classList.add('hide'); el.dataset.q = ''; return; }
+  if (el.dataset.q !== g.quiz.q){
+    el.dataset.q = g.quiz.q;
+    el.innerHTML = `<small>RUN THROUGH THE RIGHT ANSWER</small>${g.quiz.q} = ?`;
+    el.classList.remove('hide', 'pop'); void el.offsetWidth; el.classList.add('pop');
+  }
+}
+
 function gateLabel(g){
   if (g.op === 'add') return g.v >= 0 ? '+' + g.v : '−' + (-g.v);
   return (g.op === 'x' ? '×' : '÷') + g.v;
@@ -307,7 +438,7 @@ function update(dt){
     const b = bullets[i]; b.z += 42 * dt;
     let used = b.z > 48;
     for (const g of gates){
-      if (used || g.passed || Math.abs(g.z - b.z) > .7) continue;
+      if (used || g.passed || g.quiz || Math.abs(g.z - b.z) > .7) continue;  // bullets fly through question gates
       const s = g.sides[b.x < 0 ? 0 : 1];
       // Shooting a +/− gate nudges it up: once per few volleys (not per bullet), at most +8.
       if (s.op === 'add' && s.lastVid !== b.vid){
@@ -324,10 +455,15 @@ function update(dt){
 
   for (const g of gates){
     g.z -= SCROLL * dt;
-    if (!g.passed && g.z <= PZ){ g.passed = true; g.chosen = squad.x < 0 ? 0 : 1; applyGate(g.sides[g.chosen]); }
+    if (!g.passed && g.z <= PZ){
+      g.passed = true;
+      if (g.quiz){ g.chosen = quizLane(squad.x); applyQuiz(g); }
+      else { g.chosen = squad.x < 0 ? 0 : 1; applyGate(g.sides[g.chosen]); }
+    }
     if (g.passed) g.fade -= dt * 2;
   }
   gates = gates.filter(g => g.z > PZ - 3 && g.fade > 0);
+  updateQuizBanner();
 
   const sr = squadRadius();
   for (const e of enemies.slice()){
@@ -356,7 +492,7 @@ function update(dt){
 
 function winLevel(){
   if (state === 'lost') return;
-  state = 'won'; sfx.win();
+  state = 'won'; sfx.win(); $('quiz').classList.add('hide');
   best = Math.max(best, level); lsSet('squadrush_best', best);
   $('winTitle').textContent = `Level ${level} cleared!`;
   $('winSquad').textContent = squad.n; $('winScore').textContent = score;
@@ -364,7 +500,7 @@ function winLevel(){
 }
 function lose(why){
   if (state !== 'play' && state !== 'ending') return;
-  state = 'lost'; sfx.bad();
+  state = 'lost'; sfx.bad(); $('quiz').classList.add('hide');
   setTimeout(() => {
     $('loseWhy').textContent = why; $('loseScore').textContent = score;
     $('lose').classList.remove('hide');
@@ -400,7 +536,33 @@ function drawWorld(){
   fog.addColorStop(0, 'rgba(200,215,235,.85)'); fog.addColorStop(1, 'rgba(200,215,235,0)');
   ctx.fillStyle = fog; ctx.fillRect(0, horizonY, W, (bottomY - horizonY) * .25);
 }
+function drawQuizGate(g){
+  const hgt = .62;
+  ctx.globalAlpha = Math.max(0, g.fade);
+  g.sides.forEach((s, i) => {
+    const [xl, xr] = QUIZ_LANES[i];
+    const a = proj(xl, g.z), b = proj(xr, g.z), h = hgt * roadW * a.s;
+    // All three look the same until you pick; then the right one shows green.
+    let fill = 'rgba(150,90,255,.45)', line = '#e2cfff';
+    if (g.passed){
+      if (s.correct){ fill = 'rgba(70,210,90,.55)'; line = '#c8ffcf'; }
+      else if (g.chosen === i){ fill = 'rgba(255,70,70,.55)'; line = '#ffc1bb'; }
+    }
+    ctx.fillStyle = fill; ctx.fillRect(a.x, a.y - h, b.x - a.x, h);
+    ctx.strokeStyle = line; ctx.lineWidth = Math.max(1.5, 4 * a.s); ctx.strokeRect(a.x, a.y - h, b.x - a.x, h);
+    let fs = Math.max(10, h * .4);
+    ctx.font = `900 ${fs}px system-ui, sans-serif`;
+    const tw = ctx.measureText(s.label).width, room = (b.x - a.x) * .9;
+    if (tw > room){ fs *= room / tw; ctx.font = `900 ${fs}px system-ui, sans-serif`; }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = Math.max(2, fs * .12); ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    const lx = (a.x + b.x) / 2, ly = a.y - h / 2;
+    ctx.strokeText(s.label, lx, ly); ctx.fillStyle = '#fff'; ctx.fillText(s.label, lx, ly);
+  });
+  ctx.globalAlpha = 1;
+}
 function drawGate(g){
+  if (g.quiz) return drawQuizGate(g);
   const hgt = .62;
   ctx.globalAlpha = Math.max(0, g.fade);
   g.sides.forEach((s, i) => {
@@ -487,12 +649,13 @@ function draw(){
   drawWorld();
   if (!squad){ ctx.restore(); return; }
   const things = [...gates.map(g => ({ z: g.z + .01, g })), ...enemies.map(e => ({ z: e.z, e }))].sort((a, b) => b.z - a.z);
-  for (const t of things){ if (t.z < PZ - .2) continue; t.g ? drawGate(t.g) : drawEnemy(t.e); }
+  // Bullets go underneath gates and enemies so gate numbers stay readable.
   ctx.strokeStyle = '#fff3b0'; ctx.lineCap = 'round';
   for (const b of bullets){
     const a = proj(b.x, b.z), c = proj(b.x, b.z + 1.3);
     ctx.lineWidth = Math.max(1.5, 5 * a.s); ctx.beginPath(); ctx.moveTo(a.x, a.y - 10 * a.s - 8); ctx.lineTo(c.x, c.y - 10 * c.s - 8); ctx.stroke();
   }
+  for (const t of things){ if (t.z < PZ - .2) continue; t.g ? drawGate(t.g) : drawEnemy(t.e); }
   if (state !== 'lost' || squad.n > 0) drawSquad();
   for (const t of things) if (t.z < PZ - .2 && t.e) drawEnemy(t.e);
   for (const f of fx){
@@ -504,7 +667,8 @@ function draw(){
     const p = proj(f.x, f.z), fs = Math.max(18, Math.min(34, roadW * .12 * p.s + 8));
     ctx.globalAlpha = Math.min(1, (f.life - f.t) * 3);
     ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const x = clamp(p.x, 120, W - 120), y = p.y - .9 * roadW * p.s - f.t * 40;
+    const tw = ctx.measureText(f.text).width;
+    const x = clamp(p.x, tw / 2 + 10, W - tw / 2 - 10), y = p.y - .9 * roadW * p.s - f.t * 40;
     ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText(f.text, x, y);
     ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
   }
@@ -532,11 +696,14 @@ addEventListener('keyup', e => {
 });
 
 /* ---------------- Menu ---------------- */
-function renderModes(){ document.querySelectorAll('.mode').forEach(b => b.classList.toggle('sel', +b.dataset.m === mode)); }
-document.querySelectorAll('.mode').forEach(b => b.onclick = () => { mode = +b.dataset.m; lsSet('squadrush_mode', mode); renderModes(); });
-renderModes();
+GRADES.forEach((label, i) => {
+  const b = document.createElement('button');
+  b.className = 'grade' + (i === grade ? ' sel' : ''); b.textContent = label;
+  b.onclick = () => { grade = i; lsSet('squadrush_grade', i); document.querySelectorAll('.grade').forEach((x, j) => x.classList.toggle('sel', j === i)); };
+  $('grades').appendChild(b);
+});
 function showMenu(){
-  state = 'menu'; ['win', 'lose'].forEach(id => $(id).classList.add('hide')); $('hud').classList.add('hide');
+  state = 'menu'; ['win', 'lose', 'quiz'].forEach(id => $(id).classList.add('hide')); $('hud').classList.add('hide');
   $('bestLine').textContent = best ? `🏆 Best: level ${best}` : '';
   $('menu').classList.remove('hide');
 }
