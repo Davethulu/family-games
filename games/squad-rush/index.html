@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Squad Rush 💥</title>
+<style>
+  :root{ --accent:#ffcf3f; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;overflow:hidden;background:#0d1424;color:#fff;
+    font-family:'Segoe UI',system-ui,Arial,sans-serif;-webkit-user-select:none;user-select:none;}
+  #game{display:block;width:100vw;height:100vh;touch-action:none;}
+
+  #hud{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:0;right:0;padding:0 12px;
+    display:flex;align-items:center;gap:8px;pointer-events:none;z-index:5;}
+  body.in-arcade #hud{padding-left:96px;}
+  .pill{background:rgba(10,16,32,.72);border-radius:14px;padding:7px 11px;font-weight:900;font-size:15px;white-space:nowrap;}
+  #prog{flex:1;height:12px;padding:0;overflow:hidden;background:rgba(10,16,32,.72);border-radius:8px;}
+  #progFill{height:100%;width:0;background:linear-gradient(90deg,#5ed25e,#ffcf3f,#ff5a4f);}
+
+  .overlay{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:24px;background:radial-gradient(circle at 50% 30%,#2b3f73,#0d1424);}
+  .overlay.dim{background:rgba(5,10,22,.78);}
+  .hide{display:none !important;}
+  h1{margin:.1em 0;font-size:clamp(34px,10vw,56px);letter-spacing:1px;text-shadow:0 4px 0 #0007;}
+  h1 .sub{display:block;font-size:.3em;letter-spacing:3px;color:var(--accent);margin-top:4px;}
+  p.lead{max-width:420px;opacity:.92;line-height:1.5;margin:.4em 0 1em;}
+  .label{font-size:13px;letter-spacing:2px;opacity:.75;margin:10px 0 8px;text-transform:uppercase;}
+  .modes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .mode{background:#2c3a66;border:2px solid transparent;color:#fff;border-radius:12px;padding:10px 14px;font-size:16px;font-weight:900;cursor:pointer;}
+  .mode.sel{background:var(--accent);color:#1c2540;border-color:#fff;}
+  .mode small{display:block;font-size:11px;font-weight:700;opacity:.8;}
+  .btn{margin-top:20px;background:var(--accent);color:#1c2540;border:none;border-radius:16px;padding:15px 40px;
+    font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #b8901f;}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b8901f;}
+  .btn.ghost{background:#2c3a66;color:#fff;box-shadow:0 5px 0 #1a2442;}
+  .hint{margin-top:14px;font-size:13px;opacity:.7;line-height:1.6;}
+  .big{font-size:clamp(48px,15vw,84px);margin:0;}
+  .stat{font-size:20px;margin:4px 0;}
+  .stat b{color:var(--accent);font-size:26px;}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hide">
+  <div class="pill" id="lvl">LV 1</div>
+  <div class="pill" id="prog"><div id="progFill"></div></div>
+  <div class="pill" id="scoreP">0</div>
+</div>
+
+<div id="menu" class="overlay">
+  <h1>Squad Rush <span class="sub">MATH GATE SHOOTER</span></h1>
+  <p class="lead">Drag to steer your squad. They shoot on their own! Run through the <b>best math gate</b> to grow your squad, blast the zombie horde, and take down the giant boss.</p>
+  <div class="label">Math gates</div>
+  <div class="modes" id="modes">
+    <button class="mode" data-m="0">+ −<small>Easy</small></button>
+    <button class="mode" data-m="1">+ − ×<small>Medium</small></button>
+    <button class="mode" data-m="2">+ − × ÷<small>Hard</small></button>
+  </div>
+  <button class="btn" id="startBtn">Start ▶</button>
+  <div class="hint" id="bestLine"></div>
+  <div class="hint">📱 Drag left / right &nbsp;•&nbsp; 💻 Arrow keys or mouse drag<br>💡 Shoot a gate to make its number go up!</div>
+</div>
+
+<div id="win" class="overlay dim hide">
+  <p class="big">🏆</p>
+  <h1 id="winTitle">Level 1 cleared!</h1>
+  <p class="stat">Squad left <b id="winSquad">0</b></p>
+  <p class="stat">Score <b id="winScore">0</b></p>
+  <button class="btn" id="nextBtn">Next level ▶</button>
+  <button class="btn ghost" id="winMenuBtn">Menu</button>
+</div>
+
+<div id="lose" class="overlay dim hide">
+  <p class="big">💀</p>
+  <h1>Squad down!</h1>
+  <p class="stat" id="loseWhy"></p>
+  <p class="stat">Score <b id="loseScore">0</b></p>
+  <button class="btn" id="retryBtn">Try again ↺</button>
+  <button class="btn ghost" id="loseMenuBtn">Menu</button>
+</div>
+
+<script>
+"use strict";
+const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
+const $ = id => document.getElementById(id);
+if (window.self !== window.top) document.body.classList.add('in-arcade');
+
+/* ---------------- Perspective ---------------- */
+// World: x across the road (-1..1), z = distance ahead of the camera.
+const D = 10, PZ = 3, FAR = 70, SCROLL = 9;
+let W, H, DPR, horizonY, bottomY, cx, roadW;
+function resize(){
+  DPR = Math.min(devicePixelRatio || 1, 2.5); W = innerWidth; H = innerHeight;
+  canvas.width = W * DPR; canvas.height = H * DPR; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  horizonY = H * .22; bottomY = H * 1.02; cx = W / 2;
+  roadW = Math.min(W * .47, H * .34) / (D / (PZ + D));
+}
+addEventListener('resize', resize); resize();
+function proj(x, z){ const s = D / (Math.max(z, -D + .5) + D); return { x: cx + x * roadW * s, y: horizonY + (bottomY - horizonY) * s, s }; }
+
+/* ---------------- Helpers ---------------- */
+const ri = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+const spriteCache = {};
+function sprite(e){
+  if (spriteCache[e]) return spriteCache[e];
+  const c = document.createElement('canvas'); c.width = c.height = 160;
+  const g = c.getContext('2d');
+  g.font = '128px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(e, 80, 88);
+  return (spriteCache[e] = c);
+}
+
+/* ---------------- Sound ---------------- */
+let AC = null;
+function ac(){ if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; } } if (AC.state === 'suspended') AC.resume(); return AC; }
+function tone(f, d, type = 'square', vol = .05, slide = 0, delay = 0){
+  const a = ac(); if (!a) return;
+  const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t + d);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .02);
+}
+function noise(d, vol, freq){
+  const a = ac(); if (!a) return;
+  const n = Math.floor(a.sampleRate * d), b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0);
+  for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = b; f.type = 'lowpass'; f.frequency.value = freq; g.gain.value = vol;
+  s.connect(f).connect(g).connect(a.destination); s.start();
+}
+let lastPew = 0;
+const sfx = {
+  pew(){ const now = performance.now(); if (now - lastPew < 140) return; lastPew = now; tone(900, .05, 'square', .012, -500); },
+  pop(){ tone(300 + Math.random() * 200, .06, 'triangle', .04, -150); },
+  hurt(){ tone(160, .18, 'sawtooth', .05, -60); },
+  good(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .1, 'square', .045, 0, i * .06)); },
+  bad(){ tone(260, .35, 'sawtooth', .05, -160); },
+  boom(){ noise(.6, .5, 600); tone(70, .5, 'sine', .2, -30); },
+  roar(){ tone(140, .9, 'sawtooth', .07, -80); noise(.6, .15, 400); },
+  win(){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .14, 'square', .045, 0, i * .1)); },
+  power(){ [660, 880, 1320].forEach((f, i) => tone(f, .1, 'triangle', .06, 0, i * .06)); },
+};
+addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('pointerdown', unlock); });
+
+/* ---------------- Game state ---------------- */
+const BOSSES = [
+  { e: '🧟‍♂️', n: 'Big Zombie' }, { e: '🦖', n: 'Kaiju' }, { e: '👹', n: 'Ogre' }, { e: '🐲', n: 'Dragon' }, { e: '🦍', n: 'Mega Ape' },
+];
+let mode = +(lsGet('squadrush_mode') ?? 1) || 0, level = 1, best = +(lsGet('squadrush_best') || 0);
+let state = 'menu';
+let squad, enemies, bullets, gates, fx, floats, timeline, tlIdx, levelTime, levelEnd, scroll, fireT, flashT, shake, score, boss, keyDir = 0;
+
+// Sunflower formation: soldiers pack into a round blob that grows with the squad.
+const FORM = [];
+for (let i = 0; i < 70; i++){ const r = .068 * Math.sqrt(i), a = i * 2.39996; FORM.push({ dx: Math.cos(a) * r, dz: Math.sin(a) * r * .9 }); }
+const squadRadius = () => .068 * Math.sqrt(Math.min(squad.n, 60)) + .08;
+
+function startLevel(){
+  squad = { n: 5 + (level - 1) * 4, x: 0, tx: 0, fireRate: 7, power: 1 };
+  enemies = []; bullets = []; gates = []; fx = []; floats = [];
+  timeline = buildTimeline(); tlIdx = 0; levelTime = 0; scroll = 0; fireT = 0; flashT = 0; shake = 0; boss = null;
+  levelEnd = timeline[timeline.length - 1].t;
+  if (level === 1) score = 0;
+  state = 'play';
+  ['menu', 'win', 'lose'].forEach(id => $(id).classList.add('hide'));
+  $('hud').classList.remove('hide');
+  $('lvl').textContent = 'LV ' + level;
+}
+function buildTimeline(){
+  const tl = []; let t = 1.2;
+  const events = 8 + Math.min(level, 8);
+  for (let i = 0; i < events; i++){
+    tl.push({ t, k: i % 3 === 0 ? 'gates' : Math.random() < .22 ? 'crate' : 'wave' });
+    t += 3.4 + Math.random() * 1.2;
+  }
+  tl.push({ t: t + 1.5, k: 'boss' });
+  return tl;
+}
+
+/* ---------------- Spawning ---------------- */
+function spawn(k){
+  if (k === 'gates') return spawnGates();
+  if (k === 'crate'){ spawnCrate(); return spawnWave(.6); }
+  if (k === 'wave') return spawnWave(1);
+  if (k === 'boss') return spawnBoss();
+}
+function spawnWave(scale){
+  // Hordes start small in each level and build up toward the boss.
+  const ramp = .45 + .75 * Math.min(1, levelTime / levelEnd);
+  const count = Math.max(3, Math.round((6 + level * 3 + ri(0, 4)) * scale * ramp)), hp = 2 + level;
+  const cx0 = (Math.random() - .5) * 1.1;
+  for (let i = 0; i < count; i++){
+    enemies.push({ kind: 'z', x: clamp(cx0 + (Math.random() - .5) * .9, -.9, .9), z: FAR + Math.random() * 7,
+                   hp, maxHp: hp, r: .085, speed: 1.2 + Math.random() * .8, hitT: 0, wob: Math.random() * 6 });
+  }
+  if (Math.random() < .35 + level * .03)
+    enemies.push({ kind: 'barrel', x: clamp(cx0 + (Math.random() - .5) * .4, -.85, .85), z: FAR + 2, hp: 3, maxHp: 3, r: .09, speed: 0, hitT: 0 });
+}
+function spawnCrate(){
+  const reward = pick(['men', 'men', 'rate', 'power']);
+  const hp = 12 + level * 8;
+  enemies.push({ kind: 'crate', reward, x: (Math.random() < .5 ? -1 : 1) * (.35 + Math.random() * .4), z: FAR - 4, hp, maxHp: hp, r: .14, speed: 0, hitT: 0 });
+}
+function spawnBoss(){
+  const b = BOSSES[(level - 1) % BOSSES.length];
+  const hp = Math.round(900 * Math.pow(1.6, level - 1));
+  boss = { kind: 'boss', e: b.e, name: b.n, x: (Math.random() - .5) * .4, z: 62, hp, maxHp: hp, r: .5, speed: 2.4, hitT: 0 };
+  enemies.push(boss);
+  sfx.roar(); shake = .5;
+}
+function gateOp(){
+  const ops = mode === 0 ? ['+', '+', '-'] : mode === 1 ? ['+', '+', '-', 'x'] : ['+', '-', 'x', '/'];
+  const op = pick(ops);
+  if (op === '+') return { op: 'add', v: ri(3, 6 + level * 2) };
+  if (op === '-') return { op: 'add', v: -ri(2, 3 + level * 2) };
+  return { op, v: ri(2, op === 'x' && level > 3 ? 4 : 3) };
+}
+const isGood = g => g.op === 'x' || (g.op === 'add' && g.v >= 0);
+function spawnGates(){
+  let a = gateOp(), b = gateOp(), guard = 0;
+  while ((a.op === b.op && a.v === b.v) && guard++ < 20) b = gateOp();
+  if (!isGood(a) && !isGood(b)) a = { op: 'add', v: ri(3, 6 + level * 2) };
+  gates.push({ z: FAR, sides: [{ ...a, hits: 0 }, { ...b, hits: 0 }], passed: false, chosen: -1, fade: 1 });
+}
+function gateLabel(g){
+  if (g.op === 'add') return g.v >= 0 ? '+' + g.v : '−' + (-g.v);
+  return (g.op === 'x' ? '×' : '÷') + g.v;
+}
+function applyGate(g){
+  const before = squad.n;
+  if (g.op === 'add') squad.n += g.v;
+  else if (g.op === 'x') squad.n *= g.v;
+  else squad.n = Math.floor(squad.n / g.v);
+  squad.n = Math.min(999, squad.n);
+  const good = squad.n >= before;
+  (good ? sfx.good : sfx.bad)();
+  addFloat(`${before} ${gateLabel(g).replace(/^\+/, '+ ').replace(/^−/, '− ').replace(/^×/, '× ').replace(/^÷/, '÷ ')} = ${Math.max(0, squad.n)}`, squad.x, PZ + 1.5, good ? '#7dd3ff' : '#ff8a80', 1.6);
+  if (squad.n <= 0) lose('A math gate took your whole squad!');
+}
+
+/* ---------------- Combat ---------------- */
+// Only up to 12 bullets are drawn; each carries the damage of its share of the squad.
+let volleyId = 0;
+function volley(){
+  const k = Math.min(squad.n, 12), dmg = squad.n * squad.power * .3 / k;
+  volleyId++;
+  for (let i = 0; i < k; i++){
+    const f = FORM[i];
+    bullets.push({ x: squad.x + f.dx + (Math.random() - .5) * .02, z: PZ + f.dz + .2, dmg, vid: volleyId });
+  }
+  flashT = .05; sfx.pew();
+}
+function damage(e, d){
+  e.hp -= d; e.hitT = .08;
+  if (e.hp > 0) return;
+  enemies.splice(enemies.indexOf(e), 1);
+  const p = proj(e.x, e.z);
+  if (e.kind === 'z'){ score += 10; puff(p.x, p.y - 20 * p.s, '#7bd36b', 10 * p.s + 4); sfx.pop(); }
+  else if (e.kind === 'barrel'){
+    sfx.boom(); shake = .35; puff(p.x, p.y, '#ff8a3c', 70 * p.s + 20); puff(p.x, p.y, '#ffd54a', 40 * p.s + 10);
+    for (const o of enemies.slice()) if (o !== e && o.kind !== 'boss' && Math.abs(o.x - e.x) < .4 && Math.abs(o.z - e.z) < 3) damage(o, 30 + level * 10);
+    if (boss && Math.abs(boss.z - e.z) < 4) damage(boss, 40 * level);
+  }
+  else if (e.kind === 'crate'){
+    sfx.power(); puff(p.x, p.y, '#ffd54a', 40 * p.s + 10);
+    if (e.reward === 'men'){ const add = 4 + level * 2; squad.n += add; addFloat(`+${add} soldiers!`, e.x, e.z, '#7dd3ff', 1.4); }
+    if (e.reward === 'rate'){ squad.fireRate = Math.min(16, squad.fireRate * 1.3); addFloat('Faster shooting!', e.x, e.z, '#ffd54a', 1.4); }
+    if (e.reward === 'power'){ squad.power += .5; addFloat('Stronger bullets!', e.x, e.z, '#ff9a3c', 1.4); }
+  }
+  else if (e.kind === 'boss'){
+    score += 500 * level; sfx.boom(); shake = .8;
+    puff(p.x, p.y - 60 * p.s, '#ff5a4f', 140 * p.s + 30); puff(p.x, p.y - 60 * p.s, '#ffd54a', 90 * p.s + 20);
+    boss = null; setTimeout(winLevel, 1100); state = 'ending';
+  }
+}
+function hurtSquad(loss, e){
+  squad.n -= loss; sfx.hurt(); shake = Math.max(shake, .15);
+  const p = proj(squad.x, PZ); puff(p.x, p.y - 20, '#ff5a4f', 18);
+  if (squad.n <= 0){ squad.n = 0; lose(e && e.kind === 'boss' ? `The ${e.name} crushed your squad!` : 'The horde got through!'); }
+}
+function puff(x, y, color, r){ fx.push({ x, y, color, r, t: 0 }); }
+function addFloat(text, x, z, color, life = 1){ floats.push({ text, x, z, color, t: 0, life }); }
+
+/* ---------------- Update ---------------- */
+function update(dt){
+  levelTime += dt; scroll += SCROLL * dt;
+  shake = Math.max(0, shake - dt); flashT -= dt;
+  while (tlIdx < timeline.length && timeline[tlIdx].t <= levelTime) spawn(timeline[tlIdx++].k);
+  $('progFill').style.width = Math.min(100, levelTime / levelEnd * 100) + '%';
+
+  squad.tx = clamp(squad.tx + keyDir * 1.8 * dt, -.9, .9);
+  squad.x += (squad.tx - squad.x) * Math.min(1, dt * 14);
+
+  if (state === 'play'){ fireT -= dt; if (fireT <= 0){ fireT = 1 / squad.fireRate; volley(); } }
+
+  // Bullets fly forward; gates soak them up (and get better), enemies take damage.
+  for (let i = bullets.length - 1; i >= 0; i--){
+    const b = bullets[i]; b.z += 42 * dt;
+    let used = b.z > 48;
+    for (const g of gates){
+      if (used || g.passed || Math.abs(g.z - b.z) > .7) continue;
+      const s = g.sides[b.x < 0 ? 0 : 1];
+      // Shooting a +/− gate nudges it up: once per few volleys (not per bullet), at most +8.
+      if (s.op === 'add' && s.lastVid !== b.vid){
+        s.lastVid = b.vid; s.hits++;
+        if (s.hits % 4 === 0 && (s.gain || 0) < 8){ s.v++; s.gain = (s.gain || 0) + 1; }
+      }
+      used = true;
+    }
+    if (!used) for (const e of enemies){
+      if (Math.abs(e.z - b.z) < (e.kind === 'boss' ? 1.4 : .8) && Math.abs(e.x - b.x) < e.r){ damage(e, b.dmg); used = true; break; }
+    }
+    if (used) bullets.splice(i, 1);
+  }
+
+  for (const g of gates){
+    g.z -= SCROLL * dt;
+    if (!g.passed && g.z <= PZ){ g.passed = true; g.chosen = squad.x < 0 ? 0 : 1; applyGate(g.sides[g.chosen]); }
+    if (g.passed) g.fade -= dt * 2;
+  }
+  gates = gates.filter(g => g.z > PZ - 3 && g.fade > 0);
+
+  const sr = squadRadius();
+  for (const e of enemies.slice()){
+    e.hitT -= dt;
+    if (e.kind === 'boss') e.z -= e.speed * dt;
+    else e.z -= (SCROLL + e.speed) * dt;
+    if (e.kind === 'z' && e.z < 40) e.x += Math.sign(squad.x - e.x) * Math.min(Math.abs(squad.x - e.x), .28 * dt);
+    if (e.kind === 'boss') e.x += (squad.x - e.x) * .25 * dt;
+    if (e.z <= PZ + .35 && e.z > PZ - 1 && Math.abs(e.x - squad.x) < sr + e.r && state === 'play'){
+      enemies.splice(enemies.indexOf(e), 1);
+      if (e.kind === 'z') hurtSquad(1 + Math.floor(e.maxHp / 4), e);
+      else if (e.kind === 'barrel'){ sfx.boom(); hurtSquad(3, e); }
+      else if (e.kind === 'boss'){
+        const loss = Math.ceil(e.hp / 5); boss = null;
+        hurtSquad(loss, e);
+        if (squad.n > 0){ addFloat('Your squad overpowered it!', squad.x, PZ + 3, '#ffd54a', 1.6); state = 'ending'; setTimeout(winLevel, 900); }
+      }
+      continue;
+    }
+    if (e.z < PZ - 1.5) enemies.splice(enemies.indexOf(e), 1);
+  }
+
+  fx = fx.filter(f => (f.t += dt) < .45);
+  floats = floats.filter(f => (f.t += dt) < f.life);
+}
+
+function winLevel(){
+  if (state === 'lost') return;
+  state = 'won'; sfx.win();
+  best = Math.max(best, level); lsSet('squadrush_best', best);
+  $('winTitle').textContent = `Level ${level} cleared!`;
+  $('winSquad').textContent = squad.n; $('winScore').textContent = score;
+  $('win').classList.remove('hide');
+}
+function lose(why){
+  if (state !== 'play' && state !== 'ending') return;
+  state = 'lost'; sfx.bad();
+  setTimeout(() => {
+    $('loseWhy').textContent = why; $('loseScore').textContent = score;
+    $('lose').classList.remove('hide');
+  }, 700);
+}
+
+/* ---------------- Drawing ---------------- */
+const SKYLINE = Array.from({ length: 26 }, (_, i) => ({ x: i / 26, w: .03 + Math.random() * .04, h: .05 + Math.random() * .16, c: pick(['#7f93b5', '#8ea1c0', '#6f84a8']) }));
+function quad(a, b, c, d, fill){ ctx.fillStyle = fill; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.fill(); }
+function drawWorld(){
+  const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
+  sky.addColorStop(0, '#7fb2ec'); sky.addColorStop(1, '#d9e6f5');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, horizonY + 2);
+  for (const b of SKYLINE){
+    const x = b.x * W, w = b.w * W, h = b.h * H;
+    ctx.fillStyle = b.c; ctx.fillRect(x, horizonY - h, w, h);
+    ctx.fillStyle = 'rgba(255,255,255,.25)';
+    for (let wy = horizonY - h + 6; wy < horizonY - 4; wy += 9) for (let wx = x + 4; wx < x + w - 4; wx += 8) ctx.fillRect(wx, wy, 3, 4);
+  }
+  ctx.fillStyle = '#5d6f8f'; ctx.fillRect(0, horizonY, W, H - horizonY);  // far-below city haze
+
+  // Elevated highway
+  quad(proj(-1.15, FAR), proj(1.15, FAR), proj(1.15, -2), proj(-1.15, -2), '#8a8f98');
+  quad(proj(-1.0, FAR), proj(1.0, FAR), proj(1.0, -2), proj(-1.0, -2), '#9ea3ab');
+  for (const sgn of [-1, 1]){
+    quad(proj(sgn * 1.0, FAR), proj(sgn * 1.15, FAR), proj(sgn * 1.15, -2), proj(sgn * 1.0, -2), '#3f4652');
+    for (let z = -(scroll % 2); z < FAR; z += 2)
+      quad(proj(sgn * 1.0, z), proj(sgn * 1.08, z), proj(sgn * 1.08, z + 1), proj(sgn * 1.0, z + 1), '#f2c230');
+  }
+  for (let z = -(scroll % 5); z < FAR; z += 5)
+    quad(proj(-.025, z), proj(.025, z), proj(.025, z + 2.2), proj(-.025, z + 2.2), 'rgba(255,255,255,.75)');
+  const fog = ctx.createLinearGradient(0, horizonY, 0, horizonY + (bottomY - horizonY) * .25);
+  fog.addColorStop(0, 'rgba(200,215,235,.85)'); fog.addColorStop(1, 'rgba(200,215,235,0)');
+  ctx.fillStyle = fog; ctx.fillRect(0, horizonY, W, (bottomY - horizonY) * .25);
+}
+function drawGate(g){
+  const hgt = .62;
+  ctx.globalAlpha = Math.max(0, g.fade);
+  g.sides.forEach((s, i) => {
+    const xl = i === 0 ? -.97 : .03, xr = i === 0 ? -.03 : .97;
+    const a = proj(xl, g.z), b = proj(xr, g.z), h = hgt * roadW * a.s;
+    const good = isGood(s);
+    ctx.fillStyle = good ? 'rgba(60,150,255,.42)' : 'rgba(255,70,70,.45)';
+    ctx.fillRect(a.x, a.y - h, b.x - a.x, h);
+    ctx.strokeStyle = good ? '#bfe3ff' : '#ffc1bb'; ctx.lineWidth = Math.max(1.5, 4 * a.s);
+    ctx.strokeRect(a.x, a.y - h, b.x - a.x, h);
+    if (g.passed && g.chosen === i){ ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(a.x, a.y - h, b.x - a.x, h); }
+    const fs = Math.max(10, h * .42);
+    ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = Math.max(2, fs * .12); ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    const lx = (a.x + b.x) / 2, ly = a.y - h / 2;
+    ctx.strokeText(gateLabel(s), lx, ly); ctx.fillStyle = '#fff'; ctx.fillText(gateLabel(s), lx, ly);
+  });
+  ctx.globalAlpha = 1;
+}
+function shadow(x, y, w){ ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y, w, w * .3, 0, 0, Math.PI * 2); ctx.fill(); }
+function drawEnemy(e){
+  const p = proj(e.x, e.z);
+  if (e.kind === 'z'){
+    const size = .26 * roadW * p.s, bob = Math.abs(Math.sin(levelTime * 8 + e.wob)) * size * .06;
+    shadow(p.x, p.y, size * .3);
+    if (e.hitT > 0) ctx.globalAlpha = .6;
+    ctx.drawImage(sprite('🧟'), p.x - size / 2, p.y - size * .95 - bob, size, size);
+    ctx.globalAlpha = 1;
+  } else if (e.kind === 'barrel'){
+    const size = .24 * roadW * p.s;
+    shadow(p.x, p.y, size * .35);
+    ctx.fillStyle = '#c0392b'; ctx.fillRect(p.x - size * .3, p.y - size * .8, size * .6, size * .8);
+    ctx.fillStyle = '#922b21'; ctx.fillRect(p.x - size * .3, p.y - size * .6, size * .6, size * .08); ctx.fillRect(p.x - size * .3, p.y - size * .3, size * .6, size * .08);
+    ctx.font = `${size * .34}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('💥', p.x, p.y - size * .45);
+  } else if (e.kind === 'crate'){
+    const size = .34 * roadW * p.s;
+    shadow(p.x, p.y, size * .45);
+    ctx.fillStyle = e.hitT > 0 ? '#e0b070' : '#b07a3c'; ctx.fillRect(p.x - size / 2, p.y - size, size, size);
+    ctx.strokeStyle = '#6b4520'; ctx.lineWidth = Math.max(1, size * .06); ctx.strokeRect(p.x - size / 2, p.y - size, size, size);
+    ctx.beginPath(); ctx.moveTo(p.x - size / 2, p.y - size); ctx.lineTo(p.x + size / 2, p.y); ctx.moveTo(p.x + size / 2, p.y - size); ctx.lineTo(p.x - size / 2, p.y); ctx.stroke();
+    ctx.font = `${size * .55}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText({ men: '🪖', rate: '⚡', power: '🔥' }[e.reward], p.x, p.y - size * 1.35);
+    bar(p.x, p.y - size - 6 * p.s - 4, size, e.hp / e.maxHp, '#ffd54a');
+  } else if (e.kind === 'boss'){
+    const size = 1.15 * roadW * p.s, stomp = Math.abs(Math.sin(levelTime * 3)) * size * .03;
+    shadow(p.x, p.y, size * .35);
+    if (e.hitT > 0) ctx.globalAlpha = .75;
+    ctx.drawImage(sprite(e.e), p.x - size / 2, p.y - size * .95 - stomp, size, size);
+    ctx.globalAlpha = 1;
+    const fs = Math.max(20, size * .26);
+    ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = fs * .14; ctx.strokeStyle = '#fff'; ctx.strokeText(Math.ceil(e.hp), p.x, p.y - size * .98);
+    ctx.fillStyle = '#d6322b'; ctx.fillText(Math.ceil(e.hp), p.x, p.y - size * .98);
+  }
+}
+function bar(x, y, w, frac, color){
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(x - w / 2, y, w, 5);
+  ctx.fillStyle = color; ctx.fillRect(x - w / 2, y, w * Math.max(0, frac), 5);
+}
+function drawSoldier(x, z, firing){
+  const p = proj(x, z), h = .17 * roadW * p.s, w = h * .5;
+  shadow(p.x, p.y, w * .55);
+  const step = Math.sin(levelTime * 14 + x * 40) * h * .06;
+  ctx.fillStyle = '#1d2330'; ctx.fillRect(p.x - w * .32, p.y - h * .32 + step, w * .24, h * .32); ctx.fillRect(p.x + w * .08, p.y - h * .32 - step, w * .24, h * .32);
+  ctx.fillStyle = '#3557d6'; ctx.fillRect(p.x - w / 2, p.y - h * .78, w, h * .5);
+  ctx.fillStyle = '#4a4a3a'; ctx.fillRect(p.x - w * .32, p.y - h * .74, w * .64, h * .36);
+  ctx.fillStyle = '#556b2f'; ctx.beginPath(); ctx.arc(p.x, p.y - h * .86, w * .32, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#6b6f78'; ctx.fillRect(p.x + w * .38, p.y - h * 1.0, w * .18, h * .5);
+  if (firing){ ctx.fillStyle = '#ffe680'; ctx.beginPath(); ctx.arc(p.x + w * .47, p.y - h * 1.05, w * .22, 0, Math.PI * 2); ctx.fill(); }
+}
+function drawSquad(){
+  const n = Math.min(squad.n, 60), firing = flashT > 0;
+  const list = FORM.slice(0, n).map(f => ({ x: squad.x + f.dx, z: PZ + f.dz })).sort((a, b) => b.z - a.z);
+  for (const s of list) drawSoldier(s.x, s.z, firing);
+  const p = proj(squad.x, PZ + squadRadius() * 1.4), fs = Math.max(24, roadW * .2 * p.s);
+  ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = fs * .16; ctx.strokeStyle = '#1b3a8f';
+  const y = p.y - .45 * roadW * p.s;
+  ctx.strokeText(squad.n, p.x, y); ctx.fillStyle = '#fff'; ctx.fillText(squad.n, p.x, y);
+}
+function draw(){
+  ctx.save();
+  if (shake > 0) ctx.translate((Math.random() - .5) * shake * 24, (Math.random() - .5) * shake * 24);
+  drawWorld();
+  if (!squad){ ctx.restore(); return; }
+  const things = [...gates.map(g => ({ z: g.z + .01, g })), ...enemies.map(e => ({ z: e.z, e }))].sort((a, b) => b.z - a.z);
+  for (const t of things){ if (t.z < PZ - .2) continue; t.g ? drawGate(t.g) : drawEnemy(t.e); }
+  ctx.strokeStyle = '#fff3b0'; ctx.lineCap = 'round';
+  for (const b of bullets){
+    const a = proj(b.x, b.z), c = proj(b.x, b.z + 1.3);
+    ctx.lineWidth = Math.max(1.5, 5 * a.s); ctx.beginPath(); ctx.moveTo(a.x, a.y - 10 * a.s - 8); ctx.lineTo(c.x, c.y - 10 * c.s - 8); ctx.stroke();
+  }
+  if (state !== 'lost' || squad.n > 0) drawSquad();
+  for (const t of things) if (t.z < PZ - .2 && t.e) drawEnemy(t.e);
+  for (const f of fx){
+    const k = f.t / .45; ctx.globalAlpha = 1 - k; ctx.fillStyle = f.color;
+    ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + k), 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  for (const f of floats){
+    const p = proj(f.x, f.z), fs = Math.max(18, Math.min(34, roadW * .12 * p.s + 8));
+    ctx.globalAlpha = Math.min(1, (f.life - f.t) * 3);
+    ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const x = clamp(p.x, 120, W - 120), y = p.y - .9 * roadW * p.s - f.t * 40;
+    ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText(f.text, x, y);
+    ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  $('scoreP').textContent = score;
+}
+
+/* ---------------- Input ---------------- */
+let dragX = null;
+canvas.addEventListener('pointerdown', e => { dragX = e.clientX; try { canvas.setPointerCapture(e.pointerId); } catch(_){} });
+canvas.addEventListener('pointermove', e => {
+  if (dragX === null || !squad) return;
+  const dx = e.clientX - dragX; dragX = e.clientX;
+  squad.tx = clamp(squad.tx + dx / (roadW * D / (PZ + D)) * 1.15, -.9, .9);
+});
+for (const ev of ['pointerup', 'pointercancel']) canvas.addEventListener(ev, () => { dragX = null; });
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'a') { keyDir = -1; e.preventDefault(); }
+  if (e.key === 'ArrowRight' || e.key === 'd') { keyDir = 1; e.preventDefault(); }
+});
+addEventListener('keyup', e => {
+  if ((e.key === 'ArrowLeft' || e.key === 'a') && keyDir < 0) keyDir = 0;
+  if ((e.key === 'ArrowRight' || e.key === 'd') && keyDir > 0) keyDir = 0;
+});
+
+/* ---------------- Menu ---------------- */
+function renderModes(){ document.querySelectorAll('.mode').forEach(b => b.classList.toggle('sel', +b.dataset.m === mode)); }
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => { mode = +b.dataset.m; lsSet('squadrush_mode', mode); renderModes(); });
+renderModes();
+function showMenu(){
+  state = 'menu'; ['win', 'lose'].forEach(id => $(id).classList.add('hide')); $('hud').classList.add('hide');
+  $('bestLine').textContent = best ? `🏆 Best: level ${best}` : '';
+  $('menu').classList.remove('hide');
+}
+showMenu();
+$('startBtn').onclick = () => { level = 1; startLevel(); };
+$('nextBtn').onclick = () => { level++; startLevel(); };
+$('retryBtn').onclick = () => { startLevel(); };
+$('winMenuBtn').onclick = showMenu;
+$('loseMenuBtn').onclick = showMenu;
+
+/* ---------------- Loop ---------------- */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (state === 'play' || state === 'ending') update(dt);
+  else if (state === 'lost'){ fx = fx.filter(f => (f.t += dt) < .45); shake = Math.max(0, shake - dt); }
+  draw();
+  requestAnimationFrame(loop);
+}
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
