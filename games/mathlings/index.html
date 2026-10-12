@@ -172,6 +172,24 @@
   .difftoggle.on .diffname { color:#ffe45d; }
   .difftoggle:active { transform:scale(.98); }
 
+  /* ---- Effects, streaks, reveals, intros, report ---- */
+  body.in-arcade #hud { padding-left:96px; }        /* room for the arcade's Menu button */
+  #fx { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:5; }
+  #field.shake { animation:shake .3s; }
+  #streak { color:#ffb13c; font-family:'Bungee'; font-size:17px; visibility:hidden; }
+  #streak.on { visibility:visible; }
+  .ans:disabled { cursor:default; }
+  .ans.reveal { background:linear-gradient(180deg,#33c46e,#1f8f4d); box-shadow:0 0 0 3px #b8ffcf, 0 4px 0 #11254f; }
+  #problem.shown { color:#9bffc4; text-shadow:0 0 14px rgba(93,255,143,.45); }
+  .streakBanner {
+    position:absolute; top:40%; left:50%; z-index:15; pointer-events:none; white-space:nowrap;
+    font-family:'Bungee'; font-size:28px; color:#ffb13c; text-shadow:0 0 18px rgba(255,177,60,.7), 0 2px 0 #000;
+    animation:bossWarn 1.3s forwards; opacity:0;
+  }
+  .intro-emo { font-size:72px; line-height:1; filter:drop-shadow(0 4px 10px rgba(0,0,0,.6)); }
+  .facts { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:340px; }
+  .facts span { font-family:'Bungee'; font-size:15px; background:#13203e; border:1px solid #2f63b8; border-radius:8px; padding:5px 9px; color:#ffe45d; }
+
   /* ---- Compact layout for short screens (iPhone X and similar) ---- */
   @media (max-height: 740px) {
     #hud { padding:3px 12px; font-size:16px; }
@@ -211,8 +229,10 @@
   <div id="field">
     <div id="hud">
       <div class="stat"><span class="lbl">WAVE</span><span id="wave">1</span></div>
+      <div class="stat" id="streak">🔥 0</div>
       <div class="stat"><span class="lbl">SOLVED</span><span id="solved">0</span></div>
     </div>
+    <canvas id="fx"></canvas>
     <div class="turret-tag" id="dpsTag"></div>
     <div id="hpstrip">
       <span class="lbl">BASE HP</span>
@@ -236,7 +256,11 @@
   const $ = s => document.querySelector(s);
   const field = $('#field'), problemEl = $('#problem'), answersEl = $('#answers'),
         waveEl = $('#wave'), solvedEl = $('#solved'), hpbar = $('#hpbar'),
-        baseEl = $('#base'), dpsTag = $('#dpsTag'), wrap = $('#wrap');
+        baseEl = $('#base'), dpsTag = $('#dpsTag'), wrap = $('#wrap'), streakEl = $('#streak');
+  if (window.self !== window.top) document.body.classList.add('in-arcade');
+  const overlayOpen = () => !!wrap.querySelector('.overlay');
+  function lsGet(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } }
+  function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
 
   // ---- game state ----
   const G = {
@@ -253,6 +277,12 @@
     ops: ['+'],
     diff: null,            // active difficulty config, set at start
     timeLeft: 0,           // per-problem countdown (when enabled)
+    cur: null,             // current problem {a, b, op, ans, q}
+    locked: false,         // ignore taps while an answer is resolving
+    problemStart: 0,
+    streak: 0, bestStreak: 0,
+    attempts: 0, correct: 0,
+    sessionMisses: {},     // q -> {ans, n} for the end-of-game report
   };
   const DEFEATS_PER_UPGRADE = 10;
 
@@ -319,81 +349,265 @@
     {img: BOSS_IMG_11, name:'Banana Elephant'},
   ];
 
+  // Shown once ever, the first time each creature appears, so its trick isn't a mystery.
+  const ABILITY_INFO = {
+    shield:     'Has a shield bubble. Your first hit just pops the shield!',
+    brute:      'Extra tough. It takes more hits to beat.',
+    morph:      'Turns into a butterfly with double health after 3 seconds. Get it fast!',
+    split:      'Splits into two little germs when you beat it.',
+    armor:      'Wears armor, so it only takes half damage.',
+    phase:      'Sometimes turns see-through and can\'t be hit. Your shot goes to the next creature.',
+    devil:      'Does double damage if it reaches your base.',
+    curse:      'When you beat it, the other creatures speed up for a moment.',
+    fast:       'Super fast! Answer quickly.',
+    regen:      'Slowly heals itself. Keep hitting it.',
+    juggernaut: 'Huge health, but very slow.',
+  };
+  const seenTypes = new Set(lsGet('mathlings_seen') || []);
+  const introQueue = [];
+  function showIntro(e){
+    const type = ENEMY_TYPES.find(t => t.ability === e.ability);
+    const ov = makeOverlay();
+    ov.innerHTML = `<p class="muted">NEW CREATURE!</p><div class="intro-emo">${e.emo}</div>
+      <h2>${type ? type.name.toUpperCase() : ''}</h2><p>${ABILITY_INFO[e.ability]}</p>`;
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'GOT IT!';
+    b.onclick = () => { sfx.chime(); ov.remove(); };
+    ov.appendChild(b); wrap.appendChild(ov);
+  }
+
+  // ---- sound ----
+  let AC = null;
+  function ac(){ if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; } } if (AC.state === 'suspended') AC.resume(); return AC; }
+  function tone(f, d, type = 'square', vol = .05, slide = 0, delay = 0){
+    const a = ac(); if (!a) return;
+    const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t + d);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .02);
+  }
+  function noise(d, vol, freq){
+    const a = ac(); if (!a) return;
+    const n = Math.floor(a.sampleRate * d), buf = a.createBuffer(1, n, a.sampleRate), x = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = buf; f.type = 'lowpass'; f.frequency.value = freq; g.gain.value = vol;
+    s.connect(f).connect(g).connect(a.destination); s.start();
+  }
+  const sfx = {
+    zap(streak = 0){ tone(880 + Math.min(streak, 12) * 60, .12, 'square', .045, 900); },
+    pew(){ tone(1400, .05, 'square', .015, -600); },
+    pop(){ noise(.12, .25, 2200); tone(500, .08, 'triangle', .05, 500); },
+    bossPop(){ noise(.8, .5, 900); [392, 523, 659, 784].forEach((f, i) => tone(f, .18, 'square', .05, 0, .1 + i * .09)); },
+    wrong(){ tone(190, .3, 'sawtooth', .05, -80); },
+    thud(){ noise(.25, .45, 300); tone(90, .3, 'sine', .2, -40); },
+    siren(){ for (let i = 0; i < 3; i++){ tone(520, .22, 'sawtooth', .04, 260, i * .45); tone(780, .22, 'sawtooth', .04, -260, i * .45 + .22); } },
+    fanfare(){ [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .14, 'square', .045, 0, i * .09)); },
+    chime(){ [784, 988, 1319].forEach((f, i) => tone(f, .14, 'triangle', .06, 0, i * .07)); },
+    streak(){ [659, 880, 1175, 1568].forEach((f, i) => tone(f, .1, 'square', .045, 0, i * .05)); },
+  };
+  addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('pointerdown', unlock); });
+
+  // ---- effects canvas: turret, laser beams, particles, shockwaves ----
+  const fxCanvas = $('#fx'), fctx = fxCanvas.getContext('2d');
+  let FW = 0, FH = 0;
+  function sizeFx(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    FW = field.clientWidth; FH = field.clientHeight;
+    fxCanvas.width = FW * dpr; fxCanvas.height = FH * dpr; fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  addEventListener('resize', sizeFx);
+  const beams = [], parts = [], rings = [];
+  let turretAngle = -Math.PI / 2, recoil = 0, baseFlash = 0;
+  const turretPos = () => ({ x: FW / 2, y: FH - 42 });
+  function burst(x, y, colors, n, speed){
+    for (let i = 0; i < n; i++){
+      const a = Math.random() * Math.PI * 2, v = speed * (.4 + Math.random() * .8);
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: .45 + Math.random() * .4, t: 0, c: colors[i % colors.length], s: 3 + Math.random() * 4 });
+    }
+  }
+  function fireBeam(target, big){
+    const t = turretPos();
+    beams.push({ x1: t.x, y1: t.y - 14, x2: target.x, y2: target.y, t: 0, big });
+    turretAngle = Math.atan2(target.y - t.y, target.x - t.x); recoil = 1;
+    burst(target.x, target.y, big ? ['#ffffff', '#ffe45d', '#5dd8ff'] : ['#5dd8ff', '#ffffff'], big ? 10 : 4, big ? 130 : 70);
+  }
+  function popEffect(x, y, isBoss){
+    burst(x, y, ['#ff5d6c', '#ffe45d', '#5dff8f', '#5db8ff', '#ffffff', '#c58cff'], isBoss ? 70 : 22, isBoss ? 280 : 170);
+    rings.push({ x, y, t: 0, r: isBoss ? 140 : 46 });
+  }
+  function drawFx(dt){
+    fctx.clearRect(0, 0, FW, FH);
+    if (baseFlash > 0){ fctx.fillStyle = `rgba(255,60,80,${baseFlash * .3})`; fctx.fillRect(0, 0, FW, FH); baseFlash = Math.max(0, baseFlash - dt * 3); }
+    fctx.lineCap = 'round';
+    for (let i = beams.length - 1; i >= 0; i--){
+      const b = beams[i]; b.t += dt; const dur = b.big ? .18 : .12;
+      if (b.t > dur){ beams.splice(i, 1); continue; }
+      const a = 1 - b.t / dur;
+      fctx.strokeStyle = `rgba(93,216,255,${a * .55})`; fctx.lineWidth = b.big ? 11 : 5;
+      fctx.beginPath(); fctx.moveTo(b.x1, b.y1); fctx.lineTo(b.x2, b.y2); fctx.stroke();
+      fctx.strokeStyle = `rgba(255,255,255,${a})`; fctx.lineWidth = b.big ? 3.5 : 1.5;
+      fctx.beginPath(); fctx.moveTo(b.x1, b.y1); fctx.lineTo(b.x2, b.y2); fctx.stroke();
+    }
+    for (let i = parts.length - 1; i >= 0; i--){
+      const p = parts[i]; p.t += dt;
+      if (p.t > p.life){ parts.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; p.vx *= .98;
+      fctx.globalAlpha = 1 - p.t / p.life; fctx.fillStyle = p.c; fctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+    }
+    fctx.globalAlpha = 1;
+    for (let i = rings.length - 1; i >= 0; i--){
+      const r = rings[i]; r.t += dt;
+      if (r.t > .4){ rings.splice(i, 1); continue; }
+      const k = r.t / .4;
+      fctx.strokeStyle = `rgba(255,255,255,${1 - k})`; fctx.lineWidth = 3;
+      fctx.beginPath(); fctx.arc(r.x, r.y, r.r * (.3 + k), 0, Math.PI * 2); fctx.stroke();
+    }
+    // Turret on the base: dome plus a barrel that swings to aim at each target.
+    const t = turretPos();
+    recoil = Math.max(0, recoil - dt * 6);
+    fctx.save(); fctx.translate(t.x, t.y); fctx.rotate(turretAngle + Math.PI / 2);
+    fctx.fillStyle = '#9db6e0'; fctx.fillRect(-4, -30 + recoil * 6, 8, 24);
+    fctx.fillStyle = '#5dd8ff'; fctx.fillRect(-4, -32 + recoil * 6, 8, 4);
+    fctx.restore();
+    const dome = fctx.createRadialGradient(t.x - 5, t.y - 6, 2, t.x, t.y, 18);
+    dome.addColorStop(0, '#cfe3ff'); dome.addColorStop(1, '#2f63b8');
+    fctx.fillStyle = dome; fctx.beginPath(); fctx.arc(t.x, t.y, 16, Math.PI, 0); fctx.fill();
+    fctx.fillStyle = '#1c3c80'; fctx.fillRect(t.x - 22, t.y, 44, 6);
+  }
+
+  // ---- tricky facts: misses are remembered and come back more often ----
+  const facts = lsGet('mathlings_facts') || {};
+  function recordMiss(p){
+    const f = facts[p.q] || (facts[p.q] = { a: p.a, b: p.b, op: p.op, miss: 0 });
+    f.miss = Math.min(5, f.miss + 1); lsSet('mathlings_facts', facts);
+    const s = G.sessionMisses[p.q] || (G.sessionMisses[p.q] = { ans: p.ans, n: 0 }); s.n++;
+  }
+  function recordHit(p){
+    const f = facts[p.q]; if (!f) return;
+    if (--f.miss <= 0) delete facts[p.q];
+    lsSet('mathlings_facts', facts);
+  }
+
+  // Wrong choices are common slips (times-table neighbours, adding instead of
+  // multiplying, off-by-one) so the fact has to be known, not roughly guessed.
+  function makeOptions(a, b, op, ans){
+    let cands;
+    if (op === '+') cands = [ans + 1, ans - 1, ans + 2, ans - 2, ans + 10, ans - 10, a - b];
+    else if (op === '-') cands = [ans + 1, ans - 1, ans + 2, ans - 2, a + b, ans + 10];
+    else if (op === '×') cands = [a * (b + 1), a * (b - 1), (a + 1) * b, (a - 1) * b, a + b, ans + 10, ans - 10, ans + 1, ans - 1];
+    else cands = [ans + 1, ans - 1, ans + 2, ans - 2, b, a - b];
+    const opts = new Set([ans]);
+    for (const c of shuffleArr(cands.filter(c => c >= 0 && c !== ans))) { if (opts.size >= 4) break; opts.add(c); }
+    let guard = 0;
+    while (opts.size < 4 && guard++ < 50){ const d = ans + rnd(1, 5) * (Math.random() < .5 ? -1 : 1); if (d >= 0) opts.add(d); }
+    while (opts.size < 4) opts.add(ans + opts.size);
+    return shuffleArr([...opts]);
+  }
+  const shuffleArr = arr => { for (let i = arr.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+
   // ---- problem generation: fluency-focused, scales with difficulty ----
   function genProblem() {
     let a, b, op, ans;
     const m = G.diff ? G.diff.numMax : 9;        // top of the number range for this difficulty
-    op = G.ops[Math.floor(Math.random()*G.ops.length)];
-    if (op === '+') {                            // sums of two single/low numbers
-      a = rnd(1,m); b = rnd(1,m); ans = a + b;
-    } else if (op === '-') {                     // no negatives
-      a = rnd(1,m); b = rnd(0,a); ans = a - b;
-    } else if (op === '×') {                     // times tables; cap factor so it stays mental-math
-      const f = Math.min(12, Math.max(5, Math.round(m/1.5)));
-      a = rnd(1,f); b = rnd(1,f); ans = a * b;
-    } else {                                     // ÷ : clean whole-number answers
-      const f = Math.min(12, Math.max(5, Math.round(m/1.5)));
-      b = rnd(1,f); ans = rnd(1,f); a = b * ans;
+    // About a third of the time, bring back a fact he has missed before.
+    const tricky = Object.values(facts).filter(f => G.ops.includes(f.op) && `${f.a} ${f.op} ${f.b}` !== (G.cur && G.cur.q));
+    if (tricky.length && Math.random() < .33) {
+      const f = tricky[Math.floor(Math.random() * tricky.length)];
+      a = f.a; b = f.b; op = f.op;
+      ans = op === '+' ? a + b : op === '-' ? a - b : op === '×' ? a * b : a / b;
+    } else {
+      op = G.ops[Math.floor(Math.random()*G.ops.length)];
+      if (op === '+') {                            // sums of two single/low numbers
+        a = rnd(1,m); b = rnd(1,m); ans = a + b;
+      } else if (op === '-') {                     // no negatives
+        a = rnd(1,m); b = rnd(0,a); ans = a - b;
+      } else if (op === '×') {                     // times tables; cap factor so it stays mental-math
+        const f = Math.min(12, Math.max(5, Math.round(m/1.5)));
+        a = rnd(1,f); b = rnd(1,f); ans = a * b;
+      } else {                                     // ÷ : clean whole-number answers
+        const f = Math.min(12, Math.max(5, Math.round(m/1.5)));
+        b = rnd(1,f); ans = rnd(1,f); a = b * ans;
+      }
     }
     const q = `${a} ${op} ${b}`;
+    G.cur = { a, b, op, ans, q };
     curAnswer = ans;
-    problemEl.textContent = q;
-    // build 4 options with plausible near-miss distractors
-    const opts = new Set([ans]);
-    let guard = 0;
-    while (opts.size < 4 && guard++ < 50) {
-      const d = ans + (rnd(1,5) * (Math.random()<.5?-1:1));
-      if (d >= 0 && d !== ans) opts.add(d);
-    }
-    while (opts.size < 4) opts.add(ans + opts.size); // fallback
-    const arr = [...opts].sort(()=>Math.random()-.5);
+    G.locked = false; G.problemStart = performance.now();
+    problemEl.textContent = q; problemEl.classList.remove('shown');
     answersEl.innerHTML = '';
-    arr.forEach(v => {
+    makeOptions(a, b, op, ans).forEach(v => {
       const btn = document.createElement('button');
       btn.className = 'ans'; btn.textContent = v;
       btn.onclick = () => answer(v, btn);
       answersEl.appendChild(btn);
     });
     // (re)start the per-problem timer if this difficulty uses one
-    if (G.diff && G.diff.answerSeconds > 0) {
-      G.timeLeft = G.diff.answerSeconds;
-      updateTimerBar();
-    } else {
-      G.timeLeft = 0;
-      updateTimerBar();
-    }
+    G.timeLeft = G.diff && G.diff.answerSeconds > 0 ? G.diff.answerSeconds : 0;
+    updateTimerBar();
   }
   const rnd = (lo,hi) => Math.floor(Math.random()*(hi-lo+1))+lo;
 
   function answer(val, btn) {
+    if (G.locked) return;                // ignore double taps while this answer resolves
+    G.locked = true;
+    answersEl.querySelectorAll('.ans').forEach(b => b.disabled = true);
+    G.attempts++;
     if (val === curAnswer) {
       btn.classList.add('good');
-      G.solved++; solvedEl.textContent = G.solved;
-      dealClickDamage();
+      G.solved++; G.correct++; solvedEl.textContent = G.solved;
+      recordHit(G.cur);
+      // Streaks and quick answers hit harder.
+      const quick = performance.now() - G.problemStart < 3000;
+      G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+      const mult = (1 + .1 * Math.min(G.streak - 1, 10)) * (quick ? 1.25 : 1);
+      sfx.zap(G.streak);
+      dealClickDamage(mult, quick);
+      if ([3, 5, 10, 15, 20, 30].includes(G.streak)){ streakBanner(`🔥 ${G.streak} IN A ROW!`); sfx.streak(); }
+      updateStreak();
       setTimeout(genProblem, 180);
     } else {
       btn.classList.add('bad');
-      // wrong answer lets enemies surge a bit
-      G.enemies.forEach(e => e.y += 14);
-      setTimeout(genProblem, 350);
+      missed('');
     }
   }
+  // Wrong answer or timeout: show the right answer, reset the streak, enemies surge.
+  function missed(note){
+    sfx.wrong();
+    recordMiss(G.cur);
+    G.streak = 0; updateStreak();
+    answersEl.querySelectorAll('.ans').forEach(b => { b.disabled = true; if (+b.textContent === curAnswer) b.classList.add('reveal'); });
+    problemEl.textContent = `${G.cur.q} = ${G.cur.ans}`; problemEl.classList.add('shown');
+    G.enemies.forEach(e => e.y += 14);
+    if (note) floatText(field.clientWidth / 2, 60, note);
+    setTimeout(genProblem, 1100);
+  }
+  function updateStreak(){
+    streakEl.textContent = `🔥 ${G.streak}`;
+    streakEl.classList.toggle('on', G.streak >= 2);
+  }
+  function streakBanner(text){
+    const b = document.createElement('div'); b.className = 'streakBanner'; b.textContent = text;
+    field.appendChild(b); setTimeout(() => b.remove(), 1300);
+  }
 
-  function dealClickDamage() {
+  function dealClickDamage(mult = 1, quick = false) {
     // Effective damage scales gently with the wave so a single correct answer
-    // keeps one-shotting a normal enemy (HP = 8 + wave*2). Upgrades add on top.
-    const dmg = G.clickDamage + G.wave*2;
+    // keeps one-shotting a normal enemy (HP = 8 + wave*2). Upgrades, streaks and speed add on top.
+    const dmg = Math.round((G.clickDamage + G.wave*2) * mult);
     // sort by progress toward base; phased ghosts can't be targeted right now
     const sorted = [...G.enemies].sort((a,b)=>b.y-a.y);
     const target = sorted.find(e => !e.phased);
     if (target) {
+      fireBeam(target, true);
+      floatText(target.x, target.y, (quick ? '⚡' : '') + '-' + dmg);
       damage(target, dmg);
-      floatText(target.x, target.y, '-'+dmg);
     } else if (sorted[0]) {
-      // everything in front is phased — show a miss cue on the front ghost
+      // everything in front is phased: show a miss cue on the front ghost
+      fireBeam(sorted[0], true);
       floatText(sorted[0].x, sorted[0].y, 'phased!');
     }
     if (G.splash > 0) {
+      const t = turretPos(); rings.push({ x: t.x, y: t.y, t: 0, r: Math.max(FW, FH) });
       sorted.forEach(e => { if (e !== target && !e.phased) damage(e, dmg * G.splash); });
     }
   }
@@ -422,6 +636,8 @@
     e.el?.remove(); e.dead = true;
     G.enemies = G.enemies.filter(x=>x!==e);
     if (e.defeatedByPlayer !== false) {
+      popEffect(e.x, e.y, e.isBoss);
+      e.isBoss ? sfx.bossPop() : sfx.pop();
       G.defeats++; G.defeatsSinceUpgrade++;
       // germ splits into two smaller germs when defeated by the player
       if (e.ability === 'split' && !e.isSplitChild) {
@@ -488,6 +704,7 @@
     const b = document.createElement('div');
     b.id = 'bossBanner'; b.textContent = '⚠ BOSS ⚠';
     field.appendChild(b); setTimeout(()=>b.remove(), 1800);
+    sfx.siren();
   }
 
   function spawnEnemy() {
@@ -536,6 +753,10 @@
     field.appendChild(el); e.el = el;
     positionEnemy(e); updateEnemyEl(e);
     G.enemies.push(e);
+    if (!e.isSplitChild && ABILITY_INFO[e.ability] && !seenTypes.has(e.ability)){
+      seenTypes.add(e.ability); lsSet('mathlings_seen', [...seenTypes]);
+      introQueue.push(e);
+    }
     // caterpillar metamorphoses into a butterfly (double HP) after 3 seconds
     if (e.ability === 'morph') {
       e.metaTimer = setTimeout(() => metamorphose(e), 3000);
@@ -588,6 +809,7 @@
 
   function endWave() {
     G.waveActive = false;
+    sfx.fanfare();
     const cleared = G.wave;
     G.wave++;
     // Auto-ramp within the chosen tier: every rampEvery waves, nudge speed up
@@ -612,14 +834,18 @@
     if (!G.running) return;
     const dt = Math.min(0.05, (t - G.lastT)/1000 || 0); G.lastT = t;
 
+    // Everything stands still while an overlay (upgrade pick, creature intro) is open.
+    if (!overlayOpen() && introQueue.length) showIntro(introQueue.shift());
+    if (overlayOpen()) { drawFx(dt); requestAnimationFrame(loop); return; }
+
     // spawn
     if (G.spawnQueue > 0) {
       G.spawnTimer -= dt;
       if (G.spawnTimer <= 0) { spawnEnemy(); G.spawnQueue--; G.spawnTimer = Math.max(3.2, 5.2 - G.wave*0.1); }
     }
 
-    // per-problem countdown (only when a timer is active and no overlay is blocking play)
-    if (G.diff && G.diff.answerSeconds > 0 && G.timeLeft > 0 && !wrap.querySelector('.overlay')) {
+    // per-problem countdown (only when a timer is active)
+    if (G.diff && G.diff.answerSeconds > 0 && G.timeLeft > 0 && !G.locked) {
       G.timeLeft -= dt;
       if (G.timeLeft <= 0) { G.timeLeft = 0; updateTimerBar(); timeUp(); }
       else updateTimerBar();
@@ -630,7 +856,7 @@
       autoAccum += G.autoDPS * dt;
       if (autoAccum >= 1) {
         const front = [...G.enemies].sort((a,b)=>b.y-a.y).find(e => !e.phased);
-        if (front) { damage(front, Math.floor(autoAccum)); }
+        if (front) { fireBeam(front, false); sfx.pew(); damage(front, Math.floor(autoAccum)); }
         autoAccum -= Math.floor(autoAccum);
       }
     }
@@ -666,6 +892,8 @@
         dmg = Math.ceil(dmg * (e.baseDamageMul || 1));
         G.hp -= dmg; updateHP();
         baseEl.classList.add('hurt'); setTimeout(()=>baseEl.classList.remove('hurt'),300);
+        field.classList.add('shake'); setTimeout(()=>field.classList.remove('shake'),300);
+        baseFlash = 1; sfx.thud();
         e.defeatedByPlayer = false;
         defeatEnemy(e);
         if (G.hp <= 0) { gameOver(); return; }
@@ -673,6 +901,7 @@
     }
 
     updateDpsTag();
+    drawFx(dt);
     requestAnimationFrame(loop);
   }
 
@@ -700,9 +929,9 @@
   }
   // Called when the per-problem timer runs out: same surge penalty as a wrong answer.
   function timeUp(){
-    G.enemies.forEach(e => e.y += 18);
-    floatText(field.clientWidth/2, 60, "⏱ Too slow!");
-    genProblem();
+    if (G.locked) return;
+    G.locked = true; G.attempts++;
+    missed('⏱ Too slow!');
   }
 
   // ---- upgrades ----
@@ -730,7 +959,7 @@
       const c=document.createElement('div'); c.className='card';
       c.innerHTML=`<div class="ic">${u.ic}</div><div><div class="t">${u.t}</div><div class="d">${u.d}</div></div>`;
       c.onclick=()=>{
-        u.fn(); updateDpsTag(); ov.remove();
+        u.fn(); updateDpsTag(); ov.remove(); sfx.chime();
         if (G.waveActive && G.enemies.length === 0 && G.spawnQueue === 0) endWave();
         else genProblem();
       };
@@ -748,7 +977,7 @@
       pick3().forEach(u=>{
         const c=document.createElement('div'); c.className='card';
         c.innerHTML=`<div class="ic">${u.ic}</div><div><div class="t">${u.t}</div><div class="d">${u.d}</div></div>`;
-        c.onclick=()=>{ u.fn(); updateDpsTag(); ov.remove(); startWave(); genProblem(); };
+        c.onclick=()=>{ u.fn(); updateDpsTag(); ov.remove(); sfx.chime(); startWave(); genProblem(); };
         ov.appendChild(c);
       });
     }
@@ -758,7 +987,13 @@
   function gameOver() {
     G.running = false;
     const ov = makeOverlay();
-    ov.innerHTML = `<h2>Base Overrun!</h2><p>You reached <b>Wave ${G.wave}</b><br>and solved <b>${G.solved}</b> problems.</p>`;
+    const acc = G.attempts ? Math.round(G.correct / G.attempts * 100) : 0;
+    const misses = Object.entries(G.sessionMisses).sort((x, y) => y[1].n - x[1].n).slice(0, 8);
+    ov.innerHTML = `<h2>Base Overrun!</h2><p>You reached <b>Wave ${G.wave}</b><br>and solved <b>${G.solved}</b> problems.</p>
+      <p>🎯 ${acc}% correct &nbsp;·&nbsp; 🔥 Best streak ${G.bestStreak}</p>` +
+      (misses.length
+        ? `<p class="muted">Facts to practise (they'll come up more next time):</p><div class="facts">${misses.map(([q, m]) => `<span>${q} = ${m.ans}</span>`).join('')}</div>`
+        : '<p>No misses. Amazing!</p>');
     const b=document.createElement('button'); b.className='btn'; b.textContent='PLAY AGAIN';
     b.onclick=()=>location.reload(); ov.appendChild(b);
     wrap.appendChild(ov);
@@ -827,7 +1062,7 @@
       // copy the tier so the in-game ramp doesn't mutate the shared config
       G.diff = { ...DIFFICULTIES[chosenDiff] };
       ov.remove(); G.running=true; G.lastT=performance.now();
-      updateHP(); genProblem(); startWave(); requestAnimationFrame(loop);
+      sizeFx(); updateHP(); genProblem(); startWave(); requestAnimationFrame(loop);
     };
     ov.appendChild(startBtn); wrap.appendChild(ov);
   }
