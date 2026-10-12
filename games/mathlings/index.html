@@ -284,7 +284,7 @@
     attempts: 0, correct: 0,
     sessionMisses: {},     // q -> {ans, n} for the end-of-game report
   };
-  const DEFEATS_PER_UPGRADE = 10;
+  const DEFEATS_PER_UPGRADE = 12;
 
   // Difficulty tiers. Each multiplies the base values so all balance lives here.
   // speedMul/countAdd/bossHpMul scale enemies; numMax raises the math range;
@@ -690,11 +690,11 @@
     G.isBossWave = (G.wave % 5 === 0);
     const extra = G.diff ? G.diff.countAdd : 0;
     if (G.isBossWave) {
-      G.spawnQueue = 4 + extra;      // a few minions alongside the boss
+      G.spawnQueue = 4 + Math.floor(G.wave / 2) + extra;   // minions alongside the boss
       G.bossPending = true;          // boss spawns first
       showBossBanner();
     } else {
-      G.spawnQueue = 8 + extra;      // wave size scales with difficulty
+      G.spawnQueue = 8 + (G.wave - 1) * 2 + extra;   // waves grow every time
       G.bossPending = false;
     }
     G.spawnTimer = 0;
@@ -707,14 +707,15 @@
     sfx.siren();
   }
 
+  const enemyBaseHP = w => (8 + w*2.6) * Math.pow(1.06, w - 1);
   function spawnEnemy() {
     const w = G.wave;
     if (G.bossPending) { G.bossPending = false; return spawnBoss(); }
-    // One correct answer (clickDamage) should defeat a normal enemy.
-    // HP grows gently with the wave; damage upgrades keep pace.
-    const baseHP = 8 + w*2;
+    // Early creatures fall to one correct answer; HP then outgrows base damage,
+    // so later waves need streaks, quick answers or damage upgrades to one-shot.
+    const baseHP = enemyBaseHP(w);
     const sMul = G.diff ? G.diff.speedMul : 1;
-    const speed = (20 + w*1.4 + Math.random()*5) * sMul; // base pace, scaled by difficulty
+    const speed = (22 + w*1.8 + Math.random()*5) * sMul; // base pace, scaled by difficulty
     const type = ENEMY_TYPES[Math.floor(Math.random()*ENEMY_TYPES.length)];
     makeEnemy({
       x: rnd(36, field.clientWidth-36),
@@ -783,7 +784,7 @@
     const w = G.wave;
     const hpMul = G.diff ? G.diff.bossHpMul : 1;
     const sMul = G.diff ? G.diff.speedMul : 1;
-    const hp = Math.round((8 + w*2) * 14 * hpMul);   // ~14x a normal enemy, scaled by difficulty
+    const hp = Math.round(enemyBaseHP(w) * 12 * hpMul);   // ~12x a normal enemy, scaled by difficulty
     const def = BOSSES[Math.floor((w/5 - 1)) % BOSSES.length];
     const e = {
       id: nextId++,
@@ -833,15 +834,24 @@
   function loop(t) {
     if (!G.running) return;
     const dt = Math.min(0.05, (t - G.lastT)/1000 || 0); G.lastT = t;
-
+    step(dt);
+    if (G.running) requestAnimationFrame(loop);
+  }
+  // One tick of the game. Kept separate from loop() so a test can run it faster than real time.
+  function step(dt) {
     // Everything stands still while an overlay (upgrade pick, creature intro) is open.
     if (!overlayOpen() && introQueue.length) showIntro(introQueue.shift());
-    if (overlayOpen()) { drawFx(dt); requestAnimationFrame(loop); return; }
+    if (overlayOpen()) { drawFx(dt); return; }
 
     // spawn
     if (G.spawnQueue > 0) {
       G.spawnTimer -= dt;
-      if (G.spawnTimer <= 0) { spawnEnemy(); G.spawnQueue--; G.spawnTimer = Math.max(3.2, 5.2 - G.wave*0.1); }
+      if (G.spawnTimer <= 0) {
+        // From wave 3, creatures sometimes arrive in packs of 2-3.
+        const pack = G.wave >= 3 && Math.random() < .25 ? rnd(2, 3) : 1;
+        for (let i = 0; i < pack && G.spawnQueue > 0; i++){ spawnEnemy(); G.spawnQueue--; }
+        G.spawnTimer = Math.max(1.0, 3.0 - G.wave * 0.16) * (0.7 + Math.random() * 0.6) * pack;
+      }
     }
 
     // per-problem countdown (only when a timer is active)
@@ -902,7 +912,6 @@
 
     updateDpsTag();
     drawFx(dt);
-    requestAnimationFrame(loop);
   }
 
   function updateHP(){
@@ -1068,6 +1077,11 @@
   }
 
   start();
+  // Hook for automated balance testing (play-speed simulations); unused in normal play.
+  window.__mathlings = { G, step, genProblem, answerValue: v => {
+    const btn = [...answersEl.querySelectorAll('.ans')].find(b => +b.textContent === v) || answersEl.querySelector('.ans');
+    answer(+btn.textContent, btn);
+  } };
 })();
 </script>
 </body>
