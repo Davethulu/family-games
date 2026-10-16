@@ -262,6 +262,8 @@ const sfx = {
   roar(){ tone(90, 1, 'sawtooth', .08, -30); noise(.8, .2, 400); },
   owl(){ tone(700, .15, 'sine', .05, -200); tone(560, .2, 'sine', .05, -150, .18); },
   buff(){ tone(200, .3, 'square', .04, 300); },
+  fart(){ for (let i = 0; i < 6; i++) tone(70 + Math.random() * 40, .12, 'sawtooth', .08, -20, i * .07); noise(.6, .25, 220); },
+  whoosh(){ noise(.25, .2, 1800, 'bandpass', 0, -1200); },
   potion(){ tone(500, .1, 'sine', .06, 300); tone(800, .2, 'sine', .05, 300, .1); },
 };
 addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('pointerdown', unlock); });
@@ -356,6 +358,7 @@ const SPELLS = {
   frost:  { name: 'Frost Bolt',      icon: '❄️', tier: 2, kind: 'freeze', power: 7,  cd: 2, desc: 'Damage + freeze for a turn' },
   heal:   { name: 'Healing Charm',   icon: '💚', tier: 2, kind: 'heal',   power: 12, cd: 2, desc: 'Heal Larry' },
   bolt:   { name: 'Chain Lightning', icon: '⚡', tier: 3, kind: 'all',    power: 10,  cd: 2, desc: 'Hits every monster' },
+  fart:   { name: 'Fartos Plopem',   icon: '💨', tier: 2, kind: 'blind',  power: 2,  cd: 3, desc: 'Stinks out every monster so they miss' },
   whirl:  { name: 'Whirlwind',       icon: '🌪️', tier: 3, kind: 'dmg',    power: 26, cd: 3, desc: 'Huge damage to one' },
 };
 const ITEMS = {
@@ -415,7 +418,7 @@ let battle = null;  // current fight
 const hasItem = id => run && run.items.includes(id);
 function newRun(){
   run = { grade, hp: 50, maxHp: 50, gold: 0, potions: 1, items: [], floor: 1, room: 0, shopUsed: false, doors: null,
-          spells: [{ id: 'zap', lvl: 0 }, { id: 'shield', lvl: 0 }, { id: 'fire', lvl: 0 }],
+          spells: [{ id: 'zap', lvl: 0 }, { id: 'shield', lvl: 0 }, { id: 'fire', lvl: 0 }, { id: 'fart', lvl: 0 }],
           stats: { correct: 0, attempts: 0, defeated: 0, streak: 0, best: 0, rooms: 0 }, misses: {} };
 }
 function saveRun(){ if (run) lsSet('larry_run', run); }
@@ -657,8 +660,9 @@ function setIntent(en){
 function intentText(en){
   const i = en.intent; if (!i) return '';
   if (en.frozen > 0) return '❄️';
-  if (i.type === 'atk') return `🗡️${i.n + en.atkBonus}`;
-  if (i.type === 'multi') return `🗡️${i.n + en.atkBonus}×${i.k}`;
+  const dz = en.blind > 0 ? '😵' : '';
+  if (i.type === 'atk') return `${dz}🗡️${i.n + en.atkBonus}`;
+  if (i.type === 'multi') return `${dz}🗡️${i.n + en.atkBonus}×${i.k}`;
   return { def: '🛡️', buff: '💪', charge: '⚠️', summon: '📣' }[i.type] || '';
 }
 function layoutEnemies(snap){
@@ -715,7 +719,7 @@ function showSpells(){
   run.spells.forEach((s, i) => {
     const S = SPELLS[s.id], cd = battle ? battle.cds[i] : 0;
     const b = document.createElement('button'); b.className = 'spell';
-    const pw = spellPower(s), what = S.kind === 'block' ? `${pw} block` : S.kind === 'heal' ? `heal ${pw}` : S.kind === 'all' ? `${pw} to all` : `${pw} dmg`;
+    const pw = spellPower(s), what = S.kind === 'block' ? `${pw} block` : S.kind === 'heal' ? `heal ${pw}` : S.kind === 'all' ? `${pw} to all` : S.kind === 'blind' ? `blind all · ${pw} turns` : `${pw} dmg`;
     b.innerHTML = `<div class="si">${S.icon}</div><div><div class="sn">${S.name}${s.lvl ? ' +' + s.lvl : ''}</div><div class="sd">${what}</div><div class="tier">${'★'.repeat(S.tier)}</div></div>` +
                   (cd > 0 ? `<div class="cdv">⏳ ${cd} turn${cd > 1 ? 's' : ''}</div>` : '');
     b.disabled = cd > 0; b.dataset.i = i;
@@ -806,6 +810,10 @@ function resolvePlayer(s, ok, crit, lucky){
     const ts = aliveEnemies();
     ev.push({ type: 'cast', spell: s.id, targets: ts.map(t => battle.enemies.indexOf(t)), crit });
     ts.forEach(t => dmgEnemy(t, p, ev, crit));
+  } else if (S.kind === 'blind'){
+    const ts = aliveEnemies();
+    ev.push({ type: 'cast', spell: s.id, targets: ts.map(t => battle.enemies.indexOf(t)), crit });
+    ts.forEach(t => { t.blind = Math.max(t.blind || 0, p); ev.push({ type: 'blind', i: battle.enemies.indexOf(t) }); });
   } else if (S.kind === 'block'){
     battle.block += p; ev.push({ type: 'cast', spell: s.id, targets: [], crit }, { type: 'gainBlock', amount: p, blockAfter: battle.block });
   } else if (S.kind === 'heal'){
@@ -821,6 +829,8 @@ function dmgEnemy(en, amount, ev, crit){
   if (en.hp <= 0 && !en.dead){ en.dead = true; run.stats.defeated++; ev.push({ type: 'die', i }); }
 }
 function dmgPlayer(amount, ev, i){
+  const en = battle.enemies[i];
+  if (en && en.blind > 0 && Math.random() < .6){ ev.push({ type: 'miss', i }); return; }   // blinded by Fartos Plopem
   const blocked = Math.min(battle.block, amount); battle.block -= blocked;
   const dealt = amount - blocked; run.hp = Math.max(0, run.hp - dealt);
   ev.push({ type: 'hit', i, dealt, blocked, hpAfter: run.hp, blockAfter: battle.block });
@@ -843,6 +853,7 @@ async function enemyPhase(){
       const m = makeEnemy(it.n); m.x = SW + 60; battle.enemies.push(m); setIntent(m);
       ev.push({ type: 'summon', i, j: battle.enemies.length - 1 });
     }
+    if (en.blind > 0) en.blind--;
     await playEvents(ev);
     if (run.hp <= 0) return defeat();
   }
@@ -864,6 +875,14 @@ async function playEvent(ev){
       tween(2.5, k => L.goo = 1 - k);
       await wait(250);
       break;
+    }
+    case 'blind': { const p = enemyPos(en); float('😵 Blinded!', p.x, p.y - p.size * 1.4, '#b8e05a', 18); await wait(120); break; }
+    case 'miss': {
+      const dist = (en.x - lp.x) * .45; sfx.whoosh();
+      await tween(.22, k => en.lunge = -dist * ease(k));
+      float('MISS!', lp.x + 20, lp.y - 140 * lp.s, '#b8e05a', 26);
+      tween(.3, k => en.lunge = -dist * (1 - k));
+      await wait(200); break;
     }
     case 'lucky': float('🐈‍⬛ Lucky! Half power', lp.x + 40, lp.y - 160 * lp.s, '#ffd25e', 20); await wait(450); break;
     case 'cast': await castAnim(ev); break;
@@ -967,6 +986,16 @@ async function castAnim(ev){
       await wait(260);
       break;
     }
+    case 'fart': {
+      sfx.fart(); const lp = larryPos();
+      float('💨 FARTOS PLOPEM!', SW / 2, SH * .34, '#b8e05a', 26); screenFlash('rgba(150,190,60,1)', .25);
+      await tween(.25, k => L.squash = Math.sin(k * Math.PI) * .5);
+      await tween(.7, k => {
+        for (let n = 0; n < 3; n++) parts.push({ x: lp.x - 20 * lp.s, y: lp.y - 30 * lp.s, vx: 160 + Math.random() * 260, vy: -20 - Math.random() * 60, t: 0, life: 1.1, c: pick(['#9ccf5a', '#b8a35a', '#7aa04a', '#c8e08a']), s: 10 + Math.random() * 12, g: -10, shape: 'circle', spin: 0 });
+      });
+      for (const en of targets){ const t = tp(en); burst(t.x, t.y, ['#9ccf5a', '#b8a35a', '#c8e08a'], 18, 90, { shape: 'circle', size: 14, grav: -30, life: 1.1 }); }
+      break;
+    }
     case 'shield': {
       sfx.shield(); const lp = larryPos();
       await tween(.35, k => L.bubble = ease(k));
@@ -1053,6 +1082,11 @@ function drawStage(dt){
       const spr = sprite(en.e, en.tint, en.flashT > 0);
       g.drawImage(spr, -size * .6, -size * 1.1, size * 1.2, size * 1.2);
       if (en.frozen > 0){ g.fillStyle = 'rgba(150,220,255,.35)'; g.fillRect(-size * .5, -size * 1.05, size, size); }
+      if (en.blind > 0){   // stink haze from Fartos Plopem
+        for (let k = 0; k < 4; k++){ const a = T * 1.5 + k * 1.6;
+          g.fillStyle = `rgba(160,200,80,${.22 + Math.sin(T * 3 + k) * .06})`;
+          g.beginPath(); g.arc(Math.cos(a) * size * .28, -size * .55 + Math.sin(a) * size * .18, size * .3, 0, Math.PI * 2); g.fill(); }
+      }
       g.restore();
       if (!en.dead){
         const bw = Math.max(54, size * .9), by = p.y + 10;
