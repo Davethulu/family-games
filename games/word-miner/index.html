@@ -370,7 +370,7 @@
       <textarea id="listBox" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
       <div class="row">
         <button class="pbtn" id="saveList">Save list</button>
-        <button class="pbtn secondary" id="useSample">Use sample 3rd-grade list</button>
+        <button class="pbtn secondary" id="useSample">Use this week's built-in list</button>
         <span class="saved" id="saveMsg"></span>
       </div>
 
@@ -414,26 +414,25 @@ const KEY = 'wordminer_v1';
 if (window.self !== window.top) document.body.classList.add('in-arcade');
 
 /* ================= Word list ================= */
-const SAMPLE_LIST = `because - I wore a coat because it was cold.
-friend - My friend likes to play tag with me.
-people - Lots of people came to the party.
-again - Let's play that game again.
-before - Brush your teeth before bed.
-every - I read a book every night.
-together - We built the fort together.
-school - I ride the bus to school.
-around - The dog ran around the yard.
-thought - I thought it was going to rain.
-enough - Do we have enough snacks?
-always - I always wear my seatbelt.
-different - Every snowflake is different.
-laugh - That joke made me laugh.
-write - Please write your name on the paper.
-their - The kids put on their shoes.
-there - Put the box over there.
-which - Which color do you like best?
-caught - The cat caught a mouse.
-answer - I know the answer!`;
+// This week's school list (root word / -ed / -ing). Used whenever no custom list has been saved.
+const SAMPLE_LIST = `finish - Finish your homework before dinner.
+finished - I finished my book last night.
+finishing - She is finishing her drawing.
+discuss - Let's discuss the plan together.
+discussed - We discussed the story in class.
+discussing - The class is discussing the field trip.
+stretch - Stretch your arms up high.
+stretched - The cat stretched out in the sun.
+stretching - I am stretching before the race.
+hop - Frogs hop from lily pad to lily pad.
+hopped - The bunny hopped across the yard.
+hopping - The kids are hopping on one foot.
+plan - We made a plan for the weekend.
+planned - Mom planned a fun party.
+planning - We are planning a trip to the lake.
+ship - The ship sailed across the sea.
+shipped - The store shipped my new shoes.
+shipping - They are shipping the box today.`;
 
 function parseList(text) {
   const out = [], seen = new Set();
@@ -456,7 +455,8 @@ const listToText = list => list.map(x => x.s ? `${x.w} - ${x.s}` : x.w).join('\n
 /* ================= Saved state ================= */
 function fixup(j) {
   j = j || {};
-  if (!Array.isArray(j.list) || !j.list.length) { j.list = parseList(SAMPLE_LIST); j.custom = false; }
+  // Devices that never saved their own list always follow the built-in list, so updating it here reaches them.
+  if (!Array.isArray(j.list) || !j.list.length || !j.custom) { j.list = parseList(SAMPLE_LIST); j.custom = false; }
   j.stats = j.stats || {};
   j.world = Object.assign({ map: 0, placed: 0, seen: 0, done: false, announced: true, extra: 0, built: 0 }, j.world || {});
   j.settings = Object.assign({ flash: false, perRound: 10 }, j.settings || {});
@@ -1374,7 +1374,7 @@ function openParent() {
 function openPanel() {
   $('gate').hidden = true; $('panel').hidden = false;
   $('listBox').value = listToText(S.list);
-  $('listNote').textContent = S.custom ? `${S.list.length} words in your list.` : 'This is a sample 3rd-grade list. Replace it with this week\'s words.';
+  $('listNote').textContent = S.custom ? `${S.list.length} words in your list.` : 'This is the built-in list (this week\'s school words). Replace it any time.';
   $('setFlash').checked = S.settings.flash;
   $('setRound').value = String(S.settings.perRound);
   $('saveMsg').textContent = '';
