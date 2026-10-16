@@ -863,7 +863,9 @@ function chooseSpell(i){
   battle.spellIdx = i; battle.phase = 'solve';
   // About a quarter of the time, bring back a fact he has missed before (same tier).
   const old = Object.values(run.misses).filter(m => m.tier === S.tier && m.grade === run.grade);
-  battle.prob = old.length && Math.random() < .25 ? { ...pick(old), opts: shuf(pick(old).opts.slice()) } : genProblem(run.grade, S.tier);
+  const again = old.length && Math.random() < .25 ? pick(old) : null;   // one pick, so the question and its choices match
+  battle.prob = again ? { ...again, opts: shuf(again.opts.slice()) } : genProblem(run.grade, S.tier);
+  if (!battle.prob.opts.includes(battle.prob.ans)) battle.prob = genProblem(run.grade, S.tier);   // safety net: never show a problem without its answer
   battle.prob.tier = S.tier;
   battle.solveStart = performance.now(); battle.critWin = critWindow(S.tier);
   $('spellsView').hidden = true; $('solveView').hidden = false;
