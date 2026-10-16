@@ -267,7 +267,17 @@ const sfx = {
   whoosh(){ noise(.25, .2, 1800, 'bandpass', 0, -1200); },
   potion(){ tone(500, .1, 'sine', .06, 300); tone(800, .2, 'sine', .05, 300, .1); },
 };
-addEventListener('pointerdown', function unlock(){ ac(); startMusicEngine(); removeEventListener('pointerdown', unlock); });
+// iPhones only allow audio after a tap, and not every kind of tap counts, so keep trying on
+// each one (and play a silent sound inside it) until the audio engine is really running.
+// Ask iOS (Safari 16.4+) to treat this like a music app, so the ringer switch doesn't mute it.
+try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}
+function unlockAudio(){
+  const a = ac(); if (!a) return;
+  try { const b = a.createBuffer(1, 1, 22050), src = a.createBufferSource(); src.buffer = b; src.connect(a.destination); src.start(0); } catch(e){}
+  startMusicEngine();
+  if (a.state === 'running') ['pointerdown', 'touchend', 'click'].forEach(ev => removeEventListener(ev, unlockAudio, true));
+}
+['pointerdown', 'touchend', 'click'].forEach(ev => addEventListener(ev, unlockAudio, true));
 
 /* =====================================================================
    MUSIC: a small generative sequencer. Each theme has a key, tempo, chord
@@ -287,14 +297,16 @@ const THEMES = {
 };
 // Each floor shifts the explore/battle mood: the Crypt is lower and slower, the Tower tenser.
 const FLOOR_MOOD = [null, { key: 0, tempo: 1 }, { key: -3, tempo: .9 }, { key: 1, tempo: 1.08, scale: 'harm' }];
+const MUSIC_VOL = 1;
 const music = { on: lsGet('larry_music') ?? true, want: null, theme: null, bus: null, step: 0, next: 0, timer: null };
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 function seeded(n){ const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); }
 function startMusicEngine(){
   const a = ac(); if (!a || music.bus) return;
-  const lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+  const lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000;
+  const comp = a.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 4;
   music.bus = a.createGain(); music.bus.gain.value = 0;
-  music.bus.connect(lp).connect(a.destination);
+  music.bus.connect(lp).connect(comp).connect(a.destination);
   music.timer = setInterval(scheduleMusic, 30);
   if (music.want) setMusic(music.want, true);
 }
@@ -310,7 +322,7 @@ function setMusic(name, force){
     const mood = (name === 'explore' || name === 'battle' || name === 'boss') && run ? FLOOR_MOOD[run.floor] : FLOOR_MOOD[1];
     music.theme = { ...base, name, floor: run ? run.floor : 1, root: base.root + mood.key, bpm: base.bpm * mood.tempo, scale: mood.scale && name !== 'boss' ? mood.scale : base.scale };
     music.step = 0; music.next = AC.currentTime + .05;
-    music.bus.gain.setTargetAtTime(music.on ? .55 : 0, AC.currentTime, .4);
+    music.bus.gain.setTargetAtTime(music.on ? MUSIC_VOL : 0, AC.currentTime, .4);
   }, 450);
 }
 function mNote(midi, t, dur, type, vol, attack = .01, release = .2){
@@ -333,38 +345,38 @@ function scheduleMusic(){
     const s = music.step, t = music.next, bar = Math.floor(s / 16), pos = s % 16, chord = th.prog[bar % th.prog.length];
     const tones = [chord, chord + 2, chord + 4];
     // pad: soft chord at the top of each bar
-    if (pos === 0) tones.forEach(d => mNote(deg(d), t, sixteenth * 15, 'triangle', .022 * th.pad, .25, .6));
+    if (pos === 0) tones.forEach(d => mNote(deg(d), t, sixteenth * 15, 'triangle', .06 * th.pad, .25, .6));
     // bass
     const b = deg(chord) - 12;
-    if (th.bass === 'half' && pos % 8 === 0) mNote(b, t, sixteenth * 7, 'sine', .07);
-    if (th.bass === 'eighth' && pos % 2 === 0) mNote(pos % 8 === 6 ? b + 7 : b, t, sixteenth * 1.6, 'triangle', .06, .005, .08);
-    if (th.bass === 'oompah' && pos % 4 === 0) mNote(pos % 8 === 0 ? b : deg(chord + 4) - 12, t, sixteenth * 2, 'triangle', .07, .005, .1);
-    if (th.bass === 'pulse') mNote(b, t, sixteenth * .8, 'sawtooth', .03, .005, .05);
+    if (th.bass === 'half' && pos % 8 === 0){ mNote(b, t, sixteenth * 7, 'sine', .12); mNote(b + 12, t, sixteenth * 6, 'triangle', .06); }
+    if (th.bass === 'eighth' && pos % 2 === 0) mNote((pos % 8 === 6 ? b + 7 : b) + 12, t, sixteenth * 1.6, 'triangle', .1, .005, .08);
+    if (th.bass === 'oompah' && pos % 4 === 0) mNote((pos % 8 === 0 ? b : deg(chord + 4) - 12) + 12, t, sixteenth * 2, 'triangle', .11, .005, .1);
+    if (th.bass === 'pulse') mNote(b + 12, t, sixteenth * .8, 'sawtooth', .05, .005, .05);
     // melody: seeded so each 4-bar phrase repeats
     if (pos % 2 === 0){
       const r = seeded(th.root * 13 + (bar % 4) * 31 + pos * 7 + th.bpm);
       if (r < th.density){
         const pickDeg = tones[Math.floor(seeded(r * 999) * 3)] + (seeded(r * 77) < .3 ? 1 : 0) + 7;
         const m = deg(pickDeg), d = sixteenth * (seeded(r * 5) < .3 ? 4 : 2);
-        if (th.lead === 'bell'){ mNote(m + 12, t, d, 'sine', .04, .003, .5); mNote(m + 24, t, d * .5, 'sine', .012, .003, .3); }
-        else if (th.lead === 'flute') mNote(m, t, d * 1.5, 'sine', .045, .06, .25);
-        else if (th.lead === 'pluck') mNote(m, t, d * .6, 'triangle', .05, .003, .12);
-        else mNote(m, t, d * .7, 'square', .022, .003, .08);
+        if (th.lead === 'bell'){ mNote(m + 12, t, d, 'sine', .1, .003, .5); mNote(m + 24, t, d * .5, 'sine', .03, .003, .3); }
+        else if (th.lead === 'flute') mNote(m, t, d * 1.5, 'sine', .1, .06, .25);
+        else if (th.lead === 'pluck') mNote(m, t, d * .6, 'triangle', .11, .003, .12);
+        else mNote(m, t, d * .7, 'square', .05, .003, .08);
       }
     }
     // drums
     if (th.drums){
-      if (pos === 0 || pos === 8 || (th.drums > 1 && (pos === 4 || pos === 12 || pos === 14))) { mNote(36, t, .12, 'sine', .14, .002, .12); }
-      if (pos === 4 || pos === 12) mNoise(t, .12, .06, 1800);
-      if (pos % 2 === 0) mNoise(t, .03, .02, 7000);
+      if (pos === 0 || pos === 8 || (th.drums > 1 && (pos === 4 || pos === 12 || pos === 14))) { mNote(36, t, .12, 'sine', .25, .002, .12); mNote(52, t, .05, 'triangle', .1, .002, .04); mNoise(t, .03, .1, 1500, 'lowpass'); }
+      if (pos === 4 || pos === 12) mNoise(t, .12, .12, 1800);
+      if (pos % 2 === 0) mNoise(t, .03, .04, 7000);
     }
-    if (th.crackle && Math.random() < .25) mNoise(t + Math.random() * sixteenth, .02, .05 * Math.random(), 3000);
+    if (th.crackle && Math.random() < .25) mNoise(t + Math.random() * sixteenth, .02, .09 * Math.random(), 3000);
     music.step++; music.next += sixteenth;
   }
 }
 function toggleMusic(){
   music.on = !music.on; lsSet('larry_music', music.on);
-  if (music.bus) music.bus.gain.setTargetAtTime(music.on ? .55 : 0, AC.currentTime, .2);
+  if (music.bus) music.bus.gain.setTargetAtTime(music.on ? MUSIC_VOL : 0, AC.currentTime, .2);
   document.querySelectorAll('.musicBtn').forEach(b => b.textContent = music.on ? '🎵' : '🔇');
 }
 
