@@ -154,7 +154,7 @@
       <div class="chip" id="goldText">🪙 0</div>
       <button class="chip" id="potBtn">🧪 0</button>
     </div>
-    <div class="hudrow"><div id="items"></div><div class="small" id="floorText" style="margin-left:auto"></div></div>
+    <div class="hudrow"><div id="items"></div><div class="small" id="floorText" style="margin-left:auto"></div><button class="musicBtn chip" aria-label="Music on or off">🎵</button></div>
   </div>
 
   <!-- Title -->
@@ -167,6 +167,7 @@
     <div id="grades"></div>
     <button class="btn" id="continueBtn" hidden>▶ Continue run</button>
     <button class="btn" id="newBtn">✨ New run</button>
+    <button class="musicBtn chip" aria-label="Music on or off" style="font-size:18px;padding:6px 12px">🎵</button>
     <div class="small" id="bestText"></div>
   </section>
 
@@ -266,7 +267,106 @@ const sfx = {
   whoosh(){ noise(.25, .2, 1800, 'bandpass', 0, -1200); },
   potion(){ tone(500, .1, 'sine', .06, 300); tone(800, .2, 'sine', .05, 300, .1); },
 };
-addEventListener('pointerdown', function unlock(){ ac(); removeEventListener('pointerdown', unlock); });
+addEventListener('pointerdown', function unlock(){ ac(); startMusicEngine(); removeEventListener('pointerdown', unlock); });
+
+/* =====================================================================
+   MUSIC: a small generative sequencer. Each theme has a key, tempo, chord
+   progression and instrument layers; melodies are picked from the chord
+   tones with a fixed seed, so every 4-bar phrase repeats like real music.
+   ===================================================================== */
+const SCALES = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], harm: [0, 2, 3, 5, 7, 8, 11], dorian: [0, 2, 3, 5, 7, 9, 10] };
+const THEMES = {
+  title:    { bpm: 92,  root: 60, scale: 'major', prog: [0, 5, 3, 4], bass: 'half',   lead: 'bell',   density: .55, pad: .5 },
+  explore:  { bpm: 72,  root: 57, scale: 'minor', prog: [0, 5, 3, 4], bass: 'half',   lead: 'flute',  density: .3,  pad: .6 },
+  battle:   { bpm: 126, root: 57, scale: 'minor', prog: [0, 0, 5, 4], bass: 'eighth', lead: 'pluck',  density: .55, pad: .3, drums: 1 },
+  boss:     { bpm: 144, root: 52, scale: 'harm',  prog: [0, 5, 3, 4], bass: 'pulse',  lead: 'square', density: .6,  pad: .35, drums: 2 },
+  shop:     { bpm: 116, root: 62, scale: 'major', prog: [0, 3, 4, 0], bass: 'oompah', lead: 'pluck',  density: .5,  pad: .25 },
+  rest:     { bpm: 60,  root: 55, scale: 'major', prog: [0, 3, 0, 4], bass: 'half',   lead: 'flute',  density: .2,  pad: .7, crackle: true },
+  mystery:  { bpm: 80,  root: 58, scale: 'dorian', prog: [0, 1, 0, 6], bass: 'half',  lead: 'bell',   density: .35, pad: .5 },
+  treasure: { bpm: 104, root: 65, scale: 'major', prog: [0, 4, 5, 3], bass: 'half',   lead: 'bell',   density: .6,  pad: .4 },
+};
+// Each floor shifts the explore/battle mood: the Crypt is lower and slower, the Tower tenser.
+const FLOOR_MOOD = [null, { key: 0, tempo: 1 }, { key: -3, tempo: .9 }, { key: 1, tempo: 1.08, scale: 'harm' }];
+const music = { on: lsGet('larry_music') ?? true, want: null, theme: null, bus: null, step: 0, next: 0, timer: null };
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+function seeded(n){ const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); }
+function startMusicEngine(){
+  const a = ac(); if (!a || music.bus) return;
+  const lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+  music.bus = a.createGain(); music.bus.gain.value = 0;
+  music.bus.connect(lp).connect(a.destination);
+  music.timer = setInterval(scheduleMusic, 30);
+  if (music.want) setMusic(music.want, true);
+}
+function setMusic(name, force){
+  music.want = name;
+  if (!music.bus) return;
+  if (!force && name === music.theme?.name && music.theme.floor === (run ? run.floor : 1)) return;
+  const a = AC, t = a.currentTime;
+  music.bus.gain.cancelScheduledValues(t); music.bus.gain.setTargetAtTime(0, t, .15);   // fade out, then switch
+  clearTimeout(music.swap);
+  music.swap = setTimeout(() => {
+    const base = THEMES[name]; if (!base) return;
+    const mood = (name === 'explore' || name === 'battle' || name === 'boss') && run ? FLOOR_MOOD[run.floor] : FLOOR_MOOD[1];
+    music.theme = { ...base, name, floor: run ? run.floor : 1, root: base.root + mood.key, bpm: base.bpm * mood.tempo, scale: mood.scale && name !== 'boss' ? mood.scale : base.scale };
+    music.step = 0; music.next = AC.currentTime + .05;
+    music.bus.gain.setTargetAtTime(music.on ? .55 : 0, AC.currentTime, .4);
+  }, 450);
+}
+function mNote(midi, t, dur, type, vol, attack = .01, release = .2){
+  const a = AC, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(mtof(midi), t);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack); g.gain.setTargetAtTime(0, t + dur, release / 3);
+  o.connect(g).connect(music.bus); o.start(t); o.stop(t + dur + release + .05);
+}
+function mNoise(t, dur, vol, freq, type = 'highpass'){
+  const a = AC, n = Math.floor(a.sampleRate * dur), b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0);
+  for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = b; f.type = type; f.frequency.value = freq; g.gain.value = vol; s.connect(f).connect(g).connect(music.bus); s.start(t);
+}
+function scheduleMusic(){
+  const th = music.theme; if (!th || !AC) return;
+  const sixteenth = 60 / th.bpm / 4, sc = SCALES[th.scale];
+  const deg = d => th.root + sc[((d % 7) + 7) % 7] + 12 * Math.floor(d / 7);
+  while (music.next < AC.currentTime + .15){
+    const s = music.step, t = music.next, bar = Math.floor(s / 16), pos = s % 16, chord = th.prog[bar % th.prog.length];
+    const tones = [chord, chord + 2, chord + 4];
+    // pad: soft chord at the top of each bar
+    if (pos === 0) tones.forEach(d => mNote(deg(d), t, sixteenth * 15, 'triangle', .022 * th.pad, .25, .6));
+    // bass
+    const b = deg(chord) - 12;
+    if (th.bass === 'half' && pos % 8 === 0) mNote(b, t, sixteenth * 7, 'sine', .07);
+    if (th.bass === 'eighth' && pos % 2 === 0) mNote(pos % 8 === 6 ? b + 7 : b, t, sixteenth * 1.6, 'triangle', .06, .005, .08);
+    if (th.bass === 'oompah' && pos % 4 === 0) mNote(pos % 8 === 0 ? b : deg(chord + 4) - 12, t, sixteenth * 2, 'triangle', .07, .005, .1);
+    if (th.bass === 'pulse') mNote(b, t, sixteenth * .8, 'sawtooth', .03, .005, .05);
+    // melody: seeded so each 4-bar phrase repeats
+    if (pos % 2 === 0){
+      const r = seeded(th.root * 13 + (bar % 4) * 31 + pos * 7 + th.bpm);
+      if (r < th.density){
+        const pickDeg = tones[Math.floor(seeded(r * 999) * 3)] + (seeded(r * 77) < .3 ? 1 : 0) + 7;
+        const m = deg(pickDeg), d = sixteenth * (seeded(r * 5) < .3 ? 4 : 2);
+        if (th.lead === 'bell'){ mNote(m + 12, t, d, 'sine', .04, .003, .5); mNote(m + 24, t, d * .5, 'sine', .012, .003, .3); }
+        else if (th.lead === 'flute') mNote(m, t, d * 1.5, 'sine', .045, .06, .25);
+        else if (th.lead === 'pluck') mNote(m, t, d * .6, 'triangle', .05, .003, .12);
+        else mNote(m, t, d * .7, 'square', .022, .003, .08);
+      }
+    }
+    // drums
+    if (th.drums){
+      if (pos === 0 || pos === 8 || (th.drums > 1 && (pos === 4 || pos === 12 || pos === 14))) { mNote(36, t, .12, 'sine', .14, .002, .12); }
+      if (pos === 4 || pos === 12) mNoise(t, .12, .06, 1800);
+      if (pos % 2 === 0) mNoise(t, .03, .02, 7000);
+    }
+    if (th.crackle && Math.random() < .25) mNoise(t + Math.random() * sixteenth, .02, .05 * Math.random(), 3000);
+    music.step++; music.next += sixteenth;
+  }
+}
+function toggleMusic(){
+  music.on = !music.on; lsSet('larry_music', music.on);
+  if (music.bus) music.bus.gain.setTargetAtTime(music.on ? .55 : 0, AC.currentTime, .2);
+  document.querySelectorAll('.musicBtn').forEach(b => b.textContent = music.on ? '🎵' : '🔇');
+}
 
 /* =====================================================================
    MATH PROBLEMS: three tiers per grade (★ easy, ★★ medium, ★★★ hard)
@@ -593,18 +693,32 @@ function drawLarry(g, x, y, s, st, time){
   if (st.hurt > 0 && Math.floor(time * 30) % 2) g.globalAlpha = .45;
   // feet
   g.fillStyle = '#4a2e1a'; g.beginPath(); g.ellipse(-10, -3, 9, 5, 0, 0, Math.PI * 2); g.ellipse(11, -3, 9, 5, 0, 0, Math.PI * 2); g.fill();
-  // robe
-  const rg = g.createLinearGradient(0, -62, 0, -4); rg.addColorStop(0, '#4b36b0'); rg.addColorStop(1, '#271a6a');
+  // black robe with a soft sheen down the front
+  const rg = g.createLinearGradient(0, -62, 0, -4); rg.addColorStop(0, '#2c2c36'); rg.addColorStop(1, '#121218');
   g.fillStyle = rg; g.beginPath(); g.moveTo(-25, -5); g.lineTo(25, -5); g.lineTo(13, -62); g.lineTo(-13, -62); g.closePath(); g.fill();
-  g.fillStyle = '#ffd25e'; g.fillRect(-25, -9, 50, 4);
-  g.fillStyle = 'rgba(255,230,140,.85)'; drawStar(g, -9, -30, 4, .3); drawStar(g, 8, -44, 3, .8); drawStar(g, 12, -20, 3, 1.4);
+  // rim light + outline so the dark robe still reads against dark backgrounds
+  g.strokeStyle = 'rgba(190,180,255,.45)'; g.lineWidth = 2; g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 2; g.beginPath(); g.moveTo(3, -58); g.lineTo(5, -8); g.stroke();
+  g.fillStyle = '#3a3a46'; g.fillRect(-25, -9, 50, 3);
   // back arm
-  g.fillStyle = '#3a2a90'; g.beginPath(); g.ellipse(-12, -45, 6, 12, .3, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#1c1c24'; g.beginPath(); g.ellipse(-12, -45, 6, 12, .3, 0, Math.PI * 2); g.fill();
+  // scarf tail: maroon and gold stripes, swaying as he moves
+  const sway = Math.sin(time * 2.6) * 3;
+  for (let k = 0; k < 6; k++){
+    g.fillStyle = k % 2 ? '#e8b520' : '#7a1f2b';
+    const y0 = -57 + k * 6;
+    g.beginPath(); g.moveTo(-8 + sway * k / 6, y0); g.lineTo(0 + sway * k / 6, y0); g.lineTo(0 + sway * (k + 1) / 6, y0 + 6); g.lineTo(-8 + sway * (k + 1) / 6, y0 + 6); g.closePath(); g.fill();
+  }
+  g.fillStyle = '#e8b520'; for (let k = 0; k < 4; k++) g.fillRect(-8 + sway + k * 2, -21, 1.2, 4);   // fringe
   // head
   g.fillStyle = '#f6c9a0'; g.beginPath(); g.arc(2, -74, 15, 0, Math.PI * 2); g.fill();
-  // hair (messy)
-  g.fillStyle = '#4a2c14';
-  [[-10, -80, 8], [-4, -86, 8], [5, -88, 7], [-13, -71, 6], [12, -84, 6]].forEach(([hx, hy, r]) => { g.beginPath(); g.arc(hx, hy, r, 0, Math.PI * 2); g.fill(); });
+  // hair (messy, no hat now)
+  g.fillStyle = '#3a2210';
+  [[-10, -81, 8], [-3, -87, 8.5], [6, -89, 7.5], [13, -84, 6.5], [-13, -72, 6], [17, -80, 4.5], [1, -91, 5]].forEach(([hx, hy, r]) => { g.beginPath(); g.arc(hx, hy, r, 0, Math.PI * 2); g.fill(); });
+  g.beginPath(); g.moveTo(-6, -92); g.lineTo(-11, -100); g.lineTo(-1, -94); g.moveTo(5, -95); g.lineTo(7, -103); g.lineTo(11, -94); g.fill();   // tufts
+  // scarf wrap around the neck
+  g.fillStyle = '#7a1f2b'; g.beginPath(); g.ellipse(2, -60, 15, 5.5, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#e8b520'; [-8, 0, 8].forEach(dx => { g.fillRect(dx - 1.5, -65, 3, 10); });
   // glasses
   g.strokeStyle = '#1a1a1a'; g.lineWidth = 2.2;
   g.beginPath(); g.arc(4, -75, 5.5, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(15, -75, 5.5, 0, Math.PI * 2); g.stroke();
@@ -613,23 +727,18 @@ function drawLarry(g, x, y, s, st, time){
   g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(5, -75, 1.8, 0, Math.PI * 2); g.arc(16, -75, 1.8, 0, Math.PI * 2); g.fill();
   // smile
   g.strokeStyle = '#7a3a2a'; g.lineWidth = 1.8; g.beginPath(); g.arc(10, -67, 4, .2, Math.PI - .4); g.stroke();
-  // hat
-  const sway = Math.sin(time * 1.7) * 2;
-  g.fillStyle = '#2f2280'; g.beginPath(); g.ellipse(1, -88, 23, 5.5, 0, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#3d2ca0'; g.beginPath(); g.moveTo(-15, -89); g.quadraticCurveTo(-4, -112, -14 + sway, -132); g.lineTo(17, -89); g.closePath(); g.fill();
-  g.fillStyle = '#ffd25e'; drawStar(g, 0, -103, 5, .2);
-  // goo from a fizzled spell
+  // goo from a fizzled spell, right on top of his hair
   if (st.goo > 0){
     g.globalAlpha = Math.min(1, st.goo * 1.5);
     g.fillStyle = '#5ee04a';
-    g.beginPath(); g.ellipse(0, -96, 20, 9, 0, 0, Math.PI * 2); g.fill();
-    [[-14, -88, 9 * st.goo], [-2, -86, 14 * st.goo], [12, -87, 7 * st.goo]].forEach(([dx, dy, len]) => { g.beginPath(); g.ellipse(dx, dy + len / 2, 3.5, len / 2 + 2, 0, 0, Math.PI * 2); g.fill(); });
+    g.beginPath(); g.ellipse(1, -92, 19, 9, 0, 0, Math.PI * 2); g.fill();
+    [[-13, -85, 10 * st.goo], [-2, -84, 15 * st.goo], [12, -85, 8 * st.goo]].forEach(([dx, dy, len]) => { g.beginPath(); g.ellipse(dx, dy + len / 2, 3.5, len / 2 + 2, 0, 0, Math.PI * 2); g.fill(); });
     g.globalAlpha = 1;
   }
   // wand arm (swings up to cast)
   const ang = lerp(.5, -1.9, st.cast);
   g.save(); g.translate(9, -52); g.rotate(ang);
-  g.fillStyle = '#4b36b0'; g.beginPath(); g.ellipse(9, 0, 13, 6, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#26262f'; g.beginPath(); g.ellipse(9, 0, 13, 6, 0, 0, Math.PI * 2); g.fill();
   g.fillStyle = '#f6c9a0'; g.beginPath(); g.arc(21, 0, 4.5, 0, Math.PI * 2); g.fill();
   g.strokeStyle = '#6b3f1a'; g.lineWidth = 3.2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, 0); g.lineTo(46, 0); g.stroke();
   if (st.cast > .2){ g.fillStyle = `rgba(255,248,192,${st.cast})`; g.shadowColor = '#ffd25e'; g.shadowBlur = 16; drawStar(g, 48, 0, 6, time * 8); g.shadowBlur = 0; }
@@ -677,6 +786,7 @@ function enemyPos(en){ const s = Math.min(SW / 330, SH / 290); return { x: en.x 
 function aliveEnemies(){ return battle.enemies.filter(e => !e.dead); }
 
 function startBattle(kind){
+  setMusic(kind === 'battle' ? 'battle' : 'boss');
   const F = FLOORS[run.floor];
   const ids = kind === 'boss' ? F.boss : kind === 'elite' ? pick(F.elite) : pick(F.normal);
   battle = { kind, enemies: [], block: 0, phase: 'intro', target: 0, first: true, prob: null, spellIdx: -1, cds: run.spells.map(() => 0), dispHp: run.hp };
@@ -1177,6 +1287,7 @@ function genDoors(){
   return shuf(out);
 }
 function showDoors(){
+  setMusic('explore');
   if (!run.doors) run.doors = genDoors();
   saveRun();
   show('doors'); renderHud();
@@ -1242,6 +1353,7 @@ async function upgradeSpellPicker(title){
 }
 
 function rewardScreen(gold, kind){
+  setMusic('explore');
   sfx.coin();
   const r = roomScreen(`<div class="h2">Victory!</div><div class="goldPop">+${gold} 🪙</div><p class="lead">${kind === 'elite' ? 'The tough monster dropped a magic item! Pick one:' : 'Choose your reward:'}</p><div class="cards" id="rc"></div><button class="btn ghost" id="skipBtn" style="margin-top:6px">Skip</button>`);
   const rc = r.querySelector('#rc');
@@ -1259,6 +1371,7 @@ function rewardScreen(gold, kind){
   r.querySelector('#skipBtn').onclick = () => { sfx.click(); done(); };
 }
 function bossReward(gold){
+  setMusic('treasure');
   run.hp = run.maxHp;
   if (run.floor === 3) return endRun(true);
   const r = roomScreen(`<div class="eventArt">👑</div><div class="h2">Boss defeated!</div><div class="goldPop">+${gold} 🪙 · Health fully restored</div><p class="lead">Pick a magic item for the road:</p><div class="cards" id="rc"></div>`);
@@ -1275,6 +1388,7 @@ function floorBanner(){
   setTimeout(() => b.classList.remove('on'), 2400);
 }
 function treasureRoom(){
+  setMusic('treasure');
   const gold = ri(25, 40) + run.floor * 5, it = randomItems(1)[0];
   run.gold += gold; if (it) grantItem(it); sfx.coin(); setTimeout(sfx.win, 200);
   const r = roomScreen(`<div class="eventArt">🎁</div><div class="h2">Treasure!</div><div class="goldPop">+${gold} 🪙</div>
@@ -1282,6 +1396,7 @@ function treasureRoom(){
   r.querySelector('#go').onclick = () => { sfx.click(); nextRoom(); };
 }
 function shopRoom(){
+  setMusic('shop');
   run.shopUsed = true;
   const offers = [{ type: 'potion', price: 15 }];
   const sp = newSpellChoices(1)[0]; if (sp) offers.push({ type: 'spell', id: sp, price: 45 });
@@ -1303,6 +1418,7 @@ function shopRoom(){
   render();
 }
 function restRoom(){
+  setMusic('rest');
   const heal = Math.round(run.maxHp * .35);
   const r = roomScreen(`<div class="eventArt">🔥</div><div class="h2">Campfire</div><p class="lead">The fire crackles. Take a breather.</p><div class="cards" id="cc"></div>`);
   const cc = r.querySelector('#cc');
@@ -1329,6 +1445,7 @@ function askProblem(container, tier){
   });
 }
 function mysteryRoom(){
+  setMusic('mystery');
   const ev = pick(['door', 'cauldron', 'quiz']);
   if (ev === 'door'){
     const r = roomScreen(`<div class="eventArt">🚪</div><div class="h2">The Grumpy Door</div><p class="lead">"Nobody gets my treasure without answering my riddle!" it grumbles.</p><div id="q"></div>`);
@@ -1382,6 +1499,7 @@ $('potBtn').onclick = async () => {
    END OF RUN
    ===================================================================== */
 function endRun(won){
+  setMusic(won ? 'treasure' : 'rest');
   const st = run.stats, acc = st.attempts ? Math.round(st.correct / st.attempts * 100) : 0;
   const best = lsGet('larry_best') || { floor: 0, room: 0, wins: 0 };
   if (won) best.wins++;
@@ -1413,6 +1531,7 @@ GRADES.forEach((label, i) => {
   $('grades').appendChild(b);
 });
 function goTitle(){
+  setMusic('title');
   const saved = lsGet('larry_run'), best = lsGet('larry_best');
   $('continueBtn').hidden = !saved;
   if (saved) $('continueBtn').textContent = `▶ Continue (Floor ${saved.floor}, Room ${saved.room}/${ROOMS})`;
@@ -1425,6 +1544,7 @@ function startRun(){
 }
 $('newBtn').onclick = () => { sfx.click(); startRun(); };
 $('continueBtn').onclick = () => { sfx.click(); run = lsGet('larry_run'); if (run){ grade = run.grade; showDoors(); } };
+document.querySelectorAll('.musicBtn').forEach(b => { b.textContent = music.on ? '🎵' : '🔇'; b.onclick = e => { e.stopPropagation(); toggleMusic(); }; });
 goTitle();
 
 // Hook for automated testing; unused in normal play.
