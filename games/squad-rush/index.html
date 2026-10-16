@@ -18,6 +18,17 @@
   .pill{background:rgba(10,16,32,.72);border-radius:14px;padding:7px 11px;font-weight:900;font-size:15px;white-space:nowrap;}
   #prog{flex:1;height:12px;padding:0;overflow:hidden;background:rgba(10,16,32,.72);border-radius:8px;}
   #progFill{height:100%;width:0;background:linear-gradient(90deg,#5ed25e,#ffcf3f,#ff5a4f);}
+  #shieldP{display:flex;align-items:center;gap:6px;padding:5px 10px;}
+  #shieldBar{width:70px;height:10px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;}
+  #shieldFill{display:block;height:100%;width:100%;background:linear-gradient(90deg,#5fe3e0,#9fd8ff);transition:width .25s;}
+  #shieldFill.low{background:linear-gradient(90deg,#ff5a4f,#ffb13c);}
+  #shieldP.hit{animation:shieldHit .35s;}
+  @keyframes shieldHit{0%,100%{transform:none}30%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+  #megaBanner{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:8;pointer-events:none;text-align:center;white-space:nowrap;
+    font-weight:900;font-size:clamp(22px,7vw,34px);color:#fff;text-shadow:0 0 18px #c58cff,0 3px 0 #000;opacity:0;}
+  #megaBanner small{display:block;font-size:.5em;color:#e6d4ff;letter-spacing:2px;}
+  #megaBanner.on{animation:megaPop 1.8s ease forwards;}
+  @keyframes megaPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%)}}
 
   .overlay{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:24px;background:radial-gradient(circle at 50% 30%,#2e1f6b,#05071a);}
@@ -52,14 +63,15 @@
 <div id="hud" class="hide">
   <div class="pill" id="lvl">SECTOR 1</div>
   <div class="pill" id="prog"><div id="progFill"></div></div>
-  <div class="pill" id="scoreP">0</div>
+  <div class="pill" id="shieldP"><span>🛸</span><div id="shieldBar"><i id="shieldFill"></i></div></div>
 </div>
 
 <div id="quiz" class="hide"></div>
+<div id="megaBanner"></div>
 
 <div id="menu" class="overlay">
   <h1>Star Squad <span class="sub">SPACE MATH RUNNER</span></h1>
-  <p class="lead">Drag to steer your team of astronauts. Their light beams clear the space rocks on their own! When a <b>math problem</b> pops up, fly through the portal with the right answer to double your crew, then break up the giant boss rock.</p>
+  <p class="lead">Drag to steer your astronauts. Their beams break up space rocks, but any rock that slips past hits your <b>mothership's shield</b> 🛸. Fly through the portal with the <b>right answer</b> to double your crew. A bigger crew covers more of the track! 💎 Risky vaults hold mega upgrades.</p>
   <div class="label">Pick a grade level</div>
   <div id="grades"></div>
   <button class="btn" id="startBtn">Start ▶</button>
@@ -260,7 +272,8 @@ for (let i = 0; i < 70; i++){ const r = .068 * Math.sqrt(i), a = i * 2.39996; FO
 const squadRadius = () => .068 * Math.sqrt(Math.min(squad.n, 60)) + .08;
 
 function startLevel(){
-  squad = { n: 5 + (level - 1) * 4, x: 0, tx: 0, fireRate: 7, power: 1 };
+  squad = { n: 8 + (level - 1) * 3, x: 0, tx: 0, fireRate: 7, power: 1, shield: SHIELD_MAX };
+  updateShield();
   enemies = []; bullets = []; gates = []; fx = []; floats = [];
   timeline = buildTimeline(); tlIdx = 0; levelTime = 0; scroll = 0; fireT = 0; flashT = 0; shake = 0; boss = null;
   levelEnd = timeline[timeline.length - 1].t;
@@ -277,7 +290,7 @@ function buildTimeline(){
   const gateKinds = ['quiz', 'quiz', 'gates'];
   let g = 0;
   for (let i = 0; i < events; i++){
-    tl.push({ t, k: i % 2 === 0 ? gateKinds[g++ % 3] : Math.random() < .22 ? 'crate' : 'wave' });
+    tl.push({ t, k: i % 2 === 0 ? gateKinds[g++ % 3] : i === 5 ? 'vault' : Math.random() < .22 ? 'crate' : 'wave' });
     t += 3.4 + Math.random() * 1.2;
   }
   tl.push({ t: t + 1.5, k: 'boss' });
@@ -290,19 +303,41 @@ function spawn(k){
   if (k === 'quiz') return spawnQuiz();
   if (k === 'crate'){ spawnCrate(); return spawnWave(.6); }
   if (k === 'wave') return spawnWave(1);
+  if (k === 'vault') return spawnVault();
   if (k === 'boss') return spawnBoss();
 }
-function spawnWave(scale){
+function spawnWave(scale, center){
   // Hordes start small in each level and build up toward the boss.
   const ramp = .45 + .75 * Math.min(1, levelTime / levelEnd);
-  const count = Math.max(3, Math.round((6 + level * 3 + ri(0, 4)) * scale * ramp)), hp = 2 + level;
-  const cx0 = (Math.random() - .5) * 1.1;
+  const count = Math.max(3, Math.round((7 + level * 3 + ri(0, 4)) * scale * ramp)), hp = Math.round(2 + level * 1.6);
+  // Rocks rain across the whole track, so a small crew can't cover everything.
+  const cx0 = center ?? (Math.random() - .5) * .4, spread = center === undefined ? 1.8 : .7;
+  const bigChance = .08 + level * .04;
   for (let i = 0; i < count; i++){
-    enemies.push({ kind: 'z', x: clamp(cx0 + (Math.random() - .5) * .9, -.9, .9), z: FAR + Math.random() * 7,
+    enemies.push({ kind: 'z', x: clamp(cx0 + (Math.random() - .5) * spread, -.9, .9), z: FAR + Math.random() * 7,
                    hp, maxHp: hp, r: .085, speed: 1.2 + Math.random() * .8, hitT: 0, wob: Math.random() * 6, shape: rockShape() });
+    if (Math.random() < bigChance * ramp){ const b = enemies[enemies.length - 1]; b.big = true; b.hp = b.maxHp = hp * 4; b.r = .14; b.speed *= .6; }
   }
   if (Math.random() < .35 + level * .03)
     enemies.push({ kind: 'barrel', x: clamp(cx0 + (Math.random() - .5) * .4, -.85, .85), z: FAR + 2, hp: 3, maxHp: 3, r: .09, speed: 0, hitT: 0 });
+}
+// Bonus vault: a big upgrade near one edge, behind a lot of health, while a rock wave
+// comes down the other side. Chasing it lets rocks slip past into the mothership.
+const MEGAS = [
+  { id: 'twin',   icon: '⚡', name: 'TWIN BEAMS',   fn: () => { squad.fireRate = Math.min(20, squad.fireRate * 1.5); } },
+  { id: 'mega',   icon: '🔆', name: 'MEGA BEAMS',   fn: () => { squad.power *= 1.5; } },
+  { id: 'crew',   icon: '👩‍🚀', name: 'CREW BOOST',   fn: () => { squad.n = Math.min(999, squad.n + Math.max(8, Math.round(squad.n * .5))); } },
+  { id: 'repair', icon: '🛸', name: 'SHIELD REPAIR', fn: () => { squad.shield = Math.min(SHIELD_MAX, squad.shield + 45); updateShield(); } },
+];
+function spawnVault(){
+  const side = Math.random() < .5 ? -1 : 1, mega = pick(MEGAS);
+  const hp = Math.round(40 + level * 22);
+  enemies.push({ kind: 'vault', mega, x: side * .7, z: FAR - 2, hp, maxHp: hp, r: .2, speed: 0, hitT: 0 });
+  spawnWave(1.1, -side * .5);
+}
+function megaBanner(m){
+  const b = $('megaBanner'); b.innerHTML = `<small>MEGA UPGRADE</small>${m.icon} ${m.name}`;
+  b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
 }
 function spawnCrate(){
   const reward = pick(['men', 'men', 'rate', 'power']);
@@ -311,7 +346,7 @@ function spawnCrate(){
 }
 function spawnBoss(){
   const b = BOSSES[(level - 1) % BOSSES.length];
-  const hp = Math.round(900 * Math.pow(1.6, level - 1));
+  const hp = Math.round(700 * Math.pow(1.35, level - 1));
   boss = { kind: 'boss', look: b, name: b.n, shape: rockShape(), x: (Math.random() - .5) * .4, z: 62, hp, maxHp: hp, r: .5, speed: 2.4, hitT: 0 };
   enemies.push(boss);
   sfx.roar(); shake = .5;
@@ -321,7 +356,7 @@ function gateOp(){
   const op = pick(ops);
   if (op === '+') return { op: 'add', v: ri(3, 6 + level * 2) };
   if (op === '-') return { op: 'add', v: -ri(2, 3 + level * 2) };
-  return { op, v: ri(2, op === 'x' && level > 3 ? 4 : 3) };
+  return { op, v: op === 'x' ? (level > 3 && Math.random() < .3 ? 3 : 2) : ri(2, 3) };
 }
 const isGood = g => g.op === 'x' || (g.op === 'add' && g.v >= 0);
 function spawnGates(){
@@ -341,7 +376,7 @@ function quizLane(x){ return x < -.33 ? 0 : x > .33 ? 2 : 1; }
 function applyQuiz(g){
   const s = g.sides[g.chosen], before = squad.n;
   if (s.correct){
-    const gain = Math.min(before, 15 + level * 10);  // doubles small squads; capped for big ones
+    const gain = Math.min(before, 6 + level * 4);  // doubles small crews; capped so firepower can't run away
     squad.n = Math.min(999, before + gain);
     sfx.good();
     addFloat(`✓ ${g.quiz.q} = ${g.quiz.ans}   +${gain}`, squad.x, PZ + 1.5, '#7dff7a', 1.8);
@@ -383,10 +418,10 @@ function applyGate(g){
 // Only up to 12 bullets are drawn; each carries the damage of its share of the squad.
 let volleyId = 0;
 function volley(){
-  const k = Math.min(squad.n, 12), dmg = squad.n * squad.power * .3 / k;
+  const k = Math.min(squad.n, 12), dmg = Math.pow(squad.n, .8) * squad.power * .45 / k;
   volleyId++;
   for (let i = 0; i < k; i++){
-    const f = FORM[i];
+    const f = FORM[Math.floor(i * Math.min(squad.n, 60) / k)];
     bullets.push({ x: squad.x + f.dx + (Math.random() - .5) * .02, z: PZ + f.dz + .2, dmg, vid: volleyId });
   }
   flashT = .05; sfx.pew();
@@ -408,6 +443,10 @@ function damage(e, d){
     if (e.reward === 'rate'){ squad.fireRate = Math.min(16, squad.fireRate * 1.3); addFloat('Faster beams!', e.x, e.z, '#ffd54a', 1.4); }
     if (e.reward === 'power'){ squad.power += .5; addFloat('Brighter beams!', e.x, e.z, '#ff9a3c', 1.4); }
   }
+  else if (e.kind === 'vault'){
+    sfx.win(); shake = .3; puff(p.x, p.y - 30 * p.s, '#c58cff', 90 * p.s + 20, true); puff(p.x, p.y - 30 * p.s, '#ffffff', 50 * p.s + 10);
+    e.mega.fn(); megaBanner(e.mega); score += 100 * level;
+  }
   else if (e.kind === 'boss'){
     score += 500 * level; sfx.boom(); shake = .8;
     const y = p.y - .5 * roadW * p.s;
@@ -419,6 +458,17 @@ function hurtSquad(loss, e){
   squad.n -= loss; sfx.hurt(); shake = Math.max(shake, .15);
   const p = proj(squad.x, PZ); puff(p.x, p.y - 20, '#9fd8ff', 22, true);  // beamed back to the ship
   if (squad.n <= 0){ squad.n = 0; lose(e && e.kind === 'boss' ? `The ${e.name} bumped your crew back to the ship!` : 'Too many space rocks got through!'); }
+}
+const SHIELD_MAX = 100, ROCK_SHIELD_DMG = 3;
+function updateShield(){
+  const f = clamp(squad.shield / SHIELD_MAX, 0, 1);
+  $('shieldFill').style.width = f * 100 + '%'; $('shieldFill').classList.toggle('low', f < .35);
+}
+function hitShield(d, e){
+  squad.shield -= d; updateShield(); sfx.hurt();
+  const el = $('shieldP'); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit');
+  const p = proj(e.x, PZ - 1); puff(p.x, H - 30, '#ff5a4f', 30, true);
+  if (squad.shield <= 0){ squad.shield = 0; lose("The mothership's shield went down!"); }
 }
 function puff(x, y, color, r, ring = false){ fx.push({ x, y, color, r, t: 0, ring }); }
 function addFloat(text, x, z, color, life = 1){ floats.push({ text, x, z, color, t: 0, life }); }
@@ -472,11 +522,10 @@ function update(dt){
     e.hitT -= dt;
     if (e.kind === 'boss') e.z -= e.speed * dt;
     else e.z -= (SCROLL + e.speed) * dt;
-    if (e.kind === 'z' && e.z < 40) e.x += Math.sign(squad.x - e.x) * Math.min(Math.abs(squad.x - e.x), .28 * dt);
     if (e.kind === 'boss') e.x += (squad.x - e.x) * .25 * dt;
     if (e.z <= PZ + .35 && e.z > PZ - 1 && Math.abs(e.x - squad.x) < sr + e.r && state === 'play'){
       enemies.splice(enemies.indexOf(e), 1);
-      if (e.kind === 'z') hurtSquad(1 + Math.floor(e.maxHp / 4), e);
+      if (e.kind === 'z') hurtSquad(e.big ? 3 : 1, e);
       else if (e.kind === 'barrel'){ sfx.boom(); hurtSquad(3, e); }
       else if (e.kind === 'boss'){
         const loss = Math.ceil(e.hp / 5); boss = null;
@@ -485,7 +534,10 @@ function update(dt){
       }
       continue;
     }
-    if (e.z < PZ - 1.5) enemies.splice(enemies.indexOf(e), 1);
+    if (e.z < PZ - 1.5){
+      enemies.splice(enemies.indexOf(e), 1);
+      if (e.kind === 'z' && state === 'play') hitShield((ROCK_SHIELD_DMG + level) * (e.big ? 3 : 1), e);
+    }
   }
 
   fx = fx.filter(f => (f.t += dt) < .45);
@@ -625,7 +677,7 @@ function drawEnemy(e){
   const p = proj(e.x, e.z);
   if (e.kind === 'z'){
     // Small space rock tumbling down the track
-    const r = .12 * roadW * p.s, bob = Math.sin(levelTime * 3 + e.wob) * r * .12;
+    const r = .12 * (e.r / .085) * roadW * p.s, bob = Math.sin(levelTime * 3 + e.wob) * r * .12;
     shadow(p.x, p.y, r * .8);
     drawRock(p.x, p.y - r * 1.15 + bob, r, e.shape, levelTime * e.shape.spin + e.wob, e.shape.col);
     if (e.hitT > 0){ ctx.fillStyle = 'rgba(160,240,255,.45)'; ctx.beginPath(); ctx.arc(p.x, p.y - r * 1.15 + bob, r * .9, 0, Math.PI * 2); ctx.fill(); }
@@ -639,6 +691,23 @@ function drawEnemy(e){
     ctx.restore();
     ctx.fillStyle = 'rgba(255,255,255,.8)';
     ctx.beginPath(); ctx.moveTo(p.x, cy - s * .5); ctx.lineTo(p.x + s * .08, cy - s * .05); ctx.lineTo(p.x - s * .12, cy); ctx.closePath(); ctx.fill();
+  } else if (e.kind === 'vault'){
+    // Bonus vault: glowing hologram box with the mega upgrade inside and its health as a big number
+    const s = .5 * roadW * p.s, cy = p.y - s * .6, pulse = .5 + Math.sin(levelTime * 5) * .5;
+    shadow(p.x, p.y, s * .5);
+    ctx.save(); ctx.shadowColor = '#c58cff'; ctx.shadowBlur = 20 * p.s + 6;
+    ctx.fillStyle = e.hitT > 0 ? 'rgba(230,212,255,.75)' : `rgba(150,90,255,${.35 + pulse * .15})`;
+    ctx.fillRect(p.x - s / 2, cy - s / 2, s, s);
+    ctx.strokeStyle = '#e6d4ff'; ctx.lineWidth = Math.max(2, 4 * p.s); ctx.strokeRect(p.x - s / 2, cy - s / 2, s, s);
+    ctx.restore();
+    ctx.font = `${s * .5}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(e.mega.icon, p.x, cy - s * .05);
+    const fs = Math.max(13, s * .3);
+    ctx.font = `900 ${fs}px system-ui, sans-serif`;
+    ctx.lineWidth = fs * .16; ctx.strokeStyle = '#2e1860'; ctx.strokeText(Math.ceil(e.hp), p.x, cy - s * .72);
+    ctx.fillStyle = '#ffffff'; ctx.fillText(Math.ceil(e.hp), p.x, cy - s * .72);
+    ctx.font = `800 ${Math.max(9, s * .14)}px system-ui, sans-serif`; ctx.fillStyle = '#e6d4ff';
+    ctx.fillText('💎 ' + e.mega.name, p.x, cy + s * .62);
   } else if (e.kind === 'crate'){
     // Supply pod
     const s = .34 * roadW * p.s, cy = p.y - s * .55;
@@ -747,7 +816,6 @@ function draw(){
   }
   ctx.globalAlpha = 1;
   ctx.restore();
-  $('scoreP').textContent = score;
 }
 
 /* ---------------- Input ---------------- */
