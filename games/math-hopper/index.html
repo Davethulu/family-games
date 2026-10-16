@@ -157,6 +157,9 @@ function strOptions(ans, distractors){
 }
 
 // returns {q, ans (string), options (array of 3 strings)}
+// Equation questions already end in "x = ?", so don't tack on another "= ?".
+const askText = q => q.includes('?') ? q : q + ' = ?';
+const solvedText = (q, ans) => q.includes('?') ? q.slice(0, q.lastIndexOf('?')) + ans : `${q} = ${ans}`;
 function makeQuestion(g, lvl){
   lvl = lvl || 0;
   const s = 1 + Math.min(lvl,6)*0.4;
@@ -403,7 +406,7 @@ function enterHome(){
   const bonus = Math.floor(timeLeft) * 2;
   score += 50 + bonus; if(!noMath) correctCount++;
   sfx.home();
-  floatText(noMath ? `Home! +${50 + bonus}` : `✓ ${Q.q} = ${Q.ans}`, bc + .5, 1, '#7dff7a');
+  floatText(noMath ? `Home! +${50 + bonus}` : `✓ ${solvedText(Q.q, Q.ans)}`, bc + .5, 1, '#7dff7a');
   updateHUD();
   if(homes.every(h => h.filled)){
     state = 'levelup'; levelT = 0; score += 200; sfx.level(); updateHUD();
@@ -417,7 +420,7 @@ function die(kind){
   death = { kind, x: frog.x, row: frog.row, t: 0, hold: kind === 'wrong' ? 2.2 : 1.1 };
   ({ squish: sfx.squish, splash: sfx.splash, wrong: sfx.wrong }[kind] || sfx.bonk)();
   const msg = { squish: '💥 Squished!', splash: '💦 Splash!', hedge: '🌿 Bonk! Aim for a home', taken: '🐸 That home is taken!',
-                wrong: Q ? `❌ ${Q.q} = ${Q.ans}` : '❌ Oops!', swept: '🌊 Swept away!', time: '⏰ Out of time!' }[kind];
+                wrong: Q ? `❌ ${solvedText(Q.q, Q.ans)}` : '❌ Oops!', swept: '🌊 Swept away!', time: '⏰ Out of time!' }[kind];
   floatText(msg, Math.min(COLS - 2, Math.max(2, frog.x)), Math.max(1, frog.row), kind === 'wrong' ? '#ffd23f' : '#fff');
   lives--; updateHUD();
 }
@@ -669,7 +672,7 @@ function updateHUD(){
 function updateQuestion(){
   const el = document.getElementById('question');
   if(noMath || !Q){ el.classList.add('hide'); return; }
-  el.innerHTML = `<small>HOP INTO THE RIGHT ANSWER</small>${Q.q} = ?`;
+  el.innerHTML = `<small>HOP INTO THE RIGHT ANSWER</small>${askText(Q.q)}`;
 }
 
 /* ---------------- Input ---------------- */

@@ -314,28 +314,33 @@ function setMusic(name, force){
   music.want = name;
   if (!music.bus) return;
   if (!force && name === music.theme?.name && music.theme.floor === (run ? run.floor : 1)) return;
-  const a = AC, t = a.currentTime;
-  music.bus.gain.cancelScheduledValues(t); music.bus.gain.setTargetAtTime(0, t, .15);   // fade out, then switch
+  // Each song plays through its own channel. On a switch the old channel fades out and is
+  // cut off entirely, so long chords from the old song can't ring on under the new one.
+  const a = AC, t = a.currentTime, old = music.ch;
+  music.theme = null; music.ch = null;
+  if (old){ old.gain.cancelScheduledValues(t); old.gain.setTargetAtTime(0, t, .12); setTimeout(() => { try { old.disconnect(); } catch(e){} }, 900); }
   clearTimeout(music.swap);
   music.swap = setTimeout(() => {
     const base = THEMES[name]; if (!base) return;
     const mood = (name === 'explore' || name === 'battle' || name === 'boss') && run ? FLOOR_MOOD[run.floor] : FLOOR_MOOD[1];
+    const ch = AC.createGain(); ch.gain.setValueAtTime(0, AC.currentTime); ch.gain.setTargetAtTime(1, AC.currentTime, .4); ch.connect(music.bus);
+    music.ch = ch;
     music.theme = { ...base, name, floor: run ? run.floor : 1, root: base.root + mood.key, bpm: base.bpm * mood.tempo, scale: mood.scale && name !== 'boss' ? mood.scale : base.scale };
     music.step = 0; music.next = AC.currentTime + .05;
-    music.bus.gain.setTargetAtTime(music.on ? MUSIC_VOL : 0, AC.currentTime, .4);
+    music.bus.gain.setTargetAtTime(music.on ? MUSIC_VOL : 0, AC.currentTime, .2);
   }, 450);
 }
 function mNote(midi, t, dur, type, vol, attack = .01, release = .2){
   const a = AC, o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.setValueAtTime(mtof(midi), t);
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack); g.gain.setTargetAtTime(0, t + dur, release / 3);
-  o.connect(g).connect(music.bus); o.start(t); o.stop(t + dur + release + .05);
+  if (!music.ch) return; o.connect(g).connect(music.ch); o.start(t); o.stop(t + dur + release + .05);
 }
 function mNoise(t, dur, vol, freq, type = 'highpass'){
   const a = AC, n = Math.floor(a.sampleRate * dur), b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0);
   for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
   const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
-  s.buffer = b; f.type = type; f.frequency.value = freq; g.gain.value = vol; s.connect(f).connect(g).connect(music.bus); s.start(t);
+  s.buffer = b; f.type = type; f.frequency.value = freq; g.gain.value = vol; if (!music.ch) return; s.connect(f).connect(g).connect(music.ch); s.start(t);
 }
 function scheduleMusic(){
   const th = music.theme; if (!th || !AC) return;
@@ -403,6 +408,9 @@ function mk(q, ans, cands){
   }
   return { q, ans: A, opts: shuf([...set]) };
 }
+// Equation questions already end in "x = ?", so don't tack on another "= ?".
+const askText = q => q.includes('?') ? q : q + ' = ?';
+const solvedText = (q, ans) => q.includes('?') ? q.slice(0, q.lastIndexOf('?')) + ans : `${q} = ${ans}`;
 const add = (a, b) => mk(`${a} + ${b}`, a + b, [a + b + 1, a + b - 1, a + b + 2, a + b - 2, a + b + 10, a + b - 10, Math.abs(a - b)]);
 const sub = (a, b) => mk(`${a} − ${b}`, a - b, [a - b + 1, a - b - 1, a - b + 2, a - b - 2, a + b, a - b + 10]);
 const mul = (a, b) => mk(`${a} × ${b}`, a * b, [a * (b + 1), a * (b - 1), (a + 1) * b, (a - 1) * b, a + b, a * b + 10, a * b - 10]);
@@ -684,12 +692,18 @@ const spriteCache = {};
 function sprite(e, tint, white){
   const key = e + '|' + (tint || '') + (white ? '|w' : '');
   if (spriteCache[key]) return spriteCache[key];
-  const c = document.createElement('canvas'); c.width = c.height = 200;
+  // Draw on a roomy canvas so long legs/wings never get clipped.
+  const c = document.createElement('canvas'); c.width = c.height = 280;
   const g = c.getContext('2d');
   g.font = '160px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText(e, 100, 110);
-  if (tint){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = tint; g.fillRect(0, 0, 200, 200); }
-  if (white){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(0, 0, 200, 200); }
+  g.fillText(e, 140, 145);
+  if (tint){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = tint; g.fillRect(0, 0, 280, 280); }
+  if (white){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(0, 0, 280, 280); }
+  // Emoji aren't centred in their own box (the spider leans right, the dragon has empty space),
+  // so measure the real drawn pixels and remember that box for centring.
+  const px = g.getImageData(0, 0, 280, 280).data; let x0 = 280, y0 = 280, x1 = 0, y1 = 0;
+  for (let y = 0; y < 280; y++) for (let x = 0; x < 280; x++) if (px[(y * 280 + x) * 4 + 3] > 20){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  c.bbox = x1 > x0 ? { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 } : { x: 0, y: 0, w: 280, h: 280 };
   return (spriteCache[key] = c);
 }
 
@@ -788,11 +802,15 @@ function intentText(en){
 }
 function layoutEnemies(snap){
   if (!battle) return;
-  const alive = battle.enemies.filter(e => !e.dead);
-  alive.forEach((en, i) => {
-    en.tx = alive.length === 1 ? SW * (en.boss ? .7 : .72) : SW * (.53 + (i + .5) * (.42 / alive.length));
-    if (snap) en.x = en.tx;
-  });
+  const alive = battle.enemies.filter(e => !e.dead), boss = alive.find(e => e.boss);
+  if (boss){
+    // The boss keeps a fixed centre-right spot; summoned minions stand in front of it, to its left.
+    boss.tx = SW * .7;
+    alive.filter(e => e !== boss).forEach((en, i) => { en.tx = SW * (.48 + i * .14); });
+  } else {
+    alive.forEach((en, i) => { en.tx = alive.length === 1 ? SW * .72 : SW * (.53 + (i + .5) * (.42 / alive.length)); });
+  }
+  if (snap) alive.forEach(en => en.x = en.tx);
 }
 function enemyPos(en){ const s = Math.min(SW / 330, SH / 290); return { x: en.x + en.kb + en.lunge, y: SH * .86, size: 74 * s * en.size }; }
 function aliveEnemies(){ return battle.enemies.filter(e => !e.dead); }
@@ -870,7 +888,7 @@ function chooseSpell(i){
   battle.solveStart = performance.now(); battle.critWin = critWindow(S.tier);
   $('spellsView').hidden = true; $('solveView').hidden = false;
   $('solveName').textContent = `${S.icon} ${S.name}`;
-  $('qText').textContent = battle.prob.q + ' = ?'; $('qText').classList.remove('shown');
+  $('qText').textContent = askText(battle.prob.q); $('qText').classList.remove('shown');
   let opts = battle.prob.opts.slice();
   if (hasItem('specs')){ const wrong = opts.filter(o => o !== battle.prob.ans); opts = opts.filter(o => o !== wrong[0]); }
   $('opts').innerHTML = opts.map(o => `<button class="opt" data-v="${o}">${o}</button>`).join('');
@@ -903,7 +921,7 @@ async function answer(val, btn){
   } else {
     btn.classList.add('bad'); st.streak = 0;
     document.querySelectorAll('#opts .opt').forEach(b => { if (b.dataset.v === P.ans) b.classList.add('reveal'); });
-    $('qText').textContent = `${P.q} = ${P.ans}`; $('qText').classList.add('shown');
+    $('qText').textContent = solvedText(P.q, P.ans); $('qText').classList.add('shown');
     const m = run.misses[P.q] || (run.misses[P.q] = { q: P.q, ans: P.ans, opts: P.opts, tier: P.tier, grade: run.grade, n: 0 }); m.n = Math.min(3, m.n + 1);
     lucky = hasItem('cat') && Math.random() < .5;
     await wait(1250);
@@ -1203,8 +1221,9 @@ function drawStage(dt){
         g.beginPath(); g.moveTo(p.x - 9, ay - 10); g.lineTo(p.x + 9, ay - 10); g.lineTo(p.x, ay); g.closePath(); g.fill();
       }
       g.save(); g.translate(p.x, p.y + bob); g.rotate(en.dying * 2.5); g.globalAlpha = 1 - en.dying;
-      const spr = sprite(en.e, en.tint, en.flashT > 0);
-      g.drawImage(spr, -size * .6, -size * 1.1, size * 1.2, size * 1.2);
+      // Draw just the creature's real pixels, centred on its spot with its feet on the floor.
+      const spr = sprite(en.e, en.tint, en.flashT > 0), bb = spr.bbox, sc = size * 1.05 / Math.max(bb.w, bb.h);
+      g.drawImage(spr, bb.x, bb.y, bb.w, bb.h, -bb.w * sc / 2, -bb.h * sc - size * .02, bb.w * sc, bb.h * sc);
       if (en.frozen > 0){ g.fillStyle = 'rgba(150,220,255,.35)'; g.fillRect(-size * .5, -size * 1.05, size, size); }
       if (en.blind > 0){   // stink haze from Fartos Plopem
         for (let k = 0; k < 4; k++){ const a = T * 1.5 + k * 1.6;
@@ -1445,7 +1464,7 @@ function askProblem(container, tier){
   return new Promise(res => {
     const P = genProblem(run.grade, tier);
     const box = document.createElement('div'); box.className = 'miniQ';
-    box.innerHTML = `<div id="qText" style="font-size:clamp(28px,9vw,40px);color:var(--gold);font-weight:700;margin:8px 0">${P.q} = ?</div><div class="opts">${P.opts.map(o => `<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>`;
+    box.innerHTML = `<div id="qText" style="font-size:clamp(28px,9vw,40px);color:var(--gold);font-weight:700;margin:8px 0">${askText(P.q)}</div><div class="opts">${P.opts.map(o => `<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>`;
     container.appendChild(box);
     box.querySelector('.opts').addEventListener('click', async e => {
       const b = e.target.closest('.opt'); if (!b || box.dataset.done) return; box.dataset.done = 1;
@@ -1527,7 +1546,7 @@ function endRun(won){
     <p class="lead">${won ? 'The Dungeon of Numbers is safe, thanks to your math magic!' : `You made it to Floor ${run.floor}, Room ${run.room}. Every wizard gets plopped sometimes. Try again!`}</p>
     <div class="stat">🎯 <b>${acc}%</b> correct · 🔥 best streak <b>${st.best}</b></div>
     <div class="stat">👾 <b>${st.defeated}</b> monsters · 🪙 <b>${run.gold}</b> gold</div>
-    ${misses.length ? `<div class="small">Spells to practise (they'll come up again):</div><div class="facts">${misses.map(m => `<span>${m.q} = ${m.ans}</span>`).join('')}</div>` : '<div class="small">No mistakes. Wizard-level math!</div>'}
+    ${misses.length ? `<div class="small">Spells to practise (they'll come up again):</div><div class="facts">${misses.map(m => `<span>${solvedText(m.q, m.ans)}</span>`).join('')}</div>` : '<div class="small">No mistakes. Wizard-level math!</div>'}
     <button class="btn" id="againBtn">✨ New run</button><button class="btn ghost" id="titleBtn">Title screen</button>`;
   show('end');
   e.querySelector('#againBtn').onclick = () => { sfx.click(); startRun(); };

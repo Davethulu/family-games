@@ -141,6 +141,9 @@ function strOptions(ans, distractors){
   return shuffle([...opts].slice(0, 3));
 }
 // returns {q, ans (string), options (3 strings, one is ans)}
+// Equation questions already end in "x = ?", so don't tack on another "= ?".
+const askText = q => q.includes('?') ? q : q + ' = ?';
+const solvedText = (q, ans) => q.includes('?') ? q.slice(0, q.lastIndexOf('?')) + ans : `${q} = ${ans}`;
 function makeQuestion(g, lvl){
   lvl = lvl || 0;
   const s = 1 + Math.min(lvl, 6) * 0.4, cap = n => Math.max(1, Math.round(n));
@@ -379,13 +382,13 @@ function applyQuiz(g){
     const gain = Math.min(before, 6 + level * 4);  // doubles small crews; capped so firepower can't run away
     squad.n = Math.min(999, before + gain);
     sfx.good();
-    addFloat(`✓ ${g.quiz.q} = ${g.quiz.ans}   +${gain}`, squad.x, PZ + 1.5, '#7dff7a', 1.8);
+    addFloat(`✓ ${solvedText(g.quiz.q, g.quiz.ans)}   +${gain}`, squad.x, PZ + 1.5, '#7dff7a', 1.8);
   } else {
     const loss = Math.max(2, Math.ceil(before * .35));
     squad.n = before - loss;
     sfx.bad(); shake = .3;
-    addFloat(`✗ ${g.quiz.q} = ${g.quiz.ans}   −${loss}`, squad.x, PZ + 1.5, '#ff8a80', 2.2);
-    if (squad.n <= 0){ squad.n = 0; lose(`Wrong portal! ${g.quiz.q} = ${g.quiz.ans}`); }
+    addFloat(`✗ ${solvedText(g.quiz.q, g.quiz.ans)}   −${loss}`, squad.x, PZ + 1.5, '#ff8a80', 2.2);
+    if (squad.n <= 0){ squad.n = 0; lose(`Wrong portal! ${solvedText(g.quiz.q, g.quiz.ans)}`); }
   }
 }
 function updateQuizBanner(){
@@ -393,7 +396,7 @@ function updateQuizBanner(){
   if (!g || state !== 'play'){ el.classList.add('hide'); el.dataset.q = ''; return; }
   if (el.dataset.q !== g.quiz.q){
     el.dataset.q = g.quiz.q;
-    el.innerHTML = `<small>FLY THROUGH THE RIGHT ANSWER</small>${g.quiz.q} = ?`;
+    el.innerHTML = `<small>FLY THROUGH THE RIGHT ANSWER</small>${askText(g.quiz.q)}`;
     el.classList.remove('hide', 'pop'); void el.offsetWidth; el.classList.add('pop');
   }
 }
