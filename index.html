@@ -56,12 +56,47 @@
     box-shadow: 0 12px 0 #0e0a26;
     outline: none;
   }
-  .card:active { transform: translateY(2px); box-shadow: 0 4px 0 #0e0a26; }
+  .card:active { transform: translateY(2px) scale(.98); box-shadow: 0 4px 0 #0e0a26; }
   .art {
     height: 140px;
     display: grid; place-items: center;
     font-size: 72px;
+    position: relative; overflow: hidden;
   }
+  .art .emo {
+    display: inline-block;
+    filter: drop-shadow(0 6px 0 rgba(0,0,0,.22));
+    animation: bob 3.2s ease-in-out infinite;
+  }
+  .card:nth-child(2n) .art .emo { animation-delay: -1.1s; }
+  .card:nth-child(3n) .art .emo { animation-delay: -2.2s; }
+  .card:hover .art .emo, .card:focus-visible .art .emo { animation: wiggle .5s ease-in-out; }
+  /* A soft shine sweeps across the art now and then. */
+  .art::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.28) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: shine 6s ease-in-out infinite;
+  }
+  .card:nth-child(2n) .art::after { animation-delay: -2s; }
+  .card:nth-child(3n) .art::after { animation-delay: -4s; }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+  @keyframes wiggle { 0% { transform: scale(1); } 30% { transform: scale(1.25) rotate(-10deg); } 60% { transform: scale(1.15) rotate(8deg); } 100% { transform: scale(1.1); } }
+  @keyframes shine { 0%,70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+  /* Cards pop in one after another. */
+  .card { animation: popIn .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: calc(var(--i) * 60ms); }
+  @keyframes popIn { from { opacity: 0; transform: translateY(24px) scale(.9); } }
+  header h1 { animation: popIn .6s cubic-bezier(.2,1.4,.4,1) both; }
+
+  /* Twinkling stars behind the menu. */
+  #stars { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+  #stars i {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%;
+    background: #fff; opacity: .2;
+    animation: twinkle var(--d) ease-in-out infinite; animation-delay: var(--t);
+  }
+  @keyframes twinkle { 50% { opacity: .9; transform: scale(1.6); } }
   .info { padding: 16px 18px 20px; }
   .info h2 { font-size: 1.45rem; }
   .info p { color: var(--muted); margin-top: 4px; line-height: 1.35; }
@@ -78,7 +113,21 @@
     display: none;
     z-index: 10;
   }
-  #player.open { display: block; }
+  #player.open { display: block; animation: zoomIn .28s ease-out; }
+  @keyframes zoomIn { from { opacity: 0; transform: scale(.96); } }
+  #player iframe { opacity: 0; transition: opacity .25s ease; }
+  #player.loaded iframe { opacity: 1; }
+  #spinner {
+    position: absolute; left: 50%; top: 50%;
+    width: 46px; height: 46px; margin: -23px 0 0 -23px;
+    border: 5px solid rgba(255,255,255,.15); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  #player.loaded #spinner { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
   /* Keep games clear of the iPhone notch/clock and home bar. Games inside the frame
      can't see the safe areas themselves, so the arcade leaves room for them. */
   #player iframe {
@@ -116,7 +165,9 @@
   <div class="grid" id="grid"></div>
 </main>
 
+<div id="stars"></div>
 <div id="player">
+  <div id="spinner"></div>
   <button id="home" type="button" aria-label="Back to menu">🏠 Menu</button>
   <iframe id="frame" title="Game" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
 </div>
@@ -191,12 +242,23 @@
   const player = document.getElementById('player');
   const frame = document.getElementById('frame');
 
-  for (const g of GAMES) {
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('i');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.setProperty('--d', (2 + Math.random() * 3).toFixed(1) + 's');
+    s.style.setProperty('--t', (-Math.random() * 5).toFixed(1) + 's');
+    stars.appendChild(s);
+  }
+
+  GAMES.forEach((g, i) => {
     const a = document.createElement('a');
     a.className = 'card';
     a.href = '#' + g.id;
+    a.style.setProperty('--i', i);
     a.innerHTML = `
-      <div class="art" style="background:${g.color}">${g.emoji}</div>
+      <div class="art" style="background:${g.color}"><span class="emo">${g.emoji}</span></div>
       <div class="info">
         <h2></h2><p></p>${g.tag ? '<span class="tag"></span>' : ''}
       </div>`;
@@ -204,7 +266,7 @@
     a.querySelector('p').textContent = g.description;
     if (g.tag) a.querySelector('.tag').textContent = g.tag;
     grid.appendChild(a);
-  }
+  });
 
   // The URL hash decides what's on screen, so the browser Back button
   // returns to the menu and each game has its own shareable link.
@@ -212,11 +274,12 @@
     const game = GAMES.find(g => '#' + g.id === location.hash);
     if (game) {
       // The ?v= stamp skips the phone's saved copy, so a game update shows up right away.
+      player.classList.remove('loaded');
+      frame.addEventListener('load', () => { player.classList.add('loaded'); frame.focus(); }, { once: true });
       frame.src = 'games/' + game.id + '/?v=' + Date.now();
       document.title = game.title + ' · Family Arcade';
       player.classList.add('open');
       document.body.classList.add('playing');
-      frame.addEventListener('load', () => frame.focus(), { once: true });
     } else {
       frame.src = 'about:blank';
       document.title = 'Family Game Arcade';
