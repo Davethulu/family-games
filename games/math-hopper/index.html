@@ -56,6 +56,34 @@
   .big{font-size:clamp(44px,14vw,80px);margin:0;}
   .stat{font-size:20px;margin:4px 0;}
   .stat b{color:var(--accent);font-size:26px;}
+
+  /* Motion: screens fade in with their contents popping up one after another,
+     buttons squash when pressed, and the HUD reacts to points and lost lives. */
+  .overlay{animation:fadeIn .3s ease both;}
+  .overlay > *{animation:popIn .45s cubic-bezier(.2,1.3,.4,1) backwards;}
+  .overlay > :nth-child(2){animation-delay:.05s} .overlay > :nth-child(3){animation-delay:.1s}
+  .overlay > :nth-child(4){animation-delay:.15s} .overlay > :nth-child(5){animation-delay:.2s}
+  .overlay > :nth-child(6){animation-delay:.25s} .overlay > :nth-child(7){animation-delay:.3s}
+  @keyframes fadeIn{from{opacity:0}}
+  @keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.94)}}
+  .btn,.grade,.toggle{transition:transform .12s,box-shadow .12s,background .15s;}
+  .btn:active{transform:translateY(3px) scale(.97);}
+  .grade:active{transform:scale(.9);}
+  .grade.sel:active{transform:scale(.95);}
+  .toggle:active{transform:scale(.95);}
+  #pad button{transition:transform .08s,background .08s;box-shadow:0 4px 0 rgba(0,0,0,.25);}
+  #pad button:active, #pad button.down{transform:translateY(2px) scale(.94);box-shadow:0 1px 0 rgba(0,0,0,.25);}
+  .pill.bump{animation:bump .3s ease;}
+  .pill.hurt{animation:hurt .45s ease;}
+  @keyframes bump{40%{transform:scale(1.18)}}
+  @keyframes hurt{20%{transform:translateX(-5px);background:rgba(200,40,40,.85)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  #question{transition:border-color .2s,box-shadow .2s;}
+  #question.pop{animation:qPop .35s cubic-bezier(.2,1.6,.4,1);}
+  #question.right{border-color:#7dff7a;box-shadow:0 0 18px rgba(125,255,122,.7);}
+  @keyframes qPop{from{transform:translateX(-50%) scale(.6);opacity:.3}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -110,6 +138,7 @@ const COLS = 9, ROWS = 13;
 const isRiver = r => r >= 1 && r <= 5;
 const isRoad  = r => r >= 7 && r <= 11;
 const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let W = 0, H = 0, DPR = 1, cell = 40, ox = 0, oy = 0;
 function resize(){
@@ -340,6 +369,7 @@ let frog = null;
 let state = 'menu';       // menu | play | dying | levelup | over
 let score = 0, lives = 3, level = 1, correctCount = 0, timeLeft = TIME, clock = 0;
 let death = null, levelT = 0, floats = [], lastTick = 0;
+let parts = [], rings = [], shakeT = 0, flash = null, shownScore = 0;
 
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
@@ -366,7 +396,7 @@ function assignHomes(){
 }
 
 function startGame(){
-  score = 0; lives = 3; level = 1; correctCount = 0; floats = [];
+  score = 0; shownScore = 0; lives = 3; level = 1; correctCount = 0; floats = []; parts = []; rings = []; shakeT = 0; flash = null;
   homes = HOMES.map(col => ({ col, filled: false, label: '', correct: false }));
   makeLanes(); nextQuestion();
   frog = newFrog(); timeLeft = TIME; state = 'play';
@@ -391,6 +421,7 @@ function land(){
   const h = frog.hop; frog.hop = null;
   frog.row = h.tr; frog.x = h.tx;
   if(frog.row >= 6) frog.x = Math.floor(frog.x) + .5;  // snap to the grid on solid ground
+  if(frog.row >= 6) burst(px(frog.x), py(frog.row) + cell * .75, ['rgba(255,255,255,.55)', 'rgba(200,200,220,.45)'], 5, cell * 1.4, { grav: 0, life: .3, size: cell * .1 });
   if(frog.row < frog.bestRow){ frog.bestRow = frog.row; score += 10; updateHUD(); }
   if(frog.row === 0) return enterHome();
   if(isRiver(frog.row) && !supportAt(frog.row, frog.x)) return die('splash');
@@ -407,9 +438,15 @@ function enterHome(){
   score += 50 + bonus; if(!noMath) correctCount++;
   sfx.home();
   floatText(noMath ? `Home! +${50 + bonus}` : `✓ ${solvedText(Q.q, Q.ans)}`, bc + .5, 1, '#7dff7a');
+  const hx = px(bc + .5), hy = py(0) + cell * .62;
+  burst(hx, hy, ['#7dff7a', '#ffcf3f', '#ffffff', '#5fd8ff'], 26, cell * 5, { grav: cell * 6 });
+  rings.push({ x: hx, y: hy, r: cell * 1.6, t: 0, dur: .45, color: '#7dff7a' });
+  flashScreen('#7dff7a', .18);
+  pulseQuestion();
   updateHUD();
   if(homes.every(h => h.filled)){
     state = 'levelup'; levelT = 0; score += 200; sfx.level(); updateHUD();
+    for(let k = 0; k < 5; k++) setTimeout(() => burst(px(1 + Math.random() * (COLS - 2)), py(3 + Math.random() * 4), ['#ffcf3f', '#7dff7a', '#ff5fa2', '#5fd8ff', '#ffffff'], 22, cell * 6, { grav: cell * 7 }), k * 160);
     return;
   }
   nextQuestion();
@@ -422,7 +459,14 @@ function die(kind){
   const msg = { squish: '💥 Squished!', splash: '💦 Splash!', hedge: '🌿 Bonk! Aim for a home', taken: '🐸 That home is taken!',
                 wrong: Q ? `❌ ${solvedText(Q.q, Q.ans)}` : '❌ Oops!', swept: '🌊 Swept away!', time: '⏰ Out of time!' }[kind];
   floatText(msg, Math.min(COLS - 2, Math.max(2, frog.x)), Math.max(1, frog.row), kind === 'wrong' ? '#ffd23f' : '#fff');
+  const dx = px(frog.x), dy = py(frog.row) + cell / 2;
+  if(kind === 'splash' || kind === 'swept' || kind === 'wrong') burst(dx, dy, ['#9fd8ff', '#ffffff', '#5fa8ff'], 18, cell * 4, { grav: cell * 9 });
+  else if(kind === 'squish') burst(dx, dy, ['#4fc94f', '#2d8f2d', '#ffffff'], 16, cell * 4.5, { grav: cell * 6 });
+  else burst(dx, dy, ['#3fae5a', '#2a8a3a', '#ffffff'], 10, cell * 3, { grav: cell * 6 });
+  shake(kind === 'squish' || kind === 'wrong' ? .35 : .22);
+  if(kind === 'wrong') flashScreen('#ff4f4f', .28);
   lives--; updateHUD();
+  const lv = document.getElementById('lives'); lv.classList.remove('hurt'); void lv.offsetWidth; lv.classList.add('hurt');
 }
 function afterDeath(){
   if(lives <= 0) return gameOver();
@@ -431,15 +475,66 @@ function afterDeath(){
 }
 function gameOver(){
   state = 'over';
+  const newBest = score > best && score > 0;
   if(score > best){ best = score; lsSet('mathhopper2d_best', best); }
-  document.getElementById('finalScore').textContent = score;
+  countUp(document.getElementById('finalScore'), score);
   document.getElementById('finalLevel').textContent = level;
   document.getElementById('finalCorrect').textContent = correctCount;
-  document.getElementById('bestLine').innerHTML = `Best <b>${best}</b>`;
+  document.getElementById('bestLine').innerHTML = newBest ? `🏆 New best!` : `Best <b>${best}</b>`;
   document.getElementById('hud').classList.add('hide');
   document.getElementById('question').classList.add('hide');
   document.getElementById('pad').classList.add('hide');
   document.getElementById('over').classList.remove('hide');
+}
+
+/* ---------------- Effects ---------------- */
+function burst(x, y, colors, n, speed, o = {}){
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, v = speed * (.35 + Math.random() * .75);
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - (o.grav ? speed * .4 : 0), t: 0, life: (o.life || .7) * (.6 + Math.random() * .6),
+                 c: colors[i % colors.length], s: (o.size || cell * .14) * (.6 + Math.random() * .8), g: o.grav || 0 });
+  }
+}
+function shake(s){ if(!RM) shakeT = Math.max(shakeT, s); }
+function flashScreen(color, a){ flash = { color, a: RM ? a * .4 : a }; }
+function pulseQuestion(){
+  const el = document.getElementById('question');
+  el.classList.add('right'); setTimeout(() => el.classList.remove('right'), 450);
+}
+function updateFx(dt){
+  for(let i = parts.length - 1; i >= 0; i--){
+    const p = parts[i]; p.t += dt;
+    if(p.t > p.life){ parts.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; p.vx *= .98;
+  }
+  rings = rings.filter(r => (r.t += dt) < r.dur);
+  shakeT = Math.max(0, shakeT - dt);
+  if(flash && (flash.a -= dt * 1.6) <= 0) flash = null;
+  // The score pill counts up to the real score instead of jumping.
+  if(shownScore !== score){
+    shownScore = score < shownScore ? score : Math.min(score, shownScore + Math.max(1, Math.ceil((score - shownScore) * Math.min(1, dt * 9))));
+    document.getElementById('score').textContent = shownScore;
+  }
+}
+function drawFx(){
+  for(const p of parts){
+    ctx.globalAlpha = Math.max(0, 1 - p.t / p.life); ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
+  }
+  for(const r of rings){
+    const k = r.t / r.dur;
+    ctx.globalAlpha = 1 - k; ctx.strokeStyle = r.color; ctx.lineWidth = 4 * (1 - k) + 1;
+    ctx.beginPath(); ctx.arc(r.x, r.y, r.r * (.2 + k), 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+// Counts a number up on a results screen.
+function countUp(el, to, dur = 900){
+  if(RM || !to){ el.textContent = to; return; }
+  const t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
+  el.textContent = 0; requestAnimationFrame(step);
+  setTimeout(() => { el.textContent = to; }, dur + 400);  // in case animation frames are paused
 }
 
 /* ---------------- Update ---------------- */
@@ -609,6 +704,8 @@ function floatText(text, x, row, color){ floats.push({ text, x, row, color, t: 0
 function draw(){
   ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, W, H);
   if(!frog) return;
+  ctx.save();
+  if(shakeT > 0){ const m = shakeT * cell * .5; ctx.translate((Math.random() - .5) * m, (Math.random() - .5) * m); }
   drawBoard();
   for(const L of Object.values(lanes)){
     ctx.save(); ctx.beginPath(); ctx.rect(ox, py(L.row), COLS * cell, cell); ctx.clip();
@@ -638,6 +735,8 @@ function draw(){
     drawFrog(px(x), py(r) + cell / 2, frog.face, s);
   }
 
+  drawFx();
+
   // Floating messages
   for(const f of floats){
     const a = Math.min(1, 2 - f.t * 1.1);
@@ -655,24 +754,39 @@ function draw(){
   ctx.fillStyle = frac > .33 ? '#5ed25e' : frac > .15 ? '#ffcf3f' : '#ff5a4f'; rrect(ox, by, bw * frac, 10, 5); ctx.fill();
 
   if(state === 'levelup'){
-    ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(ox, py(4), COLS * cell, cell * 3);
+    // Banner slides open and the title springs in.
+    const k = Math.min(1, levelT / .25), pop = RM ? 1 : 1 + Math.sin(Math.min(1, levelT / .4) * Math.PI) * .18;
+    ctx.globalAlpha = k;
+    ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(ox, py(5.5) - cell * 1.5 * k, COLS * cell, cell * 3 * k);
+    ctx.save(); ctx.translate(W / 2, py(5) + cell * .2); ctx.scale(pop * k, pop * k);
     ctx.font = `900 ${Math.min(40, cell * .9)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffcf3f'; ctx.fillText(`LEVEL ${level} CLEAR!`, W / 2, py(5) + cell * .2);
-    ctx.font = `800 ${Math.min(20, cell * .45)}px system-ui, sans-serif`; ctx.fillStyle = '#fff';
+    ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(`LEVEL ${level} CLEAR!`, 0, 0);
+    ctx.fillStyle = '#ffcf3f'; ctx.fillText(`LEVEL ${level} CLEAR!`, 0, 0);
+    ctx.restore();
+    ctx.font = `800 ${Math.min(20, cell * .45)}px system-ui, sans-serif`; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('+200 · Things get faster…', W / 2, py(6) + cell * .1);
+    ctx.globalAlpha = 1;
   }
+  ctx.restore();
+  if(flash){ ctx.globalAlpha = Math.max(0, flash.a); ctx.fillStyle = flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
 }
 
 /* ---------------- HUD ---------------- */
+let hudScore = 0, hudLevel = 1;
+function bump(id){ const el = document.getElementById(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 function updateHUD(){
-  document.getElementById('score').textContent = score;
+  if(score > hudScore) bump('score');      // the number itself counts up in updateFx
+  if(score < hudScore) document.getElementById('score').textContent = score;
+  if(level !== hudLevel && level > 1) bump('level');
+  hudScore = score; hudLevel = level;
   document.getElementById('level').textContent = 'LV ' + level;
   document.getElementById('lives').textContent = '🐸'.repeat(Math.max(0, lives)) || '—';
 }
 function updateQuestion(){
   const el = document.getElementById('question');
   if(noMath || !Q){ el.classList.add('hide'); return; }
-  el.innerHTML = `<small>HOP INTO THE RIGHT ANSWER</small>${askText(Q.q)}`;
+  const html = `<small>HOP INTO THE RIGHT ANSWER</small>${askText(Q.q)}`;
+  if(el.innerHTML !== html){ el.innerHTML = html; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
 }
 
 /* ---------------- Input ---------------- */
@@ -716,6 +830,7 @@ let last = performance.now();
 function loop(now){
   const dt = Math.min(.05, (now - last) / 1000); last = now;
   if(state !== 'menu' && state !== 'over') update(dt);
+  updateFx(dt);
   draw();
   requestAnimationFrame(loop);
 }
