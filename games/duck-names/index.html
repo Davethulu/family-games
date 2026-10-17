@@ -156,7 +156,7 @@
       filter: brightness(1.06);
     }
 
-    .generate-btn:active { transform: translateY(0); }
+    .generate-btn:active { transform: scale(.96); box-shadow: 0 1px 4px rgba(74,124,111,0.35); transition-duration: .05s; }
 
     /* ── Result card ── */
     .result-wrap {
@@ -273,7 +273,7 @@
     }
 
     .action-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px var(--shadow); }
-    .action-btn:active { transform: translateY(0); }
+    .action-btn:active { transform: scale(.95); box-shadow: none; transition-duration: .05s; }
 
     .btn-again {
       background: var(--pond-pale);
@@ -310,6 +310,31 @@
 
     /* ── Hidden canvas for download ── */
     #downloadCanvas { display: none; }
+
+    /* ── Motion ── */
+    header      { animation: riseIn .6s cubic-bezier(.2,1.2,.4,1) both; }
+    .main-card  { animation: riseIn .6s .08s cubic-bezier(.2,1.2,.4,1) both; }
+    .pond-waves { animation: riseIn .6s .16s ease both; }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+
+    /* Each new name pops the card, hops the duck and slides the name in. */
+    .result-card.pop      { animation: cardPop .5s cubic-bezier(.2,1.4,.4,1); }
+    .result-duck-icon.pop { animation: duckHop .6s ease; }
+    .duck-name.pop        { animation: nameIn .45s .08s ease both; }
+    .blurb.pop            { animation: nameIn .45s .18s ease both; }
+    @keyframes cardPop { from { transform: scale(.93); opacity: .4; } }
+    @keyframes duckHop { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-14px) scale(1.15) rotate(-8deg); } 60% { transform: translateY(0) scale(.95, 1.05); } 100% { transform: none; } }
+    @keyframes nameIn { from { opacity: 0; transform: translateY(8px); } }
+
+    .name-input.shake { animation: shake .4s; border-color: #e07070; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+
+    .spark { position: fixed; z-index: 5; pointer-events: none; width: 7px; height: 7px; border-radius: 50%; }
+    .spark.emo { width: auto; height: auto; border-radius: 0; font-size: 18px; line-height: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
 
     /* ── Responsive ── */
     @media (max-width: 480px) {
@@ -577,14 +602,44 @@ function showResult(result) {
   styleBadge.className    = `style-badge ${result.style}`;
 
   resultWrap.classList.add('visible');
+
+  // Restart the pop-in animations for every new name.
+  const popEls = [document.getElementById('resultCard'), duckIconEl, duckNameEl, blurbEl];
+  popEls.forEach(el => el.classList.remove('pop'));
+  void resultWrap.offsetWidth;
+  popEls.forEach(el => el.classList.add('pop'));
+  sparkle(duckIconEl);
+}
+
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// A little burst of pond-coloured sparkles around an element.
+function sparkle(el) {
+  if (REDUCED_MOTION || !el.animate) return;
+  const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const colors = ['#e8c07a', '#6aab98', '#a8d5c8', '#c9954a', '#ffffff'];
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('span');
+    const emo = i % 5 === 0;
+    p.className = 'spark' + (emo ? ' emo' : '');
+    if (emo) p.textContent = '✨'; else p.style.background = colors[i % colors.length];
+    p.style.left = cx + 'px'; p.style.top = cy + 'px';
+    document.body.appendChild(p);
+    const a = (i / 16) * Math.PI * 2 + Math.random() * .4, d = 46 + Math.random() * 46;
+    p.animate([
+      { transform: 'translate(-50%,-50%) scale(.4)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(1)`, opacity: 0 },
+    ], { duration: 600 + Math.random() * 300, easing: 'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => p.remove();
+    setTimeout(() => p.remove(), 1200);
+  }
 }
 
 function handleGenerate() {
   const name = nameInput.value.trim();
   if (!name) {
     nameInput.focus();
-    nameInput.style.borderColor = '#e07070';
-    setTimeout(() => { nameInput.style.borderColor = ''; }, 1000);
+    nameInput.classList.remove('shake'); void nameInput.offsetWidth; nameInput.classList.add('shake');
+    setTimeout(() => nameInput.classList.remove('shake'), 1000);
     return;
   }
   currentName = name;
@@ -629,7 +684,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 
 function renderToCanvas(result) {
   const canvas = document.getElementById('downloadCanvas');
-  const scale  = 2; // retina
+  const scale  = 3; // sharp on high-DPI phones
   const W = 520, H = 360;
   canvas.width  = W * scale;
   canvas.height = H * scale;
