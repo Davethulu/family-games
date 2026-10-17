@@ -35,6 +35,38 @@
   .btnrow{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
   .peck{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:8;background:#ffcf3f;color:#1c2540;border:3px solid #fff;border-radius:50%;width:96px;height:96px;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #b8901f;line-height:1.05;}
   .peck:active{transform:translateX(-50%) translateY(4px);box-shadow:0 2px 0 #b8901f;}
+
+  /* Room for the arcade's Menu button, like the other games. */
+  body.in-arcade #hud{padding-left:96px;}
+  .pill{text-shadow:0 1px 0 rgba(0,0,0,.35);}
+  /* Motion: screens fade in with their contents popping up, buttons squash when pressed,
+     and the HUD reacts to coins, points and answers. */
+  .overlay{animation:fadeIn .3s ease both;}
+  .overlay > *,.card > *{animation:popIn .45s cubic-bezier(.2,1.3,.4,1) backwards;}
+  .overlay > :nth-child(2),.card > :nth-child(2){animation-delay:.05s} .overlay > :nth-child(3),.card > :nth-child(3){animation-delay:.1s}
+  .overlay > :nth-child(4),.card > :nth-child(4){animation-delay:.15s} .overlay > :nth-child(5),.card > :nth-child(5){animation-delay:.2s}
+  .overlay > :nth-child(6),.card > :nth-child(6){animation-delay:.25s} .overlay > :nth-child(7){animation-delay:.3s}
+  @keyframes fadeIn{from{opacity:0}}
+  @keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.94)}}
+  .btn,.grade,.toggle{transition:transform .12s,box-shadow .12s,background .15s;}
+  .btn:active{transform:translateY(3px) scale(.97);}
+  .grade:active{transform:scale(.9);}
+  .grade.sel:active{transform:scale(.95);}
+  .toggle:active{transform:scale(.95);}
+  .peck:not(.hide){animation:peckIn .4s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes peckIn{from{transform:translateX(-50%) scale(.3);opacity:0}}
+  .pill.bump{animation:bump .3s ease;}
+  @keyframes bump{40%{transform:scale(1.18)}}
+  #question{transition:border-color .2s,box-shadow .2s;}
+  #question.pop{animation:qPop .35s cubic-bezier(.2,1.6,.4,1);}
+  #question.right{border-color:#7dff7a;box-shadow:0 0 18px rgba(125,255,122,.7);}
+  @keyframes qPop{from{transform:translateX(-50%) scale(.6);opacity:.3}}
+  .float3d{position:fixed;z-index:7;pointer-events:none;transform:translate(-50%,-50%);white-space:nowrap;
+    font-weight:900;font-size:22px;text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 8px rgba(0,0,0,.35);}
+  #flash{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -44,6 +76,7 @@
 </div>
 <div id="question" class="hide"></div>
 <button id="peckBtn" class="peck hide">🐤 PECK!</button>
+<div id="flash"></div>
 <div id="menu" class="overlay">
   <h1>Math Hopper <span class="sub">3D · WebGL</span></h1>
   <p class="lead">Hop across roads and rivers in <b>true 3D</b>. Land on the lily pad with the <b>correct answer</b> to cross the water. Dodge cars, trucks, trains & the giant chicken truck!</p>
@@ -67,6 +100,8 @@
 <script>
 "use strict";
 const COLS=5;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(window.self!==window.top)document.body.classList.add('in-arcade');
 /* ===== math generator ===== */
 const GRADES=['K','1','2','3','4','5','6','7','8']; let grade=1, noMath=false;
 function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -74,6 +109,9 @@ function pick(a){return a[Math.floor(Math.random()*a.length)];}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;}
 function intOptions(ans,spread){spread=spread||3;const o=new Set([ans]);let g=0;while(o.size<3&&g++<50){let d=ri(-spread,spread);if(d===0)continue;let v=ans+d;if(v<0)continue;o.add(v);}while(o.size<3)o.add(ri(0,ans+spread+2));return shuffle([...o].slice(0,3)).map(String);}
 function strOptions(ans,d){const o=new Set([ans]);for(const x of shuffle(d))if(o.size<3)o.add(x);return shuffle([...o].slice(0,3));}
+// Equation questions already end in "x = ?", so don't tack on another "= ?".
+const askText=q=>q.includes('?')?q:q+' = ?';
+const solvedText=(q,ans)=>q.includes('?')?q.slice(0,q.lastIndexOf('?'))+ans:q+' = '+ans;
 function makeQuestion(g){let q,ans,options;switch(g){
   case 0:{if(Math.random()<0.5){const a=ri(0,5),b=ri(0,5);q=`${a} + ${b}`;ans=a+b;}else{const a=ri(2,9),b=ri(0,a);q=`${a} − ${b}`;ans=a-b;}options=intOptions(ans,2);ans=String(ans);break;}
   case 1:{if(Math.random()<0.5){const a=ri(1,12),b=ri(1,8);q=`${a} + ${b}`;ans=a+b;}else{const a=ri(5,20),b=ri(1,a);q=`${a} − ${b}`;ans=a-b;}options=intOptions(ans,3);ans=String(ans);break;}
@@ -226,7 +264,7 @@ function safeGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function safeSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 const peckBtn=document.getElementById('peckBtn');
 function resetGame(){for(const [r,e] of rowGroups){scene.remove(e.group);disposeGroup(e.group);}rowGroups.clear();
-  for(const at of adTrucks)if(at.mesh){scene.remove(at.mesh);disposeGroup(at.mesh);}adTrucks=[];clearCin();
+  for(const at of adTrucks)if(at.mesh){scene.remove(at.mesh);disposeGroup(at.mesh);}adTrucks=[];clearCin();popMeshes.length=0;camShake=0;
   rows=[];rowsSinceWater=0;roadStripAfter=0;nextStationAt=ri(50,60);adZoneLeft=0;lastAdRow=-999;ensureRows(30);
   player.col=2;player.row=1;player.vx=2;player.vy=1;player.moving=false;player.t=0;player.face=0;
   camRow=1;lastSafeRow=1;invuln=1.0;score=0;coins=0;lives=1;correctCount=0;maxRow=1;
@@ -248,20 +286,48 @@ canvas.addEventListener('touchend',e=>{if(!tS)return;const t=e.changedTouches[0]
 
 /* ===== HUD ===== */
 const elScore=document.getElementById('score'),elCoins=document.getElementById('coins'),elLives=document.getElementById('lives'),elQ=document.getElementById('question');
-function updateHUD(){elScore.textContent='Score '+score;elCoins.textContent='🪙 '+coins;elLives.textContent='❤️'.repeat(Math.max(0,lives));}
-function updateQuestion(){let f=null;for(let r=player.row;r<rows.length&&r<player.row+12;r++){if(rows[r]&&rows[r].type==='water'&&!rows[r].answered){f=rows[r];break;}}if(f){elQ.classList.remove('hide');elQ.innerHTML='<small>GRADE '+GRADES[grade]+' — SOLVE TO CROSS</small>'+f.q+' = ?';}else elQ.classList.add('hide');}
+let hudScore=0,hudCoins=0;
+function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
+function updateHUD(){if(score>hudScore+1)bump(elScore);if(coins>hudCoins)bump(elCoins);hudScore=score;hudCoins=coins;
+  elScore.textContent='Score '+score;elCoins.textContent='🪙 '+coins;elLives.textContent='❤️'.repeat(Math.max(0,lives));}
+function updateQuestion(){let f=null;for(let r=player.row;r<rows.length&&r<player.row+12;r++){if(rows[r]&&rows[r].type==='water'&&!rows[r].answered){f=rows[r];break;}}
+  if(f){const html='<small>GRADE '+GRADES[grade]+' — SOLVE TO CROSS</small>'+askText(f.q);const fresh=elQ.classList.contains('hide')||elQ.dataset.q!==f.q;
+    elQ.classList.remove('hide');elQ.innerHTML=html;if(fresh){elQ.dataset.q=f.q;elQ.classList.remove('pop');void elQ.offsetWidth;elQ.classList.add('pop');}}
+  else{elQ.classList.add('hide');elQ.dataset.q='';}}
+
+/* ===== effects: floating text over the 3D world, screen flashes, camera shake, coin pops ===== */
+const tmpV=webglOK?new THREE.Vector3():null;
+function floatAt(x,y,z,text,color){if(!camera)return;tmpV.set(x,y,z).project(camera);
+  const d=document.createElement('div');d.className='float3d';d.textContent=text;d.style.color=color||'#fff';
+  d.style.left=Math.min(innerWidth-60,Math.max(60,(tmpV.x+1)/2*innerWidth))+'px';d.style.top=((1-tmpV.y)/2*innerHeight)+'px';document.body.appendChild(d);
+  if(d.animate)d.animate([{transform:'translate(-50%,-50%) scale(.5)',opacity:0},{transform:'translate(-50%,-90%) scale(1.15)',opacity:1,offset:.2},{transform:'translate(-50%,-230%) scale(1)',opacity:0}],{duration:RM?700:1000,easing:'ease-out'}).onfinish=()=>d.remove();
+  setTimeout(()=>d.remove(),1300);}
+function flashScreen(color,a){const f=document.getElementById('flash');f.style.background=color;
+  if(f.animate)f.animate([{opacity:RM?a*.4:a},{opacity:0}],{duration:450,easing:'ease-out'});}
+let camShake=0;const popMeshes=[];
+function popCoin(mesh,parent){popMeshes.push({m:mesh,parent,t:0,y0:mesh.position.y});}
+function updatePops(dt){for(let i=popMeshes.length-1;i>=0;i--){const p=popMeshes[i];p.t+=dt/.35;const k=Math.min(1,p.t);
+  p.m.position.y=p.y0+k*.9;p.m.rotation.z+=dt*18;p.m.scale.setScalar(k<.4?1+k*1.4:1.56*(1-(k-.4)/.6));
+  if(k>=1){p.parent.remove(p.m);popMeshes.splice(i,1);}}}
+function countUp(el,to,dur=900){if(RM||!to){el.textContent=to;return;}const t0=performance.now();
+  const step=now=>{const k=Math.min(1,(now-t0)/dur);el.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);};
+  el.textContent=0;requestAnimationFrame(step);setTimeout(()=>{el.textContent=to;},dur+400);}
 
 /* ===== landing / deaths ===== */
 function evaluateLanding(){const row=rows[player.row];if(!row)return;
-  if(row.coin&&row.coinCol===player.col){row.coin=false;coins+=(row.coinVal||1);score+=2;const e=rowGroups.get(player.row);if(e&&e.coinMesh){e.group.remove(e.coinMesh);e.coinMesh=null;}updateHUD();}
+  if(row.coin&&row.coinCol===player.col){row.coin=false;const v=row.coinVal||1;coins+=v;score+=2;const e=rowGroups.get(player.row);if(e&&e.coinMesh){popCoin(e.coinMesh,e.group);e.coinMesh=null;}
+    floatAt(wx(player.col),0.9,wz(player.row),v>=3?'+3 💎':'+1 🪙','#ffcf3f');updateHUD();}
   if(row.type==='grass'){lastSafeRow=player.row;if(row.station&&!row.used){row.used=true;if(Math.random()<0.5)openOffer();else startFight();}}
-  else if(row.type==='water'){if(player.col===row.correctCol){if(!row.answered){row.answered=true;correctCount++;score+=5;rebuildRow(player.row);updateHUD();}lastSafeRow=player.row;}else die('hit');}}
-function die(reason){if(invuln>0||state!=='play'&&state!=='fight')return;lives--;updateHUD();if(lives<=0){if(reason==='stall')truckDeath();else squishDeath();}}
+  else if(row.type==='water'){if(player.col===row.correctCol){if(!row.answered){row.answered=true;correctCount++;score+=5;rebuildRow(player.row);updateHUD();
+      floatAt(wx(player.col),1.1,wz(player.row),'✓ '+solvedText(row.q,row.ans),'#7dff7a');flashScreen('#7dff7a',.22);
+      elQ.classList.add('right');setTimeout(()=>elQ.classList.remove('right'),450);}lastSafeRow=player.row;}
+    else{if(invuln<=0)floatAt(wx(player.col),1.1,wz(player.row),'✗ '+solvedText(row.q,row.ans),'#ff8a80');die('hit');}}}
+function die(reason){if(invuln>0||state!=='play'&&state!=='fight')return;lives--;updateHUD();flashScreen('#ff4f4f',.3);camShake=.4;if(lives<=0){if(reason==='stall')truckDeath();else squishDeath();}}
 function truckDeath(){if(state!=='play')return;state='dying';player.moving=false;elQ.classList.add('hide');
   const t=buildDelivery();scene.add(t);cinObjs.push(t);death={t:0,phase:'in',truck:t};}
 function squishDeath(){if(state!=='play'&&state!=='fight')return;state='squish';squish={t:0};player.moving=false;elQ.classList.add('hide');peckBtn.classList.add('hide');}
 function finishGameOver(){state='over';clearCin();chick.scale.set(1,1,1);if(score>best){best=score;safeSet('mh3d_best',best);}
-  document.getElementById('finalScore').textContent=score;document.getElementById('finalCorrect').textContent=correctCount;document.getElementById('bestLine').innerHTML='Best <b>'+best+'</b>';
+  countUp(document.getElementById('finalScore'),score);document.getElementById('finalCorrect').textContent=correctCount;document.getElementById('bestLine').innerHTML='Best <b>'+best+'</b>';
   document.getElementById('hud').classList.add('hide');elQ.classList.add('hide');document.getElementById('over').classList.remove('hide');}
 
 /* ===== hitch-a-ride ===== */
@@ -285,9 +351,10 @@ peckBtn.onclick=peck;
 /* ===== loop ===== */
 let last=performance.now();
 function update(dt){
+  updatePops(dt);camShake=Math.max(0,camShake-dt);
   if(state==='dying'){updateDeath(dt);return;}
   if(state==='riding'){updateRide(dt);return;}
-  if(state==='squish'){squish.t+=dt/0.7;chick.scale.set(1+squish.t*0.4,Math.max(0.05,1-squish.t),1+squish.t*0.4);if(squish.t>=1)finishGameOver();return;}
+  if(state==='squish'){placeCamera();squish.t+=dt/0.7;chick.scale.set(1+squish.t*0.4,Math.max(0.05,1-squish.t),1+squish.t*0.4);if(squish.t>=1)finishGameOver();return;}
   if(state==='fight'){updateFight(dt);return;}
   if(state!=='play')return;
   if(invuln>0)invuln-=dt;
@@ -326,7 +393,8 @@ function update(dt){
   adTrucks=adTrucks.filter(at=>{const keep=at.row0>player.row-14;if(!keep&&at.mesh){scene.remove(at.mesh);disposeGroup(at.mesh);}return keep;});
 }
 function placeCamera(){const tz=wz(camRow)-2.2,tx=wx(2);const ox=Math.sin(YAW)*CAMDIST,oz=Math.cos(YAW)*CAMDIST;
-  camera.position.set(tx+ox,CAMH,tz+oz);camera.lookAt(tx,0.3,tz);
+  const sk=RM?0:camShake*.6,jx=(Math.random()-.5)*sk,jz=(Math.random()-.5)*sk;
+  camera.position.set(tx+ox+jx,CAMH,tz+oz+jz);camera.lookAt(tx+jx,0.3,tz+jz);
   sun.position.set(tx+5,15,tz+7);sun.target.position.set(tx,0,tz-2);}
 function updateDeath(dt){const d=death;d.t+=dt;const px=wx(player.col),pz=wz(player.row);
   if(d.phase==='in'){const k=Math.min(d.t/1.0,1);d.truck.position.set(px-6+5.6*k,0,pz);d.truck.rotation.y=Math.PI/2;chick.position.set(px,0,pz);if(k>=1){d.phase='load';d.t=0;}}
