@@ -55,6 +55,30 @@
   .big{font-size:clamp(48px,15vw,84px);margin:0;}
   .stat{font-size:20px;margin:4px 0;}
   .stat b{color:var(--accent);font-size:26px;}
+
+  /* Motion: screens fade in with their contents popping up one after another,
+     buttons squash when pressed, and the quiz banner flashes green or red. */
+  .overlay{animation:fadeIn .3s ease both;}
+  .overlay > *{animation:popIn .45s cubic-bezier(.2,1.3,.4,1) backwards;}
+  .overlay > :nth-child(2){animation-delay:.05s} .overlay > :nth-child(3){animation-delay:.1s}
+  .overlay > :nth-child(4){animation-delay:.15s} .overlay > :nth-child(5){animation-delay:.2s}
+  .overlay > :nth-child(6){animation-delay:.25s} .overlay > :nth-child(7){animation-delay:.3s}
+  .overlay .big{animation:popIn .45s cubic-bezier(.2,1.3,.4,1) backwards,floaty 3s 1s ease-in-out infinite;}
+  @keyframes fadeIn{from{opacity:0}}
+  @keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.94)}}
+  @keyframes floaty{50%{transform:translateY(-8px) rotate(3deg)}}
+  .btn,.grade{transition:transform .12s,box-shadow .12s,background .15s;}
+  .btn:active{transform:translateY(3px) scale(.97);}
+  .grade:active{transform:scale(.9);}
+  .grade.sel:active{transform:scale(.95);}
+  #lvl.bump{animation:bump .35s ease;}
+  @keyframes bump{40%{transform:scale(1.18)}}
+  #quiz{transition:border-color .2s,background .2s;}
+  #quiz.right{border-color:#7dff7a;background:rgba(30,110,50,.9);}
+  #quiz.wrong{border-color:#ff8a80;background:rgba(120,30,40,.9);}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -102,6 +126,7 @@
 const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
 const $ = id => document.getElementById(id);
 if (window.self !== window.top) document.body.classList.add('in-arcade');
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- Perspective ---------------- */
 // World: x across the road (-1..1), z = distance ahead of the camera.
@@ -268,6 +293,7 @@ const GRADES = ['K', '1', '2', '3', '4', '5', '6', '7', '8'];
 let grade = clamp(+(lsGet('squadrush_grade') ?? 3) || 0, 0, 8), level = 1, best = +(lsGet('squadrush_best') || 0);
 let state = 'menu';
 let squad, enemies, bullets, gates, fx, floats, timeline, tlIdx, levelTime, levelEnd, scroll, fireT, flashT, shake, score, boss, keyDir = 0;
+let sparks = [], tint = null, countPop = 0;
 
 // Sunflower formation: soldiers pack into a round blob that grows with the squad.
 const FORM = [];
@@ -277,7 +303,7 @@ const squadRadius = () => .068 * Math.sqrt(Math.min(squad.n, 60)) + .08;
 function startLevel(){
   squad = { n: 8 + (level - 1) * 3, x: 0, tx: 0, fireRate: 7, power: 1, shield: SHIELD_MAX };
   updateShield();
-  enemies = []; bullets = []; gates = []; fx = []; floats = [];
+  enemies = []; bullets = []; gates = []; fx = []; floats = []; sparks = []; tint = null; countPop = 0;
   timeline = buildTimeline(); tlIdx = 0; levelTime = 0; scroll = 0; fireT = 0; flashT = 0; shake = 0; boss = null;
   levelEnd = timeline[timeline.length - 1].t;
   if (level === 1 || !score) score = 0;
@@ -285,6 +311,7 @@ function startLevel(){
   ['menu', 'win', 'lose'].forEach(id => $(id).classList.add('hide'));
   $('hud').classList.remove('hide');
   $('lvl').textContent = 'SECTOR ' + level;
+  const lv = $('lvl'); lv.classList.remove('bump'); void lv.offsetWidth; lv.classList.add('bump');
 }
 function buildTimeline(){
   const tl = []; let t = 1.2;
@@ -378,21 +405,31 @@ function spawnQuiz(){
 function quizLane(x){ return x < -.33 ? 0 : x > .33 ? 2 : 1; }
 function applyQuiz(g){
   const s = g.sides[g.chosen], before = squad.n;
+  const p = proj(squad.x, PZ), py = p.y - .3 * roadW * p.s;
   if (s.correct){
     const gain = Math.min(before, 6 + level * 4);  // doubles small crews; capped so firepower can't run away
     squad.n = Math.min(999, before + gain);
     sfx.good();
     addFloat(`✓ ${solvedText(g.quiz.q, g.quiz.ans)}   +${gain}`, squad.x, PZ + 1.5, '#7dff7a', 1.8);
+    spark(p.x, py, ['#7dff7a', '#ffcf3f', '#ffffff', '#5fe3e0'], 34, 320); puff(p.x, py, '#7dff7a', 90, true);
+    flashTint('#46d25a', .22); countPop = 1; quizFlash('right');
   } else {
     const loss = Math.max(2, Math.ceil(before * .35));
     squad.n = before - loss;
     sfx.bad(); shake = .3;
     addFloat(`✗ ${solvedText(g.quiz.q, g.quiz.ans)}   −${loss}`, squad.x, PZ + 1.5, '#ff8a80', 2.2);
+    spark(p.x, py, ['#ff8a80', '#ff4f4f', '#ffffff'], 18, 220);
+    flashTint('#ff3b3b', .28); countPop = 1; quizFlash('wrong');
     if (squad.n <= 0){ squad.n = 0; lose(`Wrong portal! ${solvedText(g.quiz.q, g.quiz.ans)}`); }
   }
 }
+// The banner turns green or red for a moment after a question portal, then moves on.
+let quizHold = 0;
+function quizFlash(cls){ const el = $('quiz'); el.classList.remove('right', 'wrong'); el.classList.add(cls); quizHold = .7; }
 function updateQuizBanner(){
   const el = $('quiz'), g = gates.find(g => g.quiz && !g.passed);
+  if (quizHold > 0 && state === 'play') return;
+  el.classList.remove('right', 'wrong');
   if (!g || state !== 'play'){ el.classList.add('hide'); el.dataset.q = ''; return; }
   if (el.dataset.q !== g.quiz.q){
     el.dataset.q = g.quiz.q;
@@ -413,6 +450,9 @@ function applyGate(g){
   squad.n = Math.min(999, squad.n);
   const good = squad.n >= before;
   (good ? sfx.good : sfx.bad)();
+  const p = proj(squad.x, PZ);
+  spark(p.x, p.y - .3 * roadW * p.s, good ? ['#7dd3ff', '#ffffff', '#5fe3e0'] : ['#ff8a80', '#ff4f4f', '#ffffff'], good ? 22 : 14, 240);
+  countPop = 1;
   addFloat(`${before} ${gateLabel(g).replace(/^\+/, '+ ').replace(/^−/, '− ').replace(/^×/, '× ').replace(/^÷/, '÷ ')} = ${Math.max(0, squad.n)}`, squad.x, PZ + 1.5, good ? '#7dd3ff' : '#ff8a80', 1.6);
   if (squad.n <= 0) lose('A math portal sent your whole crew home!');
 }
@@ -434,26 +474,29 @@ function damage(e, d){
   if (e.hp > 0) return;
   enemies.splice(enemies.indexOf(e), 1);
   const p = proj(e.x, e.z);
-  if (e.kind === 'z'){ score += 10; const y = p.y - .12 * roadW * p.s; puff(p.x, y, '#b9a892', 22 * p.s + 4); puff(p.x, y, '#fff3b0', 10 * p.s + 2); sfx.pop(); }
+  if (e.kind === 'z'){ score += 10; const y = p.y - .12 * roadW * p.s; puff(p.x, y, '#b9a892', 22 * p.s + 4); puff(p.x, y, '#fff3b0', 10 * p.s + 2); sfx.pop();
+    spark(p.x, y, e.shape.col, e.big ? 10 : 5, 160 * p.s + 40, 3 * p.s + 1.5); }
   else if (e.kind === 'barrel'){
     sfx.boom(); shake = .25; puff(p.x, p.y, '#5fe3e0', 70 * p.s + 20, true); puff(p.x, p.y, '#e6fffd', 40 * p.s + 10);
     for (const o of enemies.slice()) if (o !== e && o.kind !== 'boss' && Math.abs(o.x - e.x) < .4 && Math.abs(o.z - e.z) < 3) damage(o, 30 + level * 10);
     if (boss && Math.abs(boss.z - e.z) < 4) damage(boss, 40 * level);
   }
   else if (e.kind === 'crate'){
-    sfx.power(); puff(p.x, p.y, '#ffd54a', 40 * p.s + 10, true);
+    sfx.power(); puff(p.x, p.y, '#ffd54a', 40 * p.s + 10, true); spark(p.x, p.y - 20 * p.s, ['#ffd54a', '#ffffff', '#ff8a3c'], 20, 220);
     if (e.reward === 'men'){ const add = 4 + level * 2; squad.n += add; addFloat(`+${add} astronauts!`, e.x, e.z, '#7dd3ff', 1.4); }
     if (e.reward === 'rate'){ squad.fireRate = Math.min(16, squad.fireRate * 1.3); addFloat('Faster beams!', e.x, e.z, '#ffd54a', 1.4); }
     if (e.reward === 'power'){ squad.power += .5; addFloat('Brighter beams!', e.x, e.z, '#ff9a3c', 1.4); }
   }
   else if (e.kind === 'vault'){
     sfx.win(); shake = .3; puff(p.x, p.y - 30 * p.s, '#c58cff', 90 * p.s + 20, true); puff(p.x, p.y - 30 * p.s, '#ffffff', 50 * p.s + 10);
+    spark(p.x, p.y - 30 * p.s, ['#c58cff', '#e6d4ff', '#ffffff', '#ffcf3f'], 36, 320); flashTint('#c58cff', .25);
     e.mega.fn(); megaBanner(e.mega); score += 100 * level;
   }
   else if (e.kind === 'boss'){
     score += 500 * level; sfx.boom(); shake = .8;
     const y = p.y - .5 * roadW * p.s;
     puff(p.x, y, e.look.base, 160 * p.s + 30); puff(p.x, y, '#fff3b0', 100 * p.s + 20, true); puff(p.x, y, '#ffffff', 60 * p.s + 10);
+    spark(p.x, y, [e.look.base, e.look.light, e.look.dark, '#fff3b0'], 60, 420, 6); flashTint('#ffffff', .35);
     boss = null; setTimeout(winLevel, 1100); state = 'ending';
   }
 }
@@ -474,6 +517,31 @@ function hitShield(d, e){
   if (squad.shield <= 0){ squad.shield = 0; lose("The mothership's shield went down!"); }
 }
 function puff(x, y, color, r, ring = false){ fx.push({ x, y, color, r, t: 0, ring }); }
+// Little flying chips and sparkles (screen space), plus a full-screen colour flash.
+function spark(x, y, colors, n, speed, size = 3.5){
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, v = speed * (.35 + Math.random() * .75);
+    sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - speed * .35, t: 0, life: .45 + Math.random() * .4, c: colors[i % colors.length], s: size * (.6 + Math.random() * .8) });
+  }
+}
+function flashTint(c, a){ tint = { c, a: RM ? a * .4 : a }; }
+function updateSparks(dt){
+  for (let i = sparks.length - 1; i >= 0; i--){
+    const p = sparks[i]; p.t += dt;
+    if (p.t > p.life){ sparks.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 520 * dt; p.vx *= .98;
+  }
+  if (tint && (tint.a -= dt * 1.4) <= 0) tint = null;
+  countPop = Math.max(0, countPop - dt * 3);
+  quizHold = Math.max(0, quizHold - dt);
+}
+function countUp(el, to, dur = 900){
+  if (RM || !to){ el.textContent = to; return; }
+  const t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+  el.textContent = 0; requestAnimationFrame(step);
+  setTimeout(() => { el.textContent = to; }, dur + 400);  // in case animation frames are paused
+}
 function addFloat(text, x, z, color, life = 1){ floats.push({ text, x, z, color, t: 0, life }); }
 
 /* ---------------- Update ---------------- */
@@ -552,15 +620,16 @@ function winLevel(){
   state = 'won'; sfx.win(); $('quiz').classList.add('hide');
   best = Math.max(best, level); lsSet('squadrush_best', best);
   $('winTitle').textContent = `Sector ${level} cleared!`;
-  $('winSquad').textContent = squad.n; $('winScore').textContent = score;
   $('win').classList.remove('hide');
+  countUp($('winSquad'), squad.n, 700); countUp($('winScore'), score);
 }
 function lose(why){
   if (state !== 'play' && state !== 'ending') return;
   state = 'lost'; sfx.bad(); $('quiz').classList.add('hide');
   setTimeout(() => {
-    $('loseWhy').textContent = why; $('loseScore').textContent = score;
+    $('loseWhy').textContent = why;
     $('lose').classList.remove('hide');
+    countUp($('loseScore'), score);
   }, 700);
 }
 
@@ -777,14 +846,16 @@ function drawSquad(){
   const list = FORM.slice(0, n).map(f => ({ x: squad.x + f.dx, z: PZ + f.dz })).sort((a, b) => b.z - a.z);
   for (const s of list) drawSoldier(s.x, s.z, firing);
   const p = proj(squad.x, PZ + squadRadius() * 1.4), fs = Math.max(24, roadW * .2 * p.s);
+  const y = p.y - .45 * roadW * p.s, pop = RM ? 1 : 1 + Math.sin(countPop * Math.PI) * .35;
+  ctx.save(); ctx.translate(p.x, y); ctx.scale(pop, pop);
   ctx.font = `900 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.lineWidth = fs * .16; ctx.strokeStyle = '#1b3a8f';
-  const y = p.y - .45 * roadW * p.s;
-  ctx.strokeText(squad.n, p.x, y); ctx.fillStyle = '#fff'; ctx.fillText(squad.n, p.x, y);
+  ctx.lineWidth = fs * .16; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1b3a8f';
+  ctx.strokeText(squad.n, 0, 0); ctx.fillStyle = '#fff'; ctx.fillText(squad.n, 0, 0);
+  ctx.restore();
 }
 function draw(){
   ctx.save();
-  if (shake > 0) ctx.translate((Math.random() - .5) * shake * 24, (Math.random() - .5) * shake * 24);
+  if (shake > 0 && !RM) ctx.translate((Math.random() - .5) * shake * 24, (Math.random() - .5) * shake * 24);
   drawWorld();
   if (!squad){ ctx.restore(); return; }
   const things = [...gates.map(g => ({ z: g.z + .01, g })), ...enemies.map(e => ({ z: e.z, e }))].sort((a, b) => b.z - a.z);
@@ -807,6 +878,10 @@ function draw(){
     if (f.ring){ ctx.strokeStyle = f.color; ctx.lineWidth = Math.max(2, f.r * .12); ctx.stroke(); }
     else { ctx.fillStyle = f.color; ctx.fill(); }
   }
+  for (const p of sparks){
+    ctx.globalAlpha = Math.max(0, 1 - p.t / p.life); ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
+  }
   ctx.globalAlpha = 1;
   for (const f of floats){
     const p = proj(f.x, f.z), fs = Math.max(18, Math.min(34, roadW * .12 * p.s + 8));
@@ -819,6 +894,7 @@ function draw(){
   }
   ctx.globalAlpha = 1;
   ctx.restore();
+  if (tint){ ctx.globalAlpha = Math.max(0, tint.a); ctx.fillStyle = tint.c; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
 }
 
 /* ---------------- Input ---------------- */
@@ -864,6 +940,7 @@ function loop(now){
   const dt = Math.min(.05, (now - last) / 1000); last = now;
   if (state === 'play' || state === 'ending') update(dt);
   else if (state === 'lost'){ fx = fx.filter(f => (f.t += dt) < .45); shake = Math.max(0, shake - dt); }
+  if (squad) updateSparks(dt);
   draw();
   requestAnimationFrame(loop);
 }
