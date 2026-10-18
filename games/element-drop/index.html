@@ -31,6 +31,28 @@
   }
   .iconBtn:active { transform:scale(.9); }
   #stage { flex:1; position:relative; min-height:0; }
+  #powers { position:absolute; left:8px; top:6px; display:flex; gap:5px; z-index:2; }
+  .pw {
+    width:44px; height:44px; border-radius:12px; border:0; cursor:pointer; position:relative;
+    background:rgba(255,255,255,.12); color:#fff; font-size:19px; font-family:inherit; transition:transform .1s;
+  }
+  .pw:active { transform:scale(.9); }
+  .pw small { position:absolute; right:3px; bottom:1px; font-size:10px; font-weight:800; color:var(--accent); }
+  .pw.off { opacity:.35; }
+  .pw.locked { opacity:.25; font-size:15px; }
+  .pw.armed { background:#ffd23f; color:#1a1440; box-shadow:0 0 14px #ffd23f; }
+  .pw.armed small { color:#1a1440; }
+  #energy {
+    position:absolute; right:8px; top:6px; z-index:2; height:44px; padding:0 12px; border-radius:12px;
+    display:flex; align-items:center; gap:4px; font-weight:800; font-size:19px; background:rgba(255,210,63,.14); color:var(--accent);
+    transition:transform .15s;
+  }
+  #energy.bump { transform:scale(1.25); }
+  .stars { color:var(--accent); letter-spacing:1px; }
+  .pc i { position:absolute; bottom:1px; right:3px; font-size:7px; font-style:normal; }
+  .perk { display:flex; gap:8px; align-items:center; text-align:left; font-size:13.5px; padding:6px 8px; border-radius:10px; background:rgba(255,255,255,.05); margin-top:5px; }
+  .perk.on { background:rgba(255,210,63,.14); }
+  .perk > b { font-size:18px; width:24px; text-align:center; flex:none; }
   #cv { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
   #chain { height:50px; flex:none; display:flex; justify-content:center; align-items:center; gap:3px; padding:0 6px 6px; cursor:pointer; }
   .ch {
@@ -118,7 +140,7 @@
     <div id="nextBox"><small>NEXT</small><canvas id="nextCv"></canvas></div>
     <button class="iconBtn" id="guideBtn" aria-label="Element guide">📖</button>
   </div>
-  <div id="stage"><canvas id="cv"></canvas></div>
+  <div id="stage"><canvas id="cv"></canvas><div id="powers"></div><div id="energy" title="Energy: earn it by answering bonus questions">⚡ 0</div></div>
   <div id="chain" aria-label="Element chain"></div>
 </div>
 
@@ -129,6 +151,7 @@
   <div class="how">
     <div><span>👆</span><span>Slide to aim, let go to drop an atom.</span></div>
     <div><span>💥</span><span>Two of the <b>same</b> element fuse into the next one: H + H = He!</span></div>
+    <div><span>🧪</span><span>Answer bonus questions right to earn ⚡ energy for powers. Master elements to unlock new powers!</span></div>
     <div><span>⚠️</span><span>Careful! Atoms piled over the rim can spill out of the jar. A spill ends the game.</span></div>
   </div>
   <div class="row" id="titleBtns"></div>
@@ -169,6 +192,9 @@
   <div class="ptable" id="ptable"></div>
   <div class="legend" id="legend"></div>
   <div id="gDetail"></div>
+  <h2 style="font-size:19px;margin-top:12px">🔬 Lab <span>Upgrades</span></h2>
+  <p class="sub" style="margin:2px 0 4px;font-size:13px">Master an element by answering 3 bonus questions about it correctly.</p>
+  <div id="perks" style="margin-bottom:12px"></div>
   <div class="row">
     <button class="btn alt" id="soundBtn">🔊 Sound on</button>
     <button class="btn" id="guideClose">Close</button>
@@ -416,46 +442,116 @@ let state = 'title', score = 0, shownScore = 0, cur = 1, next = 1, aimX = W / 2,
 let dropCool = 0, holdPop = 1, fuseCount = 0, quizStreak = 0, danger = 0, T = 0, saveT = 0, endQueue = [], endT = 0, topZ = 1;
 const pending = [];          // discovery cards / quizzes waiting to be shown
 let modal = null;
+let energy = 0, power = null, combo = 0, lastFuseT = -9;
+let mastery = load('mastery', {});
+const mastered = () => Object.values(mastery).filter(v => v >= 3).length;
+const POWERS = [
+  { id: 'zap',   icon: '⚡', name: 'Zap',      cost: 1, need: 0, tip: 'Tap an atom to zap it away' },
+  { id: 'swap',  icon: '🔄', name: 'Swap',     cost: 1, need: 2, tip: 'Swap your atom with the next one' },
+  { id: 'shake', icon: '🌀', name: 'Shake',    cost: 2, need: 4, tip: 'Jolt the jar to shuffle the atoms' },
+  { id: 'ray',   icon: '⬆️', name: 'Fuse Ray', cost: 3, need: 6, tip: 'Tap an atom to turn it into the next element' },
+];
+const PERKS = [
+  { need: 8,  icon: '🔋', text: 'Start every game with 2 energy' },
+  { need: 11, icon: '🏆', text: 'Start with 3 energy and a golden jar' },
+];
+const startEnergy = () => mastered() >= 11 ? 3 : mastered() >= 8 ? 2 : 0;
 
-function randTier() { const w = [30, 26, 20, 14, 10]; let r = Math.random() * 100; for (let i = 0; i < 5; i++) { r -= w[i]; if (r < 0) return i + 1; } return 1; }
+function randTier() { const w = [26, 24, 21, 16, 13]; let r = Math.random() * 100; for (let i = 0; i < 5; i++) { r -= w[i]; if (r < 0) return i + 1; } return 1; }
 
 function newGame() {
   balls = []; merges = []; score = 0; shownScore = 0; fuseCount = 0; quizStreak = 0; danger = 0; topZ = 1;
   cur = 1; next = Math.random() < .6 ? 1 : 2; dropCool = 0; holdPop = 0; pending.length = 0;
-  fx.length = 0; texts.length = 0;
-  state = 'play'; save('game', null); updateHud(); updateChain();
+  fx.length = 0; texts.length = 0; energy = startEnergy(); power = null; combo = 0;
+  state = 'play'; save('game', null); updateHud(); updateChain(); updatePowers();
 }
 function saveGame() {
   if (state !== 'play') return;
-  save('game', { v: 2, score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
+  save('game', { v: 2, energy, score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
 }
 function resumeGame(g) {
   newGame();
-  score = shownScore = g.score || 0; cur = g.cur || 1; next = g.next || 1; fuseCount = g.fuseCount || 0; topZ = g.topZ || 1;
+  score = shownScore = g.score || 0; cur = g.cur || 1; next = g.next || 1; fuseCount = g.fuseCount || 0; topZ = g.topZ || 1; energy = g.energy || 0;
   for (const [z, x, y] of g.balls || []) { const b = makeBall(z, x, y); b.age = 2; balls.push(b); }
-  updateHud(); updateChain();
+  updateHud(); updateChain(); updatePowers();
 }
 
 function drop() {
-  if (state !== 'play' || modal || dropCool > 0) return;
+  if (state !== 'play' || modal || dropCool > 0 || power) return;
   const b = makeBall(cur, clampAim(aimX, cur), HOLD_Y); b.vy = 60;
   balls.push(b); sfx.drop();
-  cur = next; next = randTier(); dropCool = .45; holdPop = 0;
+  cur = next; next = randTier(); dropCool = .38; holdPop = 0;
   updateHud(); updateChain();
 }
 const clampAim = (x, z) => Math.max(R[z] + 1, Math.min(W - R[z] - 1, x));
 
 function onFuse(b) {
-  const z = b.z, pts = z * (z + 1) / 2;
+  combo = T - lastFuseT < 1.1 ? combo + 1 : 1; lastFuseT = T;
+  const z = b.z, pts = z * (z + 1) / 2 * combo;
   score += pts; fuseCount++; if (z > topZ) topZ = z;
   burst(b.x, b.y, EL[z].c, 10 + z * 2, 120 + z * 22);
   ring(b.x, b.y, b.R * 1.6, EL[z].c);
-  floatText(b.x, b.y - b.R * .3, `${EL[z].n}!`, `+${pts}`, EL[z].c, z);
+  floatText(b.x, b.y - b.R * .3, `${EL[z].n}!`, combo > 1 ? `COMBO x${combo}  +${pts}` : `+${pts}`, EL[z].c, z);
+  if (combo === 4) { addEnergy(1); floatText(W / 2, 40, 'Mega combo! +1 ⚡', '', '#ffd23f', 10); }
   shake = Math.min(14, 1.5 + z * 1.1);
   sfx.merge(z);
   if (!seen.has(z)) { seen.add(z); save('seen', [...seen]); pending.push({ kind: 'disc', z, wait: .45 }); updateChain(); }
-  if (fuseCount % 8 === 0 && [...seen].filter(n => typeof n === 'number').length >= 3) pending.push({ kind: 'quiz', wait: .5 });
+  if (fuseCount % 5 === 0 && [...seen].filter(n => typeof n === 'number').length >= 3) pending.push({ kind: 'quiz', wait: .5 });
   updateHud();
+}
+function addEnergy(n) {
+  energy += n; updatePowers();
+  const el = document.getElementById('energy'); el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 180);
+}
+function updatePowers() {
+  const box = document.getElementById('powers'), m = mastered();
+  box.innerHTML = '';
+  for (const p of POWERS) {
+    const b = document.createElement('button'), locked = m < p.need;
+    b.className = 'pw' + (locked ? ' locked' : energy < p.cost ? ' off' : '') + (power === p.id ? ' armed' : '');
+    b.innerHTML = locked ? '🔒' : `${p.icon}<small>${p.cost}</small>`;
+    b.title = locked ? `${p.name}: master ${p.need} elements to unlock` : `${p.name} (${p.cost} energy): ${p.tip}`;
+    b.onclick = () => usePower(p, locked);
+    box.appendChild(b);
+  }
+  document.getElementById('energy').textContent = '⚡ ' + energy;
+}
+let tipText = '', tipT = 0;
+function tip(t) { tipText = t; tipT = 2.4; }
+function usePower(p, locked) {
+  unlockAudio();
+  if (state !== 'play' || modal) return;
+  if (locked) { tip(`🔒 ${p.name} unlocks when you master ${p.need} elements`); sfx.wrong(); return; }
+  if (power === p.id) { power = null; updatePowers(); return; }   // tap again to cancel
+  if (energy < p.cost) { tip('Need more ⚡! Answer bonus questions to earn it.'); sfx.wrong(); return; }
+  if (p.id === 'swap') {
+    [cur, next] = [next, cur]; energy -= p.cost; holdPop = 0; sfx.right(); updateHud(); updateChain();
+  } else if (p.id === 'shake') {
+    energy -= p.cost; shake = 16; tone(120, .4, 'sawtooth', .1, 60);
+    for (const b of balls) { b.vy -= 260 + Math.random() * 220; b.vx += (W / 2 - b.x) * 1.2 + (Math.random() - .5) * 160; b.sq = .15; b.sqa = Math.PI / 2; }
+  } else { power = p.id; tip(p.tip); }
+  updatePowers();
+}
+function atomAt(x, y) {
+  let best = null, bd = 1e9;
+  for (const b of balls) { const d = Math.hypot(b.x - x, b.y - y) - b.r; if (d < 14 && d < bd) { bd = d; best = b; } }
+  return best;
+}
+function firePower(x, y) {
+  const b = atomAt(x, y), p = POWERS.find(q => q.id === power);
+  if (!b) { tip('Tap right on an atom'); return; }
+  energy -= p.cost; power = null;
+  if (p.id === 'zap') {
+    b.dead = true; balls = balls.filter(q => !q.dead);
+    burst(b.x, b.y, EL[b.z].c, 22, 300); burst(b.x, b.y, '#ffd23f', 12, 220); ring(b.x, b.y, b.r * 1.8, '#ffd23f');
+    fx.push({ k: 'z', x: b.x, y: b.y, life: 0, max: .35 }); flash = .3; shake = 8;
+    tone(1400, .25, 'sawtooth', .1, 200); tone(90, .3, 'square', .08, 50);
+  } else if (b.z < MAXZ) {
+    const nb = makeBall(b.z + 1, b.x, b.y); nb.r = b.r; nb.t = 0; nb.age = 1; b.dead = true;
+    balls = balls.filter(q => !q.dead); balls.push(nb);
+    lastFuseT = -9; onFuse(nb);
+  } else { energy += p.cost; tip('Sodium is already the biggest atom!'); }
+  updatePowers();
 }
 function supernova(x, y) {
   score += 100;
@@ -519,7 +615,7 @@ function resize() {
 
 // Draws one atom. c's units are whatever the caller uses; px is the atom's radius in screen pixels,
 // which decides how much detail fits (number, name, electrons).
-function paintAtom(c, z, x, y, r, t, seed, px) {
+function paintAtom(c, z, x, y, r, t, seed, px, mood = 0, lx = 0, ly = .3) {
   const e = EL[z];
   c.save();
   if (z === 10) { c.shadowColor = '#ff7a2e'; c.shadowBlur = r * .6 * (px / r); }   // neon glows
@@ -548,6 +644,7 @@ function paintAtom(c, z, x, y, r, t, seed, px) {
   c.fillStyle = 'rgba(255,255,255,.5)';
   c.beginPath(); c.ellipse(x - r * .4, y - r * .5, r * .22, r * .12, -.6, 0, Math.PI * 2); c.fill();
 
+  if (px >= 13) { drawFace(c, e, z, x, y, r, t, seed, px, mood, lx, ly); return; }
   // symbol, number, name
   c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
   const fs = r * (e.s.length > 1 ? .72 : .86), showName = px >= 40, sy = showName ? y - r * .08 : y + r * .04;
@@ -565,6 +662,55 @@ function paintAtom(c, z, x, y, r, t, seed, px) {
   }
 }
 
+// Ball-Guys-style face: eyes above the symbol, mouth below. mood 0 calm, 1 happy, 2 scared, 3 squished.
+function drawFace(c, e, z, x, y, r, t, seed, px, mood, lx, ly) {
+  const ink = '#1d2350', lw = Math.max(.9 / (px / r), r * .035);
+  c.lineCap = 'round'; c.lineJoin = 'round';
+  const ey = y - r * .36, ex = r * .25, er = r * (mood === 2 ? .15 : .125);
+  const blink = mood === 0 && ((t + seed * .37) % 3.4) < .13;
+  c.strokeStyle = ink; c.lineWidth = lw * 1.4;
+  for (const sgn of [-1, 1]) {
+    const cx = x + sgn * ex;
+    if (mood === 1) {            // ^ ^
+      c.beginPath(); c.arc(cx, ey + er * .4, er * .9, Math.PI * 1.15, Math.PI * 1.85); c.stroke();
+    } else if (mood === 3) {     // > <
+      c.beginPath(); c.moveTo(cx - sgn * er, ey - er * .8); c.lineTo(cx + sgn * er * .6, ey); c.lineTo(cx - sgn * er, ey + er * .8); c.stroke();
+    } else if (blink) {
+      c.beginPath(); c.moveTo(cx - er, ey); c.lineTo(cx + er, ey); c.stroke();
+    } else {
+      c.fillStyle = '#fff'; c.lineWidth = lw;
+      c.beginPath(); c.arc(cx, ey, er, 0, Math.PI * 2); c.fill(); c.stroke();
+      const pr = er * (mood === 2 ? .38 : .55);
+      c.fillStyle = ink; c.beginPath(); c.arc(cx + lx * er * .4, ey + ly * er * .4, pr, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(cx + lx * er * .4 - pr * .35, ey + ly * er * .4 - pr * .35, pr * .35, 0, Math.PI * 2); c.fill();
+      c.lineWidth = lw * 1.4;
+    }
+  }
+  // symbol
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  const fs = r * (e.s.length > 1 ? .54 : .64), sy = y + r * .14;
+  c.font = `800 ${fs}px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif`;
+  if (!e.light) { c.lineWidth = fs * .16; c.strokeStyle = 'rgba(0,0,0,.35)'; c.strokeText(e.s, x, sy); }
+  c.fillStyle = e.light ? ink : '#fff'; c.fillText(e.s, x, sy);
+  // mouth
+  const my = y + r * .55, mw = r * .14;
+  c.strokeStyle = ink; c.fillStyle = ink; c.lineWidth = lw * 1.3;
+  if (mood === 1) { c.beginPath(); c.arc(x, my - mw * .3, mw, 0, Math.PI); c.closePath(); c.fill(); }
+  else if (mood === 2) { c.beginPath(); c.ellipse(x, my, mw * .5, mw * .7, 0, 0, Math.PI * 2); c.fill(); }
+  else if (mood === 3) { c.beginPath(); c.moveTo(x - mw, my); for (let i = 1; i <= 4; i++) c.lineTo(x - mw + i * mw / 2, my + (i % 2 ? -1 : 1) * mw * .3); c.stroke(); }
+  else { c.beginPath(); c.arc(x, my - mw * .6, mw, Math.PI * .2, Math.PI * .8); c.stroke(); }
+  // atomic number up top, name for big atoms
+  if (px >= 20) {
+    c.font = `800 ${r * .22}px ui-rounded, system-ui, sans-serif`;
+    c.fillStyle = e.light ? 'rgba(29,35,80,.75)' : 'rgba(255,255,255,.85)';
+    c.fillText(z, x, y - r * .72);
+  }
+  if (px >= 46) {
+    c.font = `700 ${r * .15}px ui-rounded, system-ui, sans-serif`;
+    c.fillStyle = e.light ? 'rgba(29,35,80,.8)' : 'rgba(255,255,255,.85)';
+    c.fillText(e.n, x, y + r * .78);
+  }
+}
 function jarPath(c) { c.beginPath(); JAR_PTS.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); }
 
 function render() {
@@ -594,11 +740,11 @@ function render() {
   // aim guide + held atom
   if (state === 'play' && !modal) {
     const hz = cur, hx = clampAim(aimX, hz), ready = dropCool <= 0;
-    if (ready) {
+    if (ready && !power) {
       c.strokeStyle = EL[hz].c; c.globalAlpha = .35; c.lineWidth = 2.5; c.setLineDash([6, 9]);
       c.beginPath(); c.moveTo(hx, HOLD_Y + R[hz]); c.lineTo(hx, H - 4); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
       const s = holdPop < 1 ? 1 + .25 * Math.sin(holdPop * Math.PI) - .3 * (1 - holdPop) : 1;
-      paintAtom(c, hz, hx, HOLD_Y, R[hz] * s, T, 0, R[hz] * SC);
+      paintAtom(c, hz, hx, HOLD_Y, R[hz] * s, T, 0, R[hz] * SC, 0, 0, 1);
       c.font = '800 13px ui-rounded, system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom';
       c.fillStyle = 'rgba(234,242,255,.85)'; c.fillText(EL[hz].n, hx, HOLD_Y - R[hz] - 5);
     }
@@ -607,17 +753,19 @@ function render() {
   // atoms
   for (const b of balls) {
     let r = b.r;
+    const mood = b.t < .7 ? 1 : (b.out || (b.age > 1.2 && b.y - b.r < 0) || danger > .6) ? 2 : b.sq > .07 ? 3 : 0;
+    const lx = Math.max(-1, Math.min(1, (aimX - b.x) / 150));
     if (b.t < .6) r *= 1 + .14 * Math.sin(b.t * 26) * Math.exp(-b.t * 7);   // wobble after fusing
     if (Math.abs(b.sq) > .004) {   // squash along the hit, stretch across it
       c.save(); c.translate(b.x, b.y); c.rotate(b.sqa); c.scale(1 - b.sq, 1 + b.sq * .8); c.rotate(-b.sqa);
-      paintAtom(c, b.z, 0, 0, r, T, b.id, r * SC); c.restore();
-    } else paintAtom(c, b.z, b.x, b.y, r, T, b.id, r * SC);
+      paintAtom(c, b.z, 0, 0, r, T, b.id, r * SC, mood, lx, -.4); c.restore();
+    } else paintAtom(c, b.z, b.x, b.y, r, T, b.id, r * SC, mood, lx, -.4);
   }
 
   // glass front
   jarPath(c);
   c.lineJoin = 'round'; c.lineCap = 'round';
-  c.strokeStyle = 'rgba(180,215,255,.35)'; c.lineWidth = 9; c.stroke();
+  c.strokeStyle = mastered() >= 11 ? 'rgba(255,210,63,.6)' : 'rgba(180,215,255,.35)'; c.lineWidth = 9; c.stroke();
   c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.stroke();
   c.fillStyle = 'rgba(255,255,255,.07)';
   c.beginPath(); c.roundRect ? c.roundRect(12, 18, 10, H - 80, 5) : c.rect(12, 18, 10, H - 80); c.fill();
@@ -625,6 +773,11 @@ function render() {
   // effects
   for (const p of fx) {
     const k = p.life / p.max;
+    if (p.k === 'z') {
+      c.globalAlpha = 1 - k; c.strokeStyle = '#fff6b0'; c.lineWidth = 5; c.beginPath(); c.moveTo(p.x, -120);
+      for (let yy = -90; yy < p.y; yy += 30) c.lineTo(p.x + (Math.random() - .5) * 40, yy);
+      c.lineTo(p.x, p.y); c.stroke(); continue;
+    }
     if (p.k === 'p') { c.globalAlpha = 1 - k; c.fillStyle = p.color; c.beginPath(); c.arc(p.x, p.y, p.s * (1 - k * .5), 0, Math.PI * 2); c.fill(); }
     else { c.globalAlpha = (1 - k) * .8; c.strokeStyle = p.color; c.lineWidth = 6 * (1 - k) + 1; c.beginPath(); c.arc(p.x, p.y, p.r * (.3 + .7 * Math.sqrt(k)), 0, Math.PI * 2); c.stroke(); }
   }
@@ -643,6 +796,13 @@ function render() {
   if (danger > .25 && state === 'play') {
     c.font = '800 15px ui-rounded, system-ui, sans-serif'; c.fillStyle = `rgba(255,110,120,${.6 + .4 * pulse})`;
     c.fillText('⚠️ Careful, it could spill!', W / 2, 18);
+  }
+  if (state === 'play' && !modal && (power || tipT > 0)) {
+    const msg = power ? '👆 ' + POWERS.find(q => q.id === power).tip : tipText;
+    c.font = '800 14px ui-rounded, system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.globalAlpha = power ? .75 + .25 * Math.sin(T * 6) : Math.min(1, tipT * 2);
+    c.lineWidth = 4; c.strokeStyle = 'rgba(8,10,30,.85)'; c.strokeText(msg, W / 2, -20, W); c.fillStyle = '#ffd23f'; c.fillText(msg, W / 2, -20, W);
+    c.globalAlpha = 1;
   }
   if (flash > 0) { c.setTransform(DPR, 0, 0, DPR, 0, 0); c.fillStyle = `rgba(255,250,220,${flash * .7})`; c.fillRect(0, 0, CW, CH); }
 }
@@ -704,7 +864,11 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.r
 function showQuiz() {
   const pool = [...seen].filter(n => typeof n === 'number' && n <= MAXZ);
   if (pool.length < 3) return false;
-  const z = pool[Math.random() * pool.length | 0], e = EL[z], type = ['sym', 'name', 'num', 'clue'][Math.random() * 4 | 0];
+  // Ask more about elements he hasn't mastered yet.
+  const wts = pool.map(n => (mastery[n] || 0) >= 3 ? 1 : 3), tot = wts.reduce((a, b) => a + b, 0);
+  let pr = Math.random() * tot, z = pool[0];
+  for (let i = 0; i < pool.length; i++) { pr -= wts[i]; if (pr < 0) { z = pool[i]; break; } }
+  const e = EL[z], type = ['sym', 'name', 'num', 'clue'][Math.random() * 4 | 0];
   const others = shuffle(pool.filter(n => n !== z)).slice(0, 2);
   const opts = shuffle([z, ...others]);
   let q, label, explain;
@@ -719,9 +883,15 @@ function showQuiz() {
     b.onclick = () => {
       if (box.dataset.done) return; box.dataset.done = 1;
       if (n === z) {
-        quizStreak++; const bonus = 20 + 10 * Math.min(quizStreak, 5);
-        score += bonus; b.classList.add('right'); sfx.right();
-        $('quizResult').innerHTML = `✅ Correct! +${bonus} points. ${explain}`;
+        quizStreak++; const bonus = 20 + 10 * Math.min(quizStreak, 5), gain = quizStreak >= 3 ? 2 : 1;
+        score += bonus; b.classList.add('right'); sfx.right(); addEnergy(gain);
+        const before = mastered(); mastery[z] = (mastery[z] || 0) + 1; save('mastery', mastery);
+        let extra = '';
+        if (mastery[z] === 3) extra += `<br>⭐ You mastered <b>${e.n}</b>! (${mastered()} mastered)`;
+        for (const p of POWERS) if (before < p.need && mastered() >= p.need) extra += `<br>🔓 New power unlocked: <b>${p.icon} ${p.name}</b>!`;
+        for (const p of PERKS) if (before < p.need && mastered() >= p.need) extra += `<br>🔓 Lab upgrade: <b>${p.icon} ${p.text}</b>!`;
+        $('quizResult').innerHTML = `✅ Correct! +${gain} ⚡${quizStreak >= 3 ? ' (streak bonus!)' : ''} +${bonus} points. ${explain}${extra}`;
+        updatePowers();
       } else {
         quizStreak = 0; b.classList.add('wrong'); sfx.wrong();
         [...box.children].forEach((c, i) => { if (opts[i] === z) c.classList.add('right'); });
@@ -764,13 +934,16 @@ function openGuide(from) {
     b.style.borderBottomColor = FAM_COLOR[e.fam];
     const on = z <= MAXZ && seen.has(z);
     if (z > MAXZ) { b.className = 'pc far'; b.innerHTML = `<small>${z}</small>${e.s}`; b.title = e.n; b.onclick = () => guideFar(z); }
-    else if (on) { b.className = 'pc on' + (e.light ? ' light' : ''); b.innerHTML = `<small>${z}</small>${e.s}`; b.style.background = `radial-gradient(circle at 35% 30%, ${e.hi}, ${e.c} 60%, ${e.lo})`; b.onclick = () => guideShow(z); }
+    else if (on) { b.className = 'pc on' + (e.light ? ' light' : ''); b.innerHTML = `<small>${z}</small>${e.s}${(mastery[z] || 0) >= 3 ? '<i>⭐</i>' : ''}`; b.style.background = `radial-gradient(circle at 35% 30%, ${e.hi}, ${e.c} 60%, ${e.lo})`; b.onclick = () => guideShow(z); }
     else { b.className = 'pc'; b.innerHTML = `<small>${z}</small>?`; b.onclick = () => guideLocked(z); }
     b.dataset.z = z; tb.appendChild(b);
   }
   $('legend').innerHTML = Object.entries(FAM_COLOR).map(([f, c]) => `<span><i style="background:${c}"></i>${f}</span>`).join('');
   const firstSeen = [...seen].filter(x => typeof x === 'number').sort((a, b) => b - a)[0];
   if (guideSel && seen.has(guideSel)) guideShow(guideSel); else if (firstSeen) guideShow(firstSeen); else $('gDetail').innerHTML = '';
+  const m = mastered();
+  $('perks').innerHTML = [...POWERS.filter(p => p.need), ...PERKS].map(p =>
+    `<div class="perk ${m >= p.need ? 'on' : ''}"><b>${m >= p.need ? p.icon : '🔒'}</b><span>${p.name ? `<b>${p.name}</b>: ${p.tip}` : p.text}<br><small style="color:var(--muted)">Master ${p.need} elements (${Math.min(m, p.need)}/${p.need})</small></span></div>`).join('');
   $('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off';
   openModal('guideOv');
 }
@@ -780,7 +953,7 @@ function guideShow(z) {
   const e = EL[z], sh = shells(z);
   $('gDetail').innerHTML = `<canvas class="ballCv" id="gCv"></canvas><h2>${e.n} <span>(${e.s})</span></h2>
     <span class="tag" style="background:${FAM_COLOR[e.fam]}">${e.fam}</span><span class="tag" style="background:#dfe6ff">${e.st === 'Gas' ? '💨' : '🪨'} ${e.st}</span>
-    <div class="facts"><b>Atomic number ${z}</b> · ${z} proton${z > 1 ? 's' : ''} · electrons ${sh.join(' + ')}<br>${e.fact}</div>`;
+    <div class="facts">Mastery: <span class="stars">${'★'.repeat(Math.min(3, mastery[z] || 0))}${'☆'.repeat(3 - Math.min(3, mastery[z] || 0))}</span><br><b>Atomic number ${z}</b> · ${z} proton${z > 1 ? 's' : ''} · electrons ${sh.join(' + ')}<br>${e.fact}</div>`;
   atomCanvas($('gCv'), z, 84);
 }
 function guideLocked(z) {
@@ -819,9 +992,11 @@ function drawTitle() {
    Input
    ========================================================= */
 function toWorldX(clientX) { const r = cv.getBoundingClientRect(); return (clientX - r.left - OX) / SC; }
+function toWorldY(clientY) { const r = cv.getBoundingClientRect(); return (clientY - r.top - OY) / SC; }
 cv.addEventListener('pointerdown', e => {
   unlockAudio();
   if (state !== 'play' || modal) return;
+  if (power) { firePower(toWorldX(e.clientX), toWorldY(e.clientY)); return; }
   aiming = true; aimX = toWorldX(e.clientX);
   try { cv.setPointerCapture(e.pointerId); } catch (_) {}
 });
@@ -876,7 +1051,7 @@ function tick(dt) {
     }
   }
   for (const b of balls) if (state !== 'play') b.t += dt;
-  updateFx(dt);
+  updateFx(dt); if (tipT > 0) tipT -= dt;
   if (shownScore !== score) {
     shownScore += Math.max(1, Math.ceil((score - shownScore) * Math.min(1, dt * 10)));
     if (shownScore > score) shownScore = score;
@@ -891,12 +1066,12 @@ function frame(now) {
   tick(dt); render();
 }
 
-resize(); updateHud(); updateChain(); showTitle();
+resize(); updateHud(); updateChain(); updatePowers(); showTitle();
 requestAnimationFrame(frame);
 
 // Hooks for automated testing.
 window.__ed = {
-  get state() { return state; }, get balls() { return balls; }, get score() { return score; }, get modal() { return modal; },
+  get state() { return state; }, get energy() { return energy; }, set energy(v) { energy = v; updatePowers(); }, usePower: id => usePower(POWERS.find(p => p.id === id), false), firePower, get mastery() { return mastery; }, get balls() { return balls; }, get score() { return score; }, get modal() { return modal; },
   get cur() { return cur; }, set cur(z) { cur = z; }, set aim(x) { aimX = x; }, set cool(v) { dropCool = v; },
   step(n = 1, dt = 1 / 60) { for (let i = 0; i < n; i++) tick(dt); render(); },
   drop, newGame, closeModal, showQuiz, openGuide, endGame,
