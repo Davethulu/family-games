@@ -125,6 +125,10 @@
   .choice { font:inherit; font-weight:800; font-size:18px; padding:12px; border-radius:14px; border:0; cursor:pointer; background:#2e3f86; color:#fff; box-shadow:0 4px 0 #1c275a; }
   .choice.right { background:#2fb36a; box-shadow:0 4px 0 #1d7a46; }
   .choice.wrong { background:#c8414f; box-shadow:0 4px 0 #85232d; }
+  .diffs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0 2px; }
+  .diff { font:inherit; font-weight:900; font-size:15px; padding:10px 4px; border-radius:12px; border:2px solid transparent; cursor:pointer; background:#26357a; color:#fff; }
+  .diff.on { border-color:var(--accent); background:#34489c; box-shadow:0 0 12px rgba(255,210,63,.35); }
+  .diffInfo { font-size:13.5px; color:#dfe8ff; min-height:38px; line-height:1.35; margin:6px 0 2px; }
   .levels { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0; }
   .lv { font:inherit; font-weight:900; font-size:18px; aspect-ratio:1; border-radius:12px; border:0; cursor:pointer; background:#2e3f86; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
   .lv small { font-size:10px; }
@@ -158,9 +162,11 @@
   <p class="sub" style="font-size:14px">No ads here. Stuck? Answer a science question instead.</p>
   <div class="recap" style="font-size:14.5px;line-height:1.45">
     <div>👆 Tap a tube, then tap where to pour.</div>
-    <div><span>🧪 Only things in the same <b>group</b> can stack: a gas can't go on a solid!</span></div>
+    <div><span>🧪 Things only belong together if they're in the same <b>group</b>: a gas doesn't go with a solid!</span></div>
     <div>⭐ Fill each tube with one group to win.</div>
   </div>
+  <div class="diffs" id="diffs"></div>
+  <div class="diffInfo" id="diffInfo"></div>
   <button class="btn" id="playBtn">▶ Play</button>
   <button class="btn alt" id="titleLevels">🗂️ Levels</button>
   <p class="sub" style="margin:10px 0 0" id="soundRow"><button class="btn alt" id="soundBtn" style="font-size:14px;padding:8px 14px">🔊 Sound on</button></p>
@@ -304,7 +310,20 @@ const CAP = 4;
 const KEY = 'labsort_';
 function load(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
 function save(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} }
-let prog = load('progress', { level: 1, stars: {} });
+const DIFFS = {
+  easy:   { name: 'Easy',   icon: '🟢', free: false, info: 'Wrong pours are blocked, and you find out why. Great for learning!' },
+  medium: { name: 'Medium', icon: '🟡', free: true,  info: 'Pour anything anywhere, one at a time. No hints when you mix things up!' },
+  hard:   { name: 'Hard',   icon: '🔴', free: true,  info: 'No hints, an extra group, mostly hidden layers, and fewer spare tubes.' },
+};
+let diff = load('diff', 'easy'); if (!DIFFS[diff]) diff = 'easy';
+const progKey = () => diff === 'easy' ? 'progress' : 'progress_' + diff;   // Easy keeps the original save
+let prog = load(progKey(), { level: 1, stars: {} });
+function setDiff(d) {
+  diff = d; save('diff', d); prog = load(progKey(), { level: 1, stars: {} });
+  document.querySelectorAll('.diff').forEach(b => b.classList.toggle('on', b.dataset.d === d));
+  $('diffInfo').textContent = DIFFS[d].info;
+  $('playBtn').textContent = prog.level > 1 ? `▶ Play level ${prog.level}` : '▶ Play';
+}
 let soundOn = load('sound', true);
 
 let AC = null, master = null;
@@ -367,9 +386,12 @@ function solvable(tubes) {
   return dfs(start);
 }
 function buildLevel(n) {
-  const [tid, k, hid] = levelSpec(n), topic = TOPICS.find(t => t.id === tid);
+  const [tid, k0, hid] = levelSpec(n), topic = TOPICS.find(t => t.id === tid);
+  const k = diff === 'hard' ? Math.min(topic.cats.length, k0 + 1) : k0;
   const cats = shuffle(topic.cats.slice()).slice(0, k);
-  const empties = k <= 2 && n > 6 ? 1 : 2;
+  // Medium and Hard pour one layer at a time onto anything, so one spare tube is enough to solve them.
+  const empties = diff === 'hard' ? (k >= 4 ? 2 : 1) : diff === 'medium' ? 2 : k <= 2 && n > 6 ? 1 : 2;
+  const hideP = diff === 'hard' ? 1 : diff === 'medium' ? (n >= 4 ? .5 : 0) : hid ? .55 : 0;
   for (let tries = 0; tries < 300; tries++) {
     const items = [];
     cats.forEach((c, ci) => shuffle(c.items.slice()).slice(0, CAP).forEach(([icon, word]) => items.push({ c: ci, icon, word, col: itemColor(word) })));
@@ -378,8 +400,8 @@ function buildLevel(n) {
     for (let i = 0; i < k; i++) tubes.push(items.slice(i * CAP, i * CAP + CAP));
     for (let e = 0; e < empties; e++) tubes.push([]);
     if (tubes.some(t => t.length === CAP && t.every(x => x.c === t[0].c))) continue;
-    if (!solvable(tubes)) continue;
-    if (hid) tubes.forEach(t => t.forEach((x, i) => { x.hidden = i < t.length - 1 && Math.random() < .55; }));
+    if (!DIFFS[diff].free && !solvable(tubes)) continue;
+    if (hideP) tubes.forEach(t => t.forEach((x, i) => { x.hidden = i < t.length - 1 && Math.random() < hideP; }));
     return { n, topic, cats, tubes };
   }
 }
@@ -389,15 +411,15 @@ function buildLevel(n) {
    ========================================================= */
 const $ = id => document.getElementById(id);
 const board = $('board');
-let L = null, start = null, history = [], sel = -1, busy = false, mistakes = 0, extraUsed = false, tubeEls = [];
+let L = null, start = null, history = [], sel = -1, busy = false, mistakes = 0, extraUsed = false, tubeEls = [], pours = 0;
 const clone = t => t.map(tube => tube.map(x => ({ ...x })));
 
 function startLevel(n, fresh = true) {
   if (fresh || !L || L.n !== n) { L = buildLevel(n); start = clone(L.tubes); }
   else L.tubes = clone(start);
-  history = []; sel = -1; busy = false; mistakes = 0; extraUsed = false;
+  history = []; sel = -1; busy = false; mistakes = 0; extraUsed = false; pours = 0;
   $('lvlNum').textContent = 'Level ' + n;
-  $('lvlTopic').textContent = L.topic.name;
+  $('lvlTopic').textContent = `${L.topic.name} · ${DIFFS[diff].icon} ${DIFFS[diff].name}`;
   $('groups').innerHTML = L.cats.map((c, i) => `<span class="chip" data-c="${i}">${c.icon} ${c.name}</span>`).join('');
   buildBoard(); updateTools();
 }
@@ -472,7 +494,7 @@ function tapTube(i) {
   if (sel === i) { sel = -1; renderTube(i); return; }
   const A = L.tubes[sel], B = t, a = A[A.length - 1];
   if (B.length >= CAP) { toast('That tube is full! Pick another one.'); shakeTube(i, false); return; }
-  if (B.length) {
+  if (B.length && !DIFFS[diff].free) {
     const b = B[B.length - 1];
     if (b.c !== a.c) {
       mistakes++; sfx.bad(); shakeTube(i, true);
@@ -493,7 +515,8 @@ async function pour(i, j) {
   history.push(clone(L.tubes));
   const A = L.tubes[i], B = L.tubes[j], c = A[A.length - 1].c;
   let run = 0; for (let q = A.length - 1; q >= 0 && A[q].c === c && !A[q].hidden; q--) run++;
-  const m = Math.min(run, CAP - B.length);
+  const m = DIFFS[diff].free ? 1 : Math.min(run, CAP - B.length);
+  pours++;
   const ea = tubeEls[i], eb = tubeEls[j], ra = ea.getBoundingClientRect(), rb = eb.getBoundingClientRect();
   const dir = rb.left >= ra.left ? 1 : -1, th = 84 * Math.PI / 180, h = ra.height;
   const tx = (rb.left + rb.width / 2) - dir * (h / 2) * Math.sin(th) - (ra.left + ra.width / 2);
@@ -549,12 +572,14 @@ function sparkle(el, icon) {
    Win, levels, helper questions
    ========================================================= */
 function win() {
-  const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
+  // Easy: stars for no mix-ups. Medium/Hard: stars for sorting in few pours.
+  const par = L.cats.length * CAP + L.cats.length * 2;
+  const stars = DIFFS[diff].free ? (pours <= par ? 3 : pours <= par * 1.4 ? 2 : 1) : mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
   prog.stars[L.n] = Math.max(prog.stars[L.n] || 0, stars);
-  prog.level = Math.max(prog.level, L.n + 1); save('progress', prog);
+  prog.level = Math.max(prog.level, L.n + 1); save(progKey(), prog);
   sfx.win(); confetti();
   $('winStars').innerHTML = [0, 1, 2].map(k => `<i class="${k < stars ? '' : 'off'}" style="animation-delay:${.15 + k * .15}s">⭐</i>`).join('');
-  $('winSub').textContent = mistakes === 0 ? 'Perfect: no mix-ups!' : `${mistakes} mix-up${mistakes > 1 ? 's' : ''}. ${stars < 3 ? 'Replay for 3 stars!' : ''}`;
+  $('winSub').textContent = DIFFS[diff].free ? `${pours} pours (3 stars at ${par} or fewer). ${stars < 3 ? 'Replay for 3 stars!' : 'Amazing!'}` : mistakes === 0 ? 'Perfect: no mix-ups!' : `${mistakes} mix-up${mistakes > 1 ? 's' : ''}. ${stars < 3 ? 'Replay for 3 stars!' : ''}`;
   $('winRecap').innerHTML = L.tubes.filter(t => t.length).map(t => {
     const c = L.cats[t[0].c];
     return `<div><b style="color:${c.color}">${c.icon} ${c.name}</b><span>${t.map(x => /^[A-Z][a-z]?$/.test(x.icon) ? x.word : x.icon).join(' ')}</span></div>`;
@@ -655,14 +680,16 @@ $('soundBtn').onclick = () => { soundOn = !soundOn; save('sound', soundOn); unlo
 $('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off';
 window.addEventListener('resize', () => { if (L) { layout(); L.tubes.forEach((_, i) => renderTube(i)); } });
 
+$('diffs').innerHTML = Object.entries(DIFFS).map(([k, d]) => `<button class="diff" data-d="${k}">${d.icon} ${d.name}</button>`).join('');
+document.querySelectorAll('.diff').forEach(b => b.onclick = () => { unlockAudio(); sfx.tap(); setDiff(b.dataset.d); });
+setDiff(diff);
 startLevel(Math.min(prog.level, 999));
-$('playBtn').textContent = prog.level > 1 ? `▶ Play level ${prog.level}` : '▶ Play';
 openOv('titleOv');
 
 // Hooks for automated testing.
 window.__ls = {
   get L() { return L; }, get busy() { return busy; }, get mistakes() { return mistakes; }, tapTube, startLevel, solvable, buildLevel,
-  levelSpec, TOPICS, closeOv,
+  levelSpec, TOPICS, closeOv, setDiff, get pours() { return pours; },
 };
 </script>
 </body>
