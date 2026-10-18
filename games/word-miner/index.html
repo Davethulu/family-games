@@ -273,6 +273,25 @@
   .card.locked .e { filter: brightness(0) opacity(.4); }
   .card.locked .n { color: #6d6257; }
   .card .x { font-size: 11px; color: #a99c8a; }
+
+  /* ---------- Motion ---------- */
+  /* Screens fade up, modals pop, buttons press in, and the title blocks drop into place. */
+  .screen.on { animation: screenIn .3s ease backwards; }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } }
+  .modal.on { animation: fadeIn .2s ease; }
+  .modal.on .modal-box { animation: boxPop .38s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes fadeIn { from { opacity: 0; } }
+  @keyframes boxPop { from { opacity: 0; transform: scale(.82) translateY(16px); } }
+  .mcbtn, .speak, button.chip, .pbtn { transition: transform .08s, filter .08s; }
+  .mcbtn:active, .speak:active { transform: translateY(2px) scale(.97); filter: brightness(.88); }
+  button.chip:active, .pbtn:active { transform: scale(.94); }
+  .logo .blk { animation: blockDrop .55s cubic-bezier(.3, 1.5, .5, 1) backwards; }
+  @keyframes blockDrop { from { opacity: 0; transform: translateY(-60px) rotate(-12deg); } }
+  .book-grid .card { animation: cardIn .35s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+  @keyframes cardIn { from { opacity: 0; transform: scale(.7); } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -410,6 +429,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const KEY = 'wordminer_v1';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (window.self !== window.top) document.body.classList.add('in-arcade');
 
@@ -729,9 +749,10 @@ function banner(text, color) {
 }
 function flashFx(color) {
   const f = $('fx'); f.style.background = color || '#fff';
-  f.animate([{ opacity: .75 }, { opacity: 0 }], { duration: 380, easing: 'ease-out' });
+  f.animate([{ opacity: RM ? .3 : .75 }, { opacity: 0 }], { duration: 380, easing: 'ease-out' });
 }
 function shake(strength = 8) {
+  if (RM) return;
   const s = strength;
   document.querySelector('.screen.on').animate(
     [{ transform: 'translate(0,0)' }, { transform: `translate(${-s}px,${s / 2}px)` }, { transform: `translate(${s}px,${-s / 2}px)` },
@@ -766,7 +787,16 @@ function modal(html, buttons) {
     el.onclick = () => { $('modal').classList.remove('on'); b.fn && b.fn(); };
     box.appendChild(el);
   }
-  $('modal').classList.add('on');
+  // Re-trigger the pop when one modal follows straight on from another.
+  const m = $('modal'); m.classList.remove('on'); void m.offsetWidth; m.classList.add('on');
+}
+// Counts the numbers in a results box up from zero.
+function countUp(el, to, dur = 800) {
+  if (RM || !to) { el.textContent = to; return; }
+  const t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+  el.textContent = 0; requestAnimationFrame(step);
+  setTimeout(() => { el.textContent = to; }, dur + 400);  // in case animation frames are paused
 }
 function burst(x, y, colors, n = 8) {
   for (let k = 0; k < n; k++) {
@@ -1151,7 +1181,11 @@ function mineBlock(i) {
   sfx.mine(lvl);
   burst(rect.left + rect.width / 2, rect.top + rect.height / 2, ['#8a8a8a', '#6b6b6b', pc, '#555', pc], 8 + lvl * 2);
   renderGrid(); renderSlots(si);
-  fly(rect, $('slots').children[si], b.ch, () => { const s = $('slots').children[si]; s && s.classList.remove('incoming'); });
+  fly(rect, $('slots').children[si], b.ch, () => {
+    const s = $('slots').children[si]; if (!s) return;
+    s.classList.remove('incoming');
+    if (!RM && s.animate) s.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 180, easing: 'ease-out' });
+  });
 }
 function unslot(i) {
   if (!Wd || Wd.busy) return;
@@ -1339,10 +1373,11 @@ function endRound() {
   modal(`<div class="big">⛏️</div><h3>ROUND COMPLETE!</h3>
     ${R.bossWon ? `<p>${R.bossWon.e} Defeated the ${R.bossWon.n}!</p>` : ''}
     <p>⭐ ${R.perfect} perfect out of ${R.done} words</p>
-    <p>🧱 +${R.blocks} blocks · 💎 +${R.gems}${R.tnt ? ` · 💥 ${R.tnt} TNT` : ''}</p>
+    <p>🧱 +<span class="cnt">${R.blocks}</span> blocks · 💎 +<span class="cnt">${R.gems}</span>${R.tnt ? ` · 💥 ${R.tnt} TNT` : ''}</p>
     <p><img src="${pickURL(S.pick.level)}" style="width:22px;height:22px;image-rendering:pixelated;vertical-align:-4px" alt=""> ${PICKS[S.pick.level].name} pickaxe</p>${tricky}`,
     [{ label: '🏠 SEE MY WORLD', cls: 'gold', fn: () => { R = null; openWorld(); } },
      { label: '▶ PLAY AGAIN', cls: 'green', fn: startRound }]);
+  document.querySelectorAll('#modalBody .cnt').forEach(el => countUp(el, +el.textContent));
 }
 
 /* ================= Collection book ================= */
@@ -1352,9 +1387,9 @@ function openBook() {
   const found = ITEMS.filter(i => S.items[i.id]).length;
   $('bookGems').textContent = `💎 ${S.gems}`;
   $('bookCount').textContent = `${found} / ${ITEMS.length} found`;
-  $('bookGrid').innerHTML = ITEMS.map(i => {
+  $('bookGrid').innerHTML = ITEMS.map((i, k) => {
     const n = S.items[i.id] || 0;
-    return `<div class="card ${n ? '' : 'locked'}" style="--rc:${RARITY_COLOR[i.r]}"><div class="e">${i.e}</div>
+    return `<div class="card ${n ? '' : 'locked'}" style="--rc:${RARITY_COLOR[i.r]};animation-delay:${k * 20}ms"><div class="e">${i.e}</div>
       <div class="n">${n ? i.n : '???'}</div>${n > 1 ? `<div class="x">×${n}</div>` : ''}</div>`;
   }).join('');
   $('btnBuyChest').classList.toggle('off', S.gems < 10);
@@ -1397,9 +1432,14 @@ function renderProgress() {
 /* ================= Wiring ================= */
 function buildLogo() {
   const logo = $('logo');
+  let n = 0;
   for (const word of ['WORD', 'MINER']) {
     const row = document.createElement('div'); row.className = 'logo-row';
-    for (const ch of word) { const b = document.createElement('div'); b.className = 'blk'; b.textContent = ch; styleBlock(b, ch.toLowerCase()); row.appendChild(b); }
+    for (const ch of word) {
+      const b = document.createElement('div'); b.className = 'blk'; b.textContent = ch; styleBlock(b, ch.toLowerCase());
+      b.style.animationDelay = n++ * 60 + 'ms';   // blocks drop in one after another
+      row.appendChild(b);
+    }
     logo.appendChild(row);
   }
 }
