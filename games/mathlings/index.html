@@ -207,6 +207,31 @@
   .facts { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:340px; }
   .facts span { font-family:'Bungee'; font-size:15px; background:#13203e; border:1px solid #2f63b8; border-radius:8px; padding:5px 9px; color:#ffe45d; }
 
+  /* ---- Motion: overlays fade in with their contents popping up one after another,
+     answers react, the problem springs in, and HUD numbers bump when they change ---- */
+  .overlay { animation:fadeIn .25s ease both; }
+  .overlay > * { animation:popIn .4s cubic-bezier(.2,1.3,.4,1) backwards; }
+  .overlay > :nth-child(2){animation-delay:.04s} .overlay > :nth-child(3){animation-delay:.08s}
+  .overlay > :nth-child(4){animation-delay:.12s} .overlay > :nth-child(5){animation-delay:.16s}
+  .overlay > :nth-child(6){animation-delay:.2s}  .overlay > :nth-child(7){animation-delay:.24s}
+  .overlay > :nth-child(n+8){animation-delay:.28s}
+  @keyframes fadeIn { from { opacity:0; } }
+  @keyframes popIn { from { opacity:0; transform:translateY(14px) scale(.94); } }
+  .ans { transition:transform .08s, box-shadow .08s; }
+  .ans.good, .ans.reveal { animation:ansGood .35s cubic-bezier(.2,1.6,.4,1); }
+  .ans.bad { animation:shake .35s; }
+  @keyframes ansGood { 40% { transform:scale(1.1); } }
+  .btn:active { transform:translateY(3px) scale(.97); }
+  #problem.spring { animation:probPop .3s cubic-bezier(.2,1.5,.4,1); }
+  @keyframes probPop { from { transform:scale(.7); opacity:.2; } }
+  #hud .stat span { display:inline-block; }
+  .bump { animation:bump .3s ease; }
+  @keyframes bump { 40% { transform:scale(1.35); } }
+  .pop { font-family:'Bungee'; font-size:16px; text-shadow:0 2px 0 #000, 0 0 6px rgba(0,0,0,.6); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+  }
+
   /* ---- Compact layout for short screens (iPhone X and similar) ---- */
   @media (max-height: 740px) {
     #hud { padding:3px 12px; font-size:16px; }
@@ -581,6 +606,7 @@
     curAnswer = ans;
     G.locked = false; G.problemStart = performance.now();
     problemEl.textContent = q; problemEl.classList.remove('shown');
+    restartAnim(problemEl, 'spring');
     answersEl.innerHTML = '';
     makeOptions(a, b, op, ans).forEach(v => {
       const btn = document.createElement('button');
@@ -593,6 +619,21 @@
     updateTimerBar();
   }
   const rnd = (lo,hi) => Math.floor(Math.random()*(hi-lo+1))+lo;
+  const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function restartAnim(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  // Creatures grow in when they appear instead of popping into place.
+  function spawnIn(el){
+    const emo = el.querySelector('.emo');
+    if (!RM && emo && emo.animate) emo.animate([{ transform:'scale(.2)', opacity:0 }, { transform:'scale(1.15)', opacity:1, offset:.7 }, { transform:'scale(1)', opacity:1 }],
+      { duration:320, easing:'ease-out' });
+  }
+  function countUp(el, to, dur = 900){
+    if (RM || !to) { el.textContent = to; return; }
+    const t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = 0; requestAnimationFrame(step);
+    setTimeout(() => { el.textContent = to; }, dur + 400);   // in case animation frames are paused
+  }
 
   function answer(val, btn) {
     if (G.locked) return;                // ignore double taps while this answer resolves
@@ -601,7 +642,7 @@
     G.attempts++;
     if (val === curAnswer) {
       btn.classList.add('good');
-      G.solved++; G.correct++; solvedEl.textContent = G.solved;
+      G.solved++; G.correct++; solvedEl.textContent = G.solved; restartAnim(solvedEl, 'bump');
       recordHit(G.cur);
       if (G.autoDPS > 0) G.turretCharge = Math.min(TURRET_MAX_CHARGE, G.turretCharge + TURRET_CHARGE_PER_ANSWER);
       // Streaks and quick answers hit harder.
@@ -621,6 +662,7 @@
   // Wrong answer or timeout: show the right answer, reset the streak, enemies surge.
   function missed(note){
     sfx.wrong();
+    baseFlash = Math.max(baseFlash, .5);
     recordMiss(G.cur);
     G.streak = 0; updateStreak();
     answersEl.querySelectorAll('.ans').forEach(b => { b.disabled = true; if (+b.textContent === curAnswer) b.classList.add('reveal'); });
@@ -632,6 +674,7 @@
   function updateStreak(){
     streakEl.textContent = `🔥 ${G.streak}`;
     streakEl.classList.toggle('on', G.streak >= 2);
+    if (G.streak >= 2) restartAnim(streakEl, 'bump');
   }
   function streakBanner(text){
     const b = document.createElement('div'); b.className = 'streakBanner'; b.textContent = text;
@@ -735,6 +778,7 @@
   function startWave() {
     G.waveActive = true;
     waveEl.textContent = G.wave;
+    if (G.wave > 1) restartAnim(waveEl, 'bump');
     G.isBossWave = (G.wave % 5 === 0);
     const extra = G.diff ? G.diff.countAdd : 0;
     if (G.isBossWave) {
@@ -800,7 +844,7 @@
     el.innerHTML = `<div class="emo">${e.emo}</div><div class="ehp"><i></i></div>`;
     if (e.shield) el.classList.add('shielded');
     field.appendChild(el); e.el = el;
-    positionEnemy(e); updateEnemyEl(e);
+    positionEnemy(e); updateEnemyEl(e); spawnIn(el);
     G.enemies.push(e);
     discover(e);
     // caterpillar metamorphoses into a butterfly (double HP) after 3 seconds
@@ -846,7 +890,7 @@
     el.className = 'enemy boss';
     el.innerHTML = `${visual}<div class="ehp"><i></i></div>`;
     field.appendChild(el); e.el = el;
-    positionEnemy(e); updateEnemyEl(e);
+    positionEnemy(e); updateEnemyEl(e); spawnIn(el);
     G.enemies.push(e);
   }
 
@@ -1043,7 +1087,7 @@
     const ov = makeOverlay();
     const acc = G.attempts ? Math.round(G.correct / G.attempts * 100) : 0;
     const misses = Object.entries(G.sessionMisses).sort((x, y) => y[1].n - x[1].n).slice(0, 8);
-    ov.innerHTML = `<h2>Base Overrun!</h2><p>You reached <b>Wave ${G.wave}</b><br>and solved <b>${G.solved}</b> problems.</p>
+    ov.innerHTML = `<h2>Base Overrun!</h2><p>You reached <b>Wave ${G.wave}</b><br>and solved <b class="cnt">${G.solved}</b> problems.</p>
       <p>🎯 ${acc}% correct &nbsp;·&nbsp; 🔥 Best streak ${G.bestStreak}</p>` +
       (misses.length
         ? `<p class="muted">Facts to practise (they'll come up more next time):</p><div class="facts">${misses.map(([q, m]) => `<span>${q} = ${m.ans}</span>`).join('')}</div>`
@@ -1051,6 +1095,7 @@
     const b=document.createElement('button'); b.className='btn'; b.textContent='PLAY AGAIN';
     b.onclick=()=>location.reload(); ov.appendChild(b);
     wrap.appendChild(ov);
+    countUp(ov.querySelector('.cnt'), G.solved);
   }
 
   // ---- start screen ----
