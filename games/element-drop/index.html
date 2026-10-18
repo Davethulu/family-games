@@ -319,9 +319,9 @@ const sfx = {
    World & physics
    The jar is W wide and H deep; y grows downward, the rim is y = 0.
    ========================================================= */
-const W = 360, H = 400, TOP = 128, CR = 42;          // jar size, room above the rim, corner radius
+const W = 360, H = 340, TOP = 128, CR = 42;          // jar size, room above the rim, corner radius
 const R = [0, 14, 19, 24, 30, 36, 43, 51, 59, 68, 78, 88];
-const G = 1150, HOLD_Y = -64;
+const G = 1700, HOLD_Y = -64;
 const SEGS = [];
 (function buildJar() {
   const pts = [[0, 0], [0, H - CR]];
@@ -341,7 +341,7 @@ const JAR_PTS = (function () {   // the visible part of the jar, from the rim do
   p.push([W, 0]); return p;
 })();
 
-const SOFT = .6, BOUNCE = .42, WALL_BOUNCE = .5;   // squish and bounce
+const SOFT = .4, BOUNCE = .3, WALL_BOUNCE = .32;   // squish and bounce
 let balls = [], merges = [], contacts = [], nextId = 1;
 function makeBall(z, x, y) {
   return { id: nextId++, z, x, y, px: x, py: y, vx: 0, vy: 0, ovx: 0, ovy: 0, sq: 0, sqv: 0, sqa: 0, r: R[z], R: R[z], m: R[z] * R[z], age: 0, t: 9, over: 0, dead: false, wall: false };
@@ -385,14 +385,16 @@ function physics(dt) {
   for (let s = 0; s < SUB; s++) {
     for (const b of balls) {
       b.px = b.x; b.py = b.y; b.vy += G * h; b.ovx = b.vx; b.ovy = b.vy; b.x += b.vx * h; b.y += b.vy * h;
-      if (b.r < b.R) b.r = Math.min(b.R, b.r + b.R * h * 1.6);   // freshly fused atoms swell into place
+      if (b.r < b.R) b.r = Math.min(b.R, b.r + b.R * h * .9);   // freshly fused atoms swell into place
     }
     contacts.length = 0;
     collide(false); collide(true);
     for (const b of balls) if (!b.dead) walls(b);
     for (const b of balls) {
       b.vx = (b.x - b.px) / h; b.vy = (b.y - b.py) / h;
-      const sp = Math.hypot(b.vx, b.vy); if (sp > 1500) { b.vx *= 1500 / sp; b.vy *= 1500 / sp; }
+      const sp = Math.hypot(b.vx, b.vy); if (sp > 1200) { b.vx *= 1200 / sp; b.vy *= 1200 / sp; }
+      if (b.vy < -380) b.vy = -380;   // heavy atoms: a big fusion can nudge them up, not launch them
+      if (b.vx > 520) b.vx = 520; else if (b.vx < -520) b.vx = -520;
       b.vx *= .9994; b.vy *= .9994;
       if (b.wall) {
         const vn0 = b.ovx * b.wnx + b.ovy * b.wny;   // speed it hit the glass at
@@ -420,7 +422,7 @@ function physics(dt) {
   }
 }
 function squash(b, speed, nx, ny) {
-  const k = Math.min(.2, speed / 1900);
+  const k = Math.min(.26, speed / 1500);
   if (k > b.sq) { b.sq = k; b.sqv = 0; b.sqa = Math.atan2(ny, nx); }
 }
 function doMerges() {
@@ -467,7 +469,7 @@ function newGame() {
 }
 function saveGame() {
   if (state !== 'play') return;
-  save('game', { v: 2, energy, score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
+  save('game', { v: 3, energy, score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
 }
 function resumeGame(g) {
   newGame();
@@ -973,7 +975,7 @@ function showTitle() {
   state = 'title';
   const g = load('game', null), btns = $('titleBtns'); btns.innerHTML = '';
   const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.className = 'btn' + cls; b.textContent = txt; b.onclick = () => { unlockAudio(); closeModal('titleOv'); fn(); }; btns.appendChild(b); };
-  if (g && g.v === 2 && g.balls && g.balls.length) { mk('▶ Continue', '', () => resumeGame(g)); mk('New game', ' alt', newGame); }
+  if (g && g.v === 3 && g.balls && g.balls.length) { mk('▶ Continue', '', () => resumeGame(g)); mk('New game', ' alt', newGame); }
   else mk('▶ Play', '', newGame);
   $('titleBest').textContent = best ? `Best score: ${best}` : '';
   openModal('titleOv');
