@@ -293,7 +293,7 @@ const sfx = {
    World & physics
    The jar is W wide and H deep; y grows downward, the rim is y = 0.
    ========================================================= */
-const W = 360, H = 500, TOP = 128, CR = 42;          // jar size, room above the rim, corner radius
+const W = 360, H = 400, TOP = 128, CR = 42;          // jar size, room above the rim, corner radius
 const R = [0, 14, 19, 24, 30, 36, 43, 51, 59, 68, 78, 88];
 const G = 1150, HOLD_Y = -64;
 const SEGS = [];
@@ -315,9 +315,10 @@ const JAR_PTS = (function () {   // the visible part of the jar, from the rim do
   p.push([W, 0]); return p;
 })();
 
+const SOFT = .6, BOUNCE = .42, WALL_BOUNCE = .5;   // squish and bounce
 let balls = [], merges = [], contacts = [], nextId = 1;
 function makeBall(z, x, y) {
-  return { id: nextId++, z, x, y, px: x, py: y, vx: 0, vy: 0, r: R[z], R: R[z], m: R[z] * R[z], age: 0, t: 9, over: 0, dead: false, wall: false };
+  return { id: nextId++, z, x, y, px: x, py: y, vx: 0, vy: 0, ovx: 0, ovy: 0, sq: 0, sqv: 0, sqa: 0, r: R[z], R: R[z], m: R[z] * R[z], age: 0, t: 9, over: 0, dead: false, wall: false };
 }
 
 function collide(record) {
@@ -332,7 +333,7 @@ function collide(record) {
       if (a.z === b.z && state === 'play') { a.dead = b.dead = true; merges.push(a, b); break; }
       let d = Math.sqrt(d2), nx, ny;
       if (d < 1e-4) { nx = 0; ny = 1; d = 1e-4; } else { nx = dx / d; ny = dy / d; }
-      const wa = 1 / a.m, wb = 1 / b.m, k = (rr - d) / (wa + wb);
+      const wa = 1 / a.m, wb = 1 / b.m, k = SOFT * (rr - d) / (wa + wb);
       a.x -= nx * k * wa; a.y -= ny * k * wa; b.x += nx * k * wb; b.y += ny * k * wb;
       if (record) contacts.push(a, b, nx, ny);
     }
@@ -357,7 +358,7 @@ function physics(dt) {
   const SUB = 8, h = dt / SUB;
   for (let s = 0; s < SUB; s++) {
     for (const b of balls) {
-      b.px = b.x; b.py = b.y; b.vy += G * h; b.x += b.vx * h; b.y += b.vy * h;
+      b.px = b.x; b.py = b.y; b.vy += G * h; b.ovx = b.vx; b.ovy = b.vy; b.x += b.vx * h; b.y += b.vy * h;
       if (b.r < b.R) b.r = Math.min(b.R, b.r + b.R * h * 1.6);   // freshly fused atoms swell into place
     }
     contacts.length = 0;
@@ -367,6 +368,10 @@ function physics(dt) {
       b.vx = (b.x - b.px) / h; b.vy = (b.y - b.py) / h;
       const sp = Math.hypot(b.vx, b.vy); if (sp > 1500) { b.vx *= 1500 / sp; b.vy *= 1500 / sp; }
       b.vx *= .9994; b.vy *= .9994;
+      if (b.wall) {
+        const vn0 = b.ovx * b.wnx + b.ovy * b.wny;   // speed it hit the glass at
+        if (vn0 < -110) { const dv = -WALL_BOUNCE * vn0 - (b.vx * b.wnx + b.vy * b.wny); b.vx += dv * b.wnx; b.vy += dv * b.wny; squash(b, -vn0, b.wnx, b.wny); }
+      }
       if (b.wall) {   // a little grip against the glass
         const vn = b.vx * b.wnx + b.vy * b.wny, tx = b.vx - vn * b.wnx, ty = b.vy - vn * b.wny;
         b.vx -= tx * .05; b.vy -= ty * .05;
@@ -374,12 +379,23 @@ function physics(dt) {
     }
     for (let k = 0; k < contacts.length; k += 4) {   // friction between atoms so piles don't slide like water
       const a = contacts[k], b = contacts[k + 1], nx = contacts[k + 2], ny = contacts[k + 3];
+      const wa = 1 / a.m, wb = 1 / b.m;
+      const vn0 = (b.ovx - a.ovx) * nx + (b.ovy - a.ovy) * ny;   // closing speed before they touched
+      if (vn0 < -110) {
+        const dv = -BOUNCE * vn0 - ((b.vx - a.vx) * nx + (b.vy - a.vy) * ny), jn = dv / (wa + wb);
+        a.vx -= nx * jn * wa; a.vy -= ny * jn * wa; b.vx += nx * jn * wb; b.vy += ny * jn * wb;
+        squash(a, -vn0 * wa / (wa + wb) * 2, nx, ny); squash(b, -vn0 * wb / (wa + wb) * 2, nx, ny);
+      }
       const tx = -ny, ty = nx, vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty;
-      const wa = 1 / a.m, wb = 1 / b.m, j = vt * .07 / (wa + wb);
+      const j = vt * .07 / (wa + wb);
       a.vx += tx * j * wa; a.vy += ty * j * wa; b.vx -= tx * j * wb; b.vy -= ty * j * wb;
     }
     if (merges.length) doMerges();
   }
+}
+function squash(b, speed, nx, ny) {
+  const k = Math.min(.2, speed / 1900);
+  if (k > b.sq) { b.sq = k; b.sqv = 0; b.sqa = Math.atan2(ny, nx); }
 }
 function doMerges() {
   for (let k = 0; k < merges.length; k += 2) {
@@ -411,7 +427,7 @@ function newGame() {
 }
 function saveGame() {
   if (state !== 'play') return;
-  save('game', { score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
+  save('game', { v: 2, score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
 }
 function resumeGame(g) {
   newGame();
@@ -495,7 +511,7 @@ function resize() {
   CW = stage.clientWidth; CH = stage.clientHeight;
   cv.width = Math.round(CW * DPR); cv.height = Math.round(CH * DPR);
   SC = Math.min(CW / (W + 40), CH / (H + TOP + 12));
-  OX = (CW - W * SC) / 2; OY = CH - (H + 8) * SC;
+  OX = (CW - W * SC) / 2; OY = CH - (H + 8) * SC - Math.max(0, CH - (H + TOP + 12) * SC) * .4;
   bgGrad = ctx.createRadialGradient(CW * .5, CH * .25, 10, CW * .5, CH * .5, Math.max(CW, CH));
   bgGrad.addColorStop(0, '#1d2a6b'); bgGrad.addColorStop(.6, '#0d1338'); bgGrad.addColorStop(1, '#070b22');
   drawNext();
@@ -592,7 +608,10 @@ function render() {
   for (const b of balls) {
     let r = b.r;
     if (b.t < .6) r *= 1 + .14 * Math.sin(b.t * 26) * Math.exp(-b.t * 7);   // wobble after fusing
-    paintAtom(c, b.z, b.x, b.y, r, T, b.id, r * SC);
+    if (Math.abs(b.sq) > .004) {   // squash along the hit, stretch across it
+      c.save(); c.translate(b.x, b.y); c.rotate(b.sqa); c.scale(1 - b.sq, 1 + b.sq * .8); c.rotate(-b.sqa);
+      paintAtom(c, b.z, 0, 0, r, T, b.id, r * SC); c.restore();
+    } else paintAtom(c, b.z, b.x, b.y, r, T, b.id, r * SC);
   }
 
   // glass front
@@ -601,7 +620,7 @@ function render() {
   c.strokeStyle = 'rgba(180,215,255,.35)'; c.lineWidth = 9; c.stroke();
   c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.stroke();
   c.fillStyle = 'rgba(255,255,255,.07)';
-  c.beginPath(); c.roundRect ? c.roundRect(12, 18, 10, H - 90, 5) : c.rect(12, 18, 10, H - 90); c.fill();
+  c.beginPath(); c.roundRect ? c.roundRect(12, 18, 10, H - 80, 5) : c.rect(12, 18, 10, H - 80); c.fill();
 
   // effects
   for (const p of fx) {
@@ -781,7 +800,7 @@ function showTitle() {
   state = 'title';
   const g = load('game', null), btns = $('titleBtns'); btns.innerHTML = '';
   const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.className = 'btn' + cls; b.textContent = txt; b.onclick = () => { unlockAudio(); closeModal('titleOv'); fn(); }; btns.appendChild(b); };
-  if (g && g.balls && g.balls.length) { mk('▶ Continue', '', () => resumeGame(g)); mk('New game', ' alt', newGame); }
+  if (g && g.v === 2 && g.balls && g.balls.length) { mk('▶ Continue', '', () => resumeGame(g)); mk('New game', ' alt', newGame); }
   else mk('▶ Play', '', newGame);
   $('titleBest').textContent = best ? `Best score: ${best}` : '';
   openModal('titleOv');
@@ -830,6 +849,7 @@ function tick(dt) {
     let worst = 0, spilled = null;
     for (const b of balls) {
       b.age += dt; b.t += dt;
+      b.sqv += (-330 * b.sq - 11 * b.sqv) * dt; b.sq += b.sqv * dt;
       if (b.out) { b.over += dt; if (b.over > .7) spilled = b; continue; }
       // Piled above the rim: it might spill. A pile that reaches the dropper also ends the game.
       if (b.age > 1.2 && b.y - b.r < 0) worst = Math.max(worst, Math.min(1, (b.r - b.y) / 60));
