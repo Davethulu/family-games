@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Lab Sort</title>
+<style>
+  :root { --ink:#eaf2ff; --muted:#9fb0d8; --accent:#ffd23f; --u:1; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    height:100%; overflow:hidden; color:var(--ink);
+    background:radial-gradient(circle at 50% 20%, #1f3a6e, #0b1530 65%, #070d22);
+    font-family: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    -webkit-user-select:none; user-select:none; touch-action:manipulation;
+  }
+  #app {
+    position:fixed; inset:0; display:flex; flex-direction:column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* Left padding leaves room for the arcade's Menu button. */
+  #hud { flex:none; display:flex; align-items:center; gap:8px; padding:8px 8px 0 96px; min-height:58px; }
+  #lvl { flex:1; min-width:0; line-height:1.15; }
+  #lvl b { display:block; font-size:18px; }
+  #lvl small { display:block; color:var(--muted); font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .iconBtn { flex:none; width:44px; height:44px; border-radius:12px; border:0; cursor:pointer; background:rgba(255,255,255,.12); color:#fff; font-size:20px; transition:transform .1s; }
+  .iconBtn:active { transform:scale(.9); }
+  #groups { flex:none; display:flex; flex-wrap:wrap; justify-content:center; gap:5px; padding:8px 10px 0; }
+  .chip { font-size:12.5px; font-weight:800; padding:4px 9px; border-radius:99px; background:rgba(255,255,255,.1); color:#dfe8ff; transition:background .3s, color .3s; }
+  .chip.done { color:#10142e; }
+  #board { flex:1; min-height:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; padding:4px 6px; margin:0 auto; }
+  #bottom { flex:none; display:flex; justify-content:center; gap:10px; padding:6px 10px 12px; }
+  .tool {
+    font:inherit; font-weight:800; font-size:14px; border:0; border-radius:14px; padding:10px 14px; cursor:pointer;
+    background:#2e3f86; color:#fff; box-shadow:0 4px 0 #1c275a; transition:transform .08s;
+  }
+  .tool:active { transform:translateY(2px); box-shadow:0 2px 0 #1c275a; }
+  .tool:disabled { opacity:.4; }
+
+  /* ---------- tubes ---------- */
+  .tube { width:calc(64px * var(--u)); margin:calc(30px * var(--u)) calc(8px * var(--u)) calc(6px * var(--u)); position:relative; cursor:pointer; transition:transform .18s cubic-bezier(.3,1.5,.5,1); }
+  .tube.sel { transform:translateY(calc(-18px * var(--u))); }
+  .tube.sel .glass { box-shadow:0 0 0 3px #ffd23f, 0 0 18px rgba(255,210,63,.6); }
+  .tube.shake { animation:shake .4s; }
+  @keyframes shake { 20%,60% { transform:translateX(-7px) rotate(-3deg); } 40%,80% { transform:translateX(7px) rotate(3deg); } }
+  .glass {
+    position:relative; height:calc(196px * var(--u)); border-radius:10px 10px 32px 32px; overflow:hidden;
+    background:linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 40%, rgba(255,255,255,.1));
+    border:2.5px solid rgba(200,225,255,.55); border-top:0; transition:box-shadow .2s;
+  }
+  .glass::after { /* gloss stripe */
+    content:''; position:absolute; left:14%; top:10px; bottom:26px; width:10%; border-radius:6px; background:rgba(255,255,255,.22); pointer-events:none; z-index:3;
+  }
+  .lip { position:absolute; top:-5px; left:-6px; right:-6px; height:8px; border-radius:6px; background:rgba(200,225,255,.6); z-index:4; }
+  .lay {
+    position:absolute; left:0; right:0; height:calc(44px * var(--u));
+    display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1;
+    border-top:1px solid rgba(255,255,255,.25); transition:background .45s;
+  }
+  .lay .em { font-size:calc(22px * var(--u)); filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .lay .wd { font-size:calc(9.5px * var(--u)); font-weight:800; color:#10142e; margin-top:2px; max-width:96%; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+  .lay .wd.long { font-size:calc(8px * var(--u)); }
+  .lay .sym { width:calc(26px * var(--u)); height:calc(26px * var(--u)); border-radius:50%; display:grid; place-items:center; background:#fff; color:#1d2350; font-weight:900; font-size:calc(13px * var(--u)); box-shadow:inset 0 -2px 0 rgba(0,0,0,.15); }
+  .lay.top::before { /* little wave on the surface */
+    content:''; position:absolute; left:0; right:0; top:-4px; height:8px; border-radius:50%; background:inherit; filter:brightness(1.12);
+  }
+  .lay.hid { background:repeating-linear-gradient(45deg,#3a2f6e,#3a2f6e 6px,#2f2660 6px,#2f2660 12px) !important; }
+  .lay.hid .em { font-size:calc(20px * var(--u)); color:#b8a8ff; font-weight:900; filter:none; }
+  .lay.in { animation:fillIn .26s ease-out; transform-origin:bottom; }
+  @keyframes fillIn { from { transform:scaleY(0); opacity:.4; } }
+  .lay.reveal { animation:reveal .4s ease-out; }
+  @keyframes reveal { from { transform:scale(.6); filter:brightness(2); } }
+  .cap {
+    position:absolute; left:50%; bottom:calc(100% + 6px); transform:translateX(-50%) scale(0); white-space:nowrap;
+    font-size:calc(11px * var(--u)); font-weight:900; padding:3px 7px; border-radius:99px; color:#10142e; transition:transform .35s cubic-bezier(.3,1.6,.5,1);
+  }
+  .tube.done .cap { transform:translateX(-50%) scale(1); }
+  .tube.done .glass { border-color:rgba(255,255,255,.85); }
+  .stream { position:fixed; width:8px; border-radius:4px; z-index:20; transform-origin:top; pointer-events:none; }
+  .spark { position:fixed; z-index:30; pointer-events:none; font-size:16px; }
+
+  #toast {
+    position:fixed; left:50%; bottom:calc(76px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px); opacity:0;
+    width:max-content; max-width:calc(100% - 24px); text-align:center; z-index:40;
+    background:#2a1f4f; border:2px solid #ff7a8a; color:#fff; border-radius:14px; padding:9px 14px; font-size:14.5px; font-weight:700; line-height:1.35;
+    transition:opacity .2s, transform .2s; pointer-events:none;
+  }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.good { border-color:#58d68d; }
+
+  /* ---------- overlays ---------- */
+  .ov {
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center;
+    background:rgba(4,8,26,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  }
+  .ov.show { display:flex; animation:fadeIn .2s ease-out; }
+  .card {
+    background:linear-gradient(#1f2c68,#141c45); border:2px solid rgba(255,255,255,.12);
+    border-radius:22px; padding:20px 18px; width:100%; max-width:360px; max-height:100%; overflow:auto;
+    text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.55); animation:popUp .4s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes fadeIn { from { opacity:0; } }
+  @keyframes popUp { from { opacity:0; transform:scale(.85) translateY(20px); } }
+  h1 { font-size:36px; line-height:1.1; }
+  h1 span, h2 span { color:var(--accent); }
+  h2 { font-size:24px; margin-bottom:4px; }
+  .sub { color:var(--muted); margin:6px 0 12px; font-size:15px; line-height:1.35; }
+  .adline { display:inline-block; background:#ff3b5c; color:#fff; font-weight:900; font-size:14px; padding:6px 12px; border-radius:10px; transform:rotate(-2deg); margin:8px 0 4px; box-shadow:0 4px 0 #9e1d35; animation:wob 1.4s ease-in-out infinite; }
+  @keyframes wob { 50% { transform:rotate(2deg) scale(1.05); } }
+  .btn {
+    font:inherit; font-weight:800; font-size:18px; border:0; border-radius:14px; padding:12px 22px; cursor:pointer;
+    background:var(--accent); color:#1a1440; box-shadow:0 5px 0 #b8901a; margin:8px 4px 0; transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform:translateY(3px); box-shadow:0 2px 0 #b8901a; }
+  .btn.alt { background:#3a4c95; color:#fff; box-shadow:0 5px 0 #222d63; }
+  .stars { font-size:40px; letter-spacing:4px; margin:4px 0; }
+  .stars i { font-style:normal; display:inline-block; animation:starIn .5s cubic-bezier(.3,1.8,.5,1) both; }
+  .stars i.off { filter:grayscale(1) brightness(.5); }
+  @keyframes starIn { from { transform:scale(0) rotate(-90deg); } }
+  .recap { text-align:left; background:rgba(255,255,255,.06); border-radius:14px; padding:8px 10px; margin:10px 0; font-size:14px; }
+  .recap div { display:flex; gap:8px; align-items:center; padding:3px 0; }
+  .recap b { min-width:92px; }
+  .fact { text-align:left; background:rgba(255,210,63,.1); border-radius:14px; padding:10px 12px; font-size:14.5px; line-height:1.4; }
+  .choices { display:grid; gap:8px; margin-top:12px; }
+  .choice { font:inherit; font-weight:800; font-size:18px; padding:12px; border-radius:14px; border:0; cursor:pointer; background:#2e3f86; color:#fff; box-shadow:0 4px 0 #1c275a; }
+  .choice.right { background:#2fb36a; box-shadow:0 4px 0 #1d7a46; }
+  .choice.wrong { background:#c8414f; box-shadow:0 4px 0 #85232d; }
+  .levels { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0; }
+  .lv { font:inherit; font-weight:900; font-size:18px; aspect-ratio:1; border-radius:12px; border:0; cursor:pointer; background:#2e3f86; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+  .lv small { font-size:10px; }
+  .lv.lock { background:#1b2350; color:#4b5590; cursor:default; }
+  .lv.cur { box-shadow:0 0 0 3px var(--accent); }
+  .confetti { position:fixed; top:-20px; z-index:60; width:9px; height:14px; border-radius:2px; pointer-events:none; animation:fall linear forwards; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(720deg); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="lvl"><b id="lvlNum">Level 1</b><small id="lvlTopic"></small></div>
+    <button class="iconBtn" id="levelsBtn" aria-label="Levels">🗂️</button>
+  </div>
+  <div id="groups"></div>
+  <div id="board"></div>
+  <div id="bottom">
+    <button class="tool" id="undoBtn">↩️ Undo</button>
+    <button class="tool" id="tubeBtn">🧪 + Tube</button>
+    <button class="tool" id="restartBtn">🔄 Restart</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<div class="ov" id="titleOv"><div class="card">
+  <h1>🧪 Lab <span>Sort</span></h1>
+  <p class="sub">Pour the tubes to sort science stuff into groups!</p>
+  <div class="adline">99% CAN'T SOLVE LEVEL 9!</div>
+  <p class="sub" style="font-size:14px">No ads here. Stuck? Answer a science question instead.</p>
+  <div class="recap" style="font-size:14.5px;line-height:1.45">
+    <div>👆 Tap a tube, then tap where to pour.</div>
+    <div>🧪 Only things in the same <b style="min-width:0">group</b> can stack: a gas can't go on a solid!</div>
+    <div>⭐ Fill each tube with one group to win.</div>
+  </div>
+  <button class="btn" id="playBtn">▶ Play</button>
+  <button class="btn alt" id="titleLevels">🗂️ Levels</button>
+  <p class="sub" style="margin:10px 0 0" id="soundRow"><button class="btn alt" id="soundBtn" style="font-size:14px;padding:8px 14px">🔊 Sound on</button></p>
+</div></div>
+
+<div class="ov" id="introOv"><div class="card">
+  <p class="sub" style="margin:0;font-weight:900;letter-spacing:2px">LEVEL</p>
+  <h1 id="introNum" style="font-size:54px">1</h1>
+  <div class="adline" id="introAd"></div>
+  <h2 id="introTopic" style="margin-top:10px"></h2>
+  <p class="sub" style="margin:4px 0 6px">Sort into these groups:</p>
+  <div id="introGroups" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div>
+  <button class="btn" id="introGo">I can do it! 💪</button>
+</div></div>
+
+<div class="ov" id="winOv"><div class="card">
+  <h2>🎉 <span>Sorted!</span></h2>
+  <div class="stars" id="winStars"></div>
+  <p class="sub" id="winSub" style="margin:0"></p>
+  <div class="recap" id="winRecap"></div>
+  <div class="fact" id="winFact"></div>
+  <button class="btn" id="nextBtn">Next level ▶</button>
+  <button class="btn alt" id="replayBtn">🔄 Replay</button>
+</div></div>
+
+<div class="ov" id="quizOv"><div class="card">
+  <p class="sub" style="margin:0 0 4px;font-weight:900;letter-spacing:1px;color:var(--accent)">📺 NO ADS HERE!</p>
+  <p class="sub" style="margin:0 0 8px" id="quizWhy"></p>
+  <h2 id="quizQ" style="font-size:21px"></h2>
+  <div class="choices" id="quizChoices"></div>
+  <p class="sub" id="quizResult" style="min-height:22px;margin:10px 0 0;font-weight:700;color:#fff"></p>
+  <button class="btn" id="quizOk" style="display:none">OK</button>
+  <button class="btn alt" id="quizCancel">Never mind</button>
+</div></div>
+
+<div class="ov" id="levelsOv"><div class="card">
+  <h2>🗂️ <span>Levels</span></h2>
+  <div class="levels" id="levelGrid"></div>
+  <button class="btn" id="levelsClose">Close</button>
+</div></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Science content. Each group needs at least 4 items.
+   ========================================================= */
+const TOPICS = [
+  { id:'matter', name:'States of Matter',
+    fact:"Water is easy to find in all three states: solid ice, liquid water, and steam (a gas). Heating or cooling it changes its state!",
+    cats:[
+      { name:'Solid',  icon:'🧱', color:'#d39a62', items:[['🧊','Ice'],['🪨','Rock'],['🪵','Wood'],['🔑','Key'],['🧱','Brick'],['🪙','Coin']] },
+      { name:'Liquid', icon:'💧', color:'#4fb2ff', items:[['💧','Water'],['🥛','Milk'],['🧃','Juice'],['🍯','Honey'],['🛢️','Oil'],['🌧️','Rain']] },
+      { name:'Gas',    icon:'💨', color:'#c9d6ea', items:[['💨','Steam'],['🎈','Helium'],['🌬️','Air'],['O','Oxygen'],['😮‍💨','Breath']] },
+    ] },
+  { id:'living', name:'Living or Nonliving?',
+    fact:"Living things grow, need food or energy, and make more of their own kind. Fire can grow, but it isn't alive: it can't make baby fires!",
+    cats:[
+      { name:'Living',    icon:'🌱', color:'#5ccf74', items:[['🌳','Tree'],['🍄','Mushroom'],['🐛','Caterpillar'],['🌻','Sunflower'],['🦠','Bacteria'],['🐟','Fish']] },
+      { name:'Nonliving', icon:'🪨', color:'#a9abb8', items:[['🪨','Rock'],['☁️','Cloud'],['🔥','Fire'],['🤖','Robot'],['💧','Water'],['☀️','Sun']] },
+    ] },
+  { id:'magnet', name:'Magnet Test',
+    fact:"Magnets pull on iron and steel, but not most other metals. A penny is mostly zinc and copper, so a magnet won't pick it up!",
+    cats:[
+      { name:'Magnetic',     icon:'🧲', color:'#ef6b72', items:[['📎','Paper clip'],['🔩','Steel bolt'],['⚙️','Iron gear'],['🧷','Safety pin'],['🪝','Steel hook']] },
+      { name:'Not magnetic', icon:'🚫', color:'#9fb0cc', items:[['🪵','Wood'],['🧸','Teddy bear'],['🪙','Penny'],['🧽','Sponge'],['🍾','Glass'],['📄','Paper']] },
+    ] },
+  { id:'animals', name:'Animal Groups',
+    fact:"Bats and whales are mammals: they breathe air and feed their babies milk. Penguins are birds that swim instead of fly!",
+    cats:[
+      { name:'Mammal',  icon:'🐾', color:'#d9a06b', items:[['🐕','Dog'],['🐄','Cow'],['🐋','Whale'],['🦇','Bat'],['🐘','Elephant'],['🐬','Dolphin']] },
+      { name:'Bird',    icon:'🐦', color:'#6cc2ff', items:[['🦅','Eagle'],['🐧','Penguin'],['🦉','Owl'],['🦜','Parrot'],['🐔','Chicken'],['🦩','Flamingo']] },
+      { name:'Reptile', icon:'🦎', color:'#7fcf55', items:[['🐍','Snake'],['🐢','Turtle'],['🦎','Lizard'],['🐊','Crocodile'],['🦖','T. rex']] },
+      { name:'Fish',    icon:'🐟', color:'#4f8ff0', items:[['🦈','Shark'],['🐡','Pufferfish'],['🐠','Clownfish'],['🐟','Salmon'],['🐟','Goldfish']] },
+      { name:'Insect',  icon:'🐞', color:'#f2c94c', items:[['🐝','Bee'],['🐜','Ant'],['🦋','Butterfly'],['🐞','Ladybug'],['🦗','Cricket'],['🪲','Beetle']] },
+    ] },
+  { id:'food', name:'Food Chains',
+    fact:"Producers make their own food from sunlight. Every food chain on land starts with a plant, even a lion's!",
+    cats:[
+      { name:'Producer',  icon:'🌱', color:'#62cf66', items:[['🌿','Grass'],['🌳','Tree'],['🌽','Corn'],['🌻','Sunflower'],['🍀','Clover'],['🌾','Wheat']] },
+      { name:'Herbivore', icon:'🥕', color:'#b9dd5a', items:[['🐇','Rabbit'],['🦌','Deer'],['🐄','Cow'],['🦒','Giraffe'],['🐘','Elephant'],['🐛','Caterpillar']] },
+      { name:'Carnivore', icon:'🍖', color:'#ee6a5a', items:[['🦁','Lion'],['🦈','Shark'],['🐺','Wolf'],['🦅','Eagle'],['🐍','Snake'],['🐯','Tiger']] },
+      { name:'Omnivore',  icon:'🍽️', color:'#e6b25a', items:[['🐻','Bear'],['🐷','Pig'],['🦝','Raccoon'],['🐔','Chicken'],['🧑','Human'],['🐒','Chimp']] },
+    ] },
+  { id:'habitat', name:'Habitats',
+    fact:"A habitat gives an animal food, water and shelter. Camels store fat in their humps so they can go a long time without eating!",
+    cats:[
+      { name:'Ocean',      icon:'🌊', color:'#3d9bef', items:[['🐙','Octopus'],['🦈','Shark'],['🐳','Whale'],['🦀','Crab'],['🪼','Jellyfish'],['🐠','Clownfish']] },
+      { name:'Desert',     icon:'🏜️', color:'#eec06a', items:[['🐪','Camel'],['🦂','Scorpion'],['🌵','Cactus'],['🦎','Lizard'],['🐍','Rattlesnake']] },
+      { name:'Polar',      icon:'❄️', color:'#cdeeff', items:[['🐻‍❄️','Polar bear'],['🐧','Penguin'],['🦊','Arctic fox'],['🦉','Snowy owl'],['🐺','Arctic wolf']] },
+      { name:'Rainforest', icon:'🌴', color:'#47b866', items:[['🦜','Parrot'],['🐸','Tree frog'],['🐒','Monkey'],['🐆','Jaguar'],['🦥','Sloth'],['🦋','Butterfly']] },
+    ] },
+  { id:'conduct', name:'Electricity',
+    fact:"Electricity flows easily through metals (conductors). Rubber and plastic stop it (insulators), which is why wires are covered in plastic!",
+    cats:[
+      { name:'Conductor', icon:'⚡', color:'#f5c04a', items:[['🔌','Copper wire'],['🥄','Metal spoon'],['🔑','Key'],['📎','Paper clip'],['🪙','Coin'],['🔩','Bolt']] },
+      { name:'Insulator', icon:'🛡️', color:'#a98ae0', items:[['🧤','Rubber glove'],['🪵','Wood'],['🥤','Plastic cup'],['🧶','Wool'],['🎈','Balloon'],['🍾','Glass']] },
+    ] },
+  { id:'verts', name:'Backbone or Not?',
+    fact:"Vertebrates have a backbone. But most kinds of animals on Earth, like insects, worms and jellyfish, are invertebrates with no backbone at all!",
+    cats:[
+      { name:'Vertebrate',   icon:'🦴', color:'#ee9a7a', items:[['🐟','Fish'],['🐸','Frog'],['🐦','Bird'],['🐕','Dog'],['🐍','Snake'],['🧑','Human']] },
+      { name:'Invertebrate', icon:'🐙', color:'#d08ae6', items:[['🐙','Octopus'],['🐌','Snail'],['🪱','Worm'],['🦀','Crab'],['🐝','Bee'],['🪼','Jellyfish']] },
+    ] },
+  { id:'space', name:'Space',
+    fact:"The Sun is a star, the closest one to Earth! Moons orbit planets, and planets orbit stars.",
+    cats:[
+      { name:'Planet', icon:'🪐', color:'#6d9bff', items:[['🌍','Earth'],['🔴','Mars'],['🪐','Saturn'],['🟠','Jupiter'],['🔵','Neptune'],['🟡','Venus']] },
+      { name:'Star',   icon:'⭐', color:'#ffd84f', items:[['☀️','The Sun'],['⭐','Polaris'],['✨','Sirius'],['🌟','Vega'],['💫','Rigel']] },
+      { name:'Moon',   icon:'🌙', color:'#c5c9d8', items:[['🌕','Our Moon'],['🌑','Titan'],['🌒','Europa'],['🌓','Io'],['🌖','Phobos']] },
+    ] },
+  { id:'elements', name:'Element Families',
+    fact:"Metals are shiny and carry electricity. Noble gases are the loners of the periodic table: they almost never react with anything!",
+    cats:[
+      { name:'Metal',     icon:'⚙️', color:'#cdd3e0', items:[['Na','Sodium'],['Fe','Iron'],['Cu','Copper'],['Au','Gold'],['Al','Aluminum'],['Li','Lithium']] },
+      { name:'Nonmetal',  icon:'💨', color:'#5cb6f8', items:[['H','Hydrogen'],['C','Carbon'],['N','Nitrogen'],['O','Oxygen'],['S','Sulfur']] },
+      { name:'Noble gas', icon:'👑', color:'#bba4ff', items:[['He','Helium'],['Ne','Neon'],['Ar','Argon'],['Kr','Krypton'],['Xe','Xenon']] },
+    ] },
+  { id:'energy', name:'Energy Sources',
+    fact:"Renewable energy keeps coming back: the Sun keeps shining and the wind keeps blowing. Coal and oil took millions of years to form, so they can run out.",
+    cats:[
+      { name:'Renewable',    icon:'♻️', color:'#62cf7d', items:[['☀️','Solar'],['🌬️','Wind'],['💧','Hydro'],['🌋','Geothermal'],['🌾','Biofuel']] },
+      { name:'Nonrenewable', icon:'🏭', color:'#8a8f9c', items:[['🛢️','Oil'],['⛏️','Coal'],['🔥','Natural gas'],['☢️','Uranium'],['⛽','Gasoline']] },
+    ] },
+];
+// [topic, groups, hidden layers?]
+const LEVELS = [
+  ['matter', 2, 0], ['living', 2, 0], ['matter', 3, 0], ['magnet', 2, 0], ['animals', 3, 0], ['food', 3, 0],
+  ['habitat', 3, 0], ['conduct', 2, 1], ['animals', 4, 0], ['verts', 2, 1], ['food', 4, 1], ['space', 3, 1],
+  ['elements', 3, 1], ['habitat', 4, 1], ['energy', 2, 1], ['animals', 5, 1],
+];
+function levelSpec(n) {
+  if (n <= LEVELS.length) return LEVELS[n - 1];
+  const t = TOPICS[(n * 7) % TOPICS.length];
+  return [t.id, Math.min(t.cats.length, 5), 1];
+}
+const CAP = 4;
+
+/* =========================================================
+   Storage & sound
+   ========================================================= */
+const KEY = 'labsort_';
+function load(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} }
+let prog = load('progress', { level: 1, stars: {} });
+let soundOn = load('sound', true);
+
+let AC = null, master = null;
+function unlockAudio() {
+  try {
+    if (!AC) {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      AC = new C(); master = AC.createGain(); master.gain.value = .55;
+      const comp = AC.createDynamicsCompressor(); master.connect(comp); comp.connect(AC.destination);
+    }
+    if (AC.state !== 'running') AC.resume();
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+  } catch (e) {}
+}
+function tone(f, d, type = 'sine', v = .2, f2 = 0, delay = 0) {
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + d + .05);
+}
+const sfx = {
+  tap() { tone(880, .06, 'triangle', .1); },
+  glug(k) { tone(260 + k * 70, .14, 'sine', .2, 160 + k * 50); tone(520 + k * 90, .08, 'sine', .06, 0, .05); },
+  bad() { tone(200, .28, 'square', .06, 150); },
+  done() { [659, 784, 988].forEach((f, i) => tone(f, .22, 'triangle', .16, 0, i * .07)); },
+  win() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .3, 'triangle', .18, 0, i * .09)); },
+  right() { tone(784, .14, 'triangle', .2); tone(1175, .25, 'triangle', .18, 0, .1); },
+};
+
+/* =========================================================
+   Level building
+   ========================================================= */
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function hueOf(s) { let h = 0; for (const ch of s) h = (h * 31 + ch.codePointAt(0)) % 360; return h; }
+const itemColor = w => `hsl(${hueOf(w)}, 72%, 70%)`;
+
+// Depth-first search over pours, so every level we hand out can actually be solved.
+function solvable(tubes) {
+  const start = tubes.map(t => t.map(x => x.c)), seen = new Set(); let nodes = 0;
+  const key = s => s.map(t => t.join('')).sort().join('|');
+  const done = s => s.every(t => !t.length || (t.length === CAP && t.every(c => c === t[0])));
+  function dfs(s) {
+    if (done(s)) return true;
+    if (++nodes > 40000) return false;
+    const k = key(s); if (seen.has(k)) return false; seen.add(k);
+    for (let i = 0; i < s.length; i++) for (let j = 0; j < s.length; j++) {
+      if (i === j) continue;
+      const A = s[i], B = s[j]; if (!A.length || B.length >= CAP) continue;
+      const c = A[A.length - 1]; if (B.length && B[B.length - 1] !== c) continue;
+      if (!B.length && A.every(x => x === c)) continue;
+      let run = 0; for (let q = A.length - 1; q >= 0 && A[q] === c; q--) run++;
+      const m = Math.min(run, CAP - B.length), ns = s.map(t => t.slice());
+      for (let q = 0; q < m; q++) ns[j].push(ns[i].pop());
+      if (dfs(ns)) return true;
+    }
+    return false;
+  }
+  return dfs(start);
+}
+function buildLevel(n) {
+  const [tid, k, hid] = levelSpec(n), topic = TOPICS.find(t => t.id === tid);
+  const cats = shuffle(topic.cats.slice()).slice(0, k);
+  const empties = k <= 2 && n > 6 ? 1 : 2;
+  for (let tries = 0; tries < 300; tries++) {
+    const items = [];
+    cats.forEach((c, ci) => shuffle(c.items.slice()).slice(0, CAP).forEach(([icon, word]) => items.push({ c: ci, icon, word, col: itemColor(word) })));
+    shuffle(items);
+    const tubes = [];
+    for (let i = 0; i < k; i++) tubes.push(items.slice(i * CAP, i * CAP + CAP));
+    for (let e = 0; e < empties; e++) tubes.push([]);
+    if (tubes.some(t => t.length === CAP && t.every(x => x.c === t[0].c))) continue;
+    if (!solvable(tubes)) continue;
+    if (hid) tubes.forEach(t => t.forEach((x, i) => { x.hidden = i < t.length - 1 && Math.random() < .55; }));
+    return { n, topic, cats, tubes };
+  }
+}
+
+/* =========================================================
+   Game state & rendering
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const board = $('board');
+let L = null, start = null, history = [], sel = -1, busy = false, mistakes = 0, extraUsed = false, tubeEls = [];
+const clone = t => t.map(tube => tube.map(x => ({ ...x })));
+
+function startLevel(n, fresh = true) {
+  if (fresh || !L || L.n !== n) { L = buildLevel(n); start = clone(L.tubes); }
+  else L.tubes = clone(start);
+  history = []; sel = -1; busy = false; mistakes = 0; extraUsed = false;
+  $('lvlNum').textContent = 'Level ' + n;
+  $('lvlTopic').textContent = L.topic.name;
+  $('groups').innerHTML = L.cats.map((c, i) => `<span class="chip" data-c="${i}">${c.icon} ${c.name}</span>`).join('');
+  buildBoard(); updateTools();
+}
+function layout() {
+  if (!L) return;
+  const n = L.tubes.length, perRow = n > 4 ? Math.ceil(n / 2) : n, rows = n > 4 ? 2 : 1;
+  const availW = window.innerWidth - 16, availH = board.clientHeight || (window.innerHeight - 200);
+  const u = Math.max(.55, Math.min(1.15, (availW - 16) / (perRow * 82), availH / (rows * 256)));
+  document.documentElement.style.setProperty('--u', u.toFixed(3));
+  board.style.maxWidth = (perRow * 80 * u + 16) + 'px';   // 80u per tube (64 wide + margins) + board padding
+}
+function buildBoard() {
+  board.innerHTML = ''; tubeEls = [];
+  L.tubes.forEach((_, i) => {
+    const el = document.createElement('div'); el.className = 'tube';
+    el.innerHTML = '<div class="cap"></div><div class="lip"></div><div class="glass"></div>';
+    el.addEventListener('click', () => tapTube(i));
+    board.appendChild(el); tubeEls.push(el);
+  });
+  layout();
+  L.tubes.forEach((_, i) => renderTube(i));
+}
+function layHTML(x) {
+  if (x.hidden) return '<span class="em">?</span>';
+  const icon = /^[A-Z][a-z]?$/.test(x.icon) ? `<span class="sym">${x.icon}</span>` : `<span class="em">${x.icon}</span>`;
+  return `${icon}<span class="wd${x.word.length > 8 ? ' long' : ''}">${x.word}</span>`;
+}
+function tubeDone(t) { return t.length === CAP && t.every(x => x.c === t[0].c && !x.hidden); }
+function renderTube(i, opts = {}) {
+  const t = L.tubes[i], el = tubeEls[i], g = el.querySelector('.glass'), done = tubeDone(t);
+  const lh = 44 * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u'));
+  g.innerHTML = '';
+  t.forEach((x, k) => {
+    const d = document.createElement('div');
+    d.className = 'lay' + (x.hidden ? ' hid' : '') + (k === t.length - 1 ? ' top' : '') + (opts.fillFrom != null && k >= opts.fillFrom ? ' in' : '') + (opts.reveal === k ? ' reveal' : '');
+    d.style.bottom = (k * lh) + 'px';
+    d.style.background = done ? L.cats[x.c].color : x.col;
+    d.style.zIndex = k + 1;
+    d.innerHTML = layHTML(x);
+    g.appendChild(d);
+  });
+  el.classList.toggle('done', done);
+  const cap = el.querySelector('.cap');
+  if (done) { const c = L.cats[t[0].c]; cap.textContent = c.icon + ' ' + c.name; cap.style.background = c.color; }
+  el.classList.toggle('sel', sel === i);
+}
+function updateTools() {
+  $('undoBtn').disabled = !history.length || busy;
+  $('tubeBtn').disabled = extraUsed || busy;
+  const doneCats = new Set(L.tubes.filter(tubeDone).map(t => t[0].c));
+  document.querySelectorAll('.chip').forEach(ch => {
+    const c = +ch.dataset.c, d = doneCats.has(c);
+    ch.classList.toggle('done', d); ch.style.background = d ? L.cats[c].color : '';
+  });
+}
+
+let toastT = 0;
+function toast(html, good) {
+  const t = $('toast'); t.innerHTML = html; t.className = 'show' + (good ? ' good' : '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = '', good ? 1800 : 3000);
+}
+const itemName = x => `${/^[A-Z][a-z]?$/.test(x.icon) ? '' : x.icon + ' '}${x.word}`;
+
+function tapTube(i) {
+  unlockAudio();
+  if (busy || modalOpen()) return;
+  const t = L.tubes[i];
+  if (sel === -1) {
+    if (!t.length || tubeDone(t)) return;
+    sel = i; sfx.tap(); renderTube(i); return;
+  }
+  if (sel === i) { sel = -1; renderTube(i); return; }
+  const A = L.tubes[sel], B = t, a = A[A.length - 1];
+  if (B.length >= CAP) { toast('That tube is full! Pick another one.'); shakeTube(i, false); return; }
+  if (B.length) {
+    const b = B[B.length - 1];
+    if (b.c !== a.c) {
+      mistakes++; sfx.bad(); shakeTube(i, true);
+      toast(`<b>${itemName(a)}</b> is a <b>${L.cats[a.c].name.toLowerCase()}</b>, but <b>${itemName(b)}</b> is a <b>${L.cats[b.c].name.toLowerCase()}</b>. They don't go together!`);
+      return;
+    }
+  }
+  pour(sel, i);
+}
+function shakeTube(i, deselect) {
+  const el = tubeEls[i]; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  if (deselect && sel !== -1) { const s = sel; sel = -1; renderTube(s); }
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function pour(i, j) {
+  busy = true; updateTools();
+  history.push(clone(L.tubes));
+  const A = L.tubes[i], B = L.tubes[j], c = A[A.length - 1].c;
+  let run = 0; for (let q = A.length - 1; q >= 0 && A[q].c === c && !A[q].hidden; q--) run++;
+  const m = Math.min(run, CAP - B.length);
+  const ea = tubeEls[i], eb = tubeEls[j], ra = ea.getBoundingClientRect(), rb = eb.getBoundingClientRect();
+  const dir = rb.left >= ra.left ? 1 : -1, th = 84 * Math.PI / 180, h = ra.height;
+  const tx = (rb.left + rb.width / 2) - dir * (h / 2) * Math.sin(th) - (ra.left + ra.width / 2);
+  const ty = (rb.top - 34) + (h / 2) * Math.cos(th) - (ra.top + ra.height / 2) + 18;
+  const lift = `translateY(${-18 * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u'))}px)`;
+  const tilted = `translate(${tx}px, ${ty}px) rotate(${84 * dir}deg)`;
+  ea.style.zIndex = 10;
+  const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!quick) await ea.animate([{ transform: lift }, { transform: tilted }], { duration: 280, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished;
+
+  // the pouring stream
+  const lh = rb.height / CAP * .93, color = A[A.length - 1].col;
+  const st = document.createElement('div'); st.className = 'stream';
+  st.style.left = (rb.left + rb.width / 2 - 4) + 'px'; st.style.top = (rb.top - 30) + 'px';
+  st.style.height = Math.max(10, rb.bottom - 8 - B.length * lh - (rb.top - 30)) + 'px'; st.style.background = color;
+  document.body.appendChild(st);
+  if (!quick) st.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 120, fill: 'forwards' });
+  for (let k = 0; k < m; k++) {
+    const from = B.length;
+    B.push(A.pop());
+    renderTube(i); renderTube(j, { fillFrom: from }); sfx.glug(k);
+    st.style.height = Math.max(10, rb.bottom - 8 - B.length * lh - (rb.top - 30)) + 'px';
+    if (!quick) await sleep(190);
+  }
+  st.remove();
+  sel = -1;
+  // a hidden layer that's now on top gets revealed
+  let revealed = -1;
+  if (A.length && A[A.length - 1].hidden) { A[A.length - 1].hidden = false; revealed = A.length - 1; }
+  if (!quick) await ea.animate([{ transform: tilted }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.4,0,.2,1)' }).finished;
+  ea.getAnimations().forEach(a => a.cancel()); ea.style.zIndex = '';
+  renderTube(i, { reveal: revealed });
+  if (tubeDone(B)) {
+    renderTube(j); sfx.done(); sparkle(eb, L.cats[B[0].c].icon);
+    toast(`${L.cats[B[0].c].icon} All <b>${L.cats[B[0].c].name}</b>! ${B.map(itemName).join(', ')}`, true);
+  }
+  busy = false; updateTools();
+  if (L.tubes.every(t => !t.length || tubeDone(t))) setTimeout(win, 500);
+}
+function sparkle(el, icon) {
+  const r = el.getBoundingClientRect();
+  for (let k = 0; k < 10; k++) {
+    const s = document.createElement('span'); s.className = 'spark'; s.textContent = k % 2 ? '✨' : icon;
+    s.style.left = (r.left + r.width / 2 - 8) + 'px'; s.style.top = (r.top + 10) + 'px';
+    document.body.appendChild(s);
+    const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 50;
+    s.animate([{ transform: 'translate(0,0) scale(.4)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d - 30}px) scale(1.1)`, opacity: 0 }],
+      { duration: 700 + Math.random() * 300, easing: 'ease-out' }).finished.then(() => s.remove());
+  }
+}
+
+/* =========================================================
+   Win, levels, helper questions
+   ========================================================= */
+function win() {
+  const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
+  prog.stars[L.n] = Math.max(prog.stars[L.n] || 0, stars);
+  prog.level = Math.max(prog.level, L.n + 1); save('progress', prog);
+  sfx.win(); confetti();
+  $('winStars').innerHTML = [0, 1, 2].map(k => `<i class="${k < stars ? '' : 'off'}" style="animation-delay:${.15 + k * .15}s">⭐</i>`).join('');
+  $('winSub').textContent = mistakes === 0 ? 'Perfect: no mix-ups!' : `${mistakes} mix-up${mistakes > 1 ? 's' : ''}. ${stars < 3 ? 'Replay for 3 stars!' : ''}`;
+  $('winRecap').innerHTML = L.tubes.filter(t => t.length).map(t => {
+    const c = L.cats[t[0].c];
+    return `<div><b style="color:${c.color}">${c.icon} ${c.name}</b><span>${t.map(x => /^[A-Z][a-z]?$/.test(x.icon) ? x.word : x.icon).join(' ')}</span></div>`;
+  }).join('');
+  $('winFact').innerHTML = '🔬 <b>Did you know?</b> ' + L.topic.fact;
+  openOv('winOv');
+}
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#ffd23f', '#ff6b8a', '#5ccf74', '#4fb2ff', '#bba4ff'];
+  for (let k = 0; k < 50; k++) {
+    const p = document.createElement('div'); p.className = 'confetti';
+    p.style.left = Math.random() * 100 + 'vw'; p.style.background = cols[k % cols.length];
+    p.style.animationDuration = (1.6 + Math.random() * 1.6) + 's'; p.style.animationDelay = Math.random() * .4 + 's';
+    document.body.appendChild(p); setTimeout(() => p.remove(), 3800);
+  }
+}
+const AD_LINES = ['Only 3% of people can solve this!', '99% FAIL this level!', 'Only GENIUSES can solve this!', 'Scientists HATE this level!', 'Can YOU beat it?', 'IMPOSSIBLE level?!'];
+function showIntro(n) {
+  startLevel(n);
+  $('introNum').textContent = n;
+  $('introAd').textContent = '🧪 ' + AD_LINES[(n * 5) % AD_LINES.length];
+  $('introTopic').textContent = L.topic.name;
+  $('introGroups').innerHTML = L.cats.map(c => `<span class="chip done" style="background:${c.color}">${c.icon} ${c.name}</span>`).join('');
+  openOv('introOv');
+}
+function openOv(id) { $(id).classList.add('show'); }
+function closeOv(id) { $(id).classList.remove('show'); }
+const modalOpen = () => !!document.querySelector('.ov.show');
+
+function showLevels() {
+  const max = Math.max(prog.level, LEVELS.length);
+  $('levelGrid').innerHTML = '';
+  for (let n = 1; n <= max; n++) {
+    const b = document.createElement('button'), open = n <= prog.level, s = prog.stars[n] || 0;
+    b.className = 'lv' + (open ? '' : ' lock') + (L && L.n === n ? ' cur' : '');
+    b.innerHTML = open ? `${n}<small>${'⭐'.repeat(s) || '·'}</small>` : '🔒';
+    if (open) b.onclick = () => { closeOv('levelsOv'); closeOv('titleOv'); showIntro(n); };
+    $('levelGrid').appendChild(b);
+  }
+  openOv('levelsOv');
+}
+
+// Undo and an extra tube cost a question instead of an ad.
+let pendingHelp = null;
+function askHelp(kind) {
+  if (busy) return;
+  pendingHelp = kind;
+  const all = L.tubes.flat(), x = all[Math.random() * all.length | 0];
+  $('quizWhy').textContent = kind === 'undo' ? 'Answer this to undo your last pour:' : 'Answer this to get an extra empty tube:';
+  $('quizQ').innerHTML = `Which group does <span>${itemName(x)}</span> belong to?`;
+  $('quizResult').textContent = ''; $('quizOk').style.display = 'none'; $('quizCancel').style.display = '';
+  const box = $('quizChoices'); box.innerHTML = ''; box.dataset.done = '';
+  L.cats.forEach((c, ci) => {
+    const b = document.createElement('button'); b.className = 'choice'; b.textContent = c.icon + ' ' + c.name;
+    b.onclick = () => {
+      if (box.dataset.done) return; box.dataset.done = 1; $('quizCancel').style.display = 'none';
+      if (ci === x.c) {
+        b.classList.add('right'); sfx.right();
+        $('quizResult').textContent = `✅ Yes! ${x.word} is ${/^[AEIOU]/i.test(c.name) ? 'an' : 'a'} ${c.name.toLowerCase()}.`;
+        applyHelp();
+      } else {
+        b.classList.add('wrong'); sfx.bad(); box.children[x.c].classList.add('right');
+        $('quizResult').textContent = `Not quite: ${x.word} goes with ${L.cats[x.c].name}. Try again next time!`;
+      }
+      $('quizOk').style.display = '';
+    };
+    box.appendChild(b);
+  });
+  openOv('quizOv');
+}
+function applyHelp() {
+  if (pendingHelp === 'undo' && history.length) {
+    L.tubes = history.pop(); sel = -1;
+    if (L.tubes.length !== tubeEls.length) buildBoard(); else L.tubes.forEach((_, i) => renderTube(i));
+  } else if (pendingHelp === 'tube' && !extraUsed) {
+    extraUsed = true; L.tubes.push([]); history = history.map(h => h.concat([[]])); buildBoard();
+  }
+  pendingHelp = null; updateTools();
+}
+
+/* =========================================================
+   Wiring
+   ========================================================= */
+$('playBtn').onclick = () => { unlockAudio(); closeOv('titleOv'); showIntro(Math.min(prog.level, 999)); };
+$('titleLevels').onclick = () => { unlockAudio(); showLevels(); };
+$('levelsBtn').onclick = () => { unlockAudio(); if (!busy) showLevels(); };
+$('levelsClose').onclick = () => closeOv('levelsOv');
+$('introGo').onclick = () => { unlockAudio(); closeOv('introOv'); layout(); L.tubes.forEach((_, i) => renderTube(i)); };
+$('nextBtn').onclick = () => { closeOv('winOv'); showIntro(L.n + 1); };
+$('replayBtn').onclick = () => { closeOv('winOv'); startLevel(L.n, false); };
+$('restartBtn').onclick = () => { if (!busy) { startLevel(L.n, false); toast('Fresh start! 🔄', true); } };
+$('undoBtn').onclick = () => { unlockAudio(); if (history.length) askHelp('undo'); };
+$('tubeBtn').onclick = () => { unlockAudio(); if (!extraUsed) askHelp('tube'); };
+$('quizOk').onclick = () => closeOv('quizOv');
+$('quizCancel').onclick = () => { pendingHelp = null; closeOv('quizOv'); };
+$('soundBtn').onclick = () => { soundOn = !soundOn; save('sound', soundOn); unlockAudio(); $('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off'; sfx.tap(); };
+$('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off';
+window.addEventListener('resize', () => { if (L) { layout(); L.tubes.forEach((_, i) => renderTube(i)); } });
+
+startLevel(Math.min(prog.level, 999));
+$('playBtn').textContent = prog.level > 1 ? `▶ Play level ${prog.level}` : '▶ Play';
+openOv('titleOv');
+
+// Hooks for automated testing.
+window.__ls = {
+  get L() { return L; }, get busy() { return busy; }, get mistakes() { return mistakes; }, tapTube, startLevel, solvable, buildLevel,
+  levelSpec, TOPICS, closeOv,
+};
+</script>
+</body>
+</html>

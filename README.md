@@ -11,6 +11,7 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Larry Plopper (math rogue-like) | `games/larry-plopper/` |
 | Star Squad (space math runner) | `games/squad-rush/` |
 | Element Drop (periodic table merge game) | `games/element-drop/` |
+| Lab Sort (science sorting puzzle) | `games/lab-sort/` |
 | Word Miner (spelling) | `games/word-miner/` |
 | Duck Name Generator | `games/duck-names/` |
 
