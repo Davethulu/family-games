@@ -10,6 +10,7 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Math Hopper 3D | `games/math-hopper-3d/` |
 | Larry Plopper (math rogue-like) | `games/larry-plopper/` |
 | Star Squad (space math runner) | `games/squad-rush/` |
+| Element Drop (periodic table merge game) | `games/element-drop/` |
 | Word Miner (spelling) | `games/word-miner/` |
 | Duck Name Generator | `games/duck-names/` |
 

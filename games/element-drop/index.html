@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Element Drop</title>
+<style>
+  :root { --ink:#eaf2ff; --muted:#9fb0d8; --accent:#ffd23f; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    height:100%; overflow:hidden; background:#070b22; color:var(--ink);
+    font-family: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    -webkit-user-select:none; user-select:none; touch-action:none;
+  }
+  #app {
+    position:fixed; inset:0; display:flex; flex-direction:column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* Left padding leaves room for the arcade's Menu button. */
+  #hud { height:58px; flex:none; display:flex; align-items:center; gap:6px; padding:6px 8px 0 96px; }
+  .stat { flex:1; min-width:0; background:rgba(255,255,255,.07); border-radius:12px; padding:4px 8px; line-height:1.1; }
+  .stat small { display:block; font-size:10px; letter-spacing:1px; color:var(--muted); font-weight:700; }
+  .stat b { font-size:19px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #nextBox { flex:none; width:50px; height:46px; background:rgba(255,255,255,.07); border-radius:12px; display:grid; place-items:center; position:relative; }
+  #nextBox small { position:absolute; top:2px; font-size:8px; letter-spacing:1px; color:var(--muted); font-weight:700; }
+  #nextCv { width:34px; height:34px; margin-top:8px; }
+  .iconBtn {
+    flex:none; width:46px; height:46px; border-radius:12px; border:0; cursor:pointer;
+    background:rgba(255,255,255,.12); color:#fff; font-size:22px;
+    transition:transform .1s;
+  }
+  .iconBtn:active { transform:scale(.9); }
+  #stage { flex:1; position:relative; min-height:0; }
+  #cv { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+  #chain { height:50px; flex:none; display:flex; justify-content:center; align-items:center; gap:3px; padding:0 6px 6px; cursor:pointer; }
+  .ch {
+    width:min(30px, calc((100vw - 48px) / 11)); aspect-ratio:1; border-radius:50%;
+    display:grid; place-items:center; font-weight:800; font-size:11px;
+    background:#1a2250; color:#56619a; border:2px solid rgba(255,255,255,.08);
+    transition:transform .2s;
+  }
+  .ch.on { color:#fff; border-color:rgba(255,255,255,.35); text-shadow:0 1px 2px rgba(0,0,0,.5); }
+  .ch.light { color:#1d2350; text-shadow:none; }
+  .ch.cur { transform:scale(1.18); box-shadow:0 0 0 2px #fff, 0 0 12px rgba(255,255,255,.6); }
+
+  /* ---------- Overlays ---------- */
+  .ov {
+    position:fixed; inset:0; z-index:10; display:none; align-items:center; justify-content:center;
+    background:rgba(4,8,26,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  }
+  .ov.show { display:flex; animation:fadeIn .2s ease-out; }
+  .card {
+    background:linear-gradient(#1f2c68,#141c45); border:2px solid rgba(255,255,255,.12);
+    border-radius:22px; padding:20px 18px; width:100%; max-width:360px; max-height:100%; overflow:auto;
+    text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.55);
+    animation:popUp .4s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes fadeIn { from { opacity:0; } }
+  @keyframes popUp { from { opacity:0; transform:scale(.85) translateY(20px); } }
+  h1 { font-size:34px; line-height:1.1; }
+  h1 span, h2 span { color:var(--accent); }
+  h2 { font-size:24px; margin-bottom:4px; }
+  .sub { color:var(--muted); margin:6px 0 14px; font-size:15px; line-height:1.35; }
+  .card p { line-height:1.4; font-size:15px; }
+  .btn {
+    font:inherit; font-weight:800; font-size:18px; border:0; border-radius:14px; padding:12px 22px; cursor:pointer;
+    background:var(--accent); color:#1a1440; box-shadow:0 5px 0 #b8901a; margin:6px 4px 0;
+    transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform:translateY(3px); box-shadow:0 2px 0 #b8901a; }
+  .btn.alt { background:#3a4c95; color:#fff; box-shadow:0 5px 0 #222d63; }
+  .btn.alt:active { box-shadow:0 2px 0 #222d63; }
+  .how { text-align:left; background:rgba(255,255,255,.06); border-radius:14px; padding:10px 12px; margin:12px 0; font-size:14.5px; line-height:1.45; }
+  .how div { display:flex; gap:8px; align-items:flex-start; }
+  .how div + div { margin-top:6px; }
+  .ballCv { display:block; margin:6px auto; }
+  .tag { display:inline-block; font-size:12px; font-weight:800; padding:3px 10px; border-radius:99px; color:#10142e; margin:2px; }
+  .facts { text-align:left; background:rgba(255,255,255,.06); border-radius:14px; padding:10px 12px; margin:10px 0 6px; font-size:14.5px; line-height:1.45; }
+  .facts b { color:var(--accent); }
+  .choices { display:grid; gap:8px; margin-top:12px; }
+  .choice {
+    font:inherit; font-weight:800; font-size:19px; padding:12px; border-radius:14px; border:0; cursor:pointer;
+    background:#2e3f86; color:#fff; box-shadow:0 4px 0 #1c275a; transition:transform .08s;
+  }
+  .choice:active { transform:translateY(2px); }
+  .choice.right { background:#2fb36a; box-shadow:0 4px 0 #1d7a46; }
+  .choice.wrong { background:#c8414f; box-shadow:0 4px 0 #85232d; animation:shake .35s; }
+  @keyframes shake { 25% { transform:translateX(-6px); } 75% { transform:translateX(6px); } }
+  .result { min-height:24px; margin-top:10px; font-weight:700; }
+
+  /* Guide: a mini periodic table */
+  .ptable { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin:10px 0 4px; }
+  .pc {
+    aspect-ratio:1; border-radius:8px; position:relative; display:grid; place-items:center;
+    font-weight:800; font-size:15px; background:#202a5a; color:#4b5590; border:0; font-family:inherit; padding:0;
+    border-bottom:4px solid transparent; cursor:pointer;
+  }
+  .pc small { position:absolute; top:2px; left:4px; font-size:8px; font-weight:700; opacity:.8; }
+  .pc.on { color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); }
+  .pc.on.light { color:#1d2350; text-shadow:none; }
+  .pc.far { background:transparent; border:1px dashed #36407a; border-bottom-width:4px; color:#4b5590; cursor:default; }
+  .pc.sel { outline:3px solid #fff; outline-offset:1px; }
+  .legend { display:flex; flex-wrap:wrap; justify-content:center; gap:4px 10px; font-size:11px; color:var(--muted); margin:6px 0; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+  #gDetail { min-height:120px; }
+  .row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="stat"><small>SCORE</small><b id="score">0</b></div>
+    <div class="stat"><small>BEST</small><b id="best">0</b></div>
+    <div id="nextBox"><small>NEXT</small><canvas id="nextCv"></canvas></div>
+    <button class="iconBtn" id="guideBtn" aria-label="Element guide">📖</button>
+  </div>
+  <div id="stage"><canvas id="cv"></canvas></div>
+  <div id="chain" aria-label="Element chain"></div>
+</div>
+
+<div class="ov" id="titleOv"><div class="card">
+  <h1>⚛️ Element <span>Drop</span></h1>
+  <p class="sub">Fuse atoms to climb the periodic table!</p>
+  <canvas class="ballCv" id="titleCv" width="300" height="90" style="width:300px;height:90px;max-width:100%"></canvas>
+  <div class="how">
+    <div><span>👆</span><span>Slide to aim, let go to drop an atom.</span></div>
+    <div><span>💥</span><span>Two of the <b>same</b> element fuse into the next one: H + H = He!</span></div>
+    <div><span>⚠️</span><span>Careful! Atoms piled over the rim can spill out of the jar. A spill ends the game.</span></div>
+  </div>
+  <div class="row" id="titleBtns"></div>
+  <p class="sub" id="titleBest" style="margin:10px 0 0"></p>
+</div></div>
+
+<div class="ov" id="discOv"><div class="card">
+  <p class="sub" style="margin:0 0 2px;font-weight:800;letter-spacing:1px;color:#7fe8ff">✨ NEW ELEMENT! ✨</p>
+  <canvas class="ballCv" id="discCv"></canvas>
+  <h2 id="discName"></h2>
+  <div id="discTags"></div>
+  <div class="facts" id="discFacts"></div>
+  <button class="btn" id="discOk">Awesome!</button>
+</div></div>
+
+<div class="ov" id="quizOv"><div class="card">
+  <p class="sub" style="margin:0 0 6px;font-weight:800;letter-spacing:1px;color:var(--accent)">⚡ BONUS QUESTION ⚡</p>
+  <h2 id="quizQ" style="font-size:21px"></h2>
+  <div class="choices" id="quizChoices"></div>
+  <div class="result" id="quizResult"></div>
+  <button class="btn" id="quizOk" style="display:none">Keep playing</button>
+</div></div>
+
+<div class="ov" id="overOv"><div class="card">
+  <h1>Oops, a <span>spill!</span></h1>
+  <p class="sub" id="overSub"></p>
+  <canvas class="ballCv" id="overCv"></canvas>
+  <p id="overTop"></p>
+  <div class="row" style="margin-top:10px">
+    <button class="btn" id="againBtn">Play again</button>
+    <button class="btn alt" id="overGuide">📖 Guide</button>
+  </div>
+</div></div>
+
+<div class="ov" id="guideOv"><div class="card">
+  <h2>📖 Element <span>Guide</span></h2>
+  <p class="sub" style="margin:2px 0 0" id="gCount"></p>
+  <div class="ptable" id="ptable"></div>
+  <div class="legend" id="legend"></div>
+  <div id="gDetail"></div>
+  <div class="row">
+    <button class="btn alt" id="soundBtn">🔊 Sound on</button>
+    <button class="btn" id="guideClose">Close</button>
+  </div>
+</div></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Elements
+   ========================================================= */
+const EL = [null,
+  { s:'H',  n:'Hydrogen',  c:'#eef3ff', fam:'Nonmetal', st:'Gas',
+    fact:"The lightest element, and the most common one in the whole universe. Stars like our Sun are mostly hydrogen!",
+    clue:'is the most common element in the universe' },
+  { s:'He', n:'Helium',    c:'#7fe8ff', fam:'Noble gas', st:'Gas',
+    fact:"Inside the Sun, hydrogen atoms smash together to make helium. That's called <b>fusion</b>, and it's why the Sun shines! Helium is lighter than air, so it makes balloons float.",
+    clue:'makes party balloons float' },
+  { s:'Li', n:'Lithium',   c:'#b98cff', fam:'Alkali metal', st:'Solid',
+    fact:"The lightest metal of all: it's so light it would float on water. Lithium batteries power phones, tablets and electric cars.",
+    clue:'is used in phone and tablet batteries' },
+  { s:'Be', n:'Beryllium', c:'#4fd88a', fam:'Alkaline earth metal', st:'Solid',
+    fact:"Green emeralds are a gem made with beryllium. It's light and stiff, so the giant mirrors of the James Webb Space Telescope are made of it!",
+    clue:'is found in green emeralds' },
+  { s:'B',  n:'Boron',     c:'#ff9f84', fam:'Metalloid', st:'Solid',
+    fact:"Boron is in borax, which people use to make slime! It also makes tough glass for baking dishes and science beakers.",
+    clue:'is in borax, used to make slime' },
+  { s:'C',  n:'Carbon',    c:'#7d8599', fam:'Nonmetal', st:'Solid',
+    fact:"Diamonds and pencil \"lead\" are both made of pure carbon. Every living thing is built with carbon, including you!",
+    clue:'makes both diamonds and pencil lead' },
+  { s:'N',  n:'Nitrogen',  c:'#4f7bff', fam:'Nonmetal', st:'Gas',
+    fact:"About 78% of the air you breathe is nitrogen. Liquid nitrogen is so cold (−196 °C) it can freeze a flower solid in seconds!",
+    clue:'makes up most of the air around us' },
+  { s:'O',  n:'Oxygen',    c:'#ff4d5e', fam:'Nonmetal', st:'Gas',
+    fact:"You breathe oxygen every second to stay alive. Water is H₂O: 2 hydrogen atoms + 1 oxygen atom.",
+    clue:'is the gas we breathe in to stay alive' },
+  { s:'F',  n:'Fluorine',  c:'#c6ef4f', fam:'Halogen', st:'Gas',
+    fact:"Fluoride, made from fluorine, is in toothpaste to keep your teeth strong. Pure fluorine is one of the most reactive elements there is!",
+    clue:'is in toothpaste to protect your teeth' },
+  { s:'Ne', n:'Neon',      c:'#ff7a2e', fam:'Noble gas', st:'Gas',
+    fact:"Neon glows bright red-orange in glowing signs. It's a noble gas, which means it almost never reacts with anything.",
+    clue:'glows red-orange in bright signs' },
+  { s:'Na', n:'Sodium',    c:'#ffd23f', fam:'Alkali metal', st:'Solid',
+    fact:"Table salt is made of sodium and chlorine. Pure sodium is so soft you can cut it with a butter knife, and it fizzes in water!",
+    clue:'is half of table salt' },
+  // Beyond the jar: shown in the guide's table so the rows are complete.
+  { s:'Mg', n:'Magnesium', fam:'Alkaline earth metal' },
+  { s:'Al', n:'Aluminum',  fam:'Post-transition metal' },
+  { s:'Si', n:'Silicon',   fam:'Metalloid' },
+  { s:'P',  n:'Phosphorus',fam:'Nonmetal' },
+  { s:'S',  n:'Sulfur',    fam:'Nonmetal' },
+  { s:'Cl', n:'Chlorine',  fam:'Halogen' },
+  { s:'Ar', n:'Argon',     fam:'Noble gas' },
+];
+const FAM_COLOR = {
+  'Nonmetal':'#4dabf7', 'Noble gas':'#b197fc', 'Alkali metal':'#ff6b6b',
+  'Alkaline earth metal':'#ffa94d', 'Metalloid':'#38d9a9', 'Halogen':'#ffe066',
+  'Post-transition metal':'#adb5bd',
+};
+const MAXZ = 11;
+const SUPERNOVA_FACT = "In real life, elements are made inside stars. When a giant star explodes in a <b>supernova</b>, it scatters elements across space. The atoms in your body were made in stars!";
+const shells = z => z <= 2 ? [z] : z <= 10 ? [2, z - 2] : [2, 8, z - 10];
+
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(h, t, amt) { const a = hexRgb(h), b = hexRgb(t); return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * amt)).join(',')})`; }
+for (let z = 1; z <= MAXZ; z++) {
+  const e = EL[z], [r, g, b] = hexRgb(e.c);
+  e.light = (0.299 * r + 0.587 * g + 0.114 * b) > 165;
+  e.hi = mix(e.c, '#ffffff', .6); e.lo = mix(e.c, '#000000', .38); e.rim = mix(e.c, '#000000', .5);
+}
+
+/* =========================================================
+   Storage (shared origin with the other arcade games)
+   ========================================================= */
+const KEY = 'elementdrop_';
+function load(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} }
+let best = load('best', 0);
+let seen = new Set(load('seen', []));
+let soundOn = load('sound', true);
+
+/* =========================================================
+   Sound
+   ========================================================= */
+let AC = null, master = null;
+function unlockAudio() {
+  try {
+    if (!AC) {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      AC = new C(); master = AC.createGain(); master.gain.value = .55;
+      const comp = AC.createDynamicsCompressor(); master.connect(comp); comp.connect(AC.destination);
+    }
+    if (AC.state !== 'running') AC.resume();
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+  } catch (e) {}
+}
+function tone(f, d, type = 'sine', v = .2, f2 = 0, delay = 0) {
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + d + .05);
+}
+const STEPS = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26];
+const sfx = {
+  drop() { tone(760, .09, 'sine', .12, 380); },
+  merge(z) {
+    const f = 262 * 2 ** (STEPS[z - 1] / 12);
+    tone(f * .5, .12, 'sine', .16, f); tone(f, .2, 'triangle', .2, 0, .04);
+    tone(f * 1.5, .22, 'sine', .1, 0, .08); tone(f * 2, .3, 'sine', .06, 0, .12);
+  },
+  nova() { tone(160, 1, 'sawtooth', .12, 40); [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, .3, 'triangle', .14, 0, .1 + i * .07)); },
+  discover() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .25, 'triangle', .16, 0, i * .08)); },
+  right() { tone(784, .14, 'triangle', .2); tone(1175, .25, 'triangle', .18, 0, .1); },
+  wrong() { tone(230, .28, 'square', .06, 170); },
+  over() { [392, 330, 262, 196].forEach((f, i) => tone(f, .3, 'triangle', .16, 0, i * .16)); },
+  pop(i) { tone(500 + (i % 8) * 60, .07, 'sine', .08, 900); },
+};
+
+/* =========================================================
+   World & physics
+   The jar is W wide and H deep; y grows downward, the rim is y = 0.
+   ========================================================= */
+const W = 360, H = 500, TOP = 128, CR = 42;          // jar size, room above the rim, corner radius
+const R = [0, 14, 19, 24, 30, 36, 43, 51, 59, 68, 78, 88];
+const G = 1150, HOLD_Y = -64;
+const SEGS = [];
+(function buildJar() {
+  const pts = [[0, 0], [0, H - CR]];
+  for (let i = 1; i <= 8; i++) { const a = Math.PI - i * Math.PI / 16; pts.push([CR + CR * Math.cos(a), H - CR + CR * Math.sin(a)]); }
+  for (let i = 1; i <= 8; i++) { const a = Math.PI / 2 - i * Math.PI / 16; pts.push([W - CR + CR * Math.cos(a), H - CR + CR * Math.sin(a)]); }
+  pts.push([W, 0]);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [ax, ay] = pts[i], [bx, by] = pts[i + 1], dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy);
+    SEGS.push({ ax, ay, dx, dy, l2: l * l, nx: dy / l, ny: -dx / l });   // inward normal
+  }
+  buildJar.pts = pts;
+})();
+const JAR_PTS = (function () {   // the visible part of the jar, from the rim down and back up
+  const p = [[0, 0], [0, H - CR]];
+  for (let i = 1; i <= 16; i++) { const a = Math.PI - i * Math.PI / 32; p.push([CR + CR * Math.cos(a), H - CR + CR * Math.sin(a)]); }
+  for (let i = 1; i <= 16; i++) { const a = Math.PI / 2 - i * Math.PI / 32; p.push([W - CR + CR * Math.cos(a), H - CR + CR * Math.sin(a)]); }
+  p.push([W, 0]); return p;
+})();
+
+let balls = [], merges = [], contacts = [], nextId = 1;
+function makeBall(z, x, y) {
+  return { id: nextId++, z, x, y, px: x, py: y, vx: 0, vy: 0, r: R[z], R: R[z], m: R[z] * R[z], age: 0, t: 9, over: 0, dead: false, wall: false };
+}
+
+function collide(record) {
+  const n = balls.length;
+  for (let i = 0; i < n; i++) {
+    const a = balls[i]; if (a.dead) continue;
+    for (let j = i + 1; j < n; j++) {
+      const b = balls[j]; if (b.dead) continue;
+      const dx = b.x - a.x, dy = b.y - a.y, rr = a.r + b.r;
+      if (dx > rr || dx < -rr || dy > rr || dy < -rr) continue;
+      const d2 = dx * dx + dy * dy; if (d2 >= rr * rr) continue;
+      if (a.z === b.z && state === 'play') { a.dead = b.dead = true; merges.push(a, b); break; }
+      let d = Math.sqrt(d2), nx, ny;
+      if (d < 1e-4) { nx = 0; ny = 1; d = 1e-4; } else { nx = dx / d; ny = dy / d; }
+      const wa = 1 / a.m, wb = 1 / b.m, k = (rr - d) / (wa + wb);
+      a.x -= nx * k * wa; a.y -= ny * k * wa; b.x += nx * k * wb; b.y += ny * k * wb;
+      if (record) contacts.push(a, b, nx, ny);
+    }
+  }
+}
+function walls(b) {
+  b.wall = false;
+  if (b.out) return;   // spilling over the rim: it falls outside the jar
+  if (b.y < 0 && (b.x < 0 || b.x > W)) { b.out = true; return; }
+  for (const s of SEGS) {
+    let t = ((b.x - s.ax) * s.dx + (b.y - s.ay) * s.dy) / s.l2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const ex = b.x - (s.ax + s.dx * t), ey = b.y - (s.ay + s.dy * t), d2 = ex * ex + ey * ey;
+    if (d2 >= b.r * b.r) continue;
+    let d = Math.sqrt(d2), nx, ny, ov;
+    if (d < 1e-4 || ex * s.nx + ey * s.ny < 0) { nx = s.nx; ny = s.ny; ov = b.r + d; }   // slipped through: push back in
+    else { nx = ex / d; ny = ey / d; ov = b.r - d; }
+    b.x += nx * ov; b.y += ny * ov; b.wall = true; b.wnx = nx; b.wny = ny;
+  }
+  if (b.y > 0) { if (b.x < b.r) b.x = b.r; if (b.x > W - b.r) b.x = W - b.r; if (b.y > H - b.r) b.y = H - b.r; }
+}
+function physics(dt) {
+  const SUB = 8, h = dt / SUB;
+  for (let s = 0; s < SUB; s++) {
+    for (const b of balls) {
+      b.px = b.x; b.py = b.y; b.vy += G * h; b.x += b.vx * h; b.y += b.vy * h;
+      if (b.r < b.R) b.r = Math.min(b.R, b.r + b.R * h * 1.6);   // freshly fused atoms swell into place
+    }
+    contacts.length = 0;
+    collide(false); collide(true);
+    for (const b of balls) if (!b.dead) walls(b);
+    for (const b of balls) {
+      b.vx = (b.x - b.px) / h; b.vy = (b.y - b.py) / h;
+      const sp = Math.hypot(b.vx, b.vy); if (sp > 1500) { b.vx *= 1500 / sp; b.vy *= 1500 / sp; }
+      b.vx *= .9994; b.vy *= .9994;
+      if (b.wall) {   // a little grip against the glass
+        const vn = b.vx * b.wnx + b.vy * b.wny, tx = b.vx - vn * b.wnx, ty = b.vy - vn * b.wny;
+        b.vx -= tx * .05; b.vy -= ty * .05;
+      }
+    }
+    for (let k = 0; k < contacts.length; k += 4) {   // friction between atoms so piles don't slide like water
+      const a = contacts[k], b = contacts[k + 1], nx = contacts[k + 2], ny = contacts[k + 3];
+      const tx = -ny, ty = nx, vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty;
+      const wa = 1 / a.m, wb = 1 / b.m, j = vt * .07 / (wa + wb);
+      a.vx += tx * j * wa; a.vy += ty * j * wa; b.vx -= tx * j * wb; b.vy -= ty * j * wb;
+    }
+    if (merges.length) doMerges();
+  }
+}
+function doMerges() {
+  for (let k = 0; k < merges.length; k += 2) {
+    const a = merges[k], b = merges[k + 1], x = (a.x + b.x) / 2, y = (a.y + b.y) / 2;
+    if (a.z === MAXZ) { supernova(x, y); continue; }
+    const nb = makeBall(a.z + 1, x, y);
+    nb.vx = (a.vx + b.vx) / 2; nb.vy = (a.vy + b.vy) / 2; nb.r = Math.max(a.r, b.r); nb.age = 1; nb.t = 0;
+    balls.push(nb); onFuse(nb);
+  }
+  merges.length = 0;
+  balls = balls.filter(b => !b.dead);
+}
+
+/* =========================================================
+   Game state
+   ========================================================= */
+let state = 'title', score = 0, shownScore = 0, cur = 1, next = 1, aimX = W / 2, aiming = false;
+let dropCool = 0, holdPop = 1, fuseCount = 0, quizStreak = 0, danger = 0, T = 0, saveT = 0, endQueue = [], endT = 0, topZ = 1;
+const pending = [];          // discovery cards / quizzes waiting to be shown
+let modal = null;
+
+function randTier() { const w = [30, 26, 20, 14, 10]; let r = Math.random() * 100; for (let i = 0; i < 5; i++) { r -= w[i]; if (r < 0) return i + 1; } return 1; }
+
+function newGame() {
+  balls = []; merges = []; score = 0; shownScore = 0; fuseCount = 0; quizStreak = 0; danger = 0; topZ = 1;
+  cur = 1; next = Math.random() < .6 ? 1 : 2; dropCool = 0; holdPop = 0; pending.length = 0;
+  fx.length = 0; texts.length = 0;
+  state = 'play'; save('game', null); updateHud(); updateChain();
+}
+function saveGame() {
+  if (state !== 'play') return;
+  save('game', { score, cur, next, fuseCount, topZ, balls: balls.filter(b => !b.dead).map(b => [b.z, Math.round(b.x), Math.round(b.y)]) });
+}
+function resumeGame(g) {
+  newGame();
+  score = shownScore = g.score || 0; cur = g.cur || 1; next = g.next || 1; fuseCount = g.fuseCount || 0; topZ = g.topZ || 1;
+  for (const [z, x, y] of g.balls || []) { const b = makeBall(z, x, y); b.age = 2; balls.push(b); }
+  updateHud(); updateChain();
+}
+
+function drop() {
+  if (state !== 'play' || modal || dropCool > 0) return;
+  const b = makeBall(cur, clampAim(aimX, cur), HOLD_Y); b.vy = 60;
+  balls.push(b); sfx.drop();
+  cur = next; next = randTier(); dropCool = .45; holdPop = 0;
+  updateHud(); updateChain();
+}
+const clampAim = (x, z) => Math.max(R[z] + 1, Math.min(W - R[z] - 1, x));
+
+function onFuse(b) {
+  const z = b.z, pts = z * (z + 1) / 2;
+  score += pts; fuseCount++; if (z > topZ) topZ = z;
+  burst(b.x, b.y, EL[z].c, 10 + z * 2, 120 + z * 22);
+  ring(b.x, b.y, b.R * 1.6, EL[z].c);
+  floatText(b.x, b.y - b.R * .3, `${EL[z].n}!`, `+${pts}`, EL[z].c, z);
+  shake = Math.min(14, 1.5 + z * 1.1);
+  sfx.merge(z);
+  if (!seen.has(z)) { seen.add(z); save('seen', [...seen]); pending.push({ kind: 'disc', z, wait: .45 }); updateChain(); }
+  if (fuseCount % 8 === 0 && [...seen].filter(n => typeof n === 'number').length >= 3) pending.push({ kind: 'quiz', wait: .5 });
+  updateHud();
+}
+function supernova(x, y) {
+  score += 100;
+  for (let z = 1; z <= MAXZ; z++) burst(x, y, EL[z].c, 8, 420);
+  ring(x, y, 260, '#ffffff'); ring(x, y, 180, '#ffd23f');
+  floatText(x, y, 'SUPERNOVA!', '+100', '#ffd23f', 12);
+  flash = .9; shake = 18; sfx.nova();
+  if (!seen.has('sn')) { seen.add('sn'); save('seen', [...seen]); pending.push({ kind: 'nova', wait: .6 }); }
+  updateHud();
+}
+
+function endGame() {
+  state = 'ending'; aiming = false; save('game', null);
+  if (score > best) { best = score; save('best', best); }
+  endQueue = balls.slice().sort((a, b) => a.y - b.y); endT = .5;
+  sfx.over();
+}
+
+/* =========================================================
+   Effects
+   ========================================================= */
+const fx = [], texts = [];
+let shake = 0, flash = 0;
+function burst(x, y, color, n, sp) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, v = sp * (.35 + Math.random() * .65);
+    fx.push({ k: 'p', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: 0, max: .5 + Math.random() * .5, s: 2 + Math.random() * 4, color });
+  }
+}
+function ring(x, y, r, color) { fx.push({ k: 'r', x, y, r, life: 0, max: .45, color }); }
+function floatText(x, y, txt, sub, color, z) { texts.push({ x, y, txt, sub, color, life: 0, max: 1.3, size: 15 + Math.min(z, 12) * 1.1 }); }
+function updateFx(dt) {
+  for (let i = fx.length - 1; i >= 0; i--) {
+    const p = fx[i]; p.life += dt;
+    if (p.life >= p.max) { fx.splice(i, 1); continue; }
+    if (p.k === 'p') { p.vy += 700 * dt; p.vx *= .985; p.x += p.vx * dt; p.y += p.vy * dt; }
+  }
+  for (let i = texts.length - 1; i >= 0; i--) { const t = texts[i]; t.life += dt; t.y -= 40 * dt; if (t.life >= t.max) texts.splice(i, 1); }
+  shake *= Math.pow(.004, dt); if (shake < .1) shake = 0;
+  flash = Math.max(0, flash - dt * 2);
+}
+
+/* =========================================================
+   Drawing
+   ========================================================= */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const stage = document.getElementById('stage');
+let DPR = 1, CW = 0, CH = 0, SC = 1, OX = 0, OY = 0, bgGrad = null;
+const stars = Array.from({ length: 36 }, () => ({ x: Math.random(), y: Math.random(), s: .6 + Math.random() * 1.4, p: Math.random() * 6 }));
+
+function resize() {
+  DPR = Math.min(3, window.devicePixelRatio || 1);
+  CW = stage.clientWidth; CH = stage.clientHeight;
+  cv.width = Math.round(CW * DPR); cv.height = Math.round(CH * DPR);
+  SC = Math.min(CW / (W + 40), CH / (H + TOP + 12));
+  OX = (CW - W * SC) / 2; OY = CH - (H + 8) * SC;
+  bgGrad = ctx.createRadialGradient(CW * .5, CH * .25, 10, CW * .5, CH * .5, Math.max(CW, CH));
+  bgGrad.addColorStop(0, '#1d2a6b'); bgGrad.addColorStop(.6, '#0d1338'); bgGrad.addColorStop(1, '#070b22');
+  drawNext();
+}
+
+// Draws one atom. c's units are whatever the caller uses; px is the atom's radius in screen pixels,
+// which decides how much detail fits (number, name, electrons).
+function paintAtom(c, z, x, y, r, t, seed, px) {
+  const e = EL[z];
+  c.save();
+  if (z === 10) { c.shadowColor = '#ff7a2e'; c.shadowBlur = r * .6 * (px / r); }   // neon glows
+  const g = c.createRadialGradient(x - r * .35, y - r * .4, r * .08, x, y, r);
+  g.addColorStop(0, e.hi); g.addColorStop(.55, e.c); g.addColorStop(1, e.lo);
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+  c.restore();
+  c.lineWidth = Math.max(1 / (px / r), r * .055); c.strokeStyle = e.rim;
+  c.beginPath(); c.arc(x, y, r - c.lineWidth / 2, 0, Math.PI * 2); c.stroke();
+
+  // electron shells
+  const sh = shells(z), k = sh.length, ec = e.light ? 'rgba(30,40,110,' : 'rgba(255,255,255,';
+  const dot = Math.max(1.3 / (px / r), r * .055);
+  for (let i = 0; i < k; i++) {
+    const rr = r * (k === 1 ? .78 : .56 + .3 * i / (k - 1));
+    c.strokeStyle = ec + '.22)'; c.lineWidth = Math.max(.6 / (px / r), r * .022);
+    c.beginPath(); c.arc(x, y, rr, 0, Math.PI * 2); c.stroke();
+    const spin = t * (1.5 - .35 * i) * (i % 2 ? -1 : 1) + seed * 1.7 + i;
+    c.fillStyle = ec + '.95)';
+    for (let n = 0; n < sh[i]; n++) {
+      const a = spin + n * Math.PI * 2 / sh[i];
+      c.beginPath(); c.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, dot, 0, Math.PI * 2); c.fill();
+    }
+  }
+  // gloss
+  c.fillStyle = 'rgba(255,255,255,.5)';
+  c.beginPath(); c.ellipse(x - r * .4, y - r * .5, r * .22, r * .12, -.6, 0, Math.PI * 2); c.fill();
+
+  // symbol, number, name
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+  const fs = r * (e.s.length > 1 ? .72 : .86), showName = px >= 40, sy = showName ? y - r * .08 : y + r * .04;
+  c.font = `800 ${fs}px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif`;
+  if (!e.light) { c.lineWidth = fs * .16; c.strokeStyle = 'rgba(0,0,0,.35)'; c.strokeText(e.s, x, sy); }
+  c.fillStyle = e.light ? '#1d2350' : '#fff'; c.fillText(e.s, x, sy);
+  if (px >= 17) {
+    c.font = `800 ${r * .27}px ui-rounded, system-ui, sans-serif`;
+    c.fillStyle = e.light ? 'rgba(29,35,80,.75)' : 'rgba(255,255,255,.85)';
+    c.fillText(z, x, y - r * .64);
+  }
+  if (showName) {
+    c.font = `700 ${r * .2}px ui-rounded, system-ui, sans-serif`;
+    c.fillText(e.n, x, y + r * .5);
+  }
+}
+
+function jarPath(c) { c.beginPath(); JAR_PTS.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); }
+
+function render() {
+  const c = ctx;
+  c.setTransform(DPR, 0, 0, DPR, 0, 0);
+  c.fillStyle = bgGrad || '#0d1338'; c.fillRect(0, 0, CW, CH);
+  for (const s of stars) {
+    c.globalAlpha = .25 + .35 * Math.sin(T * 1.3 + s.p);
+    c.fillStyle = '#fff'; c.fillRect(s.x * CW, s.y * CH, s.s, s.s);
+  }
+  c.globalAlpha = 1;
+
+  const sx = shake ? (Math.random() - .5) * shake : 0, sy = shake ? (Math.random() - .5) * shake : 0;
+  c.setTransform(DPR * SC, 0, 0, DPR * SC, DPR * (OX + sx), DPR * (OY + sy));
+
+  // glass back
+  jarPath(c); c.closePath();
+  const gg = c.createLinearGradient(0, 0, W, 0);
+  gg.addColorStop(0, 'rgba(140,190,255,.10)'); gg.addColorStop(.5, 'rgba(140,190,255,.04)'); gg.addColorStop(1, 'rgba(140,190,255,.10)');
+  c.fillStyle = gg; c.fill();
+
+  // danger line at the rim
+  const pulse = danger > 0 ? .5 + .5 * Math.sin(T * 14) : 0;
+  c.strokeStyle = `rgba(255,80,90,${.28 + danger * .6 * pulse})`; c.lineWidth = 3; c.setLineDash([10, 8]);
+  c.beginPath(); c.moveTo(4, 0); c.lineTo(W - 4, 0); c.stroke(); c.setLineDash([]);
+
+  // aim guide + held atom
+  if (state === 'play' && !modal) {
+    const hz = cur, hx = clampAim(aimX, hz), ready = dropCool <= 0;
+    if (ready) {
+      c.strokeStyle = EL[hz].c; c.globalAlpha = .35; c.lineWidth = 2.5; c.setLineDash([6, 9]);
+      c.beginPath(); c.moveTo(hx, HOLD_Y + R[hz]); c.lineTo(hx, H - 4); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+      const s = holdPop < 1 ? 1 + .25 * Math.sin(holdPop * Math.PI) - .3 * (1 - holdPop) : 1;
+      paintAtom(c, hz, hx, HOLD_Y, R[hz] * s, T, 0, R[hz] * SC);
+      c.font = '800 13px ui-rounded, system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.fillStyle = 'rgba(234,242,255,.85)'; c.fillText(EL[hz].n, hx, HOLD_Y - R[hz] - 5);
+    }
+  }
+
+  // atoms
+  for (const b of balls) {
+    let r = b.r;
+    if (b.t < .6) r *= 1 + .14 * Math.sin(b.t * 26) * Math.exp(-b.t * 7);   // wobble after fusing
+    paintAtom(c, b.z, b.x, b.y, r, T, b.id, r * SC);
+  }
+
+  // glass front
+  jarPath(c);
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  c.strokeStyle = 'rgba(180,215,255,.35)'; c.lineWidth = 9; c.stroke();
+  c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.stroke();
+  c.fillStyle = 'rgba(255,255,255,.07)';
+  c.beginPath(); c.roundRect ? c.roundRect(12, 18, 10, H - 90, 5) : c.rect(12, 18, 10, H - 90); c.fill();
+
+  // effects
+  for (const p of fx) {
+    const k = p.life / p.max;
+    if (p.k === 'p') { c.globalAlpha = 1 - k; c.fillStyle = p.color; c.beginPath(); c.arc(p.x, p.y, p.s * (1 - k * .5), 0, Math.PI * 2); c.fill(); }
+    else { c.globalAlpha = (1 - k) * .8; c.strokeStyle = p.color; c.lineWidth = 6 * (1 - k) + 1; c.beginPath(); c.arc(p.x, p.y, p.r * (.3 + .7 * Math.sqrt(k)), 0, Math.PI * 2); c.stroke(); }
+  }
+  c.globalAlpha = 1;
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+  for (const t of texts) {
+    const k = t.life / t.max, s = k < .15 ? .6 + k / .15 * .4 : 1;
+    c.globalAlpha = k > .7 ? (1 - k) / .3 : 1;
+    c.font = `800 ${t.size * s}px ui-rounded, system-ui, sans-serif`;
+    c.lineWidth = 5; c.strokeStyle = 'rgba(8,10,30,.8)'; c.strokeText(t.txt, t.x, t.y);
+    c.fillStyle = t.color; c.fillText(t.txt, t.x, t.y);
+    c.font = `800 ${13 * s}px ui-rounded, system-ui, sans-serif`;
+    c.strokeText(t.sub, t.x, t.y + t.size * .9); c.fillStyle = '#fff'; c.fillText(t.sub, t.x, t.y + t.size * .9);
+  }
+  c.globalAlpha = 1;
+  if (danger > .25 && state === 'play') {
+    c.font = '800 15px ui-rounded, system-ui, sans-serif'; c.fillStyle = `rgba(255,110,120,${.6 + .4 * pulse})`;
+    c.fillText('⚠️ Careful, it could spill!', W / 2, 18);
+  }
+  if (flash > 0) { c.setTransform(DPR, 0, 0, DPR, 0, 0); c.fillStyle = `rgba(255,250,220,${flash * .7})`; c.fillRect(0, 0, CW, CH); }
+}
+
+const nextCv = document.getElementById('nextCv');
+function drawNext() {
+  const d = Math.min(3, window.devicePixelRatio || 1), s = 34;
+  nextCv.width = s * d; nextCv.height = s * d;
+  const c = nextCv.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, s, s);
+  const r = 9 + next * 1.4;
+  paintAtom(c, next, s / 2, s / 2, r, 0, 0, r);
+}
+function atomCanvas(cvEl, z, size) {
+  const d = Math.min(3, window.devicePixelRatio || 1);
+  cvEl.width = size * d; cvEl.height = size * d; cvEl.style.width = cvEl.style.height = size + 'px';
+  const c = cvEl.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0);
+  paintAtom(c, z, size / 2, size / 2, size * .44, 0, 0, size * .44);
+}
+
+/* =========================================================
+   HUD, chain, overlays
+   ========================================================= */
+const $ = id => document.getElementById(id);
+function updateHud() { $('best').textContent = Math.max(best, score); drawNext(); }
+const chain = $('chain');
+for (let z = 1; z <= MAXZ; z++) { const d = document.createElement('div'); d.className = 'ch'; chain.appendChild(d); }
+function updateChain() {
+  [...chain.children].forEach((d, i) => {
+    const z = i + 1, on = seen.has(z) || z === 1, e = EL[z];
+    d.className = 'ch' + (on ? ' on' : '') + (on && e.light ? ' light' : '') + (state === 'play' && z === cur ? ' cur' : '');
+    d.textContent = on ? e.s : '?';
+    d.style.background = on ? `radial-gradient(circle at 35% 30%, ${e.hi}, ${e.c} 55%, ${e.lo})` : '';
+  });
+}
+
+function openModal(id) { modal = id; $(id).classList.add('show'); }
+function closeModal(id) { $(id).classList.remove('show'); if (modal === id) modal = null; aiming = false; }
+
+function showDiscover(z) {
+  sfx.discover();
+  const box = $('discFacts');
+  if (z === 'nova') {
+    atomCanvas($('discCv'), MAXZ, 110);
+    $('discName').innerHTML = '💥 <span>Supernova!</span>';
+    $('discTags').innerHTML = '';
+    box.innerHTML = 'Two Sodium atoms burst into a supernova and cleared space in your jar!<br><br>' + SUPERNOVA_FACT;
+  } else {
+    const e = EL[z], sh = shells(z);
+    atomCanvas($('discCv'), z, 120);
+    $('discName').innerHTML = `${e.n} <span>(${e.s})</span>`;
+    $('discTags').innerHTML = `<span class="tag" style="background:${FAM_COLOR[e.fam]}">${e.fam}</span><span class="tag" style="background:#dfe6ff">${e.st === 'Gas' ? '💨' : '🪨'} ${e.st}</span>`;
+    box.innerHTML = `<b>Atomic number ${z}:</b> every ${e.n.toLowerCase()} atom has ${z} proton${z > 1 ? 's' : ''} in its middle, and ${z} electron${z > 1 ? 's' : ''} zooming around it${sh.length > 1 ? ` in shells (${sh.join(' + ')})` : ''}.<br><br>${e.fact}`;
+  }
+  openModal('discOv');
+}
+$('discOk').onclick = () => closeModal('discOv');
+
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function showQuiz() {
+  const pool = [...seen].filter(n => typeof n === 'number' && n <= MAXZ);
+  if (pool.length < 3) return false;
+  const z = pool[Math.random() * pool.length | 0], e = EL[z], type = ['sym', 'name', 'num', 'clue'][Math.random() * 4 | 0];
+  const others = shuffle(pool.filter(n => n !== z)).slice(0, 2);
+  const opts = shuffle([z, ...others]);
+  let q, label, explain;
+  if (type === 'sym')       { q = `Which element has the symbol <span>${e.s}</span>?`; label = n => EL[n].n; explain = `${e.n}'s symbol is ${e.s}.`; }
+  else if (type === 'name') { q = `What is the symbol for <span>${e.n}</span>?`;      label = n => EL[n].s; explain = `${e.n}'s symbol is ${e.s}.`; }
+  else if (type === 'num')  { q = `Which element has atomic number <span>${z}</span>?`; label = n => EL[n].n; explain = `${e.n} has ${z} proton${z > 1 ? 's' : ''}, so its atomic number is ${z}.`; }
+  else                      { q = `Which element ${e.clue}?`;                          label = n => EL[n].n; explain = `It's ${e.n} (${e.s}).`; }
+  $('quizQ').innerHTML = q; $('quizResult').textContent = ''; $('quizOk').style.display = 'none';
+  const box = $('quizChoices'); box.innerHTML = '';
+  for (const n of opts) {
+    const b = document.createElement('button'); b.className = 'choice'; b.textContent = label(n);
+    b.onclick = () => {
+      if (box.dataset.done) return; box.dataset.done = 1;
+      if (n === z) {
+        quizStreak++; const bonus = 20 + 10 * Math.min(quizStreak, 5);
+        score += bonus; b.classList.add('right'); sfx.right();
+        $('quizResult').innerHTML = `✅ Correct! +${bonus} points. ${explain}`;
+      } else {
+        quizStreak = 0; b.classList.add('wrong'); sfx.wrong();
+        [...box.children].forEach((c, i) => { if (opts[i] === z) c.classList.add('right'); });
+        $('quizResult').innerHTML = `Not quite! ${explain}`;
+      }
+      updateHud(); $('quizOk').style.display = '';
+    };
+    box.appendChild(b);
+  }
+  delete box.dataset.done;
+  openModal('quizOv');
+  return true;
+}
+$('quizOk').onclick = () => closeModal('quizOv');
+
+function showOver() {
+  state = 'over';
+  const n = [...seen].filter(x => typeof x === 'number').length;
+  $('overSub').textContent = `Score ${score}${score >= best && score > 0 ? ' · New best! 🏆' : ` · Best ${best}`}`;
+  atomCanvas($('overCv'), topZ, 100);
+  $('overTop').innerHTML = `Biggest atom: <b>${EL[topZ].n}</b><br>Elements discovered: <b>${n} of ${MAXZ}</b>`;
+  openModal('overOv'); updateChain();
+}
+$('againBtn').onclick = () => { unlockAudio(); closeModal('overOv'); newGame(); };
+$('overGuide').onclick = () => openGuide('overOv');
+
+// Guide: rows 1–3 of the periodic table, main groups only (8 columns).
+const PT = [[1, 1, 1], [2, 1, 8], [3, 2, 1], [4, 2, 2], [5, 2, 3], [6, 2, 4], [7, 2, 5], [8, 2, 6], [9, 2, 7], [10, 2, 8],
+  [11, 3, 1], [12, 3, 2], [13, 3, 3], [14, 3, 4], [15, 3, 5], [16, 3, 6], [17, 3, 7], [18, 3, 8]];
+let guideReturn = null, guideSel = 0;
+function openGuide(from) {
+  guideReturn = from || null;
+  if (from) $(from).classList.remove('show');
+  const n = [...seen].filter(x => typeof x === 'number').length;
+  $('gCount').textContent = `You've discovered ${n} of ${MAXZ} elements. Tap one to learn about it!`;
+  const tb = $('ptable'); tb.innerHTML = '';
+  for (const [z, row, col] of PT) {
+    const e = EL[z], b = document.createElement('button');
+    b.style.gridRow = row; b.style.gridColumn = col;
+    b.style.borderBottomColor = FAM_COLOR[e.fam];
+    const on = z <= MAXZ && seen.has(z);
+    if (z > MAXZ) { b.className = 'pc far'; b.innerHTML = `<small>${z}</small>${e.s}`; b.title = e.n; b.onclick = () => guideFar(z); }
+    else if (on) { b.className = 'pc on' + (e.light ? ' light' : ''); b.innerHTML = `<small>${z}</small>${e.s}`; b.style.background = `radial-gradient(circle at 35% 30%, ${e.hi}, ${e.c} 60%, ${e.lo})`; b.onclick = () => guideShow(z); }
+    else { b.className = 'pc'; b.innerHTML = `<small>${z}</small>?`; b.onclick = () => guideLocked(z); }
+    b.dataset.z = z; tb.appendChild(b);
+  }
+  $('legend').innerHTML = Object.entries(FAM_COLOR).map(([f, c]) => `<span><i style="background:${c}"></i>${f}</span>`).join('');
+  const firstSeen = [...seen].filter(x => typeof x === 'number').sort((a, b) => b - a)[0];
+  if (guideSel && seen.has(guideSel)) guideShow(guideSel); else if (firstSeen) guideShow(firstSeen); else $('gDetail').innerHTML = '';
+  $('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off';
+  openModal('guideOv');
+}
+function markSel(z) { [...$('ptable').children].forEach(b => b.classList.toggle('sel', +b.dataset.z === z)); }
+function guideShow(z) {
+  guideSel = z; markSel(z);
+  const e = EL[z], sh = shells(z);
+  $('gDetail').innerHTML = `<canvas class="ballCv" id="gCv"></canvas><h2>${e.n} <span>(${e.s})</span></h2>
+    <span class="tag" style="background:${FAM_COLOR[e.fam]}">${e.fam}</span><span class="tag" style="background:#dfe6ff">${e.st === 'Gas' ? '💨' : '🪨'} ${e.st}</span>
+    <div class="facts"><b>Atomic number ${z}</b> · ${z} proton${z > 1 ? 's' : ''} · electrons ${sh.join(' + ')}<br>${e.fact}</div>`;
+  atomCanvas($('gCv'), z, 84);
+}
+function guideLocked(z) {
+  markSel(z);
+  $('gDetail').innerHTML = `<div class="facts">❓ <b>Element ${z}</b> is still a mystery! Fuse two <b>${seen.has(z - 1) ? EL[z - 1].n : '???'}</b> atoms to discover it.</div>`;
+}
+function guideFar(z) {
+  markSel(z);
+  $('gDetail').innerHTML = `<div class="facts">🔭 <b>${EL[z].n} (${EL[z].s})</b>, atomic number ${z}, is beyond this jar. The periodic table keeps going: scientists have found 118 elements so far!</div>`;
+}
+$('guideBtn').onclick = () => { unlockAudio(); if (state === 'play' && !modal) openGuide(); };
+$('chain').onclick = () => { unlockAudio(); if (state === 'play' && !modal) openGuide(); };
+$('guideClose').onclick = () => { closeModal('guideOv'); if (guideReturn) { openModal(guideReturn); guideReturn = null; } };
+$('soundBtn').onclick = () => { soundOn = !soundOn; save('sound', soundOn); unlockAudio(); $('soundBtn').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off'; tone(660, .1, 'triangle', .15); };
+
+function showTitle() {
+  state = 'title';
+  const g = load('game', null), btns = $('titleBtns'); btns.innerHTML = '';
+  const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.className = 'btn' + cls; b.textContent = txt; b.onclick = () => { unlockAudio(); closeModal('titleOv'); fn(); }; btns.appendChild(b); };
+  if (g && g.balls && g.balls.length) { mk('▶ Continue', '', () => resumeGame(g)); mk('New game', ' alt', newGame); }
+  else mk('▶ Play', '', newGame);
+  $('titleBest').textContent = best ? `Best score: ${best}` : '';
+  openModal('titleOv');
+}
+function drawTitle() {
+  const el = $('titleCv'), d = Math.min(3, window.devicePixelRatio || 1);
+  el.width = 300 * d; el.height = 90 * d;
+  const c = el.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, 300, 90);
+  paintAtom(c, 1, 40, 50, 22, T, 1, 22); paintAtom(c, 1, 124, 50, 22, T, 2, 22);
+  c.font = '800 26px ui-rounded, system-ui, sans-serif'; c.fillStyle = '#9fb0d8'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('+', 82, 50); c.fillText('=', 168, 50);
+  paintAtom(c, 2, 226, 47, 34 + Math.sin(T * 3) * 1.5, T, 3, 34);
+}
+
+/* =========================================================
+   Input
+   ========================================================= */
+function toWorldX(clientX) { const r = cv.getBoundingClientRect(); return (clientX - r.left - OX) / SC; }
+cv.addEventListener('pointerdown', e => {
+  unlockAudio();
+  if (state !== 'play' || modal) return;
+  aiming = true; aimX = toWorldX(e.clientX);
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+});
+cv.addEventListener('pointermove', e => { if (aiming || e.pointerType === 'mouse') aimX = toWorldX(e.clientX); });
+cv.addEventListener('pointerup', e => { if (!aiming) return; aiming = false; aimX = toWorldX(e.clientX); drop(); });
+cv.addEventListener('pointercancel', () => { aiming = false; });
+window.addEventListener('keydown', e => {
+  if (state !== 'play' || modal) return;
+  if (e.key === 'ArrowLeft') aimX = clampAim(aimX, cur) - 18;
+  else if (e.key === 'ArrowRight') aimX = clampAim(aimX, cur) + 18;
+  else if (e.key === ' ' || e.key === 'ArrowDown' || e.key === 'Enter') { e.preventDefault(); drop(); }
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+window.addEventListener('pagehide', saveGame);
+window.addEventListener('resize', resize);
+
+/* =========================================================
+   Main loop
+   ========================================================= */
+function tick(dt) {
+  T += dt;
+  if (state === 'play' && !modal) {
+    physics(dt);
+    dropCool -= dt; if (dropCool <= 0 && holdPop < 1) holdPop = Math.min(1, holdPop + dt * 5);
+    let worst = 0, spilled = null;
+    for (const b of balls) {
+      b.age += dt; b.t += dt;
+      if (b.out) { b.over += dt; if (b.over > .7) spilled = b; continue; }
+      // Piled above the rim: it might spill. A pile that reaches the dropper also ends the game.
+      if (b.age > 1.2 && b.y - b.r < 0) worst = Math.max(worst, Math.min(1, (b.r - b.y) / 60));
+      if (b.age > 1.2 && b.y - b.r < HOLD_Y - 20) { b.over += dt; if (b.over > 2) spilled = b; } else b.over = 0;
+    }
+    danger = worst;
+    if (spilled) endGame();
+    if (pending.length) {
+      const p = pending[0]; p.wait -= dt;
+      if (p.wait <= 0) {
+        pending.shift();
+        if (p.kind === 'disc') showDiscover(p.z);
+        else if (p.kind === 'nova') showDiscover('nova');
+        else if (!pending.some(q => q.kind !== 'quiz')) showQuiz();
+      }
+    }
+    if ((saveT += dt) > 3) { saveT = 0; saveGame(); }
+  } else if (state === 'ending') {
+    endT -= dt;
+    if (endT <= 0) {
+      const b = endQueue.shift();
+      if (b) { burst(b.x, b.y, EL[b.z].c, 8, 160); b.dead = true; balls = balls.filter(x => !x.dead); sfx.pop(endQueue.length); endT = .07; }
+      else { showOver(); }
+    }
+  }
+  for (const b of balls) if (state !== 'play') b.t += dt;
+  updateFx(dt);
+  if (shownScore !== score) {
+    shownScore += Math.max(1, Math.ceil((score - shownScore) * Math.min(1, dt * 10)));
+    if (shownScore > score) shownScore = score;
+  }
+  $('score').textContent = shownScore;
+  if (modal === 'titleOv') drawTitle();
+}
+let last = performance.now();
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  tick(dt); render();
+}
+
+resize(); updateHud(); updateChain(); showTitle();
+requestAnimationFrame(frame);
+
+// Hooks for automated testing.
+window.__ed = {
+  get state() { return state; }, get balls() { return balls; }, get score() { return score; }, get modal() { return modal; },
+  get cur() { return cur; }, set cur(z) { cur = z; }, set aim(x) { aimX = x; }, set cool(v) { dropCool = v; },
+  step(n = 1, dt = 1 / 60) { for (let i = 0; i < n; i++) tick(dt); render(); },
+  drop, newGame, closeModal, showQuiz, openGuide, endGame,
+};
+</script>
+</body>
+</html>
