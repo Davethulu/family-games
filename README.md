@@ -12,6 +12,7 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Star Squad (space math runner) | `games/squad-rush/` |
 | Element Drop (periodic table merge game) | `games/element-drop/` |
 | Lab Sort (science sorting puzzle) | `games/lab-sort/` |
+| Meme Arcade Night Shift (study quiz survival) | `games/meme-arcade/` |
 | Word Miner (spelling) | `games/word-miner/` |
 | Duck Name Generator | `games/duck-names/` |
 

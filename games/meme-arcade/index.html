@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Meme Arcade Night Shift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@400;600;700&family=VT323&display=swap">
+<style>
+/* Layout: security-office console. HUD strip, then [west door controls | office or camera monitor | east door controls], then the generator quiz deck. One committed dark look. */
+:root {
+  color-scheme: dark;
+  --night: #090c1b;
+  --panel: #121735;
+  --panel-2: #1a2150;
+  --line: #2b3570;
+  --text: #e9ecff;
+  --muted: #929bd0;
+  --neon: #ff5fd2;
+  --hazard: #ffc83d;
+  --mon: #5dffa0;
+  --alarm: #ff4b62;
+  --display: "Bungee", "Impact", "Arial Black", sans-serif;
+  --body: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --mono: "VT323", "Consolas", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: radial-gradient(120% 60% at 50% -10%, rgba(255,95,210,.18), transparent 60%), var(--night);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible { outline: 3px solid var(--hazard); outline-offset: 2px; }
+
+/* ---------- Title ---------- */
+.logo { font-family: var(--display); font-weight: 400; font-size: clamp(38px, 10vw, 84px); line-height: .92; margin: 8px 0 0; text-wrap: balance; }
+.logo .a { color: var(--neon); text-shadow: 0 0 22px rgba(255,95,210,.45); }
+.logo .b { color: var(--hazard); text-shadow: 0 0 22px rgba(255,200,61,.35); display: block; }
+.tag { color: var(--muted); max-width: 62ch; margin: 0; font-size: 18px; }
+.title-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 760px) { .title-grid { grid-template-columns: 1fr; } .title-grid > .box:last-child { order: -1; } }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.label { font-family: var(--mono); font-size: 20px; letter-spacing: .08em; color: var(--mon); text-transform: uppercase; margin: 0; }
+.rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.rules b { color: var(--hazard); }
+.cast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cast-card { background: var(--panel-2); border-radius: 8px; padding: 10px; text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.cast-card svg { width: 64px; height: auto; }
+.cast-card strong { font-family: var(--display); font-weight: 400; font-size: 14px; }
+.cast-card span { font-size: 12px; color: var(--muted); }
+.diffs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.diff { background: var(--panel-2); border: 2px solid var(--line); border-radius: 8px; padding: 10px 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.diff strong { font-family: var(--display); font-weight: 400; font-size: 15px; }
+.diff span { font-size: 12px; color: var(--muted); }
+.diff[aria-pressed="true"] { border-color: var(--hazard); background: #2a2a3a; }
+.diff[aria-pressed="true"] strong { color: var(--hazard); }
+.btn { border: 0; border-radius: 8px; padding: 14px 18px; font-weight: 700; font-size: 17px; }
+.btn-go { background: var(--hazard); color: #1a1300; font-family: var(--display); font-weight: 400; font-size: 22px; box-shadow: 0 4px 0 #a87b00; }
+.btn-go:active { transform: translateY(2px); box-shadow: 0 2px 0 #a87b00; }
+.btn-go:disabled { opacity: .5; cursor: not-allowed; }
+.btn-ghost { background: transparent; border: 2px solid var(--line); color: var(--text); }
+.btn-ghost:hover { border-color: var(--neon); }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+.best { font-family: var(--mono); font-size: 22px; color: var(--hazard); margin: 0; }
+kbd { font-family: var(--mono); font-size: 17px; border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; color: var(--text); background: var(--panel-2); }
+
+/* ---------- HUD ---------- */
+.hud { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.clock { font-family: var(--mono); font-size: 44px; line-height: 1; color: var(--mon); text-shadow: 0 0 12px rgba(93,255,160,.5); font-variant-numeric: tabular-nums; min-width: 4ch; }
+.power { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; min-width: 0; }
+.power .lbl { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.bar { height: 14px; background: #0a0e24; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 100%; background: var(--hazard); }
+.bar.low > i { background: var(--alarm); animation: blink .6s steps(2) infinite; }
+.pval { font-family: var(--mono); font-size: 26px; font-variant-numeric: tabular-nums; min-width: 3.5ch; text-align: right; }
+.usage { display: flex; gap: 3px; align-items: center; font-size: 13px; color: var(--muted); grid-column: 1 / -1; }
+.pip { width: 14px; height: 8px; border-radius: 2px; background: #0a0e24; border: 1px solid var(--line); }
+.pip.on { background: var(--mon); border-color: var(--mon); }
+.pip.on.hot { background: var(--hazard); border-color: var(--hazard); }
+.pip.on.max { background: var(--alarm); border-color: var(--alarm); }
+.hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.score { font-family: var(--mono); font-size: 22px; font-variant-numeric: tabular-nums; }
+.small-btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: 13px; }
+@media (max-width: 600px) {
+  .hud { grid-template-columns: auto 1fr; }
+  .hud-right { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* ---------- Office / monitor ---------- */
+.stage { display: grid; grid-template-columns: 112px 1fr 112px; gap: 10px; }
+.side { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.side .label { font-size: 17px; text-align: center; }
+.ctl { border: 2px solid var(--line); background: var(--panel-2); border-radius: 8px; padding: 12px 6px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ctl small { font-family: var(--mono); font-size: 16px; color: var(--muted); font-weight: 400; }
+.ctl[aria-pressed="true"].door { border-color: var(--hazard); background: #3a3010; color: var(--hazard); }
+.ctl[aria-pressed="true"].light { border-color: var(--mon); background: #10382a; color: var(--mon); }
+.view { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.screen { position: relative; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 8; max-width: 100%; background: #05071a; }
+.status { min-height: 24px; margin: 0; font-weight: 600; color: var(--hazard); text-align: center; }
+.cam-toggle { background: var(--panel-2); border: 2px solid var(--neon); color: var(--neon); border-radius: 8px; padding: 10px; font-weight: 700; }
+.cam-toggle[aria-pressed="true"] { background: var(--neon); color: #2a0020; }
+@media (max-width: 640px) {
+  .stage { grid-template-columns: 1fr 1fr; }
+  .view { grid-column: 1 / -1; grid-row: 1; }
+  .side { flex-direction: row; flex-wrap: wrap; }
+  .side .label { width: 100%; }
+  .side .ctl { flex: 1; }
+}
+
+/* Office */
+.office { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1.5fr 1fr; background: linear-gradient(#1a1f48 0 70%, #10132e 70%); }
+.doorway { position: relative; margin: 10% 12% 0; background: #020309; border: 4px solid #2b3570; border-bottom: 0; overflow: hidden; transition: background .15s; }
+.doorway.lit { background: radial-gradient(ellipse at 50% 20%, #fff2b8 0%, #8a7a3a 45%, #2a230c 100%); }
+.who { position: absolute; left: 50%; bottom: 0; width: 82%; transform: translateX(-50%); opacity: 0; transition: opacity .1s; }
+.doorway.lit .who.here { opacity: 1; }
+.shutter { position: absolute; inset: 0; transform: translateY(-101%); transition: transform .18s ease-in; background: repeating-linear-gradient(0deg, #6b5a12 0 6px, #c99a1f 6px 18px); z-index: 2; }
+.doorway.closed .shutter { transform: translateY(0); }
+.desk { position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8%; }
+.desk-top { width: 100%; height: 30%; background: #3a2a1e; border-top: 4px solid #5a4230; border-radius: 4px 4px 0 0; position: relative; }
+.desk-mon { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); width: 44%; aspect-ratio: 4/3; background: #0a0e24; border: 4px solid #444b70; border-radius: 4px; display: grid; place-items: center; font-family: var(--mono); color: var(--mon); font-size: 14px; }
+.poster { position: absolute; top: 10%; left: 50%; transform: translateX(-50%) rotate(-3deg); background: var(--neon); color: #2a0020; font-family: var(--display); font-size: clamp(9px, 1.6vw, 14px); padding: 4px 8px; white-space: nowrap; }
+
+/* Monitor */
+.monitor { position: absolute; inset: 0; display: grid; grid-template-columns: 1.6fr 1fr; background: #05071a; }
+.feed { position: relative; background: linear-gradient(#141a44 0 55%, #0a0d26 55%); overflow: hidden; }
+.feed-head { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; padding: 4px 8px; font-family: var(--mono); font-size: 18px; color: var(--mon); z-index: 3; background: linear-gradient(#05071acc, transparent); }
+.rec { color: var(--alarm); animation: blink 1.2s steps(2) infinite; }
+.feed-chars { position: absolute; inset: 18% 4% 4%; display: flex; justify-content: center; align-items: flex-end; gap: 4%; z-index: 2; }
+.feed-chars svg { width: 30%; max-height: 100%; height: auto; filter: brightness(.75) saturate(.8); }
+.feed-empty { font-family: var(--mono); color: var(--muted); font-size: 20px; align-self: center; }
+.static { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px); animation: flicker 3s infinite; }
+.feed.switching .static { background: repeating-linear-gradient(0deg, rgba(255,255,255,.5) 0 2px, rgba(0,0,0,.6) 2px 4px); }
+.map { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 4px; padding: 8px; border-left: 2px solid var(--line); }
+.map button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; font-family: var(--mono); font-size: 15px; line-height: 1.05; padding: 2px; min-width: 0; overflow-wrap: anywhere; }
+.map button[aria-pressed="true"] { border-color: var(--mon); color: var(--mon); background: #10382a; }
+.map .you { display: grid; place-items: center; font-family: var(--mono); font-size: 15px; color: var(--hazard); border: 1px dashed var(--hazard); border-radius: 4px; }
+@media (max-width: 640px) {
+  /* Phones: keep cameras, doors and the question on one screen without scrolling. */
+  .screen { aspect-ratio: 16 / 10; }
+  .monitor { grid-template-columns: 1.3fr 1fr; }
+  .map { padding: 4px; gap: 3px; }
+  .map button, .map .you { font-size: 12px; }
+  .feed-head { font-size: 14px; }
+  .hud { padding: 6px 10px; gap: 6px 10px; }
+  .clock { font-size: 34px; }
+  .status { min-height: 0; font-size: 14px; }
+  .cam-toggle { padding: 8px; }
+  .side { padding: 6px; gap: 6px; }
+  .side .label { font-size: 15px; }
+  .ctl { padding: 8px 4px; }
+  .deck { padding: 12px; gap: 8px; }
+  .deck .label { font-size: 16px; }
+  .q { font-size: 18px; }
+  .answers { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ans { padding: 8px 10px; font-size: 15px; gap: 8px; }
+  .ans .k, .ctl small, .hud .usage, .deck-head .label { display: none; }
+  #screen-game.wrap, .view { gap: 8px; }
+  .stage { gap: 8px; }
+  .ctl { padding: 10px 4px; }
+}
+
+/* ---------- Question deck ---------- */
+.deck { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.deck-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.q { font-size: clamp(19px, 3vw, 24px); font-weight: 700; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ans { text-align: left; background: var(--panel-2); border: 2px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 17px; display: flex; gap: 10px; align-items: center; min-width: 0; }
+.ans:hover:not(:disabled) { border-color: var(--neon); }
+.ans .k { font-family: var(--mono); font-size: 20px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 7px; flex: none; }
+.ans .t { overflow-wrap: anywhere; min-width: 0; }
+.ans:disabled { cursor: default; }
+.ans.right { border-color: var(--mon); background: #10382a; }
+.ans.wrong { border-color: var(--alarm); background: #3d1220; }
+.ans.dim { opacity: .45; }
+.fb { min-height: 24px; margin: 0; font-weight: 600; }
+.good { color: var(--mon); } .bad { color: var(--alarm); } .info { color: var(--hazard); }
+
+/* ---------- Overlays / end / editor ---------- */
+.overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: rgba(5,7,26,.88); }
+.overlay .box { max-width: 420px; width: 100%; text-align: center; }
+.scare { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(circle, #3d0a16, #000 70%); }
+.scare .face { width: min(80vw, 420px); animation: lunge .45s cubic-bezier(.2,1.6,.4,1) both, shake .08s linear .45s 12; }
+.scare h2 { position: absolute; bottom: 10%; left: 0; right: 0; padding: 0 16px; text-align: center; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 8vw, 64px); color: var(--alarm); margin: 0; }
+.blackout { position: fixed; inset: 0; z-index: 25; background: #000; display: grid; place-items: center; font-family: var(--mono); font-size: 28px; color: var(--muted); }
+.shake { animation: shake .08s linear 5; }
+.end-title { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 9vw, 72px); margin: 0; line-height: 1; }
+.end-title.win { color: var(--mon); } .end-title.lose { color: var(--alarm); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; }
+.stat b { display: block; font-family: var(--mono); font-size: 34px; font-weight: 400; line-height: 1; color: var(--hazard); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.missed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.missed li { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; overflow-wrap: anywhere; }
+.missed .ma { color: var(--mon); font-weight: 700; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+textarea { width: 100%; min-height: 300px; resize: vertical; background: #0a0e24; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-family: ui-monospace, "Consolas", monospace; font-size: 14px; line-height: 1.5; }
+code { font-family: ui-monospace, "Consolas", monospace; background: #0a0e24; padding: 1px 5px; border-radius: 4px; color: var(--hazard); }
+.err { color: var(--alarm); font-size: 14px; margin: 0; }
+.ok { color: var(--mon); font-size: 14px; margin: 0; }
+
+@keyframes blink { 50% { opacity: .35; } }
+@keyframes flicker { 0%, 92%, 100% { opacity: 1; } 94% { opacity: .3; } 96% { opacity: .9; } }
+@keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(-6px,3px); } 50% { transform: translate(5px,-4px); } 75% { transform: translate(-3px,-2px); } 100% { transform: translate(0,0); } }
+@keyframes lunge { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Leave room for the arcade's Menu button in the top-left corner. */
+body { padding-top: 52px; margin: 0; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- TITLE -->
+  <section id="screen-title" class="wrap">
+    <h1 class="logo"><span class="a">Meme Arcade</span><span class="b">Night Shift</span></h1>
+    <p class="tag">You took the night job guarding Meme Arcade. After closing, the meme mascots wander the building. Watch the cameras, work the doors, and answer questions to keep the generator running until 6 AM.</p>
+    <div class="title-grid">
+      <div class="box">
+        <p class="label">How to survive</p>
+        <ul class="rules">
+          <li><b>Power drains all night.</b> Cameras, doors and lights drain it faster.</li>
+          <li><b>Answer questions to make power.</b> A wrong answer costs power, makes noise, and pulls a mascot closer. You'll see that question again later.</li>
+          <li><b>Check the cameras</b> to track the mascots. When one leaves a hallway camera, it's at your door.</li>
+          <li><b>Use the lights</b> to see who's at a door, and <b>close the door</b> until they give up and leave.</li>
+          <li>Survive until <b>6 AM</b>. If the power runs out, it's over.</li>
+        </ul>
+        <p class="note">Keys: <kbd>1</kbd>–<kbd>4</kbd> answer · <kbd>C</kbd> cameras · <kbd>Q</kbd>/<kbd>E</kbd> doors · <kbd>A</kbd>/<kbd>D</kbd> lights · <kbd>Esc</kbd> pause</p>
+        <div class="cast" id="cast"></div>
+      </div>
+      <div class="box">
+        <p class="label">Difficulty</p>
+        <div class="diffs" role="group" aria-label="Difficulty">
+          <button class="diff" id="diff-easy" data-diff="easy" aria-pressed="false"><strong>Rookie</strong><span>Slow mascots</span></button>
+          <button class="diff" id="diff-normal" data-diff="normal" aria-pressed="true"><strong>Guard</strong><span>The real deal</span></button>
+          <button class="diff" id="diff-nightmare" data-diff="nightmare" aria-pressed="false"><strong>Nightmare</strong><span>Good luck</span></button>
+        </div>
+        <button class="btn btn-go" id="start">Start the shift</button>
+        <button class="btn btn-ghost" id="open-editor">Edit questions (<span id="bank-count">0</span> loaded)</button>
+        <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true">Sound: on</button>
+        <p class="best" id="best-line"></p>
+        <p class="note" id="sample-note">These are sample questions. Use Edit questions to load your study material.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="screen-game" class="wrap" hidden>
+    <div class="hud">
+      <div class="clock" id="clock" aria-live="polite">12 AM</div>
+      <div class="power">
+        <span class="lbl">Power</span>
+        <div class="bar" id="power-bar"><i></i></div>
+        <span class="pval" id="power-val">100%</span>
+        <div class="usage">Usage&nbsp;<span id="pips" style="display:flex;gap:3px"></span></div>
+      </div>
+      <div class="hud-right">
+        <div class="score"><span id="score">0</span> pts</div>
+        <button class="small-btn" id="pause">Pause</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="side">
+        <p class="label">West door</p>
+        <button class="ctl door" id="door-left" aria-pressed="false">Door<small>Q</small></button>
+        <button class="ctl light" id="light-left" aria-pressed="false">Light<small>A</small></button>
+      </div>
+
+      <div class="view">
+        <div class="screen" id="screen">
+          <div class="office" id="office">
+            <div class="doorway" id="dw-left"><div class="who" id="who-left"></div><div class="shutter"></div></div>
+            <div class="desk"><div class="poster">MEME ARCADE</div><div class="desk-top"><div class="desk-mon">CAMS: C</div></div></div>
+            <div class="doorway" id="dw-right"><div class="who" id="who-right"></div><div class="shutter"></div></div>
+          </div>
+          <div class="monitor" id="monitor" hidden>
+            <div class="feed" id="feed">
+              <div class="feed-head"><span id="feed-name">CAM 1 · Show Stage</span><span class="rec">● REC</span></div>
+              <div class="feed-chars" id="feed-chars"></div>
+              <div class="static"></div>
+            </div>
+            <div class="map" id="map"></div>
+          </div>
+        </div>
+        <p class="status" id="status" aria-live="polite"></p>
+        <button class="cam-toggle" id="cam-toggle" aria-pressed="false">Open cameras (C)</button>
+      </div>
+
+      <div class="side">
+        <p class="label">East door</p>
+        <button class="ctl door" id="door-right" aria-pressed="false">Door<small>E</small></button>
+        <button class="ctl light" id="light-right" aria-pressed="false">Light<small>D</small></button>
+      </div>
+    </div>
+
+    <div class="deck">
+      <div class="deck-head"><p class="label">Generator: answer to make power</p><span class="note" id="streak"></span></div>
+      <p class="q" id="question"></p>
+      <div class="answers" id="answers"></div>
+      <p class="fb" id="fb" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="screen-end" class="wrap" hidden>
+    <h2 class="end-title" id="end-title">You survived</h2>
+    <p class="tag" id="end-sub"></p>
+    <div class="stats">
+      <div class="stat"><b id="st-score">0</b><span>Score</span></div>
+      <div class="stat"><b id="st-right">0</b><span>Right answers</span></div>
+      <div class="stat"><b id="st-acc">0%</b><span>Accuracy</span></div>
+      <div class="stat"><b id="st-time">12 AM</b><span>Made it to</span></div>
+    </div>
+    <div class="box">
+      <p class="label" id="missed-label">Study these</p>
+      <ul class="missed" id="missed"></ul>
+    </div>
+    <div class="row">
+      <button class="btn btn-go" id="again">Play again</button>
+      <button class="btn btn-ghost" id="to-title">Back to title</button>
+    </div>
+  </section>
+
+  <!-- EDITOR -->
+  <section id="screen-editor" class="wrap" hidden>
+    <h2 class="logo" style="font-size:clamp(30px,7vw,48px)"><span class="a">Question</span> <span class="b" style="display:inline">bank</span></h2>
+    <div class="box">
+      <p class="note" style="color:var(--text)">One question per line, with parts split by <code>|</code>:</p>
+      <p class="note"><code>Question | right answer | wrong | wrong | wrong</code> gives a multiple choice question.</p>
+      <p class="note"><code>Question | right answer</code> works too. The game fills in wrong choices from the other answers, so this is the quick way to paste flashcards.</p>
+      <p class="note">Lines starting with <code>#</code> are ignored, so you can label sections. Questions are saved in this browser.</p>
+      <textarea id="bank-text" spellcheck="false" aria-label="Questions"></textarea>
+      <p id="bank-status" class="ok"></p>
+      <div class="row">
+        <button class="btn btn-go" id="save-bank">Save questions</button>
+        <button class="btn btn-ghost" id="cancel-bank">Cancel</button>
+        <button class="btn btn-ghost" id="reset-bank">Load sample questions</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="pause-overlay" hidden>
+  <div class="box">
+    <p class="label">Paused</p>
+    <p class="note">Everyone is frozen. Even the mascots.</p>
+    <button class="btn btn-go" id="resume">Resume</button>
+    <button class="btn btn-ghost" id="quit">Quit to title</button>
+  </div>
+</div>
+<div class="blackout" id="blackout" hidden>The power went out...</div>
+<div class="scare" id="scare" hidden>
+  <div class="face" id="scare-face"></div>
+  <h2 id="scare-text">BRUH.</h2>
+</div>
+
+<script>
+const SAMPLE = `# Sample questions. Replace these with your study material.
+# Math
+What is 3/4 written as a decimal? | 0.75 | 0.34 | 0.43 | 0.7
+Solve for x: x + 7 = 15 | 8 | 22 | 7 | 9
+What is 15% of 60? | 9 | 15 | 6 | 12
+What is the area of a rectangle that is 6 cm by 4 cm? | 24 square cm | 20 square cm | 10 square cm | 48 square cm
+What is -5 + 8? | 3 | -13 | 13 | -3
+# Science
+Which part of a cell holds its DNA? | Nucleus | Cell membrane | Ribosome | Vacuole
+What gas do plants take in from the air for photosynthesis? | Carbon dioxide | Oxygen | Nitrogen | Helium
+What is the closest planet to the Sun? | Mercury | Venus | Mars | Earth
+Which layer of the Earth do we live on? | Crust | Mantle | Outer core | Inner core
+At what temperature does water freeze in Celsius? | 0 °C | 32 °C | 100 °C | -10 °C
+# Social studies
+Which ancient civilization built the pyramids at Giza? | Egyptians | Romans | Greeks | Aztecs
+Who was the first President of the United States? | George Washington | Abraham Lincoln | Thomas Jefferson | John Adams
+What is the largest ocean on Earth? | Pacific | Atlantic | Indian | Arctic
+Which document begins with "We the People"? | The U.S. Constitution | The Declaration of Independence | The Magna Carta | The Emancipation Proclamation
+# Language arts
+What is a synonym for "enormous"? | Huge | Tiny | Quick | Quiet
+Which word is the verb in "The robot crept down the hall"? | crept | robot | hall | down
+What do you call a comparison that uses "like" or "as"? | Simile | Metaphor | Alliteration | Hyperbole
+What is the main idea of a paragraph? | What it is mostly about | Its first word | Its longest sentence | Its title`;
+
+// hourSec: real seconds per in-game hour. aggr: chance out of 20 to move, per hour 12..5 AM.
+const DIFF = {
+  easy:      { hourSec: 40, base: 0.40, gain: 6, penalty: 3, doorWait: 8,   aggr: [2, 3, 4, 5, 6, 7] },
+  normal:    { hourSec: 45, base: 0.50, gain: 5, penalty: 4, doorWait: 6,   aggr: [3, 5, 6, 8, 9, 11] },
+  nightmare: { hourSec: 50, base: 0.60, gain: 4, penalty: 5, doorWait: 4.5, aggr: [6, 8, 10, 12, 14, 16] }
+};
+const COST = { cam: 0.25, door: 0.45, light: 0.3 };
+const HOURS = 6, MOVE_EVERY = 4.5;
+
+const ROOMS = [
+  { id: 'stage', cam: 'CAM 1', name: 'Show Stage', area: '1 / 1 / 2 / 4' },
+  { id: 'arcade', cam: 'CAM 2', name: 'Prize Arcade', area: '2 / 1 / 3 / 2' },
+  { id: 'snack', cam: 'CAM 3', name: 'Snack Bar', area: '2 / 3 / 3 / 4' },
+  { id: 'westhall', cam: 'CAM 4', name: 'West Hall', area: '3 / 1 / 4 / 2' },
+  { id: 'easthall', cam: 'CAM 5', name: 'East Hall', area: '3 / 3 / 4 / 4' }
+];
+
+/* Original meme-style mascots, drawn here. */
+const CHARS = [
+  {
+    id: 'bruh', name: 'Bruh Bot', line: 'BRUH.', blurb: 'Unimpressed by everything, including you.',
+    paths: [['stage', 'arcade', 'westhall', 'left']], startHour: 0,
+    svg: `<svg viewBox="0 0 100 120" aria-hidden="true">
+      <rect x="47" y="2" width="6" height="14" fill="#5d6a8a"/><circle cx="50" cy="4" r="5" fill="#ff4b62"/>
+      <rect x="14" y="14" width="72" height="56" rx="16" fill="#9aa7c7" stroke="#5d6a8a" stroke-width="4"/>
+      <ellipse cx="35" cy="42" rx="11" ry="9" fill="#fff"/><ellipse cx="65" cy="42" rx="11" ry="9" fill="#fff"/>
+      <circle cx="37" cy="45" r="5" fill="#111"/><circle cx="67" cy="45" r="5" fill="#111"/>
+      <rect x="22" y="31" width="26" height="11" fill="#9aa7c7"/><rect x="52" y="31" width="26" height="11" fill="#9aa7c7"/>
+      <line x1="23" y1="42" x2="47" y2="42" stroke="#5d6a8a" stroke-width="3"/><line x1="53" y1="42" x2="77" y2="42" stroke="#5d6a8a" stroke-width="3"/>
+      <line x1="38" y1="59" x2="62" y2="59" stroke="#2a2f45" stroke-width="4" stroke-linecap="round"/>
+      <rect x="26" y="74" width="48" height="36" rx="8" fill="#9aa7c7" stroke="#5d6a8a" stroke-width="4"/>
+      <text x="50" y="97" text-anchor="middle" font-family="Bungee, Impact, sans-serif" font-size="12" fill="#2a2f45">BRUH</text>
+      <rect x="8" y="76" width="14" height="28" rx="6" fill="#5d6a8a"/><rect x="78" y="76" width="14" height="28" rx="6" fill="#5d6a8a"/>
+      <rect x="32" y="110" width="12" height="10" fill="#5d6a8a"/><rect x="56" y="110" width="12" height="10" fill="#5d6a8a"/>
+    </svg>`
+  },
+  {
+    id: 'stonks', name: 'Stonks', line: 'STONKS!', blurb: 'Only goes one direction: closer.',
+    paths: [['stage', 'snack', 'easthall', 'right']], startHour: 0,
+    svg: `<svg viewBox="0 0 100 120" aria-hidden="true">
+      <circle cx="50" cy="34" r="26" fill="#f2c9a0" stroke="#a0714a" stroke-width="3"/>
+      <path d="M24 30 Q30 6 56 8 Q78 10 76 30 Q66 18 50 18 Q34 18 24 30Z" fill="#3b2a1e"/>
+      <circle cx="40" cy="34" r="4" fill="#111"/><circle cx="60" cy="34" r="4" fill="#111"/>
+      <path d="M38 47 Q50 56 62 47" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M18 120 L24 66 Q50 58 76 66 L82 120Z" fill="#1f3a8a"/>
+      <path d="M44 62 L50 70 L56 62Z" fill="#fff"/><path d="M48 68 L52 68 L55 92 L50 98 L45 92Z" fill="#e0263b"/>
+      <rect x="58" y="76" width="30" height="24" rx="2" fill="#0a0e24" stroke="#5dffa0" stroke-width="2"/>
+      <polyline points="61,96 68,90 73,93 84,80" fill="none" stroke="#5dffa0" stroke-width="3"/>
+      <polygon points="84,78 86,86 79,83" fill="#5dffa0"/>
+    </svg>`
+  },
+  {
+    id: 'rizz', name: 'Rizz Raccoon', line: 'W RIZZ.', blurb: 'Shows up after 2 AM. Picks a door at random.',
+    paths: [['arcade', 'snack', 'westhall', 'left'], ['arcade', 'snack', 'easthall', 'right']], startHour: 2,
+    svg: `<svg viewBox="0 0 100 120" aria-hidden="true">
+      <polygon points="18,30 26,4 42,22" fill="#7d7f8c" stroke="#3e404a" stroke-width="3"/><polygon points="82,30 74,4 58,22" fill="#7d7f8c" stroke="#3e404a" stroke-width="3"/>
+      <ellipse cx="50" cy="44" rx="36" ry="30" fill="#9b9daa" stroke="#3e404a" stroke-width="3"/>
+      <path d="M16 42 Q50 28 84 42 L80 54 Q50 46 20 54Z" fill="#2a2b33"/>
+      <rect x="24" y="38" width="22" height="12" rx="3" fill="#0b0b10"/><rect x="54" y="38" width="22" height="12" rx="3" fill="#0b0b10"/>
+      <rect x="44" y="41" width="12" height="3" fill="#0b0b10"/>
+      <line x1="27" y1="40" x2="33" y2="40" stroke="#ff5fd2" stroke-width="2"/><line x1="57" y1="40" x2="63" y2="40" stroke="#ff5fd2" stroke-width="2"/>
+      <path d="M56 30 Q66 22 76 30" stroke="#2a2b33" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="60" rx="14" ry="10" fill="#e6e6ee"/><ellipse cx="50" cy="56" rx="5" ry="3.5" fill="#111"/>
+      <path d="M44 64 Q52 70 58 62" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="98" rx="26" ry="22" fill="#9b9daa" stroke="#3e404a" stroke-width="3"/>
+      <ellipse cx="50" cy="100" rx="14" ry="13" fill="#e6e6ee"/>
+      <path d="M74 104 Q96 96 92 76" stroke="#2a2b33" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="8 6"/>
+    </svg>`
+  }
+];
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------- Question bank ---------- */
+function parseBank(text) {
+  const qs = [], errors = [];
+  text.split(/\r?\n/).forEach((line, i) => {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) return;
+    const parts = t.split('|').map(s => s.trim()).filter(Boolean);
+    if (parts.length < 2) { errors.push(`Line ${i + 1} needs a question and an answer split by |`); return; }
+    qs.push({ q: parts[0], a: parts[1], wrong: parts.slice(2, 5) });
+  });
+  return { qs, errors };
+}
+let bankText = store.get('meme-arcade.bank') || SAMPLE;
+let bank = parseBank(bankText).qs;
+if (bank.length < 4) { bankText = SAMPLE; bank = parseBank(SAMPLE).qs; }
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function optionsFor(item) {
+  let wrong = item.wrong.slice();
+  if (wrong.length < 3) {
+    const pool = shuffle([...new Set(bank.map(b => b.a))].filter(a => a !== item.a && !wrong.includes(a)));
+    wrong = wrong.concat(pool.slice(0, 3 - wrong.length));
+  }
+  return shuffle([item.a, ...wrong]);
+}
+
+/* ---------- Sound ---------- */
+let soundOn = store.get('meme-arcade.sound') !== 'off';
+let actx = null;
+function tone(freq, dur, type = 'square', vol = 0.05, to) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur);
+  } catch (e) {}
+}
+const sfx = {
+  right() { tone(660, .09); setTimeout(() => tone(990, .12), 80); },
+  wrong() { tone(180, .35, 'sawtooth', .06, 90); },
+  surge() { [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, .1, 'triangle', .07), i * 90)); },
+  door() { tone(140, .18, 'square', .07, 70); },
+  light() { tone(2400, .04, 'square', .02); },
+  cam() { tone(900, .05, 'square', .025, 300); },
+  step() { tone(70, .12, 'sine', .14); setTimeout(() => tone(65, .12, 'sine', .12), 260); },
+  bang() { tone(110, .15, 'square', .1, 60); setTimeout(() => tone(100, .15, 'square', .1, 55), 180); },
+  hour() { tone(440, .25, 'triangle', .06); setTimeout(() => tone(440, .4, 'triangle', .06), 300); },
+  scare() { tone(90, 1, 'sawtooth', .12, 600); tone(97, 1, 'square', .08, 500); },
+  out() { tone(300, 1.2, 'sawtooth', .07, 30); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .18, 'triangle', .08), i * 140)); }
+};
+
+/* ---------- Game ---------- */
+let diffKey = store.get('meme-arcade.diff') || 'normal';
+if (!DIFF[diffKey]) diffKey = 'normal';
+let S = null, lastTick = 0;
+
+function show(id) { ['screen-title', 'screen-game', 'screen-end', 'screen-editor'].forEach(s => $(s).hidden = s !== id); }
+
+function newPath(c) { return c.paths[Math.floor(Math.random() * c.paths.length)]; }
+function where(m) { return m.path[m.step]; }
+function atDoor(m) { return m.step === m.path.length - 1; }
+
+function startGame() {
+  S = {
+    d: DIFF[diffKey], t: 0, hour: 0, power: 100, score: 0,
+    correct: 0, answered: 0, streak: 0, missed: new Map(),
+    phase: 'play', paused: false,
+    camOpen: false, cam: 'stage', doors: { left: false, right: false }, lights: { left: false, right: false },
+    mascots: CHARS.map((c, i) => ({ c, path: newPath(c), step: 0, moveT: MOVE_EVERY + i * 1.3, doorT: 0 })),
+    queue: shuffle(bank), item: null, opts: [], qPhase: 'ask', fbT: 0, statusT: 0
+  };
+  buildMap();
+  ['blackout', 'scare', 'pause-overlay'].forEach(id => $(id).hidden = true);
+  show('screen-game');
+  status('12 AM. Your shift starts now. Answer questions to keep the power up.', 5);
+  nextQuestion();
+  renderAll();
+}
+
+function status(msg, secs = 3) { $('status').textContent = msg; S.statusT = secs; }
+
+function aggrFor(m) { return S.hour < m.c.startHour ? 0 : S.d.aggr[Math.min(S.hour, HOURS - 1)]; }
+
+function stepForward(m) {
+  if (atDoor(m)) return;
+  m.step++;
+  if (atDoor(m)) { m.doorT = S.d.doorWait; sfx.step(); }
+}
+
+function update(dt) {
+  S.t += dt;
+  const h = Math.floor(S.t / S.d.hourSec);
+  if (h > S.hour) {
+    S.hour = h;
+    if (S.hour >= HOURS) { endGame('win'); return; }
+    sfx.hour();
+    status(`${S.hour} AM.` + (S.hour === 2 ? ' Rizz Raccoon is awake now.' : ' The mascots are getting faster.'), 4);
+  }
+
+  S.power -= drainRate() * dt;
+  if (S.power <= 0) { S.power = 0; powerOut(); return; }
+
+  for (const m of S.mascots) {
+    if (atDoor(m)) {
+      m.doorT -= dt;
+      if (m.doorT <= 0) {
+        const side = where(m);
+        if (S.doors[side]) {
+          sfx.bang();
+          status(`${m.c.name} banged on the ${side === 'left' ? 'west' : 'east'} door, then gave up and left.`, 4);
+          m.path = newPath(m.c); m.step = 0; m.moveT = MOVE_EVERY * 1.5;
+        } else { caught(m); return; }
+      }
+    } else {
+      m.moveT -= dt;
+      if (m.moveT <= 0) {
+        m.moveT = MOVE_EVERY + Math.random() * 1.5;
+        if (Math.random() * 20 < aggrFor(m)) stepForward(m);
+      }
+    }
+  }
+
+  if (S.qPhase === 'feedback') { S.fbT -= dt; if (S.fbT <= 0) nextQuestion(); }
+  if (S.statusT > 0) { S.statusT -= dt; if (S.statusT <= 0) $('status').textContent = ''; }
+  renderAll();
+}
+
+function drainRate() {
+  return S.d.base + (S.camOpen ? COST.cam : 0)
+    + (S.doors.left ? COST.door : 0) + (S.doors.right ? COST.door : 0)
+    + (S.lights.left ? COST.light : 0) + (S.lights.right ? COST.light : 0);
+}
+function usageLevel() {
+  return 1 + (S.camOpen ? 1 : 0) + (S.doors.left ? 1 : 0) + (S.doors.right ? 1 : 0) + ((S.lights.left || S.lights.right) ? 1 : 0);
+}
+
+/* ---------- Questions ---------- */
+function nextQuestion() {
+  if (!S.queue.length) S.queue = shuffle(bank);
+  S.item = S.queue.shift();
+  S.opts = optionsFor(S.item);
+  S.qPhase = 'ask';
+  $('question').textContent = S.item.q;
+  const box = $('answers'); box.innerHTML = '';
+  S.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'ans'; b.id = 'ans-' + i;
+    b.innerHTML = `<span class="k">${i + 1}</span><span class="t"></span>`;
+    b.querySelector('.t').textContent = o;
+    b.addEventListener('click', () => answer(i));
+    box.appendChild(b);
+  });
+  $('fb').textContent = ''; $('fb').className = 'fb';
+}
+
+function answer(i) {
+  if (!S || S.phase !== 'play' || S.paused || S.qPhase !== 'ask') return;
+  S.qPhase = 'feedback';
+  S.answered++;
+  const ok = S.opts[i] === S.item.a;
+  [...$('answers').children].forEach((b, j) => {
+    b.disabled = true;
+    if (S.opts[j] === S.item.a) b.classList.add('right');
+    else if (j === i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  const fb = $('fb');
+  if (ok) {
+    S.correct++; S.streak++;
+    let gain = S.d.gain;
+    S.score += 100 + (S.streak >= 3 ? 50 : 0);
+    if (S.streak % 3 === 0) { gain += 5; sfx.surge(); fb.textContent = `${S.streak} in a row! Power surge: +${gain}%`; fb.className = 'fb info'; }
+    else { sfx.right(); fb.textContent = `Correct! +${gain}% power`; fb.className = 'fb good'; }
+    S.power = Math.min(100, S.power + gain);
+    S.fbT = 0.9;
+  } else {
+    S.streak = 0;
+    S.power -= S.d.penalty;
+    S.missed.set(S.item.q, S.item);
+    S.queue.splice(Math.min(4, S.queue.length), 0, S.item);
+    sfx.wrong();
+    const movable = S.mascots.filter(m => aggrFor(m) > 0 && !atDoor(m));
+    let extra = '';
+    if (movable.length) {
+      const m = movable[Math.floor(Math.random() * movable.length)];
+      stepForward(m);
+      extra = ` The noise drew ${m.c.name} closer!`;
+    }
+    fb.textContent = `Not quite. The answer is "${S.item.a}". -${S.d.penalty}% power.${extra}`;
+    fb.className = 'fb bad';
+    S.fbT = 2.6;
+  }
+  renderAll();
+}
+
+/* ---------- Controls ---------- */
+function toggleDoor(side) {
+  if (!S || S.phase !== 'play' || S.paused) return;
+  S.doors[side] = !S.doors[side]; sfx.door(); renderAll();
+}
+function toggleLight(side) {
+  if (!S || S.phase !== 'play' || S.paused) return;
+  S.lights[side] = !S.lights[side]; sfx.light();
+  if (S.lights[side]) {
+    const m = S.mascots.find(x => atDoor(x) && where(x) === side);
+    if (m) status(`${m.c.name} is at the ${side === 'left' ? 'west' : 'east'} door!`, 3);
+  }
+  renderAll();
+}
+function toggleCams() {
+  if (!S || S.phase !== 'play' || S.paused) return;
+  S.camOpen = !S.camOpen; sfx.cam(); renderAll();
+}
+function setCam(id) {
+  S.cam = id; sfx.cam();
+  const f = $('feed'); f.classList.add('switching'); setTimeout(() => f.classList.remove('switching'), 180);
+  renderAll();
+}
+
+/* ---------- Endings ---------- */
+function caught(m) {
+  S.phase = 'over';
+  S.endBy = m.c.name;
+  $('scare-face').innerHTML = m.c.svg;
+  $('scare-text').textContent = m.c.line;
+  $('scare').hidden = false;
+  sfx.scare();
+  setTimeout(() => { $('scare').hidden = true; endGame('caught'); }, 2000);
+}
+function powerOut() {
+  S.phase = 'over';
+  renderAll();
+  sfx.out();
+  $('blackout').hidden = false;
+  setTimeout(() => { $('blackout').hidden = true; endGame('power'); }, 2000);
+}
+function clockText(h) { return (h === 0 ? 12 : h) + ' AM'; }
+
+function endGame(how) {
+  S.phase = 'over';
+  const win = how === 'win';
+  if (win) { S.score += Math.round(S.power) * 10 + 500; sfx.win(); }
+  const t = $('end-title');
+  t.textContent = win ? 'You survived!' : how === 'power' ? 'Lights out' : 'Caught!';
+  t.className = 'end-title ' + (win ? 'win' : 'lose');
+  $('end-sub').textContent = win
+    ? `6 AM. The mascots shuffle back to the stage. You finished with ${Math.round(S.power)}% power left.`
+    : how === 'power'
+      ? `The power ran out at ${clockText(S.hour)}. Answer more questions, and close doors only when someone is actually there.`
+      : `${S.endBy} got into the office at ${clockText(S.hour)}. When a mascot leaves a hallway camera, check that door's light.`;
+  store.set('meme-arcade.best', Math.max(S.score, +store.get('meme-arcade.best') || 0));
+  $('st-score').textContent = S.score.toLocaleString();
+  $('st-right').textContent = S.correct;
+  $('st-acc').textContent = S.answered ? Math.round(S.correct / S.answered * 100) + '%' : '0%';
+  $('st-time').textContent = win ? '6 AM' : clockText(S.hour);
+  const list = $('missed'); list.innerHTML = '';
+  if (!S.missed.size) {
+    $('missed-label').textContent = S.answered ? 'No missed questions' : 'Study these';
+    const li = document.createElement('li');
+    li.textContent = S.answered ? 'Every answer was right. Try a harder difficulty.' : 'No questions answered this time.';
+    list.appendChild(li);
+  } else {
+    $('missed-label').textContent = `Study these (${S.missed.size})`;
+    S.missed.forEach(m => {
+      const li = document.createElement('li');
+      const q = document.createElement('div'); q.textContent = m.q;
+      const a = document.createElement('div'); a.className = 'ma'; a.textContent = m.a;
+      li.append(q, a); list.appendChild(li);
+    });
+  }
+  show('screen-end');
+}
+
+/* ---------- Rendering ---------- */
+function buildMap() {
+  const map = $('map');
+  map.innerHTML = ROOMS.map(r => `<button id="map-${r.id}" data-room="${r.id}" style="grid-area:${r.area}">${r.cam}<br>${r.name}</button>`).join('')
+    + `<div class="you" style="grid-area:3 / 2 / 4 / 3">YOU</div>`;
+  map.querySelectorAll('button').forEach(b => b.addEventListener('click', () => setCam(b.dataset.room)));
+}
+
+let lastViewKey = '';
+function renderAll() {
+  if (!S) return;
+  $('clock').textContent = clockText(Math.min(S.hour, HOURS));
+  const p = Math.max(0, S.power);
+  $('power-bar').firstElementChild.style.width = p + '%';
+  $('power-bar').classList.toggle('low', p < 20);
+  $('power-val').textContent = Math.ceil(p) + '%';
+  const u = usageLevel();
+  $('pips').innerHTML = [1, 2, 3, 4, 5].map(i => `<span class="pip${i <= u ? ' on' : ''}${u >= 4 ? ' max' : u >= 3 ? ' hot' : ''}"></span>`).join('');
+  $('score').textContent = S.score.toLocaleString();
+  $('streak').textContent = S.streak >= 2 ? `Streak ×${S.streak}` : '';
+
+  // Only rebuild the scene when something visible changed.
+  const key = JSON.stringify([S.camOpen, S.cam, S.doors, S.lights, S.mascots.map(m => where(m)), S.phase]);
+  if (key === lastViewKey) return;
+  lastViewKey = key;
+
+  ['left', 'right'].forEach(side => {
+    $('door-' + side).setAttribute('aria-pressed', S.doors[side]);
+    $('light-' + side).setAttribute('aria-pressed', S.lights[side]);
+    const dw = $('dw-' + side);
+    dw.classList.toggle('closed', S.doors[side]);
+    dw.classList.toggle('lit', S.lights[side] && S.phase === 'play');
+    const m = S.mascots.find(x => atDoor(x) && where(x) === side);
+    const who = $('who-' + side);
+    who.innerHTML = m ? m.c.svg : '';
+    who.classList.toggle('here', !!m);
+  });
+
+  $('office').hidden = S.camOpen;
+  $('monitor').hidden = !S.camOpen;
+  $('cam-toggle').setAttribute('aria-pressed', S.camOpen);
+  $('cam-toggle').textContent = S.camOpen ? 'Close cameras (C)' : 'Open cameras (C)';
+  if (S.camOpen) {
+    const room = ROOMS.find(r => r.id === S.cam);
+    $('feed-name').textContent = `${room.cam} · ${room.name}`;
+    const here = S.mascots.filter(m => where(m) === S.cam);
+    $('feed-chars').innerHTML = here.length ? here.map(m => m.c.svg).join('') : '<span class="feed-empty">Empty</span>';
+    ROOMS.forEach(r => $('map-' + r.id).setAttribute('aria-pressed', r.id === S.cam));
+  }
+}
+
+function renderBest() {
+  const b = +store.get('meme-arcade.best') || 0;
+  $('best-line').textContent = b ? `Best score: ${b.toLocaleString()}` : '';
+}
+function renderTitle() {
+  $('bank-count').textContent = bank.length;
+  $('sample-note').hidden = bankText !== SAMPLE;
+  document.querySelectorAll('.diff').forEach(b => b.setAttribute('aria-pressed', b.dataset.diff === diffKey));
+  $('sound-toggle').textContent = 'Sound: ' + (soundOn ? 'on' : 'off');
+  $('sound-toggle').setAttribute('aria-pressed', soundOn);
+  $('cast').innerHTML = CHARS.map(c => `<div class="cast-card">${c.svg}<strong>${c.name}</strong><span>${c.blurb}</span></div>`).join('');
+  renderBest();
+}
+
+/* ---------- Loop ---------- */
+function loop(t) {
+  const dt = Math.min(0.25, (t - lastTick) / 1000 || 0);
+  lastTick = t;
+  if (S && S.phase === 'play' && !S.paused) update(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function setPaused(p) {
+  if (!S || S.phase !== 'play' || $('screen-game').hidden) return;
+  S.paused = p;
+  $('pause-overlay').hidden = !p;
+}
+
+/* ---------- Events ---------- */
+document.querySelectorAll('.diff').forEach(b => b.addEventListener('click', () => {
+  diffKey = b.dataset.diff; store.set('meme-arcade.diff', diffKey); renderTitle();
+}));
+$('start').addEventListener('click', startGame);
+$('again').addEventListener('click', startGame);
+$('to-title').addEventListener('click', () => { renderTitle(); show('screen-title'); });
+$('sound-toggle').addEventListener('click', () => {
+  soundOn = !soundOn; store.set('meme-arcade.sound', soundOn ? 'on' : 'off'); renderTitle(); sfx.right();
+});
+$('pause').addEventListener('click', () => setPaused(true));
+$('resume').addEventListener('click', () => setPaused(false));
+$('quit').addEventListener('click', () => { S.phase = 'over'; $('pause-overlay').hidden = true; renderTitle(); show('screen-title'); });
+$('door-left').addEventListener('click', () => toggleDoor('left'));
+$('door-right').addEventListener('click', () => toggleDoor('right'));
+$('light-left').addEventListener('click', () => toggleLight('left'));
+$('light-right').addEventListener('click', () => toggleLight('right'));
+$('cam-toggle').addEventListener('click', toggleCams);
+
+function openEditor() { $('bank-text').value = bankText; updateBankStatus(); show('screen-editor'); }
+function updateBankStatus() {
+  const { qs, errors } = parseBank($('bank-text').value);
+  const st = $('bank-status');
+  if (qs.length < 4) { st.className = 'err'; st.textContent = `${qs.length} questions found. Add at least 4 so there are enough answer choices.`; }
+  else if (errors.length) { st.className = 'err'; st.textContent = `${qs.length} questions ready. ${errors.slice(0, 3).join('. ')}${errors.length > 3 ? ` (and ${errors.length - 3} more)` : ''}.`; }
+  else { st.className = 'ok'; st.textContent = `${qs.length} questions ready.`; }
+  $('save-bank').disabled = qs.length < 4;
+}
+$('open-editor').addEventListener('click', openEditor);
+$('bank-text').addEventListener('input', updateBankStatus);
+$('save-bank').addEventListener('click', () => {
+  const text = $('bank-text').value, { qs } = parseBank(text);
+  if (qs.length < 4) return;
+  bankText = text; bank = qs; store.set('meme-arcade.bank', text);
+  renderTitle(); show('screen-title');
+});
+$('cancel-bank').addEventListener('click', () => { renderTitle(); show('screen-title'); });
+$('reset-bank').addEventListener('click', () => { $('bank-text').value = SAMPLE; updateBankStatus(); });
+
+document.addEventListener('keydown', e => {
+  if (!S || $('screen-game').hidden || S.phase !== 'play') return;
+  const k = e.key.toLowerCase();
+  if (k === 'escape' || k === 'p') { setPaused(!S.paused); return; }
+  if (S.paused || e.repeat) return;
+  const n = parseInt(k, 10);
+  if (n >= 1 && n <= S.opts.length) answer(n - 1);
+  else if (k === 'c') toggleCams();
+  else if (k === 'q') toggleDoor('left');
+  else if (k === 'e') toggleDoor('right');
+  else if (k === 'a') toggleLight('left');
+  else if (k === 'd') toggleLight('right');
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) setPaused(true); });
+
+renderTitle();
+</script>
+</body>
+</html>
