@@ -262,7 +262,7 @@ body { padding-top: 52px; margin: 0; }
         <button class="btn btn-ghost" id="open-editor">Edit questions (<span id="bank-count">0</span> loaded)</button>
         <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true">Sound: on</button>
         <p class="best" id="best-line"></p>
-        <p class="note" id="sample-note">These are sample questions. Use Edit questions to load your study material.</p>
+        <p class="note" id="sample-note">Loaded: 6th Grade World History, Unit 1 study guide.</p>
       </div>
     </div>
   </section>
@@ -358,7 +358,7 @@ body { padding-top: 52px; margin: 0; }
       <div class="row">
         <button class="btn btn-go" id="save-bank">Save questions</button>
         <button class="btn btn-ghost" id="cancel-bank">Cancel</button>
-        <button class="btn btn-ghost" id="reset-bank">Load sample questions</button>
+        <button class="btn btn-ghost" id="reset-bank">Reload Unit 1 questions</button>
       </div>
     </div>
   </section>
@@ -384,29 +384,64 @@ body { padding-top: 52px; margin: 0; }
 </div>
 
 <script>
-const SAMPLE = `# Sample questions. Replace these with your study material.
-# Math
-What is 3/4 written as a decimal? | 0.75 | 0.34 | 0.43 | 0.7
-Solve for x: x + 7 = 15 | 8 | 22 | 7 | 9
-What is 15% of 60? | 9 | 15 | 6 | 12
-What is the area of a rectangle that is 6 cm by 4 cm? | 24 square cm | 20 square cm | 10 square cm | 48 square cm
-What is -5 + 8? | 3 | -13 | 13 | -3
-# Science
-Which part of a cell holds its DNA? | Nucleus | Cell membrane | Ribosome | Vacuole
-What gas do plants take in from the air for photosynthesis? | Carbon dioxide | Oxygen | Nitrogen | Helium
-What is the closest planet to the Sun? | Mercury | Venus | Mars | Earth
-Which layer of the Earth do we live on? | Crust | Mantle | Outer core | Inner core
-At what temperature does water freeze in Celsius? | 0 °C | 32 °C | 100 °C | -10 °C
-# Social studies
-Which ancient civilization built the pyramids at Giza? | Egyptians | Romans | Greeks | Aztecs
-Who was the first President of the United States? | George Washington | Abraham Lincoln | Thomas Jefferson | John Adams
-What is the largest ocean on Earth? | Pacific | Atlantic | Indian | Arctic
-Which document begins with "We the People"? | The U.S. Constitution | The Declaration of Independence | The Magna Carta | The Emancipation Proclamation
-# Language arts
-What is a synonym for "enormous"? | Huge | Tiny | Quick | Quiet
-Which word is the verb in "The robot crept down the hall"? | crept | robot | hall | down
-What do you call a comparison that uses "like" or "as"? | Simile | Metaphor | Alliteration | Hyperbole
-What is the main idea of a paragraph? | What it is mostly about | Its first word | Its longest sentence | Its title`;
+const SAMPLE = `# 6th Grade World History, Unit 1: Intro to Civilization (Test 1 study guide)
+# Three main maps
+Which kind of map shows borders, countries, states, and cities? | Political map | Physical map | Historical map | Climate map
+Which kind of map shows landforms like mountains, rivers, and deserts? | Physical map | Political map | Historical map | Road map
+Which kind of map shows what a place was like in the past, like where an ancient empire was? | Historical map | Physical map | Political map | Weather map
+# Four key features of a map
+Which list names the four key features of a map? | Title, key, compass rose, scale | Title, author, date, page number | Country, state, city, town | Mountains, rivers, deserts, oceans
+What part of a map explains what the symbols and colors mean? | Key (legend) | Compass rose | Scale | Title
+What map feature shows the directions north, south, east, and west? | Compass rose | Key (legend) | Scale | Title
+What map feature helps you figure out the real distance between two places? | Scale | Key (legend) | Compass rose | Title
+What map feature tells you what the map is about? | Title | Scale | Compass rose | Key (legend)
+# Major climate zones
+Which climate zone is hot all year and found near the equator? | Tropical | Temperate | Polar | Arctic
+Which climate zone has mild weather and four seasons? | Temperate | Tropical | Polar | Antarctic
+Which climate zone is very cold all year and found near the North and South Poles? | Polar | Tropical | Temperate | Equatorial
+What is the cold polar region around the North Pole called? | The Arctic | The Antarctic | The Tropics | The Sahara
+What is the cold polar region around the South Pole called? | The Antarctic | The Arctic | The Equator | The Himalayas
+# Landforms
+The Ural Mountains form a boundary between which two continents? | Europe and Asia | Africa and Asia | North and South America | Europe and Africa
+Where is the Sahara Desert? | Northern Africa | South America | Australia | Europe
+The Sahara is the largest hot ___ in the world. | Desert | Mountain range | Ocean | Rainforest
+Which mountain range has Mount Everest, the tallest mountain on Earth? | Himalayan Mountains | Ural Mountains | Rocky Mountains | Andes Mountains
+The Himalayan Mountains are on which continent? | Asia | Europe | Africa | South America
+# Culture
+What is culture? | The beliefs, customs, and way of life of a group of people | The weather of a place over a long time | The landforms of a region | A map of a country's borders
+Which of these is a HUMAN characteristic of a place? | The language people speak | Its mountains | Its rivers | Its climate
+Which of these is a PHYSICAL characteristic of a place? | A desert | A religion | A language | A government
+Which of these is an example of culture? | The foods, holidays, and music of a group of people | The height of a mountain | How much rain falls in a year | The distance between two cities
+Buildings, roads, and religions are examples of what kind of characteristics? | Human characteristics | Physical characteristics | Climate zones | Map features
+# Civilization
+Which of these is a feature of a civilization? | Organized government | Living only as wandering nomads | Having no cities | Having no way to share food
+Which of these is a feature of a civilization? | Cities | Living alone in the wild | Having no leaders | Never trading
+# Studying the past
+What is prehistory? | The time before people invented writing | The time after the first cities were built | The last 100 years | The study of maps
+What does an anthropologist study? | Humans and their cultures | Rocks and minerals | Weather and climate | Stars and planets
+What does an archaeologist do? | Digs up and studies objects people left behind | Studies living animals | Tracks ocean currents | Runs modern governments
+What is an artifact? | An object made by people, like a tool or a pot | A natural rock formation | A type of map | A climate zone
+Which of these is an artifact? | An ancient clay pot | A mountain | A river | A volcano
+Where do social scientists believe human life began millions of years ago? | East Africa | Northern Europe | China | North America
+# Stone Age
+The Stone Age got its name because people made most of their tools from what? | Stone | Iron | Bronze | Gold
+What does Paleolithic mean? | Old Stone Age | New Stone Age | Middle Stone Age | Iron Age
+What does Neolithic mean? | New Stone Age | Old Stone Age | Bronze Age | Ice Age
+How did people live during the Paleolithic Era? | As nomadic hunter-gatherers | As farmers in villages | In big cities | As traders on ships
+What does nomadic mean? | Moving from place to place to find food | Staying in one place to farm | Living in a city | Trading goods by ship
+Which Paleolithic discovery let people cook food, stay warm, and scare away animals? | Fire | Writing | The wheel | Iron tools
+What big change happened during the Neolithic Era? | People began farming and settling in one place | People first learned to use fire | People invented writing on paper | People stopped making tools
+What does sedentary living mean? | Staying settled in one place | Always moving to find food | Hunting large animals | Sailing to new lands
+Farming during the Neolithic Era led people to build what? | Permanent villages | Ships to explore | Factories | Highways
+# Technology
+In history, what does technology mean? | The tools and skills people use to meet their needs | Only computers and phones | Stories passed down by elders | Weather patterns over time
+Making stone tools and learning to farm are both examples of new what? | Technology | Climate zones | Map features | Physical characteristics
+# Movement
+What is migration? | Moving from one place to settle in another | Buying and selling goods | Drawing maps | Studying artifacts
+What is trade? | Exchanging goods and services | Moving to a new home | Planting crops | Making stone tools
+What is cultural diffusion? | The spread of ideas, customs, and goods from one culture to another | A culture staying the same forever | Moving to a colder climate | Digging up artifacts
+Pizza from Italy becoming popular in the United States is an example of what? | Cultural diffusion | Prehistory | A physical characteristic | Sedentary living
+Trade and migration both help cause what? | Cultural diffusion | Climate zones | Prehistory | The Stone Age`;
 
 // hourSec: real seconds per in-game hour. aggr: chance out of 20 to move, per hour 12..5 AM.
 const DIFF = {
