@@ -140,6 +140,13 @@ kbd { font-family: var(--mono); font-size: 17px; border: 1px solid var(--line); 
 .feed-empty { font-family: var(--mono); color: var(--muted); font-size: 20px; align-self: center; }
 .static { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px); animation: flicker 3s infinite; }
 .feed.switching .static { background: repeating-linear-gradient(0deg, rgba(255,255,255,.5) 0 2px, rgba(0,0,0,.6) 2px 4px); }
+/* Janky old security cams: a rolling tracking band, picture jitter, and brightness flickers. */
+.feed { animation: camFlicker 6s infinite; }
+.feed::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 18%; z-index: 5; pointer-events: none; background: linear-gradient(transparent, rgba(255,255,255,.12) 40%, rgba(255,255,255,.24) 50%, rgba(255,255,255,.12) 60%, transparent); animation: track 4.5s linear infinite; }
+.feed-chars { animation: jitter 5s infinite; }
+@keyframes track { from { transform: translateY(-120%); } to { transform: translateY(620%); } }
+@keyframes jitter { 0%, 91%, 100% { transform: none; } 92% { transform: translateX(-5px) skewX(5deg); } 94% { transform: translateX(6px); } 96% { transform: translateX(-2px) skewX(-3deg); } }
+@keyframes camFlicker { 0%, 47%, 50%, 78%, 80%, 100% { filter: none; } 48% { filter: brightness(1.7) contrast(1.4); } 49% { filter: brightness(.45); } 79% { filter: brightness(.25); } }
 .map { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 4px; padding: 8px; border-left: 2px solid var(--line); }
 .map button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; font-family: var(--mono); font-size: 15px; line-height: 1.05; padding: 2px; min-width: 0; overflow-wrap: anywhere; }
 .map button[aria-pressed="true"] { border-color: var(--mon); color: var(--mon); background: #10382a; }
