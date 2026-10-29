@@ -53,7 +53,7 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid var(--hazard);
 .label { font-family: var(--mono); font-size: 20px; letter-spacing: .08em; color: var(--mon); text-transform: uppercase; margin: 0; }
 .rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
 .rules b { color: var(--hazard); }
-.cast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 10px; }
 .cast-card { background: var(--panel-2); border-radius: 8px; padding: 10px; text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .cast-card svg { width: 64px; height: auto; }
 .cast-card strong { font-family: var(--display); font-weight: 400; font-size: 14px; }
@@ -191,6 +191,18 @@ kbd { font-family: var(--mono); font-size: 17px; border: 1px solid var(--line); 
 .scare { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(circle, #3d0a16, #000 70%); }
 .scare .face { width: min(80vw, 420px); animation: lunge .45s cubic-bezier(.2,1.6,.4,1) both, shake .08s linear .45s 12; }
 .scare h2 { position: absolute; bottom: 10%; left: 0; right: 0; padding: 0 16px; text-align: center; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 8vw, 64px); color: var(--alarm); margin: 0; }
+/* Wildcat scare: a basketball flies at the camera, the glass cracks, then he lunges in. */
+.scare .ball, .scare .crack { display: none; }
+.scare.ball-scare .ball { display: block; position: absolute; width: 140px; left: 50%; top: 45%; margin: -70px 0 0 -70px; z-index: 2; animation: ballThrow .65s cubic-bezier(.5,0,.9,.6) both; }
+.scare.ball-scare .crack { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; opacity: 0; animation: crackIn .1s linear .62s forwards; pointer-events: none; }
+.scare.ball-scare .face { animation-delay: .75s, 1.2s; }
+.scare.ball-scare h2 { opacity: 0; animation: crackIn .1s linear .75s forwards; }
+@keyframes ballThrow {
+  0% { transform: translate(-30vw, 30vh) scale(.12) rotate(0); }
+  60% { transform: translate(-6vw, -8vh) scale(.6) rotate(300deg); }
+  100% { transform: translate(0, 0) scale(5) rotate(540deg); opacity: .15; }
+}
+@keyframes crackIn { to { opacity: 1; } }
 .blackout { position: fixed; inset: 0; z-index: 25; background: #000; display: grid; place-items: center; font-family: var(--mono); font-size: 28px; color: var(--muted); }
 .shake { animation: shake .08s linear 5; }
 .end-title { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 9vw, 72px); margin: 0; line-height: 1; }
@@ -363,6 +375,11 @@ body { padding-top: 52px; margin: 0; }
 <div class="blackout" id="blackout" hidden>The power went out...</div>
 <div class="scare" id="scare" hidden>
   <div class="face" id="scare-face"></div>
+  <div class="ball" id="scare-ball"></div>
+  <svg class="crack" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M200 190 L140 60 L120 0 M200 190 L290 80 L330 20 M200 190 L60 210 L0 230 M200 190 L340 230 L400 260 M200 190 L170 320 L150 400 M200 190 L260 330 L290 400 M140 60 L90 90 M290 80 L340 110 M60 210 L80 280 M340 230 L330 300 M170 320 L110 340 M260 330 L320 340" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="bevel"/>
+    <circle cx="200" cy="190" r="16" fill="none" stroke="#fff" stroke-width="3"/>
+  </svg>
   <h2 id="scare-text">BRUH.</h2>
 </div>
 
@@ -459,8 +476,40 @@ const CHARS = [
       <ellipse cx="50" cy="100" rx="14" ry="13" fill="#e6e6ee"/>
       <path d="M74 104 Q96 96 92 76" stroke="#2a2b33" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="8 6"/>
     </svg>`
+  },
+  {
+    id: 'wildcat', name: 'Komarek Wildcat', line: 'WILDCATS!', blurb: 'Clocks in at 3 AM. Brought his basketball.',
+    paths: [['stage', 'arcade', 'westhall', 'left'], ['stage', 'snack', 'easthall', 'right']], startHour: 3, ball: true,
+    svg: `<svg viewBox="0 0 100 120" aria-hidden="true">
+      <polygon points="22,30 24,4 44,20" fill="#f2b705" stroke="#1d2f6f" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="78,30 76,4 56,20" fill="#f2b705" stroke="#1d2f6f" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="27,24 28,12 37,20" fill="#c98a00"/><polygon points="73,24 72,12 63,20" fill="#c98a00"/>
+      <ellipse cx="50" cy="40" rx="31" ry="27" fill="#f2b705" stroke="#1d2f6f" stroke-width="3"/>
+      <path d="M44 16 L46 24 M50 15 L50 24 M56 16 L54 24" stroke="#1d2f6f" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M23 36 L29 34 M22 42 L28 41 M77 36 L71 34 M78 42 L72 41" stroke="#1d2f6f" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M28 28 L45 34" stroke="#1d2f6f" stroke-width="4" stroke-linecap="round"/><path d="M72 28 L55 34" stroke="#1d2f6f" stroke-width="4" stroke-linecap="round"/>
+      <path d="M30 37 Q37 31 44 37 Q37 42 30 37Z" fill="#fff6c0" stroke="#1d2f6f" stroke-width="1.5"/>
+      <path d="M56 37 Q63 31 70 37 Q63 42 56 37Z" fill="#fff6c0" stroke="#1d2f6f" stroke-width="1.5"/>
+      <ellipse cx="37" cy="37" rx="1.8" ry="4" fill="#111"/><ellipse cx="63" cy="37" rx="1.8" ry="4" fill="#111"/>
+      <ellipse cx="50" cy="54" rx="17" ry="11" fill="#fff"/>
+      <path d="M45 45 L55 45 L50 50Z" fill="#1d2f6f"/>
+      <path d="M38 54 Q50 68 62 54 Q50 58 38 54Z" fill="#7a0f1c" stroke="#1d2f6f" stroke-width="1.5"/>
+      <path d="M41 55 L43 61 L45 56Z M59 55 L57 61 L55 56Z" fill="#fff"/>
+      <path d="M33 52 L20 50 M33 55 L20 57 M67 52 L80 50 M67 55 L80 57" stroke="#1d2f6f" stroke-width="1.2"/>
+      <path d="M8 74 Q4 92 12 100" stroke="#f2b705" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M7 100 l-3 6 M12 102 l0 7 M17 100 l3 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <path d="M24 66 L76 66 L82 120 L18 120Z" fill="#1d2f6f"/>
+      <path d="M38 66 Q50 76 62 66" fill="none" stroke="#f2b705" stroke-width="3"/>
+      <path d="M24 66 L30 82 M76 66 L70 82" stroke="#f2b705" stroke-width="3"/>
+      <text x="50" y="92" text-anchor="middle" font-family="Bungee, Impact, sans-serif" font-size="10" fill="#f2b705" textLength="46" lengthAdjust="spacingAndGlyphs">KOMAREK</text>
+      <text x="50" y="114" text-anchor="middle" font-family="Bungee, Impact, sans-serif" font-size="18" fill="#fff" stroke="#f2b705" stroke-width="1">1</text>
+      <path d="M86 70 Q94 80 86 88" stroke="#f2b705" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <circle cx="86" cy="64" r="11" fill="#e8742a" stroke="#3a1a08" stroke-width="2"/>
+      <path d="M75 64 H97 M86 53 V75 M78 56 Q86 64 78 72 M94 56 Q86 64 94 72" stroke="#3a1a08" stroke-width="1.5" fill="none"/>
+    </svg>`
   }
 ];
+const BALL_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#e8742a" stroke="#3a1a08" stroke-width="4"/><path d="M4 50 H96 M50 4 V96 M18 18 Q50 50 18 82 M82 18 Q50 50 82 82" stroke="#3a1a08" stroke-width="4" fill="none"/></svg>`;
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -519,6 +568,7 @@ const sfx = {
   bang() { tone(110, .15, 'square', .1, 60); setTimeout(() => tone(100, .15, 'square', .1, 55), 180); },
   hour() { tone(440, .25, 'triangle', .06); setTimeout(() => tone(440, .4, 'triangle', .06), 300); },
   scare() { tone(90, 1, 'sawtooth', .12, 600); tone(97, 1, 'square', .08, 500); },
+  toss() { tone(200, .6, 'sine', .08, 1400); },
   out() { tone(300, 1.2, 'sawtooth', .07, 30); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .18, 'triangle', .08), i * 140)); }
 };
@@ -568,7 +618,8 @@ function update(dt) {
     S.hour = h;
     if (S.hour >= HOURS) { endGame('win'); return; }
     sfx.hour();
-    status(`${S.hour} AM.` + (S.hour === 2 ? ' Rizz Raccoon is awake now.' : ' The mascots are getting faster.'), 4);
+    const waking = CHARS.filter(c => c.startHour === S.hour).map(c => c.name);
+    status(`${S.hour} AM.` + (waking.length ? ` ${waking.join(' and ')} just showed up.` : ' The mascots are getting faster.'), 4);
   }
 
   S.power -= drainRate() * dt;
@@ -697,9 +748,11 @@ function caught(m) {
   S.endBy = m.c.name;
   $('scare-face').innerHTML = m.c.svg;
   $('scare-text').textContent = m.c.line;
+  $('scare-ball').innerHTML = m.c.ball ? BALL_SVG : '';
+  $('scare').classList.toggle('ball-scare', !!m.c.ball);
   $('scare').hidden = false;
-  sfx.scare();
-  setTimeout(() => { $('scare').hidden = true; endGame('caught'); }, 2000);
+  if (m.c.ball) { sfx.toss(); setTimeout(sfx.scare, 620); } else sfx.scare();
+  setTimeout(() => { $('scare').hidden = true; endGame('caught'); }, m.c.ball ? 2700 : 2000);
 }
 function powerOut() {
   S.phase = 'over';
