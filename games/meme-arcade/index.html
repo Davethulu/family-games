@@ -253,7 +253,7 @@ body { padding-top: 52px; margin: 0; }
           <li><b>Answer questions to make power.</b> A wrong answer costs power, makes noise, and pulls a mascot closer. You'll see that question again later.</li>
           <li><b>Check the cameras</b> to track the mascots. When one leaves a hallway camera, it's at your door.</li>
           <li><b>Use the lights</b> to see who's at a door, and <b>close the door</b> until they give up and leave.</li>
-          <li>Survive until <b>6 AM</b>. If the power runs out, it's over.</li>
+          <li>Survive until <b>6 AM</b> to unlock the next night. Each night the mascots get faster. Beat <b>Night 5</b> to win. If the power runs out, it's over.</li>
         </ul>
         <p class="note">Keys: <kbd>1</kbd>–<kbd>4</kbd> answer · <kbd>C</kbd> cameras · <kbd>Q</kbd>/<kbd>E</kbd> doors · <kbd>A</kbd>/<kbd>D</kbd> lights · <kbd>Esc</kbd> pause</p>
         <div class="cast" id="cast"></div>
@@ -265,7 +265,8 @@ body { padding-top: 52px; margin: 0; }
           <button class="diff" id="diff-normal" data-diff="normal" aria-pressed="true"><strong>Guard</strong><span>The real deal</span></button>
           <button class="diff" id="diff-nightmare" data-diff="nightmare" aria-pressed="false"><strong>Nightmare</strong><span>Good luck</span></button>
         </div>
-        <button class="btn btn-go" id="start">Start the shift</button>
+        <button class="btn btn-go" id="start">Start Night 1</button>
+        <button class="btn btn-ghost" id="restart" hidden>Start over from Night 1</button>
         <button class="btn btn-ghost" id="open-editor">Edit questions (<span id="bank-count">0</span> loaded)</button>
         <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true">Sound: on</button>
         <p class="best" id="best-line"></p>
@@ -285,7 +286,7 @@ body { padding-top: 52px; margin: 0; }
         <div class="usage">Usage&nbsp;<span id="pips" style="display:flex;gap:3px"></span></div>
       </div>
       <div class="hud-right">
-        <div class="score"><span id="score">0</span> pts</div>
+        <div class="score">Night <span id="night-num">1</span> · <span id="score">0</span> pts</div>
         <button class="small-btn" id="pause">Pause</button>
       </div>
     </div>
@@ -626,8 +627,11 @@ function newPath(c) { return c.paths[Math.floor(Math.random() * c.paths.length)]
 function where(m) { return m.path[m.step]; }
 function atDoor(m) { return m.step === m.path.length - 1; }
 
-function startGame() {
+function savedNight() { const n = +store.get('meme-arcade.night'); return n >= 1 && n <= 5 ? n : 1; }
+
+function startGame(night) {
   S = {
+    night: night || savedNight(),
     d: DIFF[diffKey], t: 0, hour: 0, power: 100, score: 0,
     correct: 0, answered: 0, streak: 0, missed: new Map(),
     phase: 'play', paused: false,
@@ -638,14 +642,15 @@ function startGame() {
   buildMap();
   ['blackout', 'scare', 'pause-overlay'].forEach(id => $(id).hidden = true);
   show('screen-game');
-  status('12 AM. Your shift starts now. Answer questions to keep the power up.', 5);
+  status(`Night ${S.night}, 12 AM. Answer questions to keep the power up.`, 5);
   nextQuestion();
   renderAll();
 }
 
 function status(msg, secs = 3) { $('status').textContent = msg; S.statusT = secs; }
 
-function aggrFor(m) { return S.hour < m.c.startHour ? 0 : S.d.aggr[Math.min(S.hour, HOURS - 1)]; }
+// Each night after the first adds 2 to every mascot's chance to move.
+function aggrFor(m) { return S.hour < m.c.startHour ? 0 : S.d.aggr[Math.min(S.hour, HOURS - 1)] + (S.night - 1) * 2; }
 
 function stepForward(m) {
   if (atDoor(m)) return;
@@ -693,7 +698,7 @@ function update(dt) {
 }
 
 function drainRate() {
-  return S.d.base + (S.camOpen ? COST.cam : 0)
+  return S.d.base + (S.night - 1) * 0.05 + (S.camOpen ? COST.cam : 0)
     + (S.doors.left ? COST.door : 0) + (S.doors.right ? COST.door : 0)
     + (S.lights.left ? COST.light : 0) + (S.lights.right ? COST.light : 0);
 }
@@ -810,7 +815,10 @@ function endGame(how) {
   const win = how === 'win';
   if (win) { S.score += Math.round(S.power) * 10 + 500; sfx.win(); }
   const t = $('end-title');
-  t.textContent = win ? 'You survived!' : how === 'power' ? 'Lights out' : 'Caught!';
+  t.textContent = win ? (S.night < 5 ? `Night ${S.night} survived!` : 'All 5 nights survived!') : how === 'power' ? 'Lights out' : 'Caught!';
+  S.nextNight = win ? (S.night < 5 ? S.night + 1 : 1) : S.night;
+  if (win) store.set('meme-arcade.night', S.nextNight);
+  $('again').textContent = win ? (S.night < 5 ? `Start Night ${S.nextNight}` : 'Play again from Night 1') : `Retry Night ${S.night}`;
   t.className = 'end-title ' + (win ? 'win' : 'lose');
   $('end-sub').textContent = win
     ? `6 AM. The mascots shuffle back to the stage. You finished with ${Math.round(S.power)}% power left.`
@@ -859,6 +867,7 @@ function renderAll() {
   const u = usageLevel();
   $('pips').innerHTML = [1, 2, 3, 4, 5].map(i => `<span class="pip${i <= u ? ' on' : ''}${u >= 4 ? ' max' : u >= 3 ? ' hot' : ''}"></span>`).join('');
   $('score').textContent = S.score.toLocaleString();
+  $('night-num').textContent = S.night;
   $('streak').textContent = S.streak >= 2 ? `Streak ×${S.streak}` : '';
 
   // Only rebuild the scene when something visible changed.
@@ -898,6 +907,8 @@ function renderBest() {
 function renderTitle() {
   $('bank-count').textContent = bank.length;
   $('sample-note').hidden = bankText !== SAMPLE;
+  $('start').textContent = `Start Night ${savedNight()}`;
+  $('restart').hidden = savedNight() === 1;
   document.querySelectorAll('.diff').forEach(b => b.setAttribute('aria-pressed', b.dataset.diff === diffKey));
   $('sound-toggle').textContent = 'Sound: ' + (soundOn ? 'on' : 'off');
   $('sound-toggle').setAttribute('aria-pressed', soundOn);
@@ -924,8 +935,9 @@ function setPaused(p) {
 document.querySelectorAll('.diff').forEach(b => b.addEventListener('click', () => {
   diffKey = b.dataset.diff; store.set('meme-arcade.diff', diffKey); renderTitle();
 }));
-$('start').addEventListener('click', startGame);
-$('again').addEventListener('click', startGame);
+$('start').addEventListener('click', () => startGame());
+$('again').addEventListener('click', () => startGame(S.nextNight));
+$('restart').addEventListener('click', () => { store.set('meme-arcade.night', 1); startGame(1); });
 $('to-title').addEventListener('click', () => { renderTitle(); show('screen-title'); });
 $('sound-toggle').addEventListener('click', () => {
   soundOn = !soundOn; store.set('meme-arcade.sound', soundOn ? 'on' : 'off'); renderTitle(); sfx.right();
