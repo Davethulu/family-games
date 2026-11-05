@@ -510,6 +510,20 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .stop.next span { color: var(--mint); font-weight: 700; }
 .hero-count { line-height: 1.12; }
 .hero-sub { font-size: 2.1rem; min-height: 2.8rem; }
+.hero-quote { margin-top: .5rem; min-height: 5.2rem; font-size: 2.1rem; line-height: 1.22; font-style: italic; color: var(--ink); }
+.hero-quote span { display: block; animation: quoteIn 1.2s ease-out; }
+.hero-quote cite { font-size: .8em; font-style: normal; color: var(--muted); white-space: nowrap; }
+.theme-office .hero-quote { font-size: 2.6rem; line-height: 1.05; font-style: normal; color: var(--muted); }
+.theme-harvest .hero-quote { font-size: 2.2rem; line-height: 1.15; }
+.theme-office .hero-count { font-size: 13.5rem; }
+#tv.theme-office .stop { padding-top: .02rem; padding-bottom: .02rem; }
+#tv.theme-christmas .hero-count { line-height: 1.15; }
+.theme-office .stops, .theme-harvest .stops { padding-top: .4rem; }
+#tv.theme-harvest .hero { padding-top: 1.6rem; padding-bottom: 1.6rem; }
+.theme-harvest .hero-count { line-height: 1; }
+#tv.theme-harvest .hero-count { margin-top: .2rem; }
+#tv.theme-harvest .stop { padding-top: .05rem; padding-bottom: .05rem; line-height: 1.15; }
+@keyframes quoteIn { from { opacity: 0; } to { opacity: 1; } }
 .hero-label small { font-size: .78em; font-weight: 400; opacity: .85; margin-left: .4rem; }
 .block-track, .block-fill { border-radius: 0; }
 .block-track { height: 1.5rem; }
@@ -670,6 +684,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .float-candle { top: .3rem; bottom: auto; width: 2.7rem; height: 5.7rem; animation: candleHover 7s ease-in-out infinite; }
 .float-candle.edge { top: auto; bottom: -10rem; animation: candleRise 36s linear infinite; }
 .float-candle.edge.right { left: auto; right: .4rem; }
+.crest { position: absolute; left: 50%; top: .2rem; width: 8rem; height: 10.3rem; margin-left: -4rem; overflow: visible; }
+.fx-curtain .crest { position: static; width: 34rem; height: 44rem; margin: 0 0 1.5rem; }
+.theme-wizard .fx-curtain { font-family: Almendra, "Palatino Linotype", Palatino, serif; font-weight: 400; }
 @keyframes candleHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(.8rem); } }
 
 /* ---------- Calm: a quiet printed page, no boxes at all ---------- */
@@ -783,6 +800,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       <div class="hero-label" id="heroLabel"></div>
       <div class="hero-count" id="heroCount"></div>
       <div class="hero-sub" id="heroSub"></div>
+      <div class="hero-quote" id="heroQuote"></div>
       <div class="stops" id="stops"></div>
     </div>
     <div class="kids" id="kids"></div>
@@ -1085,6 +1103,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     lastTarget = target ? { ms: targetMs, label: next.label } : null;
     hero.classList[level === 'now' ? 'add' : 'remove']('now');
     hero.classList[level === 'soon' ? 'add' : 'remove']('soon');
+    renderQuote(now);
     renderStops(today, now, tomorrow ? null : next);
     var stamp = pad(now.getMonth() + 1) + '/' + pad(now.getDate()) + ' ' + pad(h) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
     var stamps = document.querySelectorAll('.feed-time');
@@ -1092,6 +1111,119 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     renderBanner(now);
     tourTick();
     fxTick();
+  }
+
+  /* ---------- A new line under the countdown every 45 seconds ---------- */
+  // Only add a name to a line it can really be traced to. Plenty of famous quotes online were never said.
+  var QUOTES = [
+    // Seize the day
+    ['Carpe diem. Seize the day.', 'Horace'],
+    ['Begin, be bold, and venture to be wise.', 'Horace'],
+    ['Never leave that till tomorrow which you can do today.', 'Benjamin Franklin'],
+    ['You may delay, but time will not.', 'Benjamin Franklin'],
+    ['Lost time is never found again.', 'Benjamin Franklin'],
+    ['One today is worth two tomorrows.', 'Benjamin Franklin'],
+    ['Dost thou love life? Then do not squander time.', 'Benjamin Franklin'],
+    ['Procrastination is the thief of time.', 'Edward Young'],
+    ['Gather ye rosebuds while ye may.', 'Robert Herrick'],
+    ['While we are postponing, life speeds by.', 'Seneca'],
+    ['Begin at once to live.', 'Seneca'],
+    ['It is not that we have a short time to live, but that we waste a lot of it.', 'Seneca'],
+    ['Let us, then, be up and doing.', 'Henry Wadsworth Longfellow'],
+    ['Better three hours too soon than a minute too late.', 'William Shakespeare'],
+    ['Write it on your heart that every day is the best day in the year.', 'Ralph Waldo Emerson'],
+    ['Finish each day and be done with it.', 'Ralph Waldo Emerson'],
+    ['Either you run the day or the day runs you.', 'Jim Rohn'],
+    ['Time and tide wait for no one.', 'Old proverb'],
+    ['Make hay while the sun shines.', 'Old proverb'],
+    ['Strike while the iron is hot.', 'Old proverb'],
+    ['A stitch in time saves nine.', 'Old proverb'],
+    ['Tomorrow is often the busiest day of the week.', 'Spanish proverb'],
+    // Keep going
+    ['Well begun is half done.', 'Greek proverb'],
+    ['A journey of a thousand miles begins with a single step.', 'Lao Tzu'],
+    ['Little strokes fell great oaks.', 'Benjamin Franklin'],
+    ['Well done is better than well said.', 'Benjamin Franklin'],
+    ['Diligence is the mother of good luck.', 'Benjamin Franklin'],
+    ['Hide not your talents. They for use were made.', 'Benjamin Franklin'],
+    ['He that can have patience can have what he will.', 'Benjamin Franklin'],
+    ['Slow and steady wins the race.', 'Aesop'],
+    ['Little by little does the trick.', 'Aesop'],
+    ['We are what we repeatedly do.', 'Will Durant'],
+    ['Fall seven times, stand up eight.', 'Japanese proverb'],
+    ['The best way out is always through.', 'Robert Frost'],
+    ['To strive, to seek, to find, and not to yield.', 'Alfred Tennyson'],
+    ["You miss 100% of the shots you don't take.", 'Wayne Gretzky'],
+    ['I think I can. I think I can.', 'The Little Engine That Could'],
+    ["Where there's a will, there's a way.", 'Old proverb'],
+    ['Practice makes progress.', 'Old proverb, improved'],
+    // Be a good person
+    ['Waste no more time arguing what a good man should be. Be one.', 'Marcus Aurelius'],
+    ['If it is not right, do not do it. If it is not true, do not say it.', 'Marcus Aurelius'],
+    ['Dwell on the beauty of life.', 'Marcus Aurelius'],
+    ['No act of kindness, however small, is ever wasted.', 'Aesop'],
+    ['Many hands make light work.', 'Old proverb'],
+    // Our own
+    ['Do the hard thing first. The rest gets easy.'],
+    ['Future you says thanks.'],
+    ['Today only happens once.'],
+    ['Seize the day. Then brush your teeth.'],
+    ['Five minutes of doing beats an hour of dreading.'],
+    ['Just start. Starting is the hard part.'],
+    ['Nobody ever finished anything by waiting.'],
+    ['Screens taste better after the work is done.'],
+    ['The clock is not going to wait for you.'],
+    ['Make today count. Tomorrow has its own list.'],
+    ['Later is how things never happen.'],
+    ['You will never feel more ready than you do right now.'],
+    ['The homework is not getting any shorter.'],
+    ['Do it now and it stops following you around.'],
+    ['Small steps still get you there.'],
+    ['Finished is a great feeling. Go get it.'],
+    ['Good days are built one small choice at a time.'],
+    ['Nobody ever regretted getting it done early.'],
+    ['The best part of a chore is the end of it.'],
+    ['Be the reason somebody smiles today.'],
+    ['Backpack first. Glory later.'],
+    // Affirmations
+    ['I can do hard things.'],
+    ['I finish what I start.'],
+    ['My best is enough.'],
+    ['Mistakes help me learn.'],
+    ['I am in charge of my choices.'],
+    ['I can calm my body and try again.'],
+    ['I am getting stronger every day.'],
+    ['Every morning I get to start fresh.'],
+    ['I ask for help when I need it.'],
+    ['I am brave enough to try.'],
+    ["I don't have to feel like it to do it."],
+    ['I can do one more thing.'],
+    ['I keep my word, even the small ones.'],
+    ['I am kind, even when it is hard.'],
+    ['I use my words, and I use them well.'],
+    ['I can be upset and still be kind.'],
+    ['I am a good brother.'],
+    ['I am someone who gets things done.'],
+    ['I take care of my body and my brain.'],
+    ['I am proud of how hard I work.'],
+    ['I can start over any minute I want.'],
+    ['I am loved, no matter what.'],
+    ['I bring something good to this family.'],
+    ['I get better every time I practice.'],
+    ['I can wait. I can focus. I can finish.'],
+    ['Today I choose to try.'],
+    ['I do the right thing when nobody is looking.'],
+    ['Hard is not the same as impossible.'],
+    ['I am not behind. I am on my way.'],
+    ['I can handle whatever today brings.']
+  ];
+  function renderQuote(now) {
+    // Worked out from the time, so every screen shows the same line and nothing needs saving.
+    // Stepping by 37 mixes the kinds together. The list's length must not be a multiple of 37.
+    var turn = Math.floor(now.getTime() / 45000), q = QUOTES[turn * 37 % QUOTES.length], el = $('heroQuote');
+    if (el.getAttribute('data-q') === q[0]) return;
+    el.setAttribute('data-q', q[0]);
+    el.innerHTML = '<span>' + esc(q[0]) + (q[1] ? ' <cite>' + esc(q[1]) + '</cite>' : '') + '</span>';
   }
 
   /* ---------- Themes and camera switching ---------- */
@@ -1124,6 +1256,18 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 35 C17 40 22 47 26 53 C34 37 43 22 55 11" fill="none" stroke="#e39a6d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
+  // Wizard School's own crest. The motto is Latin for "brush your teeth".
+  var CREST = '<svg class="crest" viewBox="0 0 120 155" role="img" aria-label="Wizard School crest">' +
+    '<path d="M15 30 L105 114 M105 30 L15 114" stroke="#6b4522" stroke-width="3.6" stroke-linecap="round"/><path d="M15 30 L25 39.3 M105 30 L95 39.3" stroke="#f3e6c4" stroke-width="3.6" stroke-linecap="round"/>' +
+    '<path d="M11 24 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 Z M109 24 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 Z" fill="#e6c65c"/>' +
+    '<path d="M47 22 Q37 22 33 31 Q44 31 49 28 Z M73 22 Q83 22 87 31 Q76 31 71 28 Z" fill="#5f4427"/><path d="M51 4 L49 -3 L56 1 Q60 0 64 1 L71 -3 L69 4 Q74 12 71 22 Q68 33 60 33 Q52 33 49 22 Q46 12 51 4 Z" fill="#7d6242" transform="translate(0 3)"/><path d="M53 24 Q60 38 67 24 Q66 33 60 35 Q54 33 53 24 Z" fill="#e8d7b5"/>' +
+    '<circle cx="54.5" cy="13" r="5" fill="#f3e6c4"/><circle cx="65.5" cy="13" r="5" fill="#f3e6c4"/><circle cx="54.5" cy="13" r="2.5" fill="#1d1408"/><circle cx="65.5" cy="13" r="2.5" fill="#1d1408"/><polygon points="58,17 62,17 60,21" fill="#e6a42c"/>' +
+    '<path d="M24 34 H96 V78 Q96 104 60 120 Q24 104 24 78 Z" fill="#171c4a"/><path d="M24 72 L60 54 L96 72 V78 Q96 104 60 120 Q24 104 24 78 Z" fill="#7a1f2b"/><path d="M24 72 L60 54 L96 72" fill="none" stroke="#e6c65c" stroke-width="3"/>' +
+    '<path d="M24 34 H96 V78 Q96 104 60 120 Q24 104 24 78 Z" fill="none" stroke="#e6c65c" stroke-width="3.4"/><path d="M28 38 H92 V78 Q92 101 60 115.5 Q28 101 28 78 Z" fill="none" stroke="#e6c65c" stroke-opacity=".45" stroke-width=".9"/>' +
+    '<path d="M45 41 A10 10 0 1 0 45 58 A8 8 0 1 1 45 41 Z" fill="#f3e6c4"/><path d="M78 40 l2 5.2 5.2 2 -5.2 2 -2 5.2 -2 -5.2 -5.2 -2 5.2 -2 Z" fill="#e6c65c"/><path d="M60 39 l1.2 3.1 3.1 1.2 -3.1 1.2 -1.2 3.1 -1.2 -3.1 -3.1 -1.2 3.1 -1.2 Z" fill="#e6c65c"/>' +
+    '<path d="M60 78 Q50 72 40 76 V97 Q50 93 60 99 Q70 93 80 97 V76 Q70 72 60 78 Z" fill="#f3e6c4"/><path d="M60 78 V99" stroke="#6b4522" stroke-width="1.2"/><path d="M44 81 Q50 79 56 82 M44 85.5 Q50 83.5 56 86.5 M44 90 Q50 88 56 91 M64 82 Q70 79 76 81 M64 86.5 Q70 83.5 76 85.5 M64 91 Q70 88 76 90" fill="none" stroke="#6b5230" stroke-width=".9"/>' +
+    '<path d="M16 124 L5 121 L10 131 L5 141 L18 139 Z M104 124 L115 121 L110 131 L115 141 L102 139 Z" fill="#b89f6c"/><path d="M14 120 Q60 134 106 120 L106 138 Q60 152 14 138 Z" fill="#f3e6c4" stroke="#b8923a" stroke-width="1.2"/>' +
+    '<path id="crestLine" d="M18 133.5 Q60 146 102 133.5" fill="none"/><text font-family="Cinzel, Palatino, serif" font-size="9.2" font-weight="700" fill="#5e1622" text-anchor="middle" letter-spacing=".4"><textPath xlink:href="#crestLine" startOffset="50%">DENTES LAVATE</textPath></text></svg>';
   function thanksgivingDay(year) {
     var first = new Date(year, 10, 1).getDay();
     return new Date(year, 10, 1 + (4 - first + 7) % 7 + 21);
@@ -1181,8 +1325,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       var sky = '';
       for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (.5 + (i * 37) % 60 / 10) + 'rem;animation-delay:' + (-i * .4) + 's"></span>';
       // Most candles hover along the ceiling, clear of the text. Two drift up the side margins.
-      for (i = 0; i < 9; i++) {
-        sky += '<div class="float-candle" style="left:' + (29 + i * 6.1) + '%;top:' + (.1 + (i * 5) % 3 * .45) + 'rem;animation-delay:' + (-i * 1.3) + 's"><div class="candle-sway" style="animation-delay:' + (-i * .7) + 's">' + CANDLE + '</div></div>';
+      var candleSpots = [30, 34.5, 39, 43.5, 54.8, 59.3, 63.8, 68.3];
+      sky += CREST;
+      for (i = 0; i < candleSpots.length; i++) {
+        sky += '<div class="float-candle" style="left:' + candleSpots[i] + '%;top:' + (.1 + (i * 5) % 3 * .45) + 'rem;animation-delay:' + (-i * 1.3) + 's"><div class="candle-sway" style="animation-delay:' + (-i * .7) + 's">' + CANDLE + '</div></div>';
       }
       sky += '<div class="float-candle edge" style="left:.4rem"><div class="candle-sway">' + CANDLE + '</div></div><div class="float-candle edge right" style="animation-delay:-17s"><div class="candle-sway" style="animation-delay:-2s">' + CANDLE + '</div></div>';
       leaves.innerHTML = sky;
@@ -1583,7 +1729,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     } else if (id === 'christmas') {
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Merry Christmas!</span></div>', 3100);
     } else if (id === 'wizard') {
-      fxAdd('<div class="fx-curtain">' + mascot() + '<span>Welcome, young wizards</span></div>', 3100);
+      fxAdd('<div class="fx-curtain">' + CREST + '<span>Welcome, young wizards</span></div>', 3100);
     }
   }
   function confetti() {
@@ -2398,7 +2544,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     showGate("That family code didn't work. Check it and try again.");
   }
   var pollTimer = null;
-  if (DEMO) window.boardFx = { play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
+  if (DEMO) window.boardFx = { quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
     else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitChips); }
