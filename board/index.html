@@ -725,11 +725,11 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .ed-head { align-items: baseline; margin-bottom: .5em; }
 .ed-head h1 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.5em; line-height: 1.1; }
 .ed-date { color: var(--muted); font-size: .92em; }
-.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; margin: 0; background: var(--ink); padding: .25em .2em calc(.25em + env(safe-area-inset-bottom, 0px)); }
+.tabs { position: -webkit-sticky; position: sticky; top: .3em; z-index: 8; margin: 0 0 .8em; background: var(--ink); padding: .25em .2em; border-radius: .4em; box-shadow: 0 .15em .5em rgba(40,25,5,.35); }
 .tab { min-height: 3.2em; margin: 0 .12em; padding: .2em 0; background: none; color: #d8ceba !important; border: .12em solid transparent; border-radius: .35em; font-size: .88em; }
 .tab:last-child { margin-right: .12em; }
 .tab.on { background: var(--panel); color: var(--ink) !important; }
-#editor.overlay .tabs { position: static; border-radius: .4em; margin-bottom: .8em; padding-bottom: .25em; }
+#editor.overlay .tabs { position: static; }
 #editor.overlay .ed-wrap { padding-bottom: 2em; }
 .card { background: var(--panel); border-radius: .3em; padding: .9em; margin-bottom: .8em; box-shadow: 0 .08em .25em rgba(70,50,20,.2); }
 .card h2 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.25em; margin: 0 0 .35em; }
@@ -771,7 +771,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .day { min-height: 2.75em; width: 100%; background: var(--panel2); border: .08em solid transparent; border-radius: .3em; padding: 0; }
 .day:disabled { background: none; opacity: .3; }
 .day.today { border-color: var(--gold); }
-.toast { display: flex; align-items: center; left: .8em; right: .8em; bottom: 4.7em; transform: none; justify-content: space-between; border-radius: .35em; font-weight: 700; box-shadow: 0 .2em .7em rgba(40,25,5,.4); padding: .4em .5em .4em 1em; min-height: 3.2em; }
+.toast { display: flex; align-items: center; left: .8em; right: .8em; bottom: 3.2em; transform: none; justify-content: space-between; border-radius: .35em; font-weight: 700; box-shadow: 0 .2em .7em rgba(40,25,5,.4); padding: .4em .5em .4em 1em; min-height: 3.2em; }
 #editor.overlay ~ .toast { bottom: 1.2em; }
 .toast button { flex-shrink: 0; min-height: 2.5em; padding: 0 1em; margin-left: .8em; background: var(--panel); color: var(--ink); border: 0; border-radius: .3em; font-weight: 700; }
 .toast.hide { display: none !important; }
@@ -2556,11 +2556,26 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     clearInterval(pollTimer);
     showGate("That family code didn't work. Check it and try again.");
   }
+  function checkForUpdate() {
+    // The TV stays open for days, so it picks up new versions by itself. A reload can stop the music until someone presses Music.
+    if (tvEditing || urgent) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('HEAD', location.pathname + '?check=' + Date.now(), true);
+    xhr.timeout = 12000;
+    xhr.onload = function () {
+      var stamp = xhr.status === 200 && xhr.getResponseHeader('Last-Modified');
+      if (!stamp || !(Date.parse(stamp) > Date.parse(document.lastModified)) || store('updatedTo') === stamp) return;
+      store('updatedTo', stamp); // only one try per version, so a stubborn cache can't cause a reload loop
+      var search = location.search.replace(/[?&]r=\d+/, '').replace(/^&/, '?');
+      location.replace(location.pathname + search + (search ? '&' : '?') + 'r=' + Date.now() + location.hash);
+    };
+    xhr.send();
+  }
   var pollTimer = null;
-  if (DEMO) window.boardFx = { quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
+  if (DEMO) window.boardFx = { checkUpdate: checkForUpdate, quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
-    else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitChips); }
+    else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); setInterval(checkForUpdate, 300000); if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitChips); }
     if (!DEMO) { try { data = JSON.parse(store('cache') || '{}') || {}; } catch (e) { data = {}; } }
     renderAll();
     poll();
