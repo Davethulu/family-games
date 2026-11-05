@@ -345,6 +345,19 @@ button { cursor: pointer; }
 @keyframes fall { from { transform: translateY(0) rotate(0); } to { transform: translateY(100rem) rotate(540deg); } }
 #tv.theme-harvest button:focus { color: #4a2412; }
 
+/* ---------- The security office's party corner ---------- */
+.theme-office .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.room { position: absolute; left: 41%; top: .3rem; height: 7rem; display: flex; align-items: flex-end; }
+.room-fan { width: 6.6rem; height: 7rem; margin-right: 1.6rem; }
+.room-pizza { width: 11.5rem; height: 6.2rem; margin-right: 1.8rem; }
+.room-balloons { width: 7rem; height: 7rem; }
+.a-whirl { animation: fxSpin .28s linear infinite; }
+.a-sway { animation: aFan 3.2s ease-in-out infinite alternate; }
+.fx-balloon { position: absolute; bottom: -12rem; width: 6.5rem; height: 10.5rem; animation: fxRise 8s ease-in forwards; }
+.fx-carry { position: absolute; right: -2.2rem; top: 42%; width: 5.6rem; height: 5.6rem; }
+.fx-paper { position: absolute; left: -7rem; width: 5rem; height: 6rem; animation: fxGust 4s linear both; }
+.fx-loot { position: absolute; right: -2.4rem; top: -1.2rem; width: 5.5rem; height: 5.5rem; }
+
 /* ---------- Theme: Christmas ---------- */
 #tv.theme-christmas { --bg: #4d0f16; --panel: #103527; --panel2: #1b4a38; --line: #c9a24a; --ink: #fff6e6; --muted: #b9d3c3;
   --mint: #f2c14e; --blue: #f2c14e; --orange: #ffb347; --pink: #ff7b6e; --gold: #ffe08a;
@@ -851,6 +864,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
     var leaves = $('leaves');
     if (leaves.getAttribute('data-t') !== theme) { leaves.innerHTML = ''; leaves.setAttribute('data-t', theme); }
+    if (theme === 'office' && !leaves.innerHTML) {
+      leaves.innerHTML = '<div class="room"><div class="room-fan">' + DESK_FAN + '</div><div class="room-pizza">' + PIZZA_BOX + '</div><div class="room-balloons">' + BALLOON_BUNCH + '</div></div>';
+    }
     if (theme === 'christmas' && !leaves.innerHTML) {
       var winter = '', bulbs = ['#ff5a4d', '#ffd24d', '#5fe08a', '#5ac8ff'];
       for (i = 0; i < 26; i++) {
@@ -937,6 +953,14 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var id = themeInfo().id;
     return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : mascot();
   }
+  var DESK_FAN = '<svg class="mascot" viewBox="0 0 64 68" aria-hidden="true"><path d="M32 40 V60" stroke="#6a7075" stroke-width="5"/><ellipse cx="32" cy="63" rx="17" ry="4.5" fill="#4c5257"/><circle cx="32" cy="27" r="25" fill="#10231b" stroke="#8a9398" stroke-width="2.4"/><g class="a-whirl"' + pivot(32, 27) + '><path d="M32 27 C24 8 42 4 42 15 Q42 22 32 27 Z M32 27 C51 19 55 37 44 37 Q37 37 32 27 Z M32 27 C40 46 22 50 22 39 Q22 32 32 27 Z M32 27 C13 35 9 17 20 17 Q27 17 32 27 Z" fill="#b9c4c9"/></g><path d="M7 27 H57 M32 2 V52 M14 9 L50 45 M50 9 L14 45" stroke="#8a9398" stroke-width=".9" opacity=".65"/><circle cx="32" cy="27" r="5" fill="#ff4b62"/></svg>';
+  var SLICE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q32 -2 58 12 L33 61 Z" fill="#f6c24b"/><path d="M4 12 Q32 -6 60 12 L57 18 Q32 4 7 18 Z" fill="#c98a45"/><circle cx="24" cy="21" r="5" fill="#c9371f"/><circle cx="41" cy="23" r="5" fill="#c9371f"/><circle cx="32" cy="38" r="5" fill="#c9371f"/><path d="M20 30 q2 8 3 13" stroke="#f6c24b" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
+  var PIZZA_BOX = '<svg class="mascot" viewBox="0 0 110 60" aria-hidden="true"><path d="M12 28 L22 3 H88 L98 28 Z" fill="#cfa877"/><path d="M26 7 H84 L92 26 H18 Z" fill="#e0c196"/><path d="M42 16 h26" stroke="#c9371f" stroke-width="3" stroke-linecap="round"/><path d="M4 28 H106 L100 56 H10 Z" fill="#d9b88a"/><ellipse cx="55" cy="41" rx="42" ry="12.5" fill="#c98a45"/><ellipse cx="55" cy="41" rx="37" ry="10" fill="#f6c24b"/><path d="M55 41 L98 38 L95 53 Z" fill="#d9b88a"/><circle cx="32" cy="38" r="3.4" fill="#c9371f"/><circle cx="46" cy="46" r="3.4" fill="#c9371f"/><circle cx="58" cy="35" r="3.4" fill="#c9371f"/><circle cx="26" cy="46" r="3.4" fill="#c9371f"/></svg>';
+  function balloonArt(color) {
+    return '<svg class="mascot" viewBox="0 0 50 80" aria-hidden="true"><path d="M25 51 Q19 62 26 68 Q31 73 26 79" fill="none" stroke="#c8ced2" stroke-width="1.3"/><ellipse cx="25" cy="25" rx="21" ry="25" fill="' + color + '"/><ellipse cx="17" cy="15" rx="4.5" ry="7.5" fill="#fff" opacity=".45" transform="rotate(20 17 15)"/><polygon points="21,49 29,49 25,54" fill="' + color + '"/></svg>';
+  }
+  var BALLOON_BUNCH = '<svg class="mascot" viewBox="0 0 80 80" aria-hidden="true"><g class="a-sway"' + pivot(40, 78) + '><path d="M40 78 L20 34 M40 78 V30 M40 78 L60 34" stroke="#c8ced2" stroke-width="1.2"/><ellipse cx="20" cy="24" rx="15" ry="18" fill="#ff5a6a"/><ellipse cx="60" cy="24" rx="15" ry="18" fill="#ffc83d"/><ellipse cx="40" cy="20" rx="15" ry="18" fill="#59a8ff"/><ellipse cx="35" cy="12" rx="3" ry="5" fill="#fff" opacity=".5"/><ellipse cx="15" cy="16" rx="3" ry="5" fill="#fff" opacity=".5"/><ellipse cx="55" cy="16" rx="3" ry="5" fill="#fff" opacity=".5"/></g></svg>';
+  var PAPER = '<svg class="mascot" viewBox="0 0 50 60" aria-hidden="true"><path d="M4 2 H36 L46 12 V58 H4 Z" fill="#f4efe0"/><path d="M36 2 V12 H46 Z" fill="#cfc8b4"/><path d="M11 20 H39 M11 28 H39 M11 36 H34 M11 44 H26" stroke="#8a8d7a" stroke-width="2"/></svg>';
   var SNOWMAN = '<svg class="mascot" viewBox="0 0 90 108" aria-hidden="true"><g class="a-wig"' + pivot(24, 56) + '><path d="M26 56 L6 44 M14 49 L8 38 M14 49 L4 52" stroke="#5a3a20" stroke-width="3" stroke-linecap="round" fill="none"/></g><g class="a-wigR"' + pivot(66, 56) + '><path d="M64 56 L84 44 M76 49 L82 38 M76 49 L86 52" stroke="#5a3a20" stroke-width="3" stroke-linecap="round" fill="none"/></g>' +
     '<circle cx="45" cy="82" r="24" fill="#f7fbff"/><path d="M26 92 Q45 108 64 92" fill="none" stroke="#c6dbea" stroke-width="3"/><circle cx="45" cy="52" r="18" fill="#f7fbff"/><circle cx="45" cy="72" r="2.6" fill="#1d1d26"/><circle cx="45" cy="84" r="2.6" fill="#1d1d26"/><circle cx="45" cy="60" r="2.6" fill="#1d1d26"/>' +
     '<rect x="29" y="38" width="32" height="8" rx="4" fill="#d9362b"/><path d="M52 44 l-1 21 l9 -2 l-1 -20 z" fill="#d9362b"/><path d="M54 53 h6 M54 58 h6" stroke="#ffe08a" stroke-width="1.5"/><circle cx="45" cy="26" r="16" fill="#f7fbff"/>' + eyes(39, 51, 23, 3.2) + '<polygon points="44,27 48,29 66,29 48,32" fill="#f08a24"/><path d="M38 34 q7 5 14 0" fill="none" stroke="#1d1d26" stroke-width="1.8" stroke-dasharray="1.6 2.4" stroke-linecap="round"/>' +
@@ -987,7 +1011,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var CLOUD = '<svg class="mascot" viewBox="0 0 96 44" aria-hidden="true"><path d="M20 40 a14 14 0 0 1 -2 -28 a20 20 0 0 1 38 -4 a15 15 0 0 1 24 12 a11 11 0 0 1 -3 20 Z" fill="rgba(226,235,250,.92)"/></svg>';
   var PLANE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="2,30 62,6 40,58 30,38" fill="#f7f3e8"/><polygon points="30,38 62,6 36,48" fill="#cfd9e8"/></svg>';
   var FX_SAYS = {
-    office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.'],
+    office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.', 'Who ordered pizza?', 'Is this fan even on?'],
     harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
     christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
@@ -1025,7 +1049,19 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       function () {
         fxAdd('<div class="fx-tear" style="top:12%;height:10%"></div><div class="fx-tear" style="top:46%;height:6%"></div><div class="fx-tear" style="top:74%;height:13%"></div><div class="fx-track">TRACKING...</div>', 2200);
       },
-      function () { fxOnFeed('<div class="fx-peek">' + actor() + '<div class="fx-wave"></div></div><div class="fx-alert" style="color:var(--mint)">HI THERE!</div>', 5200); }
+      function () { fxOnFeed('<div class="fx-peek">' + actor() + '<div class="fx-wave"></div></div><div class="fx-alert" style="color:var(--mint)">HI THERE!</div>', 5200); },
+      function () { fxWalker('', actor() + '<div class="fx-carry">' + SLICE + '</div>', 'Anyone want a slice?', 12500); },
+      function () {
+        var colors = ['#ff5a6a', '#ffc83d', '#59a8ff', '#5dffa0', '#c678ff'], html = '', i;
+        for (i = 0; i < 11; i++) html += '<div class="fx-balloon" style="left:' + (3 + i * 8.8) + '%;animation-delay:' + (Math.random() * 2.4) + 's;animation-duration:' + (6.5 + Math.random() * 2.5) + 's">' + balloonArt(colors[i % colors.length]) + '</div>';
+        fxAdd(html, 11500);
+      },
+      function () { fxOnFeed('<div class="fx-small">' + MOUSE + '<div class="fx-loot">' + SLICE + '</div></div>', 5200); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 12; i++) html += '<div class="fx-paper" style="top:' + (8 + Math.random() * 66) + '%;animation-delay:' + (Math.random() * 1.7) + 's;animation-duration:' + (2.8 + Math.random() * 1.8) + 's">' + PAPER + '</div>';
+        fxAdd(html + '<div class="fx-track" style="top:42%;font-size:4rem">WHO TURNED THE FAN UP?</div>', 6500);
+      }
     ],
     harvest: [
       function () { fxWalker('', actor(), fxPickLine('harvest'), 12500); fxFeathers(['#c9481f', '#e9962c', '#a8321a'], 12); },
