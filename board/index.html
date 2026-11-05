@@ -275,7 +275,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { tab: 'minutes', kid: 0, reason: '', mins: 5, block: '', evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { tab: 'minutes', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -403,9 +403,9 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     var s = settings(), log = (data.log && data.log[key]) || {}, raw = { after: 0, evening: 0 }, id;
     for (id in log) if (log[id].kid === kid && raw[log[id].block] !== undefined) raw[log[id].block] += log[id].min;
     var cap = s.blockMinutes - s.floor;
-    var after = s.blockMinutes - Math.min(raw.after, cap);
-    var evening = s.blockMinutes - Math.min(raw.evening, cap);
-    return { after: after, evening: evening, total: after + evening, full: s.blockMinutes * 2,
+    var after = s.blockMinutes - Math.max(0, Math.min(raw.after, cap));
+    var evening = s.blockMinutes - Math.max(0, Math.min(raw.evening, cap));
+    return { after: after, evening: evening, total: after + evening, full: s.blockMinutes * 2, taken: raw,
       over: Math.max(0, raw.after - cap) + Math.max(0, raw.evening - cap) };
   }
   function nextBlock() { return new Date().getHours() < 17 ? 'after' : 'evening'; }
@@ -641,12 +641,20 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     }
     html += '</div>';
 
+    html += '<div class="card"><h2>Give minutes back</h2><span class="lab">Who</span><div class="opts">';
+    for (i = 0; i < s.kids.length; i++) html += optBtn('giveKid', i, s.kids[i], ed.giveKid === i);
+    html += '</div><span class="lab">To which block</span><div class="opts">' + optBtn('giveBlock', 'after', 'After school', ed.giveBlock === 'after') + optBtn('giveBlock', 'evening', 'Evening', ed.giveBlock === 'evening') +
+      '</div><span class="lab">How many minutes</span><div class="opts">';
+    var backs = [1, 2, 3, 5, 10, 15, 20, 30];
+    for (i = 0; i < backs.length; i++) html += optBtn('giveMins', backs[i], backs[i], ed.giveMins === backs[i]);
+    html += '</div><button class="go" data-act="give" data-f="give">Give back ' + ed.giveMins + ' min to ' + esc(s.kids[ed.giveKid]) + '</button></div>';
+
     html += '<div class="card"><h2>Today so far</h2>';
     var log = (data.log && data.log[key]) || {}, ids = Object.keys(log).sort();
     if (!ids.length) html += '<p class="hint">Nothing taken off today. Every day starts fresh.</p>';
     for (i = ids.length - 1; i >= 0; i--) {
       var e = log[ids[i]];
-      html += '<div class="row"><div>−' + e.min + ' · ' + esc(s.kids[e.kid]) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
+      html += '<div class="row"><div>' + (e.min < 0 ? '+' + (-e.min) : '−' + e.min) + ' · ' + esc(s.kids[e.kid]) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
         '<button class="small" data-act="undo" data-arg="' + esc(ids[i]) + '" data-f="undo-' + esc(ids[i]) + '">Undo</button></div>';
     }
     html += '</div>';
@@ -805,6 +813,17 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
       forceEditor();
     },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    giveKid: function (a) { ed.giveKid = +a; forceEditor(); },
+    giveBlock: function (a) { ed.giveBlock = a; forceEditor(); },
+    giveMins: function (a) { ed.giveMins = +a; forceEditor(); },
+    give: function () {
+      // Only what was actually taken can come back, so a block never goes above its full time.
+      var key = dateKey(new Date()), taken = kidMinutes(ed.giveKid, key).taken[ed.giveBlock], min = Math.min(ed.giveMins, taken);
+      if (min <= 0) { toast('Nothing has been taken from that block today', true); return; }
+      put('log/' + key + '/' + newId(), { kid: ed.giveKid, block: ed.giveBlock, min: -min, reason: 'Minutes given back', at: Date.now() });
+      toast('Gave back ' + min + ' min');
+      forceEditor();
+    },
     addEvent: function () {
       var title = (ed.evTitle || '').replace(/^\s+|\s+$/g, '');
       if (!title) { toast('Add a name for it first', true); return; }
