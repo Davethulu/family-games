@@ -1613,7 +1613,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       var mins = r.perMin ? ed.mins : r.min;
       if (r.perMin) {
         html += '<span class="lab">How many minutes</span><div class="opts">';
-        var counts = [1, 2, 3, 5, 10, 15, 20, 30];
+        var counts = [1, 2, 3, 4, 5, 10, 15, 20, 30];
         for (i = 0; i < counts.length; i++) html += optBtn('mins', counts[i], counts[i], ed.mins === counts[i]);
         html += '</div>';
       }
@@ -1841,7 +1841,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tab: function (a) { ed.tab = a; ed.draft = null; forceEditor(); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
     kid: function (a) { ed.kid = +a; forceEditor(); },
     reason: function (a) {
-      ed.reason = a; ed.block = nextBlock();
+      ed.reason = a; ed.block = nextBlock(); ed.mins = 1;
       forceEditor();
     },
     mins: function (a) { ed.mins = +a; forceEditor(); },
