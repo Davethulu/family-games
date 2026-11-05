@@ -1,0 +1,32 @@
+name: iCloud calendar sync
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Copy calendar to the board
+        run: node .github/scripts/icloud-sync.js
+        env:
+          ICAL_URL: ${{ secrets.ICAL_URL }}
+          BOARD_CODE: ${{ secrets.BOARD_CODE }}
+          BOARD_DB: https://family-board-d7bad-default-rtdb.firebaseio.com
+          BOARD_TZ: America/Chicago
+      # GitHub pauses scheduled jobs after 60 quiet days. Re-enabling restarts that clock.
+      - name: Keep the schedule running
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/icloud-sync.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}

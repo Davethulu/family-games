@@ -369,12 +369,14 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   function events() {
     var list = [], ev = data.events || {}, id;
     for (id in ev) { var e = ev[id]; if (e && e.date) list.push({ id: id, title: e.title, date: e.date, time: e.time || '', noSchool: !!e.noSchool }); }
+    var synced = (data.icloud && data.icloud.events) || {};
+    for (id in synced) { var c = synced[id]; if (c && c.date) list.push({ id: id, title: c.title, date: c.date, end: c.end || c.date, time: c.time || '', noSchool: !!c.noSchool, icloud: true }); }
     list.sort(function (a, b) { return (a.date + a.time) < (b.date + b.time) ? -1 : 1; });
     return list;
   }
   function isNoSchool(d) {
     var k = dateKey(d), list = events(), i;
-    for (i = 0; i < list.length; i++) if (list[i].date === k && list[i].noSchool) return true;
+    for (i = 0; i < list.length; i++) if (list[i].noSchool && list[i].date <= k && (list[i].end || list[i].date) >= k) return true;
     return false;
   }
   function stopsFor(d) {
@@ -516,16 +518,23 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   }
   function whenText(e, today) {
     var days = Math.round((parseDateKey(e.date) - today) / 86400000);
+    if (days < 0) return 'Now'; // a multi-day event already under way
     if (days === 0) return 'Today';
     if (days === 1) return 'Tomorrow';
     return 'In ' + days + ' days';
   }
   function upcoming() {
     var today = dateKey(new Date());
-    return events().filter(function (e) { return e.date >= today; });
+    return events().filter(function (e) { return (e.end || e.date) >= today; });
   }
   function renderCal() {
-    var today = parseDateKey(dateKey(new Date())), list = upcoming().slice(0, 6), html = '', i;
+    // Weekly repeats would fill the list, so the TV shows only the next one of each.
+    var seen = {}, list = upcoming().filter(function (e) {
+      if (seen[e.title]) return false;
+      seen[e.title] = true;
+      return true;
+    }).slice(0, 6);
+    var today = parseDateKey(dateKey(new Date())), html = '', i;
     for (i = 0; i < list.length; i++) {
       var d = parseDateKey(list[i].date);
       html += '<div class="ev"><span class="ev-when">' + whenText(list[i], today) + '</span><span class="ev-text">' + esc(list[i].title) + '</span>' +
@@ -664,7 +673,12 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
       var d = parseDateKey(list[i].date);
       html += '<div class="row"><div>' + esc(list[i].title) + '<em>' + DAY_NAMES[d.getDay()].slice(0, 3) + ', ' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate() +
         (list[i].time ? ', ' + time12(list[i].time) : '') + (list[i].noSchool ? ' · No school' : '') + '</em></div>' +
-        '<button class="small" data-act="delEvent" data-arg="' + esc(list[i].id) + '" data-f="del-' + esc(list[i].id) + '">Remove</button></div>';
+        (list[i].icloud ? '<span class="hint" style="margin:0;flex-shrink:0">iCloud</span>'
+          : '<button class="small" data-act="delEvent" data-arg="' + esc(list[i].id) + '" data-f="del-' + esc(list[i].id) + '">Remove</button>') + '</div>';
+    }
+    if (data.icloud && data.icloud.at) {
+      var at = new Date(data.icloud.at), hrs = (at.getHours() % 12 || 12) + ':' + pad(at.getMinutes()) + (at.getHours() < 12 ? ' am' : ' pm');
+      html += '<p class="hint">iCloud events are edited in the Calendar app. Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '.</p>';
     }
     return html + '</div>';
   }
@@ -744,7 +758,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     for (k in (data.log || {})) if (k < cutoff) put('log/' + k, null);
     for (k in (data.homework || {})) if (k < cutoff) put('homework/' + k, null);
     var list = events();
-    for (k = 0; k < list.length; k++) if (list[k].date < cutoff) put('events/' + list[k].id, null);
+    for (k = 0; k < list.length; k++) if (list[k].date < cutoff && !list[k].icloud) put('events/' + list[k].id, null);
   }
   function openTvEditor() {
     tvEditing = true; pinOk = false; pinEntry = '';
