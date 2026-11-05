@@ -345,6 +345,34 @@ button { cursor: pointer; }
 @keyframes fall { from { transform: translateY(0) rotate(0); } to { transform: translateY(100rem) rotate(540deg); } }
 #tv.theme-harvest button:focus { color: #4a2412; }
 
+/* ---------- Theme: Christmas ---------- */
+#tv.theme-christmas { --bg: #4d0f16; --panel: #103527; --panel2: #1b4a38; --line: #c9a24a; --ink: #fff6e6; --muted: #b9d3c3;
+  --mint: #f2c14e; --blue: #f2c14e; --orange: #ffb347; --pink: #ff7b6e; --gold: #ffe08a;
+  background: var(--bg); color: var(--ink); font-family: Georgia, "Times New Roman", "Noto Serif", serif; padding-top: 3.4rem; }
+.theme-christmas .hero, .theme-christmas .kid, .theme-christmas .cal, .theme-christmas .player { border: .3rem solid var(--line); }
+.theme-christmas .hero-count, .theme-christmas .tv-clock, .theme-christmas .kid-total, .theme-christmas .block-min, .theme-christmas .stop b, .theme-christmas .t-num { font-family: "Trebuchet MS", "Segoe UI", Roboto, Arial, sans-serif; }
+.theme-christmas .ev-when { width: 10.5rem; }
+.theme-christmas .kid-flag { background: #d9362b; color: #fff; }
+.theme-christmas .chip.on .chip-text { color: #103527; }
+.theme-christmas .tv-btn { background: #7a1a22; color: #fff6e6; }
+.theme-christmas .player { color: var(--muted); }
+#tv.theme-christmas button:focus { color: #103527; }
+.theme-christmas .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.flake { position: absolute; top: -2rem; border-radius: 50%; background: #fff; opacity: .9; animation: fall 18s linear infinite; }
+.wire { position: absolute; left: 0; right: 0; top: .7rem; height: .14rem; background: #1b2b22; }
+.bulb { position: absolute; width: 1.1rem; height: 1.5rem; border-radius: 50% 50% 55% 55%; animation: fxTwinkleBulb 1.8s ease-in-out infinite; }
+@keyframes fxTwinkleBulb { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.a-spin { animation: fxSpin 1s linear infinite; }
+.fx-sleigh { position: absolute; left: -56rem; top: 8%; width: 52rem; height: 15rem; animation: fxLong 14s linear forwards; }
+.fx-train { position: absolute; left: -44rem; bottom: 1rem; width: 40rem; height: 11.5rem; animation: fxLong 13s linear forwards; }
+.fx-gift { position: absolute; top: -9rem; width: 7.5rem; height: 7.5rem; animation: fxGift 3.4s cubic-bezier(.4, 0, .9, .6) both; }
+.fx-splat { position: absolute; left: 50%; top: 50%; width: 18rem; height: 18rem; margin: -9rem 0 0 -9rem; animation: fxSplat 3.5s ease-out forwards; }
+.fx-splat b { position: absolute; left: 0; right: 0; top: 7rem; text-align: center; font-size: 3rem; color: #103527; }
+.fx-blow { position: absolute; left: -3rem; border-radius: 50%; background: #fff; animation: fxGust 4s linear both; }
+@keyframes fxLong { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 60rem)); } }
+@keyframes fxGift { 0% { transform: translateY(0) rotate(-12deg); } 70% { transform: translateY(calc(100vh - 3rem)) rotate(14deg); } 100% { transform: translateY(calc(100vh + 8rem)) rotate(20deg); } }
+@keyframes fxSplat { 0% { transform: scale(.1); opacity: 0; } 8% { transform: scale(1.15); opacity: 1; } 14%, 70% { transform: scale(1); opacity: 1; } 100% { transform: translateY(5rem) scale(1, .9); opacity: 0; } }
+
 /* ---------- Theme: Wizard School ---------- */
 #tv.theme-wizard { --bg: #0e1230; --panel: #f3e6c4; --panel2: #e5d2a3; --line: #b8923a; --ink: #2b1d10; --muted: #6b5230;
   --mint: #7a1f2b; --blue: #7a1f2b; --orange: #b5641a; --pink: #a8201a; --gold: #e6c65c;
@@ -761,7 +789,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -780,6 +808,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(32 40)"><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(-62)"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(-31)"/><ellipse rx="7" ry="23" cy="-15" fill="#a8321a"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(31)"/><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(62)"/></g>' +
         '<path d="M25 57 v5 M39 57 v5" stroke="#d9862c" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="44" rx="15" ry="15" fill="#7a4522"/><circle cx="32" cy="25" r="9.5" fill="#9a5e30"/><circle cx="28.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="35.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="28.8" cy="24" r="1.2" fill="#17110c"/><circle cx="35.2" cy="24" r="1.2" fill="#17110c"/>' +
         '<polygon points="28.5,27 35.5,27 32,32" fill="#f2b632"/><path d="M34 30 q4 2 2.5 8 q-3 -1 -3.5 -6 z" fill="#c9241a"/></svg>';
+    }
+    if (id === 'christmas') {
+      return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="24" fill="#f7fbff"/><circle cx="32" cy="36" r="24" fill="none" stroke="#b9d3e6" stroke-width="1.5"/><rect x="17" y="2" width="30" height="20" rx="2" fill="#1d1d26"/><rect x="17" y="15" width="30" height="5" fill="#d9362b"/><rect x="9" y="20" width="46" height="5" rx="2.5" fill="#1d1d26"/><circle cx="24" cy="33" r="3" fill="#1d1d26"/><circle cx="40" cy="33" r="3" fill="#1d1d26"/><polygon points="31,37 34,41 52,42 34,44" fill="#f08a24"/><circle cx="22" cy="48" r="1.7" fill="#1d1d26"/><circle cx="28" cy="51" r="1.7" fill="#1d1d26"/><circle cx="36" cy="51" r="1.7" fill="#1d1d26"/><circle cx="42" cy="48" r="1.7" fill="#1d1d26"/></svg>';
     }
     if (id === 'wizard') {
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L10 4 L24 12 Q32 9 40 12 L54 4 L50 18 Q58 30 54 44 Q50 60 32 60 Q14 60 10 44 Q6 30 14 18 Z" fill="#7d6242"/><path d="M20 40 Q32 62 44 40 Q42 54 32 56 Q22 54 20 40 Z" fill="#e8d7b5"/>' +
@@ -800,6 +831,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       else if (days === 1) html = 'Thanksgiving is tomorrow!';
       else if (days > 1 && days <= 60) html = days + ' days until Thanksgiving';
       if (html) html = mascot() + '<span>' + html + '</span>';
+    } else if (themeInfo().id === 'christmas') {
+      var christmas = new Date(now.getFullYear(), 11, 25), toGo = Math.round((christmas - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / DAY_MS);
+      if (toGo === 0) html = 'Merry Christmas!';
+      else if (toGo === 1) html = "It's Christmas Eve!";
+      else if (toGo > 1 && toGo <= 60) html = toGo + ' days until Christmas';
+      if (html) html = mascot() + '<span>' + html + '</span>';
     }
     var el = $('tvBanner');
     if (el.getAttribute('data-h') !== html) { el.innerHTML = html; el.setAttribute('data-h', html); }
@@ -814,6 +851,17 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
     var leaves = $('leaves');
     if (leaves.getAttribute('data-t') !== theme) { leaves.innerHTML = ''; leaves.setAttribute('data-t', theme); }
+    if (theme === 'christmas' && !leaves.innerHTML) {
+      var winter = '', bulbs = ['#ff5a4d', '#ffd24d', '#5fe08a', '#5ac8ff'];
+      for (i = 0; i < 26; i++) {
+        var size = .5 + (i * 7) % 5 * .18;
+        winter += '<span class="flake" style="left:' + ((i * 37) % 100) + '%;width:' + size + 'rem;height:' + size + 'rem;animation-delay:' + (-i * 1.1) + 's;animation-duration:' + (15 + i % 5 * 2.5) + 's"></span>';
+      }
+      for (i = 0; i < 24; i++) {
+        winter += '<span class="bulb" style="left:' + (1.5 + i * 4.1) + '%;top:' + (.55 + (i % 2) * .4) + 'rem;background:' + bulbs[i % 4] + ';animation-delay:' + (i % 4 * .45) + 's"></span>';
+      }
+      leaves.innerHTML = '<div class="wire"></div>' + winter;
+    }
     if (theme === 'wizard' && !leaves.innerHTML) {
       var sky = '';
       for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (.5 + (i * 37) % 60 / 10) + 'rem;animation-delay:' + (-i * .4) + 's"></span>';
@@ -887,8 +935,40 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   })();
   function actor() {
     var id = themeInfo().id;
-    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : mascot();
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : mascot();
   }
+  var SNOWMAN = '<svg class="mascot" viewBox="0 0 90 108" aria-hidden="true"><g class="a-wig"' + pivot(24, 56) + '><path d="M26 56 L6 44 M14 49 L8 38 M14 49 L4 52" stroke="#5a3a20" stroke-width="3" stroke-linecap="round" fill="none"/></g><g class="a-wigR"' + pivot(66, 56) + '><path d="M64 56 L84 44 M76 49 L82 38 M76 49 L86 52" stroke="#5a3a20" stroke-width="3" stroke-linecap="round" fill="none"/></g>' +
+    '<circle cx="45" cy="82" r="24" fill="#f7fbff"/><path d="M26 92 Q45 108 64 92" fill="none" stroke="#c6dbea" stroke-width="3"/><circle cx="45" cy="52" r="18" fill="#f7fbff"/><circle cx="45" cy="72" r="2.6" fill="#1d1d26"/><circle cx="45" cy="84" r="2.6" fill="#1d1d26"/><circle cx="45" cy="60" r="2.6" fill="#1d1d26"/>' +
+    '<rect x="29" y="38" width="32" height="8" rx="4" fill="#d9362b"/><path d="M52 44 l-1 21 l9 -2 l-1 -20 z" fill="#d9362b"/><path d="M54 53 h6 M54 58 h6" stroke="#ffe08a" stroke-width="1.5"/><circle cx="45" cy="26" r="16" fill="#f7fbff"/>' + eyes(39, 51, 23, 3.2) + '<polygon points="44,27 48,29 66,29 48,32" fill="#f08a24"/><path d="M38 34 q7 5 14 0" fill="none" stroke="#1d1d26" stroke-width="1.8" stroke-dasharray="1.6 2.4" stroke-linecap="round"/>' +
+    '<rect x="30" y="-1" width="30" height="17" rx="2" fill="#1d1d26"/><rect x="30" y="9" width="30" height="4.5" fill="#d9362b"/><rect x="24" y="13" width="42" height="4.5" rx="2" fill="#1d1d26"/><g transform="translate(58 8)"><circle r="2.2" fill="#d9362b"/><path d="M0 -2 L-3 -6 M0 -2 L3 -6" stroke="#2c8a4f" stroke-width="1.6"/></g></svg>';
+  var SLEIGH = (function () {
+    function deer(x) {
+      return '<g transform="translate(' + x + ' 0)"><g class="a-legA"' + pivot(22, 54) + '><path d="M22 54 l-5 18" stroke="#6b4324" stroke-width="4" stroke-linecap="round"/></g><g class="a-legB"' + pivot(40, 54) + '><path d="M40 54 l5 18" stroke="#6b4324" stroke-width="4" stroke-linecap="round"/></g>' +
+        '<ellipse cx="31" cy="48" rx="20" ry="11" fill="#8a5a30"/><path d="M47 44 Q56 34 58 24 L66 28 Q64 42 52 52 Z" fill="#8a5a30"/><ellipse cx="66" cy="23" rx="10" ry="6.5" fill="#8a5a30"/><circle cx="66" cy="20" r="1.5" fill="#17110c"/><circle cx="76" cy="23" r="3" class="a-flick"' + pivot(76, 23) + ' fill="#ff4b3e"/>' +
+        '<path d="M61 18 L57 4 M58 11 L52 8 M58 11 L63 6 M67 17 L70 3 M69 10 L64 6 M69 10 L75 7" stroke="#d9c49a" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="42" y="42" width="5" height="16" rx="2" fill="#d9362b"/><circle cx="44.5" cy="60" r="2.5" fill="#ffd24d"/></g>';
+    }
+    return '<svg class="mascot" viewBox="0 0 330 96" aria-hidden="true"><path d="M92 54 L142 44 M182 42 L232 40" stroke="#c9a24a" stroke-width="1.5" fill="none"/>' +
+      '<path d="M12 36 q-4 -18 16 -26 q18 -2 18 16 z" fill="#7a5a34"/><path d="M4 86 H92 q12 0 15 -10 M20 70 v16 M72 70 v16" stroke="#e8c04a" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M6 40 Q12 72 30 72 H82 Q96 72 100 46 Q84 52 74 40 Z" fill="#c9241e"/><path d="M12 44 q40 12 68 0" fill="none" stroke="#ffd24d" stroke-width="2.5"/>' +
+      '<rect x="48" y="24" width="24" height="24" rx="6" fill="#d9362b"/><circle cx="60" cy="16" r="9.5" fill="#f2c9a4"/><path d="M50 18 Q60 36 70 18 Q60 25 50 18" fill="#fff"/><circle cx="57" cy="14" r="1.2" fill="#17110c"/><circle cx="63" cy="14" r="1.2" fill="#17110c"/><path d="M50 12 Q56 -6 76 4 Q68 4 70 12 Z" fill="#d9362b"/><rect x="48" y="10" width="24" height="4" rx="2" fill="#fff"/><circle cx="76" cy="4" r="3" fill="#fff"/><path d="M70 34 L92 44" stroke="#d9362b" stroke-width="5" stroke-linecap="round"/>' +
+      '<g class="a-hopSm"' + pivot(150, 50) + '>' + deer(116) + '</g><g class="a-hopSm" style="animation-delay:.3s;transform-origin:240px 50px">' + deer(218) + '</g></svg>';
+  })();
+  var GINGER = '<svg class="mascot" viewBox="0 0 70 90" aria-hidden="true"><g class="a-legA"' + pivot(27, 60) + '><rect x="19" y="56" width="14" height="28" rx="7" fill="#b5692f"/></g><g class="a-legB"' + pivot(43, 60) + '><rect x="37" y="56" width="14" height="28" rx="7" fill="#b5692f"/></g><g class="a-legB"' + pivot(20, 38) + '><rect x="4" y="33" width="20" height="12" rx="6" fill="#b5692f"/></g><g class="a-legA"' + pivot(50, 38) + '><rect x="46" y="33" width="20" height="12" rx="6" fill="#b5692f"/></g><rect x="20" y="30" width="30" height="34" rx="12" fill="#c47a3a"/><circle cx="35" cy="18" r="16" fill="#c47a3a"/>' + eyes(29, 41, 15, 3) + '<path d="M27 23 q8 7 16 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="2.8" fill="#d9362b"/><circle cx="35" cy="50" r="2.8" fill="#2c8a4f"/><path d="M6 36 v8 M64 36 v8 M21 76 h12 M38 76 h12" stroke="#fff" stroke-width="1.8" stroke-dasharray="2 2"/></svg>';
+  var TRAIN = (function () {
+    function car(x, color, top) {
+      return '<g transform="translate(' + x + ' 0)"><rect x="0" y="26" width="58" height="26" rx="3" fill="' + color + '"/><rect x="0" y="24" width="58" height="5" fill="#ffd24d"/>' + top +
+        '<g class="a-spin"' + pivot(14, 56) + '><circle cx="14" cy="56" r="8" fill="#1d1d26"/><path d="M8 56 h12 M14 50 v12" stroke="#ffd24d" stroke-width="2"/></g><g class="a-spin"' + pivot(44, 56) + '><circle cx="44" cy="56" r="8" fill="#1d1d26"/><path d="M38 56 h12 M44 50 v12" stroke="#ffd24d" stroke-width="2"/></g></g>';
+    }
+    return '<svg class="mascot" viewBox="0 0 230 66" aria-hidden="true"><circle class="a-bub" cx="196" cy="8" r="4" fill="#fff"/><circle class="a-bub" style="animation-delay:.7s" cx="202" cy="11" r="3" fill="#fff"/>' +
+      car(0, '#2c8a4f', '<rect x="10" y="10" width="16" height="16" fill="#d9362b"/><rect x="16" y="10" width="4" height="16" fill="#ffd24d"/><rect x="31" y="14" width="16" height="12" fill="#5ac8ff"/><rect x="37" y="14" width="4" height="12" fill="#fff"/>') +
+      car(62, '#d9362b', '<path d="M6 26 L18 6 L30 26 Z M24 26 L38 2 L52 26 Z" fill="#1f7a45"/>') +
+      '<g transform="translate(124 0)"><rect x="0" y="12" width="28" height="40" rx="3" fill="#1b4a8a"/><rect x="5" y="17" width="18" height="13" fill="#bfe6ff"/><rect x="-3" y="9" width="34" height="5" rx="2" fill="#d9362b"/><rect x="28" y="26" width="48" height="26" rx="10" fill="#1b4a8a"/><rect x="60" y="8" width="11" height="19" fill="#1d1d26"/><rect x="56" y="5" width="19" height="5" rx="2" fill="#d9362b"/><circle cx="76" cy="39" r="4" fill="#ffe27a"/><path d="M78 56 L94 60 L78 60 Z" fill="#d9362b"/>' +
+      '<g class="a-spin"' + pivot(14, 54) + '><circle cx="14" cy="54" r="10" fill="#1d1d26"/><path d="M6 54 h16 M14 46 v16" stroke="#ffd24d" stroke-width="2"/></g><g class="a-spin"' + pivot(44, 56) + '><circle cx="44" cy="56" r="8" fill="#1d1d26"/><path d="M38 56 h12 M44 50 v12" stroke="#ffd24d" stroke-width="2"/></g><g class="a-spin"' + pivot(64, 56) + '><circle cx="64" cy="56" r="8" fill="#1d1d26"/><path d="M58 56 h12 M64 50 v12" stroke="#ffd24d" stroke-width="2"/></g></g></svg>';
+  })();
+  function giftArt(box, ribbon) {
+    return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="24" width="48" height="36" rx="3" fill="' + box + '"/><rect x="4" y="16" width="56" height="12" rx="3" fill="' + box + '"/><rect x="27" y="16" width="10" height="44" fill="' + ribbon + '"/><path d="M32 16 C20 2 8 10 20 16 Z M32 16 C44 2 56 10 44 16 Z" fill="' + ribbon + '"/></svg>';
+  }
+  var ELF = '<svg class="mascot" viewBox="0 0 90 90" aria-hidden="true"><path d="M22 34 Q10 28 4 34 Q12 44 24 44 Z M68 34 Q80 28 86 34 Q78 44 66 44 Z" fill="#f2c9a4"/><rect x="24" y="62" width="42" height="28" rx="9" fill="#2c8a4f"/><path d="M36 62 L45 74 L54 62" fill="#ffd24d"/><circle cx="45" cy="42" r="23" fill="#f2c9a4"/>' + eyes(36, 54, 38, 4, 'a-look') + '<circle cx="31" cy="48" r="4" fill="#ee9a8e" opacity=".7"/><circle cx="59" cy="48" r="4" fill="#ee9a8e" opacity=".7"/><path d="M36 52 q9 8 18 0" stroke="#7a3a1f" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M22 28 Q40 -14 76 8 Q58 6 68 28 Z" fill="#2c8a4f"/><rect x="20" y="24" width="50" height="7" rx="3.5" fill="#d9362b"/><g class="a-wig"' + pivot(74, 8) + '><circle cx="78" cy="11" r="5" fill="#ffd24d"/></g></svg>';
+  var DEER_FACE = '<svg class="mascot" viewBox="0 0 90 90" aria-hidden="true"><path d="M30 28 L20 6 M25 17 L12 14 M25 17 L30 4 M60 28 L70 6 M65 17 L78 14 M65 17 L60 4" stroke="#d9c49a" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="17" cy="38" rx="12" ry="6" fill="#7a4e2c" transform="rotate(-14 17 38)"/><ellipse cx="73" cy="38" rx="12" ry="6" fill="#7a4e2c" transform="rotate(14 73 38)"/><ellipse cx="45" cy="52" rx="25" ry="33" fill="#8a5a30"/><ellipse cx="45" cy="68" rx="17" ry="14" fill="#c99a6b"/>' + eyes(35, 55, 42, 5) + '<circle class="a-flick"' + pivot(45, 62) + ' cx="45" cy="62" r="7" fill="#ff4b3e"/><path d="M45 69 V74 M37 74 Q45 80 53 74" stroke="#3f2110" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>';
   var PUMPKIN = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 15 q-1 -8 5 -11 l4 3 q-5 3 -4 8 z" fill="#4f6b24"/><path d="M36 9 q10 -6 15 2 q-9 4 -15 -2 z" fill="#6f9433"/><path d="M28 12 q-6 -4 -9 1" fill="none" stroke="#4f6b24" stroke-width="1.8"/><ellipse cx="13" cy="38" rx="11" ry="20" fill="#d96f1c"/><ellipse cx="51" cy="38" rx="11" ry="20" fill="#d96f1c"/><ellipse cx="23" cy="38" rx="11" ry="23" fill="#ec8526"/><ellipse cx="41" cy="38" rx="11" ry="23" fill="#ec8526"/><ellipse cx="32" cy="38" rx="9" ry="24" fill="#f49b39"/><path d="M28 18 q-3 20 0 40 M36 18 q3 20 0 40" fill="none" stroke="#d96f1c" stroke-width="1.2"/></svg>';
   var FEATHER = '<svg class="mascot" viewBox="0 0 24 48" aria-hidden="true"><path d="M12 2 C24 14 22 32 12 40 C2 32 0 14 12 2 Z" fill="COLOR"/><path d="M12 6 V47" stroke="#5a2a12" stroke-width="1.4"/></svg>';
   var MOUSE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g class="a-wig"' + pivot(10, 46) + '><path d="M10 46 Q-4 40 4 28" fill="none" stroke="#d9a7a0" stroke-width="2.4" stroke-linecap="round"/></g><ellipse cx="27" cy="44" rx="19" ry="12" fill="#a99a8c"/><ellipse cx="24" cy="49" rx="11" ry="6" fill="#c9bcb0"/><circle cx="42" cy="38" r="9.5" fill="#b8a99b"/><circle cx="38" cy="29" r="5.5" fill="#8f8275"/><circle cx="38" cy="29" r="3.2" fill="#d9b6b0"/><circle cx="46" cy="36" r="1.9" fill="#17110c"/><circle cx="51" cy="41" r="1.9" fill="#e58a8a"/><path d="M50 43 l8 -1 M50 44 l8 2" stroke="#6b6157" stroke-width=".9"/><polygon points="46,47 62,43 60,56 46,56" fill="#f2c94c"/><circle cx="53" cy="50" r="1.8" fill="#d9a92f"/><path d="M20 55 v3 M32 55 v3" stroke="#d9a7a0" stroke-width="2.4" stroke-linecap="round"/></svg>';
@@ -909,9 +989,10 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var FX_SAYS = {
     office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.'],
     harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
+    christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
-  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", wizard: 'All spells cast!', calm: 'All done!' };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', calm: 'All done!' };
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
@@ -965,6 +1046,28 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       function () { fxWalker('roll', PIE, '', 9300); fxWalker('', actor(), 'Come back, pie!', 12500, 'animation-delay:1s;animation-duration:10s'); },
       function () { fxOnFeed('<div class="fx-small">' + SQUIRREL + '</div>', 5200); },
       function () { fxOnFeed('<div class="fx-peek">' + actor() + '</div><div class="fx-alert" style="color:#b5481a">Psst... pie time?</div>', 5200); }
+    ],
+    christmas: [
+      function () { fxWalker('', actor(), fxPickLine('christmas'), 12500); },
+      function () { fxAdd('<div class="fx-sleigh"><div class="fx-say" style="left:14rem;bottom:auto;top:-1.6rem">Ho ho ho!</div>' + SLEIGH + '</div>', 14200); },
+      function () { fxWalker('fast', '<div class="fx-speed"><i></i><i></i><i></i></div>' + GINGER, "Can't catch me!", 4800); },
+      function () { fxAdd('<div class="fx-train">' + TRAIN + '</div>', 13200); },
+      function () {
+        var html = '', boxes = [['#d9362b', '#ffd24d'], ['#2c8a4f', '#fff'], ['#1b4a8a', '#ff8fa8'], ['#ffd24d', '#d9362b'], ['#7a2f8a', '#7fe0c8']], i;
+        for (i = 0; i < 9; i++) html += '<div class="fx-gift" style="left:' + (5 + i * 10.5) + '%;animation-delay:' + (i % 3 * .45 + i * .08) + 's">' + giftArt(boxes[i % 5][0], boxes[i % 5][1]) + '</div>';
+        fxAdd(html, 5200);
+      },
+      function () { fxOnFeed('<div class="fx-peek">' + ELF + '</div><div class="fx-alert" style="color:#ffe08a">Making a list...</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + DEER_FACE + '</div><div class="fx-alert" style="color:#ff7b6e">Is it Christmas yet?</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-splat"><svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 C60 26 76 10 72 30 C92 28 84 44 92 52 C82 60 88 76 70 72 C72 90 56 80 48 92 C42 78 24 88 28 70 C10 72 18 56 8 48 C20 42 12 26 30 30 C28 12 42 24 50 8 Z" fill="#f7fbff"/></svg><b>Splat!</b></div>', 3600); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 30; i++) {
+          var size = .7 + Math.random() * 1.4;
+          html += '<span class="fx-blow" style="top:' + (Math.random() * 90) + '%;width:' + size + 'rem;height:' + size + 'rem;animation-delay:' + (Math.random() * 1.8) + 's;animation-duration:' + (2.4 + Math.random() * 1.6) + 's"></span>';
+        }
+        fxAdd(html, 6000);
+      }
     ],
     wizard: [
       function () { fxWalker('', actor(), fxPickLine('wizard'), 12500); },
@@ -1056,12 +1159,14 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
         '<div style="animation-delay:2s">Waking up the bear... OK</div><div style="animation-delay:2.8s">ALL SYSTEMS GO</div></div>', 4300);
     } else if (id === 'harvest') {
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Happy Harvest!</span></div>', 3100);
+    } else if (id === 'christmas') {
+      fxAdd('<div class="fx-curtain">' + mascot() + '<span>Merry Christmas!</span></div>', 3100);
     } else if (id === 'wizard') {
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Welcome, young wizards</span></div>', 3100);
     }
   }
   function confetti() {
-    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
     for (i = 0; i < 16; i++) {
       html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
     }
@@ -1497,9 +1602,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   function setupHtml() {
     if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
     var d = ed.draft, i;
-    var html = '<div class="card"><h2>Theme</h2><div class="opts">';
-    for (i = 0; i < THEMES.length; i++) html += optBtn('theme', THEMES[i].id, THEMES[i].text, d.theme === THEMES[i].id);
-    html += '</div>';
+    var html = '<div class="card"><h2>Theme</h2><select aria-label="Theme" data-input="theme" data-f="theme">';
+    for (i = 0; i < THEMES.length; i++) html += '<option value="' + THEMES[i].id + '"' + (d.theme === THEMES[i].id ? ' selected' : '') + '>' + esc(THEMES[i].text) + '</option>';
+    html += '</select>';
     if (d.theme === 'office') {
       html += '<span class="lab">Camera switching</span><div class="opts">' + optBtn('tour', 'on', 'Tour the cameras', !!d.camTour) + optBtn('tour', 'off', 'Stay on the wall', !d.camTour) + '</div>' +
         '<p class="hint">The tour goes back to all cameras for the last 5 minutes of any countdown.</p>';
@@ -1588,7 +1693,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tvMusic: pressMusic,
     tvEdit: openTvEditor,
     tvCams: function () { showCam(camIndex + 1); },
-    theme: function (a) { ed.draft.theme = a; put('settings/theme', a); forceEditor(); },
     tour: function (a) { ed.draft.camTour = a === 'on'; put('settings/camTour', a === 'on'); forceEditor(); },
     fxLevel: function (a) { ed.draft.fxLevel = a; put('settings/fxLevel', a); forceEditor(); },
     closeEd: closeTvEditor,
@@ -1743,6 +1847,14 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var el = e.target, v = el.type === 'checkbox' ? el.checked : el.value;
     var draft = el.getAttribute && el.getAttribute('data-draft');
     if (draft) { ed[draft] = v; return; }
+    if (el.getAttribute && el.getAttribute('data-input') === 'theme') {
+      if (e.type !== 'change') return;
+      if (ed.draft) ed.draft.theme = v;
+      put('settings/theme', v);
+      toast('Theme changed');
+      forceEditor();
+      return;
+    }
     var chan = el.getAttribute && el.getAttribute('data-chan');
     if (chan !== null && chan !== undefined) { ed.chanNames[chan] = v; return; }
     var key = el.getAttribute && el.getAttribute('data-setup');
