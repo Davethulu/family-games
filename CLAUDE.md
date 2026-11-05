@@ -16,6 +16,7 @@ The family's TV dashboard: countdowns, calendar, screen-time minutes, music. Not
 - Shared data lives in a Firebase Realtime Database (address in `board/config.js`), under a secret family code that devices keep from the URL hash or a one-time prompt.
 - This repo is public. Never commit the family code, kids' names, or the plan's details beyond generic defaults; those belong in the database.
 - iCloud events are copied into the database hourly by `.github/workflows/icloud-sync.yml`, using the `ICAL_URL` and `BOARD_CODE` repo secrets. Job logs are public, so the script must only log counts, never event details.
+- A new theme needs an entry in `THEMES`, a mascot in `mascot()`, and `.theme-<id>` CSS. Keep its effects cheap, since TV processors are slow. The real checklist lives in the database, so the code's default stays generic.
 - Keep the JavaScript in older syntax (`var`, XHR) and size the TV view in rem, because TV browsers are old and have odd viewports.
 
 ## Building a new game

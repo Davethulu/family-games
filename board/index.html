@@ -15,7 +15,7 @@
 html { font-size: .625vw; background: var(--bg); }
 body { margin: 0; color: var(--ink); background: var(--bg);
   font-family: "Trebuchet MS", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif; }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 .hide { display: none !important; }
 
@@ -125,6 +125,58 @@ button { cursor: pointer; }
 @keyframes flicker { 0%, 93%, 100% { opacity: 1; } 94% { opacity: .55; } 96% { opacity: .9; } 97% { opacity: .6; } }
 @keyframes jitter { 0%, 95%, 100% { transform: none; } 96% { transform: translateX(-.5rem); } 98% { transform: translateX(.4rem); } }
 
+/* ---------- Daily checklist on each kid's card ---------- */
+.kid { position: relative; overflow: hidden; }
+.kid-head { margin-bottom: .2rem; }
+.kid-name { font-size: 2.9rem; }
+.kid-total { font-size: 4.2rem; }
+.kid-flag { margin-left: 1.2rem; padding: .2rem .9rem; font-size: 1.7rem; font-weight: 700; border-radius: .6rem; background: var(--gold); color: var(--panel); vertical-align: middle; }
+.chips { display: flex; margin-top: .9rem; }
+.chip { flex: 1; min-width: 0; margin-right: .7rem; padding: .5rem .6rem; border-radius: .8rem; background: var(--panel2); display: flex; align-items: center; min-height: 5.6rem; }
+.chip:last-child { margin-right: 0; }
+.chip-icon { width: 4rem; height: 4rem; flex-shrink: 0; margin-right: .5rem; display: flex; align-items: center; justify-content: center; }
+.chip-ring { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: .25rem dashed var(--muted); opacity: .6; }
+.chip-text { min-width: 0; font-size: 1.55rem; line-height: 1.12; color: var(--muted); }
+.theme-office .chip-text { font-size: 1.3rem; }
+.theme-office .chip-icon { width: 3.2rem; margin-right: .3rem; }
+.theme-office .kid { padding-top: 3.6rem; padding-bottom: .8rem; }
+.chip.on { background: var(--mint); }
+.chip.on .chip-text { color: var(--panel); font-weight: 700; }
+.mascot { display: block; width: 100%; height: 100%; }
+.pop { animation: pop .7s ease-out; }
+.parade { position: absolute; left: 0; bottom: .5rem; width: 9rem; height: 9rem; z-index: 4; animation: parade 5s linear forwards; }
+.hero { position: relative; }
+.hero-art { position: absolute; right: 3rem; bottom: 10.5rem; width: 14rem; height: 14rem; animation: bob 4s ease-in-out infinite; }
+.tv-banner { font-size: 2.6rem; font-weight: 700; display: flex; align-items: center; color: var(--gold); }
+.tv-banner .mascot { width: 4.4rem; height: 4.4rem; margin-right: .8rem; }
+.leaves { display: none; }
+@keyframes pop { 0% { transform: scale(.2) rotate(-20deg); } 60% { transform: scale(1.35) rotate(8deg); } 100% { transform: none; } }
+@keyframes parade { 0% { transform: translateX(-10rem); opacity: 1; } 95% { opacity: 1; } 100% { transform: translateX(62rem); opacity: 0; } }
+@keyframes bob { 0%, 100% { transform: none; } 50% { transform: translateY(-.8rem); } }
+
+/* ---------- Theme: Thanksgiving ---------- */
+#tv.theme-harvest { --bg: #4a2412; --panel: #fff3dc; --panel2: #f6dfb8; --line: #d99a4e; --ink: #4a2412; --muted: #8a5a34;
+  --mint: #e9862c; --blue: #d9622b; --orange: #c9481f; --pink: #a8201a; --gold: #ffd27a;
+  background: var(--bg); color: var(--ink); font-family: Georgia, "Times New Roman", "Noto Serif", serif; }
+.theme-harvest .tv-date, .theme-harvest .tv-clock { color: var(--gold); }
+.theme-harvest .hero, .theme-harvest .kid, .theme-harvest .cal, .theme-harvest .player { border: .3rem solid var(--line); }
+.theme-harvest .hero-label, .theme-harvest .cal h2 { color: #b5481a; }
+.theme-harvest .hero-count { color: #7a2e12; }
+.theme-harvest .stop.next { background: #e9862c; color: #fff; }
+.theme-harvest .stop.next span { color: #fff; }
+.theme-harvest .kid-total { color: #b5481a; }
+.theme-harvest .ev-when { color: #b5481a; width: 12.5rem; }
+.theme-harvest .hero-count, .theme-harvest .tv-clock, .theme-harvest .kid-total, .theme-harvest .block-min, .theme-harvest .stop b { font-family: "Trebuchet MS", "Segoe UI", Roboto, Arial, sans-serif; }
+.theme-harvest .chip.on { background: #f3b35f; }
+.theme-harvest .chip.on .chip-text { color: var(--ink); }
+.theme-harvest .kid-flag { background: #b5481a; color: #fff; }
+.theme-harvest .player { color: var(--muted); }
+.theme-harvest .tv-btn { background: #6b3518; color: #fff3dc; }
+.theme-harvest .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.leaf { position: absolute; top: -5rem; width: 3.4rem; height: 3.4rem; animation: fall 17s linear infinite; }
+@keyframes fall { from { transform: translateY(0) rotate(0); } to { transform: translateY(100rem) rotate(540deg); } }
+#tv.theme-harvest button:focus { color: #4a2412; }
+
 /* ---------- Parent editor: sized in em, so it fits a phone or fills a TV ---------- */
 #editor { background: var(--bg); min-height: 100vh; font-size: 17px; }
 #editor.overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; overflow-y: auto; font-size: 2.1rem; z-index: 10; }
@@ -154,7 +206,14 @@ button { cursor: pointer; }
 .row:first-of-type { border-top: 0; }
 .row > div { min-width: 0; padding-right: .8em; }
 .row em { display: block; font-style: normal; color: var(--muted); font-size: .85em; }
-input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: var(--panel2); border: .15em solid var(--line); border-radius: .5em; }
+input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; background: var(--panel2); border: .15em solid var(--line); border-radius: .5em; }
+.tab { font-size: .92em; }
+.mark { display: flex; align-items: center; justify-content: center; flex: 1 1 40%; min-height: 3em; padding: .4em .6em; margin: .2em; background: var(--panel2); border: .15em solid transparent; border-radius: .6em; }
+.mark.on { background: var(--mint); color: var(--panel); font-weight: 700; }
+.mark .mascot { width: 1.9em; height: 1.9em; margin-right: .4em; flex-shrink: 0; }
+.mark .ring { width: 1.3em; height: 1.3em; margin: 0 .55em 0 .25em; border-radius: 50%; border: .14em solid var(--muted); flex-shrink: 0; }
+.list-item { font-weight: 700; margin: .9em 0 .25em; }
+.list-item:first-of-type { margin-top: 0; }
 .pair { display: flex; }
 .pair > * { flex: 1; min-width: 0; margin-right: .6em; }
 .pair > *:last-child { margin-right: 0; }
@@ -182,12 +241,14 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
 
 <div id="tv" class="hide">
   <div class="status hide" id="status"></div>
-  <div class="tv-top"><div class="tv-date" id="tvDate"></div><div class="tv-clock" id="tvClock"></div></div>
+  <div class="leaves" id="leaves"></div>
+  <div class="tv-top"><div class="tv-date" id="tvDate"></div><div class="tv-banner" id="tvBanner"></div><div class="tv-clock" id="tvClock"></div></div>
   <div id="camBack" class="hide"></div>
   <div class="tv-main">
     <div class="hero" id="hero" data-cam="Countdown">
       <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 1 &middot; COUNTDOWN</span><span class="feed-time"></span></div>
       <div class="fx"></div>
+      <div class="hero-art" id="heroArt"></div>
       <div class="hero-label" id="heroLabel"></div>
       <div class="hero-count" id="heroCount"></div>
       <div class="hero-sub" id="heroSub"></div>
@@ -225,6 +286,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   // Lofi Girl's live streams. Their IDs change now and then, so parents can also paste a new link.
   var LOFI_PRESETS = [{ id: '4t4AQ15yj1M', text: 'Cozy Christmas lo-fi' }, { id: '0sfDth4lMLc', text: 'Spooky lo-fi' }];
   var POLL_MS = 15000;
+  var DAY_MS = 86400000;
   var DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -235,6 +297,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     pin: '',
     theme: 'office',
     camTour: false,
+    checklist: ['Dressed', 'Breakfast', 'Floss and brush', 'Backpack & Chromebook'],
     blockMinutes: 45,
     floor: 15,
     evening: '19:00',
@@ -275,7 +338,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { tab: 'minutes', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -354,7 +417,11 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   }
   function afterData() {
     var json = JSON.stringify(data);
-    if (json !== lastDataJson) { lastDataJson = json; renderAll(); }
+    if (json !== lastDataJson) {
+      if (!lastDataJson) lastChecks = null; // what's already checked when the page opens shouldn't celebrate again
+      lastDataJson = json;
+      renderAll();
+    }
     renderStatus();
   }
   function settings() {
@@ -450,11 +517,50 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     var stamp = pad(now.getMonth() + 1) + '/' + pad(now.getDate()) + ' ' + pad(h) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
     var stamps = document.querySelectorAll('.feed-time');
     for (i = 0; i < stamps.length; i++) stamps[i].innerHTML = stamp;
+    renderBanner(now);
     tourTick();
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office' }, { id: 'calm', text: 'Calm' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
+  var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
+  function themeInfo() {
+    var theme = settings().theme, i;
+    for (i = 0; i < THEMES.length; i++) if (THEMES[i].id === theme) return THEMES[i];
+    return THEMES[0];
+  }
+  // Each theme's checklist mascot. Drawn here so the page needs no image files.
+  function mascot() {
+    var id = themeInfo().id;
+    if (id === 'office') {
+      return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="13" cy="15" r="10" fill="#7a4e2c"/><circle cx="51" cy="15" r="10" fill="#7a4e2c"/><circle cx="13" cy="15" r="5" fill="#c99a6b"/><circle cx="51" cy="15" r="5" fill="#c99a6b"/>' +
+        '<circle cx="32" cy="35" r="25" fill="#8f5f38"/><ellipse cx="32" cy="45" rx="13" ry="10" fill="#e0bd93"/><circle cx="22" cy="30" r="5.5" fill="#fff"/><circle cx="42" cy="30" r="5.5" fill="#fff"/><circle cx="23" cy="31" r="2.6" fill="#17110c"/><circle cx="41" cy="31" r="2.6" fill="#17110c"/>' +
+        '<ellipse cx="32" cy="40" rx="4.5" ry="3.2" fill="#2a1a10"/><path d="M25 47 Q32 53 39 47" fill="none" stroke="#2a1a10" stroke-width="2.4" stroke-linecap="round"/></svg>';
+    }
+    if (id === 'harvest') {
+      return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(32 40)"><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(-62)"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(-31)"/><ellipse rx="7" ry="23" cy="-15" fill="#a8321a"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(31)"/><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(62)"/></g>' +
+        '<path d="M25 57 v5 M39 57 v5" stroke="#d9862c" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="44" rx="15" ry="15" fill="#7a4522"/><circle cx="32" cy="25" r="9.5" fill="#9a5e30"/><circle cx="28.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="35.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="28.8" cy="24" r="1.2" fill="#17110c"/><circle cx="35.2" cy="24" r="1.2" fill="#17110c"/>' +
+        '<polygon points="28.5,27 35.5,27 32,32" fill="#f2b632"/><path d="M34 30 q4 2 2.5 8 q-3 -1 -3.5 -6 z" fill="#c9241a"/></svg>';
+    }
+    return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
+  }
+  function thanksgivingDay(year) {
+    var first = new Date(year, 10, 1).getDay();
+    return new Date(year, 10, 1 + (4 - first + 7) % 7 + 21);
+  }
+  function renderBanner(now) {
+    var html = '';
+    if (themeInfo().id === 'harvest') {
+      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var days = Math.round((thanksgivingDay(now.getFullYear()) - today) / DAY_MS);
+      if (days === 0) html = 'Happy Thanksgiving!';
+      else if (days === 1) html = 'Thanksgiving is tomorrow!';
+      else if (days > 1 && days <= 60) html = days + ' days until Thanksgiving';
+      if (html) html = mascot() + '<span>' + html + '</span>';
+    }
+    var el = $('tvBanner');
+    if (el.getAttribute('data-h') !== html) { el.innerHTML = html; el.setAttribute('data-h', html); }
+  }
   var urgent = false;
   var camIndex = -1; // -1 is the wall of all feeds
   var camStarted = 0;
@@ -463,6 +569,38 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     for (i = 0; i < THEMES.length; i++) tv.classList[THEMES[i].id === theme ? 'add' : 'remove']('theme-' + THEMES[i].id);
     $('btnCams').className = theme === 'office' ? 'tv-btn' : 'tv-btn hide';
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
+    var art = $('heroArt');
+    if (art.getAttribute('data-t') !== theme) { art.innerHTML = theme === 'calm' ? '' : mascot(); art.setAttribute('data-t', theme); }
+    var leaves = $('leaves');
+    if (theme === 'harvest' && !leaves.innerHTML) {
+      var html = '';
+      for (i = 0; i < LEAF_COLORS.length; i++) {
+        html += '<svg class="leaf" viewBox="0 0 40 40" style="left:' + (5 + i * 14) + '%;animation-delay:' + (-i * 2.6) + 's;animation-duration:' + (15 + i % 3 * 3) + 's" aria-hidden="true"><path d="M20 2 C31 9 36 21 20 38 C4 21 9 9 20 2 Z" fill="' + LEAF_COLORS[i] + '"/><path d="M20 6 V38" stroke="#5a2a12" stroke-width="1.5"/></svg>';
+      }
+      leaves.innerHTML = html;
+    }
+  }
+
+  /* ---------- Daily checklist: marks are stored per day, so every morning starts clean ---------- */
+  function isChecked(kid, item, key) {
+    var day = data.checks && data.checks[key];
+    return !!(day && day[kid] && day[kid][item]);
+  }
+  function doneCount(kid, key) {
+    var list = settings().checklist, n = 0, i;
+    for (i = 0; i < list.length; i++) if (isChecked(kid, i, key)) n++;
+    return n;
+  }
+  var lastChecks = null;
+  function chipsHtml(kid, key, shown, prev) {
+    var list = settings().checklist, html = '<div class="chips">', i;
+    for (i = 0; i < list.length; i++) {
+      var on = isChecked(kid, i, key), id = kid + '-' + i;
+      if (on) shown[id] = true;
+      html += '<div class="chip' + (on ? ' on' : '') + '"><span class="chip-icon' + (on && prev && !prev[id] ? ' pop' : '') + '">' + (on ? mascot() : '<span class="chip-ring"></span>') +
+        '</span><span class="chip-text">' + esc(list[i]) + '</span></div>';
+    }
+    return html + '</div>';
   }
   function camFeeds() { return document.querySelectorAll('#tv [data-cam]'); }
   function showCam(index) {
@@ -500,15 +638,20 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i;
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks;
     for (i = 0; i < s.kids.length; i++) {
-      var m = kidMinutes(i, key);
+      var m = kidMinutes(i, key), total = s.checklist.length, allDone = total > 0 && doneCount(i, key) === total;
+      var chips = chipsHtml(i, key, shown, prev), justFinished = allDone && prev && !prev['all-' + i];
+      if (allDone) shown['all-' + i] = true;
       html += '<div class="kid" data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
-        '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) + '</div>' +
+        '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
+        (allDone ? '<span class="kid-flag">' + themeInfo().flag + '</span>' : '') + '</div>' +
         '<div class="kid-total">' + m.total + ' <small>of ' + m.full + ' min</small></div></div>' +
         blockBar('After school', m.after, s.blockMinutes) + blockBar('Evening', m.evening, s.blockMinutes) +
-        (m.over ? '<div class="kid-note">At the 15-minute floor: bedtime 10 minutes earlier, or a chore</div>' : '') + '</div>';
+        (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips +
+        (justFinished ? '<div class="parade">' + mascot() + '</div>' : '') + '</div>';
     }
+    lastChecks = shown;
     $('kids').innerHTML = html;
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
@@ -581,15 +724,15 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     var el = $('editor');
     if (el.className.indexOf('hide') >= 0) return;
     var active = document.activeElement, fid = active && active.getAttribute ? active.getAttribute('data-f') : null;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT') && el.contains(active) && !editorForced) return;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA') && el.contains(active) && !editorForced) return;
     editorForced = false;
     var scroll = el.className.indexOf('overlay') >= 0 ? el.scrollTop : window.pageYOffset;
     var html = '<div class="ed-wrap"><div class="ed-head"><h1>Family Board</h1>' +
       (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '') + '</div>';
     if (tvEditing && !pinOk) html += pinHtml();
     else {
-      html += '<div class="tabs">' + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('music', 'Music') + tabBtn('setup', 'Setup') + '</div>';
-      html += ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : ed.tab === 'music' ? musicHtml() : setupHtml();
+      html += '<div class="tabs">' + tabBtn('list', 'List') + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('music', 'Music') + tabBtn('setup', 'Setup') + '</div>';
+      html += ed.tab === 'list' ? listHtml() : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : ed.tab === 'music' ? musicHtml() : setupHtml();
     }
     el.innerHTML = html + '</div>';
     if (el.className.indexOf('overlay') >= 0) el.scrollTop = scroll; else window.scrollTo(0, scroll);
@@ -614,6 +757,21 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     }
     if (!found) html = '<option value="' + selected + '" selected>' + time12(selected) + '</option>' + html;
     return html;
+  }
+  function listHtml() {
+    var s = settings(), key = dateKey(new Date()), html = '<div class="card"><h2>Today\'s list</h2>', i, k;
+    for (i = 0; i < s.checklist.length; i++) {
+      html += '<div class="list-item">' + esc(s.checklist[i]) + '</div><div class="opts">';
+      for (k = 0; k < s.kids.length; k++) {
+        var on = isChecked(k, i, key);
+        html += '<button class="mark' + (on ? ' on' : '') + '" data-act="check" data-arg="' + k + '-' + i + '" data-f="check-' + k + '-' + i + '">' +
+          (on ? mascot() : '<span class="ring"></span>') + '<span>' + esc(s.kids[k]) + '</span></button>';
+      }
+      html += '</div>';
+    }
+    html += '<p class="hint">';
+    for (k = 0; k < s.kids.length; k++) html += esc(s.kids[k]) + ': ' + doneCount(k, key) + ' of ' + s.checklist.length + (k < s.kids.length - 1 ? ' · ' : '');
+    return html + '. The list clears itself every day.</p></div>';
   }
   function minutesHtml() {
     var s = settings(), key = dateKey(new Date()), i, r = null, html = '<div class="card"><h2>Take off minutes</h2><span class="lab">Who</span><div class="opts">';
@@ -724,6 +882,8 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     }
     html += '</div><div class="card"><h2>Evening</h2><div class="pair"><div><span class="lab">Screens start</span><select data-setup="evening" data-f="se">' + timeOptions(d.evening, true) + '</select></div>' +
       '<div><span class="lab">Bedtime</span><select data-setup="bedtime" data-f="sb">' + timeOptions(d.bedtime, true) + '</select></div></div></div>';
+    html += '<div class="card"><h2>Daily checklist</h2><label class="lab" for="cl">One item per line, up to 6. Short names fit best on the TV.</label>' +
+      '<textarea id="cl" rows="6" data-setup="checklistText" data-f="cl">' + esc(d.checklistText !== undefined ? d.checklistText : d.checklist.join('\n')) + '</textarea></div>';
     html += '<div class="card"><h2>Screen time rules</h2><div class="pair"><div><label class="lab" for="bm">Minutes per block</label><input id="bm" type="number" min="15" max="180" data-setup="blockMinutes" data-f="bm" value="' + d.blockMinutes + '"></div>' +
       '<div><label class="lab" for="fl">Always-yours floor</label><input id="fl" type="number" min="0" max="180" data-setup="floor" data-f="fl" value="' + d.floor + '"></div></div></div>';
     html += '<div class="card"><h2>TV parent PIN</h2><label class="lab" for="pn">4 digits, asked for when editing with the TV remote</label><input id="pn" inputmode="numeric" maxlength="4" data-setup="pin" data-f="pn" value="' + esc(d.pin) + '"></div>';
@@ -765,6 +925,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
     var cutoff = dateKey(addDays(new Date(), -30)), k;
     for (k in (data.log || {})) if (k < cutoff) put('log/' + k, null);
     for (k in (data.homework || {})) if (k < cutoff) put('homework/' + k, null);
+    for (k in (data.checks || {})) if (k < cutoff) put('checks/' + k, null);
     var list = events();
     for (k = 0; k < list.length; k++) if (list[k].date < cutoff && !list[k].icloud) put('events/' + list[k].id, null);
   }
@@ -813,6 +974,12 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
       forceEditor();
     },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    check: function (a) {
+      var parts = a.split('-'), kid = +parts[0], item = +parts[1], key = dateKey(new Date());
+      put('checks/' + key + '/' + kid + '/' + item, isChecked(kid, item, key) ? null : true);
+      if (doneCount(kid, key) === settings().checklist.length) toast(settings().kids[kid] + ': ' + themeInfo().flag);
+      forceEditor();
+    },
     giveKid: function (a) { ed.giveKid = +a; forceEditor(); },
     giveBlock: function (a) { ed.giveBlock = a; forceEditor(); },
     giveMins: function (a) { ed.giveMins = +a; forceEditor(); },
@@ -851,6 +1018,10 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
       if (d.pin && !/^\d{4}$/.test(d.pin)) { toast('The PIN needs 4 digits', true); return; }
       d.blockMinutes = Math.max(15, parseInt(d.blockMinutes, 10) || 45);
       d.floor = Math.min(d.blockMinutes, Math.max(0, parseInt(d.floor, 10) || 0));
+      if (d.checklistText !== undefined) {
+        d.checklist = d.checklistText.split('\n').map(function (t) { return t.replace(/^\s+|\s+$/g, ''); }).filter(Boolean).slice(0, 6);
+        delete d.checklistText;
+      }
       put('settings', d);
       ed.draft = null;
       toast('Saved');
@@ -888,7 +1059,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   /* ---------- Remote control: arrows move between buttons, Back leaves the editor ---------- */
   function focusables() {
     var root = tvEditing ? $('editor') : ($('gate').className.indexOf('hide') < 0 ? $('gate') : $('editor').className.indexOf('hide') < 0 ? $('editor') : $('tv'));
-    var all = root.querySelectorAll('button, input, select'), out = [], i;
+    var all = root.querySelectorAll('button, input, select, textarea'), out = [], i;
     for (i = 0; i < all.length; i++) if (all[i].offsetWidth > 0 && !all[i].disabled) out.push(all[i]);
     return out;
   }
@@ -909,7 +1080,7 @@ input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: 
   }
   document.addEventListener('keydown', function (e) {
     var dirs = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' }, dir = dirs[e.keyCode], t = e.target, tag = t && t.tagName;
-    var typing = tag === 'INPUT' && t.type !== 'checkbox';
+    var typing = (tag === 'INPUT' && t.type !== 'checkbox') || tag === 'TEXTAREA';
     if (dir) {
       if (typing && (dir === 'left' || dir === 'right') && t.value) return;
       e.preventDefault();
