@@ -541,15 +541,15 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
   };
   var REASONS = [
-    { id: 'late', text: 'Past the ready-by time', perMin: true, block: 'after' },
-    { id: 'hw', text: 'Past the homework done-by time', perMin: true, block: 'evening' },
-    { id: 'teeth', text: 'Teeth over 5 minutes', perMin: true, block: 'evening' },
-    { id: 'shower', text: 'Shower over 10 minutes', perMin: true, block: 'evening' },
-    { id: 'yell', text: 'Yelling or name-calling', min: 5, block: 'next' },
-    { id: 'yellcalm', text: 'Yelling, calmed within a minute', min: 3, block: 'next' },
-    { id: 'brother', text: "Commenting on brother's behavior", min: 5, block: 'next' },
-    { id: 'forgot', text: 'Forgot materials or work', min: 5, block: 'next' },
-    { id: 'other', text: 'Not on the chart (parent call)', perMin: true, block: 'next' }
+    { id: 'late', text: 'Past the ready-by time', perMin: true },
+    { id: 'hw', text: 'Past the homework done-by time', perMin: true },
+    { id: 'teeth', text: 'Teeth over 5 minutes', perMin: true },
+    { id: 'shower', text: 'Shower over 10 minutes', perMin: true },
+    { id: 'yell', text: 'Yelling or name-calling', min: 5 },
+    { id: 'yellcalm', text: 'Yelling, calmed within a minute', min: 3 },
+    { id: 'brother', text: "Commenting on brother's behavior", min: 5 },
+    { id: 'forgot', text: 'Forgot materials or work', min: 5 },
+    { id: 'other', text: 'Not on the chart (parent call)', perMin: true }
   ];
 
   var params = location.search;
@@ -566,7 +566,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { chanNames: {}, timerWho: 0, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { chanNames: {}, timerWho: 0, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: '', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -1486,7 +1486,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 
     html += '<div class="card"><h2>Give minutes back</h2><span class="lab">Who</span><div class="opts">';
     for (i = 0; i < s.kids.length; i++) html += optBtn('giveKid', i, s.kids[i], ed.giveKid === i);
-    html += '</div><span class="lab">To which block</span><div class="opts">' + optBtn('giveBlock', 'after', 'After school', ed.giveBlock === 'after') + optBtn('giveBlock', 'evening', 'Evening', ed.giveBlock === 'evening') +
+    var giveTo = ed.giveBlock || nextBlock();
+    html += '</div><span class="lab">To which block</span><div class="opts">' + optBtn('giveBlock', 'after', 'After school', giveTo === 'after') + optBtn('giveBlock', 'evening', 'Evening', giveTo === 'evening') +
       '</div><span class="lab">How many minutes</span><div class="opts">';
     var backs = [1, 2, 3, 5, 10, 15, 20, 30];
     for (i = 0; i < backs.length; i++) html += optBtn('giveMins', backs[i], backs[i], ed.giveMins === backs[i]);
@@ -1700,8 +1701,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tab: function (a) { ed.tab = a; ed.draft = null; forceEditor(); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
     kid: function (a) { ed.kid = +a; forceEditor(); },
     reason: function (a) {
-      var r = REASONS.filter(function (x) { return x.id === a; })[0];
-      ed.reason = a; ed.block = r.block === 'next' ? nextBlock() : r.block;
+      ed.reason = a; ed.block = nextBlock();
       forceEditor();
     },
     mins: function (a) { ed.mins = +a; forceEditor(); },
@@ -1761,9 +1761,10 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     giveMins: function (a) { ed.giveMins = +a; forceEditor(); },
     give: function () {
       // Only what was actually taken can come back, so a block never goes above its full time.
-      var key = dateKey(new Date()), taken = kidMinutes(ed.giveKid, key).taken[ed.giveBlock], min = Math.min(ed.giveMins, taken);
+      var key = dateKey(new Date()), block = ed.giveBlock || nextBlock(), taken = kidMinutes(ed.giveKid, key).taken[block], min = Math.min(ed.giveMins, taken);
       if (min <= 0) { toast('Nothing has been taken from that block today', true); return; }
-      put('log/' + key + '/' + newId(), { kid: ed.giveKid, block: ed.giveBlock, min: -min, reason: 'Minutes given back', at: Date.now() });
+      put('log/' + key + '/' + newId(), { kid: ed.giveKid, block: block, min: -min, reason: 'Minutes given back', at: Date.now() });
+      ed.giveBlock = '';
       toast('Gave back ' + min + ' min');
       forceEditor();
     },
