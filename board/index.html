@@ -184,7 +184,7 @@ button { cursor: pointer; }
 @keyframes parade { 0% { transform: translateX(-10rem); opacity: 1; } 95% { opacity: 1; } 100% { transform: translateX(62rem); opacity: 0; } }
 
 /* ---------- Surprise scenes that play now and then. Everything here is removed when it ends. ---------- */
-#fxStage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+#fxStage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 4; }
 .fx-walker { position: absolute; left: -22rem; bottom: 1.5rem; width: 15rem; height: 15rem; animation: fxWalk 12s linear forwards; }
 .fx-walker.fast { animation-duration: 4.5s; }
 .fx-walker.roll { width: 10rem; height: 10rem; animation-duration: 9s; }
@@ -357,6 +357,24 @@ button { cursor: pointer; }
 .fx-carry { position: absolute; right: -2.2rem; top: 42%; width: 5.6rem; height: 5.6rem; }
 .fx-paper { position: absolute; left: -7rem; width: 5rem; height: 6rem; animation: fxGust 4s linear both; }
 .fx-loot { position: absolute; right: -2.4rem; top: -1.2rem; width: 5.5rem; height: 5.5rem; }
+
+/* ---------- Security Office finale ---------- */
+.fx-note { position: absolute; bottom: -6rem; font-size: 5rem; color: var(--gold); animation: fxRise 6s linear both; }
+.fx-spot { position: absolute; top: -10%; width: 22rem; height: 130%; background: rgba(255,240,170,.13); transform-origin: 50% 0; clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); animation: fxSpotSwing 5s ease-in-out infinite alternate; }
+.fx-bite { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; animation: fxBiteFade 9s ease forwards; }
+.fx-bite-bear { position: relative; width: 44rem; height: 62rem; margin-right: 11rem; animation: fxBiteBear 3.6s ease-out both; }
+.fx-offer { position: absolute; right: -9rem; top: 47%; width: 19rem; height: 19rem; animation: fxOffer 3.6s ease-out both; }
+.fx-bitemark { position: absolute; width: 30%; height: 30%; border-radius: 50%; background: #000; animation: fxBiteOn .01s linear 3.9s both; }
+.fx-bite-text { width: 62rem; font-family: "Courier New", "DejaVu Sans Mono", monospace; font-weight: 700; }
+.fx-bite-text span { display: block; }
+.fx-join { font-size: 6rem; color: #d9ffe9; animation: fxSayIn .7s ease-out 1.3s both; }
+.fx-abite { font-size: 15rem; line-height: 1.1; color: var(--pink); animation: fxBitePop .5s cubic-bezier(.2, 1.7, .4, 1) 3.9s both; }
+@keyframes fxSpotSwing { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+@keyframes fxBiteFade { 0% { opacity: 0; } 7%, 93% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fxBiteBear { from { transform: translateY(14rem) scale(.45); } to { transform: none; } }
+@keyframes fxOffer { from { transform: translateX(-6rem) rotate(-30deg) scale(.5); } to { transform: rotate(-12deg); } }
+@keyframes fxBiteOn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fxBitePop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* ---------- Theme: Christmas ---------- */
 #tv.theme-christmas { --bg: #4d0f16; --panel: #103527; --panel2: #1b4a38; --line: #c9a24a; --ink: #fff6e6; --muted: #b9d3c3;
@@ -1186,6 +1204,90 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     fxWalker('', look, '', 12500);
     fxWalker('', look, '', 13500, 'animation-delay:1s');
   }
+  /* ---------- Security Office finale: the march, then the bear's offer ---------- */
+  var audioCtx = null;
+  function getAudio() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) { try { audioCtx = new Ctx(); } catch (e) { return null; } }
+    return audioCtx;
+  }
+  function unlockAudio() { var a = getAudio(); if (a && a.state === 'suspended') a.resume(); }
+  document.addEventListener('keydown', unlockAudio);
+  document.addEventListener('click', unlockAudio);
+  var NOTE_HZ = { F2: 87.31, C3: 130.81, F3: 174.61, G3: 196, A3: 220, Bb3: 233.08, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, Bb4: 466.16, C5: 523.25, D5: 587.33 };
+  // Refrain of the march from Bizet's Carmen, as [note, beats].
+  var MARCH = [['C5', 1], ['D5', .75], ['C5', .25], ['A4', 1], ['A4', 1], ['A4', .75], ['G4', .25], ['A4', .75], ['Bb4', .25], ['A4', 2], ['Bb4', 1.5], ['G4', .5], ['C5', 1.5], ['A4', .5], ['F4', 1], ['D5', 1], ['C5', 2]];
+  var MARCH_BEAT = .58;
+  function tone(a, hz, start, length, type, level) {
+    var osc = a.createOscillator(), gain = a.createGain();
+    osc.type = type;
+    osc.frequency.value = hz;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(level, start + .012);
+    gain.gain.exponentialRampToValueAtTime(.001, start + Math.max(length, .12));
+    osc.connect(gain);
+    gain.connect(a.destination);
+    osc.start(start);
+    osc.stop(start + Math.max(length, .12) + .02);
+  }
+  function playMarch() {
+    // Sixteen beats, played twice with an oom-pah underneath: about 18.5 seconds.
+    var a = getAudio();
+    if (!a) return;
+    if (a.state === 'suspended') a.resume();
+    var t = a.currentTime + .1, round, i, b;
+    for (round = 0; round < 2; round++) {
+      var at = t + round * 16 * MARCH_BEAT;
+      for (i = 0, b = 0; i < MARCH.length; b += MARCH[i][1], i++) {
+        tone(a, NOTE_HZ[MARCH[i][0]], at + b * MARCH_BEAT, MARCH[i][1] * MARCH_BEAT * 1.3, 'triangle', .3);
+        tone(a, NOTE_HZ[MARCH[i][0]] * 2, at + b * MARCH_BEAT, MARCH[i][1] * MARCH_BEAT * .7, 'sine', .08);
+      }
+      for (i = 0; i < 16; i++) {
+        tone(a, NOTE_HZ[i % 2 ? 'C3' : 'F2'], at + i * MARCH_BEAT, MARCH_BEAT * .5, 'triangle', .22);
+        tone(a, NOTE_HZ[i % 2 ? 'A3' : 'C4'], at + (i + .5) * MARCH_BEAT, MARCH_BEAT * .3, 'sine', .07);
+      }
+    }
+    tone(a, NOTE_HZ.F3, t + 32 * MARCH_BEAT, 1.2, 'triangle', .3);
+    tone(a, NOTE_HZ.C4, t + 32 * MARCH_BEAT, 1.2, 'triangle', .22);
+    tone(a, NOTE_HZ.F4, t + 32 * MARCH_BEAT, 1.2, 'triangle', .22);
+  }
+  function chomp() {
+    var a = getAudio();
+    if (!a) return;
+    tone(a, 150, a.currentTime, .12, 'square', .18);
+    tone(a, 95, a.currentTime + .14, .18, 'square', .2);
+  }
+  function duckMusic(quiet) {
+    // Turns the YouTube music down for the march, if it's playing. It's fine if the player ignores this.
+    var frame = document.querySelector('#player iframe');
+    if (!frame || !frame.contentWindow) return;
+    try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [quiet ? 8 : 100] }), '*'); } catch (e) {}
+  }
+  var MARCH_MS = 19000;
+  function fxFinale() {
+    // Nothing else should interrupt it.
+    if (camIndex >= 0) showCam(-1);
+    nextFxAt = Date.now() + MARCH_MS + 12000;
+    duckMusic(true);
+    playMarch();
+    var notes = '', i;
+    for (i = 0; i < 14; i++) notes += '<div class="fx-note" style="left:' + (4 + i * 7) + '%;animation-delay:' + (i * 1.15) + 's">' + (i % 2 ? '&#9835;' : '&#9834;') + '</div>';
+    fxAdd(confetti().replace(/class="bit"/g, 'class="bit far"') + notes + '<div class="fx-cheer" style="animation-duration:' + (MARCH_MS / 1000) + 's"><span>' + esc(CHEERS.office) + '</span></div><div class="fx-spot" style="left:18%"></div><div class="fx-spot" style="left:62%;animation-delay:-2.5s"></div>', MARCH_MS);
+    fxWalker('', actor(), '', MARCH_MS + 200, 'animation-duration:' + (MARCH_MS / 1000) + 's');
+    fxWalker('', actor(), '', MARCH_MS + 200, 'width:11rem;height:11rem;animation-duration:' + (MARCH_MS / 1000) + 's;animation-delay:1.2s');
+    setTimeout(function () {
+      duckMusic(false);
+      fxAdd('<div class="fx-bite"><div class="fx-bite-bear">' + actor() + '<div class="fx-offer">' + SLICE + '<i class="fx-bitemark" style="left:10%;top:0"></i><i class="fx-bitemark" style="left:36%;top:-12%"></i><i class="fx-bitemark" style="left:62%;top:0"></i></div></div>' +
+        '<div class="fx-bite-text"><span class="fx-join">Join us for...</span><span class="fx-abite">A BITE</span></div></div>', 9000);
+      setTimeout(chomp, 3900);
+    }, MARCH_MS);
+  }
+  var finaleWaiting = false;
+  function bothFinished() {
+    if (themeInfo().id !== 'office') { fxCelebrate(); return; }
+    if (tvEditing) finaleWaiting = true; else fxFinale();
+  }
   function playIntro() {
     var id = themeInfo().id, tv = $('tv');
     tv.classList.add('intro');
@@ -1367,7 +1469,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     updateTimers();
     fitChips();
     animateMinutes();
-    if (anyFinished && everyoneDone) fxCelebrate();
+    if (anyFinished && everyoneDone) bothFinished();
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
   function blockBar(name, min, full, was) {
@@ -1424,7 +1526,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     musicKey = key;
     if (src === 'lofi') {
       player.innerHTML = '<iframe allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" title="Lo-fi music" src="https://www.youtube.com/embed/' +
-        encodeURIComponent(lofiId()) + '?autoplay=1&rel=0&playsinline=1"></iframe>';
+        encodeURIComponent(lofiId()) + '?autoplay=1&rel=0&playsinline=1&enablejsapi=1"></iframe>';
     } else {
       player.innerHTML = 'Music is off';
     }
@@ -1646,6 +1748,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       html += '<span class="lab">Camera switching</span><div class="opts">' + optBtn('tour', 'on', 'Tour the cameras', !!d.camTour) + optBtn('tour', 'off', 'Stay on the wall', !d.camTour) + '</div>' +
         '<p class="hint">The tour goes back to all cameras for the last 5 minutes of any countdown.</p>';
     }
+    if (d.theme === 'office' && tvEditing) html += '<span class="lab">Finale when both boys finish</span><div class="opts">' + optBtn('testFinale', 'go', 'Play it now on the TV', false) + '</div>';
     html += '<span class="lab">Surprise animations</span><div class="opts">' + optBtn('fxLevel', 'often', 'Often', d.fxLevel === 'often') + optBtn('fxLevel', 'normal', 'Normal', d.fxLevel === 'normal') +
       optBtn('fxLevel', 'rare', 'Rare', d.fxLevel === 'rare') + optBtn('fxLevel', 'off', 'Off', d.fxLevel === 'off') + '</div>' +
       '<p class="hint">Often is every 1 to 3 minutes, Normal every 3 to 8, Rare every 10 to 20. Celebrations and countdown moments still play when this is off.</p>';
@@ -1717,6 +1820,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tvEditing = false;
     $('editor').className = 'hide';
     $('btnEdit').focus();
+    if (finaleWaiting) { finaleWaiting = false; fxFinale(); }
   }
   function toast(text, bad) {
     var t = $('toast');
@@ -1752,6 +1856,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       forceEditor();
     },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    testFinale: function () { closeTvEditor(); fxFinale(); },
     syncNow: syncNow,
     syncKeySave: function () {
       var key = (ed.syncKeyDraft || '').replace(/\s/g, '');
@@ -1979,7 +2084,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     showGate("That family code didn't work. Check it and try again.");
   }
   var pollTimer = null;
-  if (DEMO) window.boardFx = { play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro };
+  if (DEMO) window.boardFx = { play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
     else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); }
