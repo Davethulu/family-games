@@ -344,6 +344,7 @@ kbd { font-family: var(--mono); font-size: 17px; border: 1px solid var(--line); 
   .small-btn { padding: 8px 10px; }
   .stage { grid-template-columns: 1fr auto 1fr; grid-template-areas: "view view view" "west cam east"; gap: 10px 8px; }
   .screen { aspect-ratio: 16 / 10; }
+  @media (max-height: 800px) { .screen { aspect-ratio: 16 / 9; } }
   .side { flex-direction: row; padding: 12px 6px 6px; gap: 6px; margin-top: 4px; }
   .side .label { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-size: 13px; line-height: 1.3; padding: 0 6px; border-radius: 4px; background: var(--night); white-space: nowrap; }
   .side .ctl { flex: 1; min-width: 0; padding: 6px 2px; font-size: 14px; }
@@ -482,7 +483,7 @@ code { font-family: ui-monospace, "Consolas", monospace; background: #0a0e24; pa
         <button class="btn btn-ghost" id="open-editor">Edit questions (<span id="bank-count">0</span> loaded)</button>
         <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true">Sound: on</button>
         <p class="best" id="best-line"></p>
-        <p class="note" id="sample-note">Loaded: 6th Grade World History, Unit 1 study guide.</p>
+        <p class="note" id="sample-note">Loaded: science test prep on blood, nerves, and how the body heals.</p>
       </div>
     </div>
   </section>
@@ -587,13 +588,14 @@ code { font-family: ui-monospace, "Consolas", monospace; background: #0a0e24; pa
       <p class="note" style="color:var(--text)">One question per line, with parts split by <code>|</code>:</p>
       <p class="note"><code>Question | right answer | wrong | wrong | wrong</code> gives a multiple choice question.</p>
       <p class="note"><code>Question | right answer</code> works too. The game fills in wrong choices from the other answers, so this is the quick way to paste flashcards.</p>
+      <p class="note"><code>Question | True | False</code> gives a true or false question with just those two choices.</p>
       <p class="note">Lines starting with <code>#</code> are ignored, so you can label sections. Questions are saved in this browser.</p>
       <textarea id="bank-text" spellcheck="false" aria-label="Questions"></textarea>
       <p id="bank-status" class="ok"></p>
       <div class="row">
         <button class="btn btn-go" id="save-bank">Save questions</button>
         <button class="btn btn-ghost" id="cancel-bank">Cancel</button>
-        <button class="btn btn-ghost" id="reset-bank">Reload Unit 1 questions</button>
+        <button class="btn btn-ghost" id="reset-bank">Reload science questions</button>
       </div>
     </div>
   </section>
@@ -621,64 +623,68 @@ code { font-family: ui-monospace, "Consolas", monospace; background: #0a0e24; pa
 </div>
 
 <script>
-const SAMPLE = `# 6th Grade World History, Unit 1: Intro to Civilization (Test 1 study guide)
-# Three main maps
-Which kind of map shows borders, countries, states, and cities? | Political map | Physical map | Historical map | Climate map
-Which kind of map shows landforms like mountains, rivers, and deserts? | Physical map | Political map | Historical map | Road map
-Which kind of map shows what a place was like in the past, like where an ancient empire was? | Historical map | Physical map | Political map | Weather map
-# Four key features of a map
-Which list names the four key features of a map? | Title, key, compass rose, scale | Title, author, date, page number | Country, state, city, town | Mountains, rivers, deserts, oceans
-What part of a map explains what the symbols and colors mean? | Key (legend) | Compass rose | Scale | Title
-What map feature shows the directions north, south, east, and west? | Compass rose | Key (legend) | Scale | Title
-What map feature helps you figure out the real distance between two places? | Scale | Key (legend) | Compass rose | Title
-What map feature tells you what the map is about? | Title | Scale | Compass rose | Key (legend)
-# Major climate zones
-Which climate zone is hot all year and found near the equator? | Tropical | Temperate | Polar | Arctic
-Which climate zone has mild weather and four seasons? | Temperate | Tropical | Polar | Antarctic
-Which climate zone is very cold all year and found near the North and South Poles? | Polar | Tropical | Temperate | Equatorial
-What is the cold polar region around the North Pole called? | The Arctic | The Antarctic | The Tropics | The Sahara
-What is the cold polar region around the South Pole called? | The Antarctic | The Arctic | The Equator | The Himalayas
-# Landforms
-The Ural Mountains form a boundary between which two continents? | Europe and Asia | Africa and Asia | North and South America | Europe and Africa
-Where is the Sahara Desert? | Northern Africa | South America | Australia | Europe
-The Sahara is the largest hot ___ in the world. | Desert | Mountain range | Ocean | Rainforest
-Which mountain range has Mount Everest, the tallest mountain on Earth? | Himalayan Mountains | Ural Mountains | Rocky Mountains | Andes Mountains
-The Himalayan Mountains are on which continent? | Asia | Europe | Africa | South America
-# Culture
-What is culture? | The beliefs, customs, and way of life of a group of people | The weather of a place over a long time | The landforms of a region | A map of a country's borders
-Which of these is a HUMAN characteristic of a place? | The language people speak | Its mountains | Its rivers | Its climate
-Which of these is a PHYSICAL characteristic of a place? | A desert | A religion | A language | A government
-Which of these is an example of culture? | The foods, holidays, and music of a group of people | The height of a mountain | How much rain falls in a year | The distance between two cities
-Buildings, roads, and religions are examples of what kind of characteristics? | Human characteristics | Physical characteristics | Climate zones | Map features
-# Civilization
-Which of these is a feature of a civilization? | Organized government | Living only as wandering nomads | Having no cities | Having no way to share food
-Which of these is a feature of a civilization? | Cities | Living alone in the wild | Having no leaders | Never trading
-# Studying the past
-What is prehistory? | The time before people invented writing | The time after the first cities were built | The last 100 years | The study of maps
-What does an anthropologist study? | Humans and their cultures | Rocks and minerals | Weather and climate | Stars and planets
-What does an archaeologist do? | Digs up and studies objects people left behind | Studies living animals | Tracks ocean currents | Runs modern governments
-What is an artifact? | An object made by people, like a tool or a pot | A natural rock formation | A type of map | A climate zone
-Which of these is an artifact? | An ancient clay pot | A mountain | A river | A volcano
-Where do social scientists believe human life began millions of years ago? | East Africa | Northern Europe | China | North America
-# Stone Age
-The Stone Age got its name because people made most of their tools from what? | Stone | Iron | Bronze | Gold
-What does Paleolithic mean? | Old Stone Age | New Stone Age | Middle Stone Age | Iron Age
-What does Neolithic mean? | New Stone Age | Old Stone Age | Bronze Age | Ice Age
-How did people live during the Paleolithic Era? | As nomadic hunter-gatherers | As farmers in villages | In big cities | As traders on ships
-What does nomadic mean? | Moving from place to place to find food | Staying in one place to farm | Living in a city | Trading goods by ship
-Which Paleolithic discovery let people cook food, stay warm, and scare away animals? | Fire | Writing | The wheel | Iron tools
-What big change happened during the Neolithic Era? | People began farming and settling in one place | People first learned to use fire | People invented writing on paper | People stopped making tools
-What does sedentary living mean? | Staying settled in one place | Always moving to find food | Hunting large animals | Sailing to new lands
-Farming during the Neolithic Era led people to build what? | Permanent villages | Ships to explore | Factories | Highways
-# Technology
-In history, what does technology mean? | The tools and skills people use to meet their needs | Only computers and phones | Stories passed down by elders | Weather patterns over time
-Making stone tools and learning to farm are both examples of new what? | Technology | Climate zones | Map features | Physical characteristics
-# Movement
-What is migration? | Moving from one place to settle in another | Buying and selling goods | Drawing maps | Studying artifacts
-What is trade? | Exchanging goods and services | Moving to a new home | Planting crops | Making stone tools
-What is cultural diffusion? | The spread of ideas, customs, and goods from one culture to another | A culture staying the same forever | Moving to a colder climate | Digging up artifacts
-Pizza from Italy becoming popular in the United States is an example of what? | Cultural diffusion | Prehistory | A physical characteristic | Sedentary living
-Trade and migration both help cause what? | Cultural diffusion | Climate zones | Prehistory | The Stone Age`;
+const SAMPLE = `# Science test prep: blood, nerves, and how the body heals
+# Parts of blood and what they do
+What do red blood cells do? | Carry oxygen to the body parts | Clot blood so it doesn't leak out | Help respond to disease and infection | Carry waste away from body parts
+What do white blood cells do? | Help respond to disease and infection | Carry oxygen to the body parts | Clot blood so it doesn't leak out | Bring water and food to the body parts
+What do platelets do? | Clot blood so it doesn't leak out | Carry oxygen to the body parts | Help respond to disease and infection | Carry waste away from body parts
+What does blood plasma do? | Brings water and food, carries waste away | Carries oxygen and clots blood at injuries | Clots blood, responds to infection | Responds to infection, carries oxygen
+Which part of blood carries oxygen to the body parts? | Red blood cells | White blood cells | Platelets | Blood plasma
+Which part of blood helps respond to disease and infection? | White blood cells | Red blood cells | Platelets | Blood plasma
+Which part of blood clots so it doesn't leak out of injuries? | Platelets | Red blood cells | White blood cells | Blood plasma
+Which part of blood brings water, food particles, vitamins, and electrolytes to the body? | Blood plasma | Red blood cells | White blood cells | Platelets
+Which part of blood carries waste away? | Blood plasma | Red blood cells | White blood cells | Platelets
+True or false: Red blood cells clot blood so it doesn't leak out of injuries. | False | True
+# What cells need
+What do cells need to do their job? | Food, water, and nutrients | Stitches, pins, and casts | Swelling, signals, and clots | Skin, bones, and muscles
+How do food, water, and nutrients get to the cells? | Blood flowing through the body | Nerves carrying them as signals | Bones passing them along | Skin soaking them in
+True or false: All types of cells in the body need food, water, and nutrients. | True | False
+# How blood travels
+Blood travels all over the body through what? | Blood vessels | Nerves | Muscles | Bones
+What about blood lets it travel through blood vessels? | Its flowy, liquid structure | Its long, thin branches | Its hard, solid structure | Its thick, stretchy muscle fibers
+# Nerves
+What is the function of nerves? | Carry signals between the body and the brain | Carry oxygen and food between body and brain | Hold the bones and muscles in place | Bring food and water to the cells
+Nerves carry signals between all parts of the body and what? | The brain | The heart | The bones | The blood
+Nerve cells connect to other nerve cells to form what? | A network of nerves | A network of blood vessels | A blood clot | A layer of new skin
+What is special about the structure of nerve cells? | Long, thin branches from the center | A flowy, liquid shape inside vessels | A hard, solid shape that holds you up | A flat, stretchy shape over the body
+How do their branches help nerve cells do their job? | They connect parts to carry signals | They squeeze blood through the vessels | They hold the cut skin together | They clot blood at an injury
+# Swelling
+Why does swelling happen? | It brings extra blood and fluid to heal it | It keeps blood and fluid away from the injury | It pushes the split bones back together | It stops the nerves from sending signals
+What does swelling do to blood flow at an injury? | Increases it | Decreases it | Stops it | Doesn't change it
+Why does swelling go down? | Extra blood and fluid aren't needed anymore | The body has run out of extra blood and fluid | The nerves stopped sending signals | The stitches pushed the fluid out
+True or false: Swelling happens because less blood flows to the injury. | False | True
+True or false: Swelling helps injured tissue heal. | True | False
+# Body subsystems affected by the foot injury
+Which body subsystem includes the skin? | Integumentary | Circulatory | Skeletal | Nervous
+Which body subsystem includes the blood? | Circulatory | Integumentary | Muscular | Nervous
+Which body subsystem includes the bones? | Skeletal | Circulatory | Integumentary | Muscular
+Which body subsystem carries signals to the brain? | Nervous | Circulatory | Skeletal | Integumentary
+The boy couldn't move his foot because which subsystem was hurt? | Muscular | Integumentary | Circulatory | Digestive
+Which subsystem was NOT affected when the boy hurt his foot? | Digestive | Skeletal | Muscular | Nervous
+Which list names three subsystems the foot injury affected? | Integumentary, skeletal, muscular | Integumentary, digestive, muscular | Digestive, respiratory, skeletal | Respiratory, muscular, digestive
+Which three subsystems were all affected by the foot injury? | Circulatory, nervous, skeletal | Circulatory, digestive, skeletal | Respiratory, nervous, skeletal | Digestive, respiratory, nervous
+# How the foot healed: all parts
+How did blood plasma help the injured foot heal? | Brought food, water, and nutrients | Held the cut skin and bones together | Clotted blood so it wouldn't leak | Carried signals up to the brain
+What filled in the gaps in the skin, muscle, and bone? | New cells from the same kind of cell | Extra blood and fluid from swelling | Platelets and white blood cells | Stitches, pins, and a cast
+# How the skin healed
+What held the boy's cut skin together while it healed? | Stitches | Pins | A cast | Platelets
+How did the gap in the cut skin get closed? | Skin cells made new skin cells | Platelets turned into new skin | Swelling pushed the gap shut | Plasma hardened into new skin
+How did platelets help when the skin was cut? | They clotted blood so it didn't leak out | They made new skin cells to fill the gap | They brought food and water to the skin | They held the cut skin together
+# How the muscle healed
+Why couldn't the boy move his foot? | The muscle was cut | The skin was stitched | The blood had clotted | The plasma leaked out
+How did the cut muscle reconnect? | Muscle cells made more muscle cells | Bone cells grew across the gap | Stitches pulled it back together | Platelets glued the two ends together
+# How the nerves healed
+Why did the boy lose feeling in his foot? | Nerves in the foot were damaged | The muscle in the foot was cut | The bones in the foot were split | The blood in the foot had clotted
+Which parts of the foot had damaged nerves? | Skin, muscle, and bone | Only the skin and muscle | Only the muscle and bone | Only the skin and bone
+How did the damaged nerves heal? | Nerve cells made more cells to reconnect | Muscle cells grew over the damaged nerves | Platelets clotted the nerve ends together | Pins held the nerve ends in place
+How did the boy get the feeling back in his foot? | Healed nerves could signal the brain | Swelling stopped pressing on his nerves | The cast came off and freed his nerves | New skin cells began sending signals
+# How the bones healed
+What happened to the bones in the boy's foot? | They were split | They were bent | They shrank | They weren't hurt
+What held the split bones in place while they healed? | Pins and a cast | Stitches and platelets | Plasma and swelling | Nerves and muscles
+How did the split bones reconnect? | Bone cells made more bone cells | The pins slowly grew into new bone | The cast filled in the gap | Plasma hardened into bone
+When were the pins and cast taken off? | Once the bones were healed | As soon as the swelling started | Before new bone cells were made | Right after the stitches went in
+# Other living things
+True or false: The way the boy healed is similar to how other living things heal. | True | False`;
 
 // hourSec: real seconds per in-game hour. aggr: chance out of 20 to move, per hour 12..5 AM.
 const DIFF = {
@@ -894,14 +900,18 @@ function parseBank(text) {
   });
   return { qs, errors };
 }
-let bankText = store.get('meme-arcade.bank') || SAMPLE;
+// A saved copy of an older built-in list shouldn't hide the current one. Lists someone wrote themselves stay.
+let bankText = store.get('meme-arcade.bank');
+if (!bankText || /^# (6th Grade World History, Unit 1|Sample questions)/.test(bankText)) bankText = SAMPLE;
 let bank = parseBank(bankText).qs;
 if (bank.length < 4) { bankText = SAMPLE; bank = parseBank(SAMPLE).qs; }
 
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function optionsFor(item) {
   let wrong = item.wrong.slice();
-  if (wrong.length < 3) {
+  // True/false questions keep their two choices instead of being padded out with other answers.
+  const isTF = /^(true|false)$/i.test(item.a) && wrong.some(w => /^(true|false)$/i.test(w));
+  if (wrong.length < 3 && !isTF) {
     const pool = shuffle([...new Set(bank.map(b => b.a))].filter(a => a !== item.a && !wrong.includes(a)));
     wrong = wrong.concat(pool.slice(0, 3 - wrong.length));
   }
@@ -1205,13 +1215,12 @@ function answer(i) {
     S.queue.splice(Math.min(4, S.queue.length), 0, S.item);
     sfx.wrong();
     const movable = S.mascots.filter(m => aggrFor(m) > 0 && !atDoor(m));
-    let extra = '';
     if (movable.length) {
       const m = movable[Math.floor(Math.random() * movable.length)];
       stepForward(m);
-      extra = ` The noise drew ${m.c.name} closer!`;
+      status(`The noise drew ${m.c.name} closer!`, 3);
     }
-    fb.textContent = `Not quite. The answer is "${S.item.a}". -${S.d.penalty}% power.${extra}`;
+    fb.textContent = `Not quite. The answer is "${S.item.a}". -${S.d.penalty}% power.`;
     fb.className = 'fb bad';
     S.fbT = 2.6;
     floater(`-${S.d.penalty}%`, $('ans-' + i), $('power-bar'), 'bad');
