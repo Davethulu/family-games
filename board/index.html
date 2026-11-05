@@ -177,6 +177,68 @@ button { cursor: pointer; }
 @keyframes fxBlink { 0%, 80% { transform: none; } 81% { transform: scaleY(.1); } }
 @keyframes fxGust { from { transform: translate(0, 0) rotate(0); opacity: 1; } to { transform: translate(calc(100vw + 12rem), 14rem) rotate(900deg); opacity: 1; } }
 @keyframes fxShoot { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(70vw, 34vh) scale(1); opacity: 0; } }
+.fx-small { position: absolute; bottom: .4rem; left: -11rem; width: 10rem; height: 10rem; animation: fxScurry 5s linear forwards; }
+.fx-spider { position: absolute; top: 0; width: 10rem; height: 26rem; animation: fxDrop 6s ease-in-out forwards; }
+.fx-thread { position: absolute; left: 50%; top: 0; bottom: 8rem; width: .2rem; background: rgba(255,255,255,.75); }
+.fx-spider .mascot { position: absolute; left: 0; bottom: 0; height: 10rem; }
+.fx-flash { position: absolute; left: -150vw; top: -150vh; width: 300vw; height: 300vh; animation: fxSweep 6s ease-in-out forwards;
+  background: radial-gradient(circle at center, rgba(255,250,200,.12) 0, rgba(255,250,200,.05) 12rem, rgba(0,0,0,.94) 21rem); }
+.fx-tear { position: absolute; left: -4%; width: 108%; background: rgba(170,255,210,.16); animation: fxTear .5s steps(2) infinite; }
+.fx-track { position: absolute; left: 0; right: 0; top: 42%; text-align: center; font-size: 5rem; font-weight: 700; color: #d9ffe9; animation: flicker .9s infinite; }
+.fx-wave { position: absolute; right: -1.2rem; top: 5rem; width: 4rem; height: 6.5rem; background: #8f5f38; border-radius: 2rem; transform-origin: 50% 100%; animation: fxWave .55s ease-in-out infinite alternate; }
+.fx-fly { position: absolute; left: -32rem; top: 5%; width: 28rem; height: 16rem; animation: fxWalk 13s linear forwards; }
+.fx-bird { position: absolute; width: 5.5rem; height: 3.5rem; animation: fxFlap .55s ease-in-out infinite alternate; }
+.fx-cloud { position: absolute; left: -28rem; top: 7%; width: 24rem; height: 11rem; animation: fxWalk 17s linear forwards; }
+.fx-bubble { position: absolute; bottom: -7rem; border-radius: 50%; border: .25rem solid rgba(168,199,255,.75); background: rgba(168,199,255,.12); animation: fxRise 7s ease-in forwards; }
+.fx-plane { position: absolute; left: -12rem; top: 62%; width: 9rem; height: 9rem; animation: fxPlane 7s ease-in-out forwards; }
+.fx-timeup { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  background: var(--panel); color: var(--pink); animation: fxTimeUp 4.5s ease forwards; }
+.fx-timeup b { display: block; font-size: 14rem; line-height: 1; animation: fxPulse .6s ease-in-out infinite alternate; }
+.fx-timeup small { display: block; font-size: 3.4rem; color: var(--ink); }
+.fx-cheer { position: absolute; left: 0; right: 0; top: 30%; text-align: center; animation: fxCheer 7s ease forwards; }
+.fx-cheer span { display: inline-block; padding: 1.4rem 4rem; font-size: 7rem; font-weight: 700; color: #fff; border-radius: 1.5rem; background: #b5481a; }
+.theme-office .fx-cheer span { background: #06140d; color: var(--mint); border: .4rem solid var(--mint); border-radius: .4rem; }
+.theme-calm .fx-cheer span { background: var(--blue); color: var(--panel); }
+.theme-wizard .fx-cheer span { background: #7a1f2b; color: #f3e6c4; border: .3rem solid var(--gold); }
+.fx-boot { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; color: var(--mint); padding: 12rem 16rem; font-size: 3rem; line-height: 1.6; animation: fxBootOut 4.2s steps(1) forwards; }
+.fx-boot div { opacity: 0; animation: fxLine .1s steps(1) forwards; }
+.fx-curtain { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); color: var(--gold); font-size: 6rem; font-weight: 700; animation: fxCurtain 3s ease-in forwards; }
+.fx-curtain .mascot { width: 20rem; height: 20rem; margin-bottom: 1rem; }
+
+/* Panels settle in when the page opens, and small touches keep the board feeling alive. */
+#tv.intro .hero, #tv.intro .kid, #tv.intro .cal, #tv.intro .side { animation: fxSettle .8s ease-out backwards; }
+#tv.intro .kid { animation-delay: .15s; }
+#tv.intro .kid:nth-of-type(2) { animation-delay: .3s; }
+#tv.intro .cal { animation-delay: .45s; }
+#tv.intro .side { animation-delay: .6s; }
+.block-fill { transition: width 1s ease; }
+.hero.now .hero-count, .theme-office .hero.now .hero-count { animation: fxHeart 1s ease-in-out infinite; }
+.stop.next { animation: fxGlow 2.4s ease-in-out infinite; }
+.chip { transition: background .4s ease; }
+.tv-btn { transition: background .2s ease, color .2s ease; }
+.kid-num { font-variant-numeric: tabular-nums; }
+.kid-float { position: absolute; right: 3rem; top: 5.5rem; z-index: 4; font-size: 5rem; font-weight: 700; color: var(--pink); animation: fxFloat 2.4s ease-out forwards; }
+.kid-float.up { color: var(--mint); }
+.bit { position: absolute; top: -2rem; width: 1.3rem; height: 1.7rem; animation: fxBit 3s linear forwards; }
+@keyframes fxScurry { 0% { transform: translateX(0); } 30%, 40% { transform: translateX(26vw); } 65%, 72% { transform: translateX(44vw); } 100% { transform: translateX(100vw); } }
+@keyframes fxDrop { 0% { transform: translateY(-100%); } 30%, 72% { transform: translateY(-35%); } 100% { transform: translateY(-100%); } }
+@keyframes fxSweep { 0% { transform: translate(14vw, 26vh); } 35% { transform: translate(78vw, 18vh); } 70% { transform: translate(30vw, 72vh); } 100% { transform: translate(86vw, 60vh); } }
+@keyframes fxTear { 0% { transform: translateX(-1.5rem); } 100% { transform: translateX(1.5rem); } }
+@keyframes fxWave { from { transform: rotate(-22deg); } to { transform: rotate(24deg); } }
+@keyframes fxFlap { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+@keyframes fxRise { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(-105vh); opacity: 0; } }
+@keyframes fxPlane { 0% { transform: translate(0, 0) rotate(-14deg); } 40% { transform: translate(45vw, -34vh) rotate(-8deg); } 70% { transform: translate(72vw, -10vh) rotate(14deg); } 100% { transform: translate(120vw, -40vh) rotate(-22deg); } }
+@keyframes fxTimeUp { 0% { opacity: 0; } 8%, 88% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fxPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+@keyframes fxCheer { 0% { transform: scale(.3); opacity: 0; } 8% { transform: scale(1.08); opacity: 1; } 12%, 90% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+@keyframes fxBootOut { 0%, 95% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fxLine { to { opacity: 1; } }
+@keyframes fxCurtain { 0%, 45% { transform: translateY(0); } 100% { transform: translateY(-110%); } }
+@keyframes fxSettle { from { opacity: 0; transform: translateY(1.6rem); } to { opacity: 1; transform: none; } }
+@keyframes fxHeart { 0%, 40%, 100% { transform: scale(1); } 15% { transform: scale(1.05); } 28% { transform: scale(1.02); } }
+@keyframes fxGlow { 0%, 100% { opacity: 1; } 50% { opacity: .78; } }
+@keyframes fxFloat { 0% { transform: translateY(1.5rem) scale(.6); opacity: 0; } 15% { transform: translateY(0) scale(1.1); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(-4rem); opacity: 0; } }
+@keyframes fxBit { to { transform: translateY(32rem) rotate(620deg); } }
 
 /* ---------- Theme: Thanksgiving ---------- */
 #tv.theme-harvest { --bg: #4a2412; --panel: #fff3dc; --panel2: #f6dfb8; --line: #d99a4e; --ink: #4a2412; --muted: #8a5a34;
@@ -200,6 +262,33 @@ button { cursor: pointer; }
 .leaf { position: absolute; top: -5rem; width: 3.4rem; height: 3.4rem; animation: fall 17s linear infinite; }
 @keyframes fall { from { transform: translateY(0) rotate(0); } to { transform: translateY(100rem) rotate(540deg); } }
 #tv.theme-harvest button:focus { color: #4a2412; }
+
+/* ---------- Theme: Wizard School ---------- */
+#tv.theme-wizard { --bg: #0e1230; --panel: #f3e6c4; --panel2: #e5d2a3; --line: #b8923a; --ink: #2b1d10; --muted: #6b5230;
+  --mint: #7a1f2b; --blue: #7a1f2b; --orange: #b5641a; --pink: #a8201a; --gold: #e6c65c;
+  background: var(--bg); color: var(--ink); font-family: "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", "Noto Serif", serif; }
+.theme-wizard .tv-date, .theme-wizard .tv-clock { color: var(--gold); }
+.theme-wizard .hero, .theme-wizard .kid, .theme-wizard .cal, .theme-wizard .player { border: .3rem solid var(--line); border-radius: .8rem; }
+.theme-wizard .hero-count { color: #3a1420; }
+.theme-wizard .hero.soon .hero-count { color: var(--orange); }
+.theme-wizard .hero.now .hero-count { color: var(--pink); }
+.theme-wizard .cal h2 { color: var(--mint); }
+.theme-wizard .stop.next { background: #7a1f2b; color: #f3e6c4; }
+.theme-wizard .stop.next span { color: #f3e6c4; }
+.theme-wizard .chip.on { background: #e6c65c; }
+.theme-wizard .chip.on .chip-text { color: var(--ink); }
+.theme-wizard .kid-flag { background: #7a1f2b; color: #f3e6c4; }
+.theme-wizard .kid-float.up { color: #2c6e3f; }
+.theme-wizard .player { color: var(--muted); }
+.theme-wizard .tv-btn { background: #2a2f5c; color: #f3e6c4; }
+#tv.theme-wizard button:focus { color: #2b1d10; }
+.theme-wizard .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; height: 7rem; overflow: hidden; pointer-events: none; }
+.twinkle { position: absolute; width: .5rem; height: .5rem; border-radius: 50%; background: #fff6cf; animation: fxTwinkle 3s ease-in-out infinite; }
+.fx-candle { position: absolute; bottom: -10rem; width: 4rem; height: 9rem; animation: fxRise 10s linear forwards; }
+.fx-broom { position: absolute; left: -22rem; top: 48%; width: 18rem; height: 9rem; animation: fxPlane 6s ease-in-out forwards; }
+.fx-spark { position: absolute; width: 2.4rem; height: 2.4rem; animation: fxSpark 2.6s ease-out forwards; }
+@keyframes fxTwinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes fxSpark { 0% { transform: scale(0) rotate(0); opacity: 0; } 30% { transform: scale(1.3) rotate(90deg); opacity: 1; } 100% { transform: scale(.2) rotate(240deg) translateY(-8rem); opacity: 0; } }
 
 /* ---------- Parent editor: sized in em, so it fits a phone or fills a TV ---------- */
 #editor { background: var(--bg); min-height: 100vh; font-size: 17px; }
@@ -321,6 +410,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     pin: '',
     theme: 'office',
     camTour: false,
+    fxLevel: 'normal',
     checklist: ['Dressed', 'Breakfast', 'Floss and brush', 'Backpack & Chromebook'],
     blockMinutes: 45,
     floor: 15,
@@ -442,9 +532,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   function afterData() {
     var json = JSON.stringify(data);
     if (json !== lastDataJson) {
-      if (!lastDataJson) lastChecks = null; // what's already checked when the page opens shouldn't celebrate again
+      // What's already true when the page opens shouldn't animate as if it just happened.
+      var opening = !lastDataJson;
+      if (opening) { lastChecks = null; lastMins = null; }
       lastDataJson = json;
       renderAll();
+      if (opening && $('tv').className.indexOf('hide') < 0) playIntro();
     }
     renderStatus();
   }
@@ -522,9 +615,16 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   }
   function tick() {
     if ($('tv').className.indexOf('hide') >= 0) return;
-    var now = new Date(), h = now.getHours();
+    var now = new Date(), h = now.getHours(), dayNow = dateKey(now);
+    if (lastDay && lastDay !== dayNow) {
+      // A new day: checks and minutes reset even if no one has changed anything.
+      lastDay = dayNow; lastChecks = null; lastMins = null;
+      renderAll();
+      return;
+    }
+    lastDay = dayNow;
     $('tvDate').innerHTML = esc(DAY_NAMES[now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate());
-    $('tvClock').innerHTML = (h % 12 || 12) + ':' + pad(now.getMinutes()) + (h < 12 ? ' am' : ' pm');
+    $('tvClock').innerHTML = (h % 12 || 12) + '<span style="opacity:' + (now.getSeconds() % 2 ? '.35' : '1') + '">:</span>' + pad(now.getMinutes()) + (h < 12 ? ' am' : ' pm');
 
     var today = stopsFor(now), next = null, tomorrow = false, i;
     for (i = 0; i < today.length; i++) if (atTime(now, today[i].at) > now) { next = today[i]; break; }
@@ -548,6 +648,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     } else {
       $('heroLabel').innerHTML = ''; $('heroCount').innerHTML = ''; $('heroSub').innerHTML = '';
     }
+    var targetMs = target ? target.getTime() : 0;
+    if (lastTarget && lastTarget.ms !== targetMs && lastTarget.ms <= now.getTime()) fxTimeUp(lastTarget.label);
+    lastTarget = target ? { ms: targetMs, label: next.label } : null;
     hero.classList[level === 'now' ? 'add' : 'remove']('now');
     hero.classList[level === 'soon' ? 'add' : 'remove']('soon');
     renderStops(today, now, tomorrow ? null : next);
@@ -560,7 +663,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -579,6 +682,10 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(32 40)"><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(-62)"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(-31)"/><ellipse rx="7" ry="23" cy="-15" fill="#a8321a"/><ellipse rx="7" ry="23" cy="-15" fill="#e9962c" transform="rotate(31)"/><ellipse rx="7" ry="23" cy="-15" fill="#c9481f" transform="rotate(62)"/></g>' +
         '<path d="M25 57 v5 M39 57 v5" stroke="#d9862c" stroke-width="3" stroke-linecap="round"/><ellipse cx="32" cy="44" rx="15" ry="15" fill="#7a4522"/><circle cx="32" cy="25" r="9.5" fill="#9a5e30"/><circle cx="28.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="35.5" cy="23.5" r="2.5" fill="#fff"/><circle cx="28.8" cy="24" r="1.2" fill="#17110c"/><circle cx="35.2" cy="24" r="1.2" fill="#17110c"/>' +
         '<polygon points="28.5,27 35.5,27 32,32" fill="#f2b632"/><path d="M34 30 q4 2 2.5 8 q-3 -1 -3.5 -6 z" fill="#c9241a"/></svg>';
+    }
+    if (id === 'wizard') {
+      return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L10 4 L24 12 Q32 9 40 12 L54 4 L50 18 Q58 30 54 44 Q50 60 32 60 Q14 60 10 44 Q6 30 14 18 Z" fill="#7d6242"/><path d="M20 40 Q32 62 44 40 Q42 54 32 56 Q22 54 20 40 Z" fill="#e8d7b5"/>' +
+        '<circle cx="23" cy="27" r="10" fill="#f3e6c4"/><circle cx="41" cy="27" r="10" fill="#f3e6c4"/><circle cx="23" cy="27" r="5" fill="#1d1408"/><circle cx="41" cy="27" r="5" fill="#1d1408"/><circle cx="25" cy="25" r="1.6" fill="#fff"/><circle cx="43" cy="25" r="1.6" fill="#fff"/><polygon points="28,33 36,33 32,40" fill="#e6a42c"/></svg>';
     }
     return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   }
@@ -608,6 +715,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     $('btnCams').className = theme === 'office' ? 'tv-btn' : 'tv-btn hide';
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
     var leaves = $('leaves');
+    if (leaves.getAttribute('data-t') !== theme) { leaves.innerHTML = ''; leaves.setAttribute('data-t', theme); }
+    if (theme === 'wizard' && !leaves.innerHTML) {
+      var sky = '';
+      for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (8 + (i * 37) % 80) + '%;animation-delay:' + (-i * .4) + 's"></span>';
+      leaves.innerHTML = sky;
+    }
     if (theme === 'harvest' && !leaves.innerHTML) {
       var html = '';
       for (i = 0; i < LEAF_COLORS.length; i++) {
@@ -629,52 +742,192 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     $('fxStage').appendChild(box);
     setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, ms);
   }
-  function fxWalker(cls, art, say, ms) {
-    fxAdd('<div class="fx-walker ' + cls + '">' + (say ? '<div class="fx-say">' + say + '</div>' : '') + '<div class="fx-hop">' + art + '</div></div>', ms);
+  function fxWalker(cls, art, say, ms, style) {
+    fxAdd('<div class="fx-walker ' + cls + '"' + (style ? ' style="' + style + '"' : '') + '>' + (say ? '<div class="fx-say">' + esc(say) + '</div>' : '') + '<div class="fx-hop">' + art + '</div></div>', ms);
   }
-  function fxOnFeed(inner, ms) {
+  function fxOnFeed(inner, ms, feed) {
     // Sit exactly over one camera feed, so the scene looks like it's happening on that camera.
-    var feeds = document.querySelectorAll('#hero, .kid, .cal'), f = feeds[Math.floor(Math.random() * feeds.length)];
+    var feeds = document.querySelectorAll('#hero, .kid, .cal'), f = feed || feeds[Math.floor(Math.random() * feeds.length)];
     var r = f.getBoundingClientRect(), s = $('fxStage').getBoundingClientRect();
     fxAdd('<div class="fx-clip" style="left:' + (r.left - s.left) + 'px;top:' + (r.top - s.top) + 'px;width:' + r.width + 'px;height:' + r.height + 'px">' + inner + '</div>', ms);
   }
+  var MOUSE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 46 Q-2 40 6 32" fill="none" stroke="#c9b7a6" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="28" cy="44" rx="20" ry="12" fill="#a99a8c"/><circle cx="46" cy="39" r="9" fill="#b8a99b"/><circle cx="43" cy="30" r="5" fill="#d9b6b0"/><circle cx="50" cy="38" r="1.8" fill="#17110c"/><circle cx="55" cy="42" r="1.8" fill="#e58a8a"/></svg>';
+  var SPIDER = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g stroke="#17110c" stroke-width="3" fill="none" stroke-linecap="round"><path d="M22 30 L6 20 M22 36 L4 36 M22 42 L6 52 M42 30 L58 20 M42 36 L60 36 M42 42 L58 52"/></g><circle cx="32" cy="36" r="14" fill="#2d2533"/><circle cx="27" cy="33" r="4" fill="#fff"/><circle cx="37" cy="33" r="4" fill="#fff"/><circle cx="27.5" cy="34" r="1.8" fill="#17110c"/><circle cx="36.5" cy="34" r="1.8" fill="#17110c"/><path d="M27 41 Q32 45 37 41" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+  var SQUIRREL = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M20 54 C2 50 2 22 18 18 C28 16 28 30 20 32 C14 34 18 44 26 46 Z" fill="#a4592a"/><ellipse cx="33" cy="44" rx="13" ry="13" fill="#b86a35"/><circle cx="44" cy="28" r="9" fill="#b86a35"/><circle cx="41" cy="19" r="3.5" fill="#a4592a"/><circle cx="47" cy="26" r="1.8" fill="#17110c"/><ellipse cx="50" cy="44" rx="5" ry="6" fill="#7a4522"/><path d="M45 39 h10" stroke="#5a2a12" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  var PIE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="#c98a45" stroke="#a96d2e" stroke-width="6" stroke-dasharray="6 4"/><circle cx="32" cy="32" r="22" fill="#d9682b"/><circle cx="24" cy="24" r="1.5" fill="#a8461a"/><circle cx="42" cy="26" r="1.5" fill="#a8461a"/><circle cx="40" cy="43" r="1.5" fill="#a8461a"/><circle cx="23" cy="42" r="1.5" fill="#a8461a"/><path d="M32 22 c7 0 10 5 7 9 c5 1 5 8 -1 9 c-3 3 -9 3 -12 0 c-6 -1 -6 -8 -1 -9 c-3 -4 0 -9 7 -9 Z" fill="#fff8ea"/></svg>';
+  var GOOSE = '<svg class="mascot" viewBox="0 0 64 40" aria-hidden="true"><path d="M2 24 Q18 2 32 22 Q46 2 62 24 Q44 18 32 30 Q20 18 2 24 Z" fill="#3b2a1e"/></svg>';
+  var CLOUD = '<svg class="mascot" viewBox="0 0 96 44" aria-hidden="true"><path d="M20 40 a14 14 0 0 1 -2 -28 a20 20 0 0 1 38 -4 a15 15 0 0 1 24 12 a11 11 0 0 1 -3 20 Z" fill="rgba(226,235,250,.92)"/></svg>';
+  var PLANE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="2,30 62,6 40,58 30,38" fill="#f7f3e8"/><polygon points="30,38 62,6 36,48" fill="#cfd9e8"/></svg>';
+  var FX_SAYS = {
+    office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.'],
+    harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
+    wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
+  };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", wizard: 'All spells cast!', calm: 'All done!' };
+  var CANDLE = '<svg class="mascot" viewBox="0 0 32 72" aria-hidden="true"><ellipse cx="16" cy="11" rx="6" ry="10" fill="#ffb636"/><ellipse cx="16" cy="13" rx="3" ry="6" fill="#fff2b0"/><path d="M16 20 v4" stroke="#2b1d10" stroke-width="2"/><rect x="8" y="24" width="16" height="46" rx="2" fill="#f7efd9"/><path d="M8 28 q3 8 5 0 q3 12 6 0 q2 6 5 0 v-4 h-16 z" fill="#fff"/></svg>';
+  var BROOM = '<svg class="mascot" viewBox="0 0 96 48" aria-hidden="true"><rect x="2" y="21" width="62" height="4" rx="2" fill="#7a4e2c" transform="rotate(4 32 23)"/><path d="M60 16 L94 4 L88 24 L94 44 L60 32 Z" fill="#c9a24a"/><path d="M60 15 v18" stroke="#7a1f2b" stroke-width="4"/></svg>';
+  var FLY_BOOK = '<svg class="mascot" viewBox="0 0 64 44" aria-hidden="true"><path d="M32 12 Q16 0 2 8 V38 Q16 30 32 42 Z" fill="#7a1f2b"/><path d="M32 12 Q48 0 62 8 V38 Q48 30 32 42 Z" fill="#8f2a38"/><path d="M32 15 Q19 6 7 12 V34 Q19 28 32 37 Z" fill="#f7efd9"/><path d="M32 15 Q45 6 57 12 V34 Q45 28 32 37 Z" fill="#efe3c6"/></svg>';
+  var DRAGON = '<svg class="mascot" viewBox="0 0 110 60" aria-hidden="true"><path d="M2 40 Q24 26 48 34 Q60 38 76 30 L90 24 L108 28 L92 36 Q76 48 50 46 Q24 44 2 40 Z" fill="#1d3b2a"/><path d="M42 34 Q40 6 70 2 Q60 16 66 32 Z" fill="#2a5a3e"/><path d="M50 36 Q34 16 16 16 Q28 26 32 38 Z" fill="#234d35"/><circle cx="94" cy="28" r="1.8" fill="#ffe45e"/></svg>';
+  var CAULDRON = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="14" r="4" fill="#7fe08a"/><circle cx="34" cy="7" r="3" fill="#a6f0ae"/><circle cx="44" cy="17" r="5" fill="#7fe08a"/><ellipse cx="32" cy="24" rx="24" ry="5" fill="#5fcf6e"/><path d="M8 24 Q4 58 32 60 Q60 58 56 24 Z" fill="#1b1b24"/><rect x="4" y="21" width="56" height="5" rx="2.5" fill="#2c2c38"/></svg>';
+  var CAT = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 30 L10 6 L26 18 Q32 16 38 18 L54 6 L52 30 Q56 56 32 58 Q8 56 12 30 Z" fill="#17131f"/><ellipse cx="23" cy="31" rx="6" ry="5" fill="#e6d24a"/><ellipse cx="41" cy="31" rx="6" ry="5" fill="#e6d24a"/><ellipse cx="23" cy="31" rx="1.8" ry="4.5" fill="#000"/><ellipse cx="41" cy="31" rx="1.8" ry="4.5" fill="#000"/><polygon points="29,39 35,39 32,42" fill="#d98a9a"/></svg>';
+  var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
+  var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
+  function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
+  function fxGust(count) {
+    var html = '', i;
+    for (i = 0; i < count; i++) {
+      html += '<div class="fx-gust" style="top:' + (6 + Math.random() * 70) + '%;animation-delay:' + (Math.random() * 1.6) + 's;animation-duration:' + (3 + Math.random() * 2) + 's">' +
+        FX_LEAF.replace('COLOR', LEAF_COLORS[i % LEAF_COLORS.length]) + '</div>';
+    }
+    fxAdd(html, 7000);
+  }
   var FX_SCENES = {
     office: [
-      function () { fxWalker('', mascot(), 'Just checking the cameras...', 12500); },
+      function () { fxWalker('', mascot(), fxPickLine('office'), 12500); },
       function () { fxOnFeed('<div class="fx-peek">' + mascot() + '</div><div class="fx-alert">MOTION DETECTED</div>', 5200); },
       function () { fxOnFeed('<div class="fx-lost">SIGNAL LOST</div>', 2600); },
-      function () { fxAdd('<div class="fx-dark"><div class="fx-eye" style="left:44%"></div><div class="fx-eye" style="left:52%"></div></div>', 3300); }
+      function () { fxAdd('<div class="fx-dark"><div class="fx-eye" style="left:44%"></div><div class="fx-eye" style="left:52%"></div></div>', 3300); },
+      function () { fxAdd('<div class="fx-flash"></div>', 6100); },
+      function () { fxOnFeed('<div class="fx-small">' + MOUSE + '</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-spider" style="left:' + (15 + Math.random() * 65) + '%"><div class="fx-thread"></div>' + SPIDER + '</div>', 6200); },
+      function () {
+        fxAdd('<div class="fx-tear" style="top:12%;height:10%"></div><div class="fx-tear" style="top:46%;height:6%"></div><div class="fx-tear" style="top:74%;height:13%"></div><div class="fx-track">TRACKING...</div>', 2200);
+      },
+      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '<div class="fx-wave"></div></div><div class="fx-alert" style="color:var(--mint)">HI THERE!</div>', 5200); }
     ],
     harvest: [
-      function () { fxWalker('', mascot(), 'Gobble gobble!', 12500); },
+      function () { fxWalker('', mascot(), fxPickLine('harvest'), 12500); },
       function () { fxWalker('fast', mascot(), 'Not this year!', 4800); },
       function () { fxWalker('roll', PUMPKIN, '', 9300); },
+      function () { fxGust(14); },
+      function () {
+        var html = '', spots = [[0, 11], [5, 6], [10, 1], [15, 6], [20, 11]], i;
+        for (i = 0; i < spots.length; i++) html += '<div class="fx-bird" style="left:' + spots[i][0] + 'rem;top:' + spots[i][1] + 'rem;animation-delay:' + (i * .08) + 's">' + GOOSE + '</div>';
+        fxAdd('<div class="fx-fly">' + html + '</div>', 13200);
+      },
+      function () {
+        var look = mascot();
+        fxWalker('', look, 'Follow me!', 12500);
+        fxWalker('', look, '', 13500, 'width:11rem;height:11rem;animation-delay:.9s');
+        fxWalker('', look, '', 14500, 'width:8rem;height:8rem;animation-delay:1.8s');
+      },
+      function () { fxWalker('roll', PIE, '', 9300); fxWalker('', mascot(), 'Come back, pie!', 12500, 'animation-delay:1s;animation-duration:10s'); },
+      function () { fxOnFeed('<div class="fx-small">' + SQUIRREL + '</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '</div><div class="fx-alert" style="color:#b5481a">Psst... pie time?</div>', 5200); }
+    ],
+    wizard: [
+      function () { fxWalker('', mascot(), fxPickLine('wizard'), 12500); },
+      function () {
+        fxAdd('<div class="fx-fly"><div class="fx-hop" style="width:13rem;height:13rem">' + mascot() + '</div><div style="position:absolute;left:3rem;top:11.5rem;width:7rem;height:4.6rem">' + LETTER + '</div></div>', 13200);
+      },
       function () {
         var html = '', i;
-        for (i = 0; i < 14; i++) {
-          html += '<div class="fx-gust" style="top:' + (6 + Math.random() * 70) + '%;animation-delay:' + (Math.random() * 1.6) + 's;animation-duration:' + (3 + Math.random() * 2) + 's">' +
-            FX_LEAF.replace('COLOR', LEAF_COLORS[i % LEAF_COLORS.length]) + '</div>';
-        }
-        fxAdd(html, 7000);
-      }
+        for (i = 0; i < 7; i++) html += '<div class="fx-candle" style="left:' + (6 + i * 13.5) + '%;animation-delay:' + (i % 3 * .9) + 's">' + CANDLE + '</div>';
+        fxAdd(html, 13000);
+      },
+      function () { fxAdd('<div class="fx-broom">' + BROOM + '</div>', 6200); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 18; i++) html += '<div class="fx-spark" style="left:' + (Math.random() * 94) + '%;top:' + (Math.random() * 86) + '%;animation-delay:' + (Math.random() * 1.8) + 's">' + STAR + '</div>';
+        fxAdd(html, 4800);
+      },
+      function () { fxOnFeed('<div class="fx-peek">' + CAULDRON + '</div><div class="fx-alert" style="color:#2c6e3f">Potion brewing...</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + CAT + '</div>', 5200); },
+      function () { fxAdd('<div class="fx-fly" style="top:3%;width:34rem;height:18rem;animation-duration:10s"><div class="fx-hop">' + DRAGON + '</div></div>', 10200); },
+      function () { fxAdd('<div class="fx-plane" style="width:12rem;height:9rem"><div class="fx-hop" style="animation-duration:.4s">' + FLY_BOOK + '</div></div>', 7200); }
     ],
-    calm: [function () { fxAdd('<div class="fx-star">' + mascot() + '</div>', 2600); }]
+    calm: [
+      function () { fxAdd('<div class="fx-star">' + mascot() + '</div>', 2600); },
+      function () { fxAdd('<div class="fx-cloud">' + CLOUD + '</div>', 17200); },
+      function () { fxAdd('<div class="fx-plane">' + PLANE + '</div>', 7200); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 10; i++) {
+          var size = 2 + Math.random() * 4;
+          html += '<div class="fx-bubble" style="left:' + (4 + Math.random() * 90) + '%;width:' + size + 'rem;height:' + size + 'rem;animation-delay:' + (Math.random() * 3) + 's"></div>';
+        }
+        fxAdd(html, 10500);
+      }
+    ]
   };
-  function playFx(index) {
-    var scenes = FX_SCENES[themeInfo().id], pick = index;
-    if (pick === undefined) {
-      pick = Math.floor(Math.random() * scenes.length);
-      if (pick === lastFx) pick = (pick + 1) % scenes.length; // never the same one twice in a row
+  var fxBags = {};
+  function nextScene(id) {
+    // Deal scenes like a shuffled deck, so all of them get a turn before any repeats.
+    var count = FX_SCENES[id].length, bag = fxBags[id], i;
+    if (!bag || !bag.length) {
+      bag = [];
+      for (i = 0; i < count; i++) bag.splice(Math.floor(Math.random() * (i + 1)), 0, i);
+      if (bag[bag.length - 1] === lastFx && count > 1) bag.unshift(bag.pop());
+      fxBags[id] = bag;
     }
+    return bag.pop();
+  }
+  function playFx(index) {
+    var id = themeInfo().id, pick = index === undefined ? nextScene(id) : index;
     lastFx = pick;
-    scenes[pick]();
+    FX_SCENES[id][pick]();
+  }
+  function fxDelay() {
+    if (FX_FAST) return 15000;
+    var level = settings().fxLevel;
+    if (level === 'often') return 60000 + Math.random() * 120000;
+    if (level === 'rare') return 600000 + Math.random() * 600000;
+    return 180000 + Math.random() * 300000;
   }
   function fxTick() {
-    if (Date.now() < nextFxAt) return;
+    if (Date.now() < nextFxAt || settings().fxLevel === 'off') return;
     // Wait for a better moment while parents are editing, a feed is enlarged, or a countdown is nearly up.
     if (tvEditing || urgent || camIndex >= 0) { nextFxAt = Date.now() + 20000; return; }
     playFx();
-    nextFxAt = Date.now() + (FX_FAST ? 15000 : 180000 + Math.random() * 300000);
+    nextFxAt = Date.now() + fxDelay();
+  }
+  function fxTimeUp(label) {
+    if (tvEditing) return;
+    fxOnFeed('<div class="fx-timeup"><b>TIME!</b><small>' + esc(label) + '</small></div>', 4600, $('hero'));
+  }
+  function fxCelebrate() {
+    var id = themeInfo().id, look = mascot();
+    fxAdd('<div class="fx-cheer"><span>' + esc(CHEERS[id]) + '</span></div>', 7100);
+    if (id === 'harvest') fxGust(14);
+    fxWalker('', look, '', 12500);
+    fxWalker('', look, '', 13500, 'animation-delay:1s');
+  }
+  function playIntro() {
+    var id = themeInfo().id, tv = $('tv');
+    tv.classList.add('intro');
+    setTimeout(function () { tv.classList.remove('intro'); }, 1800);
+    if (id === 'office') {
+      fxAdd('<div class="fx-boot"><div style="animation-delay:.2s">SECURITY OFFICE v1.0</div><div style="animation-delay:.8s">Starting cameras... OK</div><div style="animation-delay:1.4s">Checking the list... OK</div>' +
+        '<div style="animation-delay:2s">Waking up the bear... OK</div><div style="animation-delay:2.8s">ALL SYSTEMS GO</div></div>', 4300);
+    } else if (id === 'harvest') {
+      fxAdd('<div class="fx-curtain">' + mascot() + '<span>Happy Harvest!</span></div>', 3100);
+    } else if (id === 'wizard') {
+      fxAdd('<div class="fx-curtain">' + mascot() + '<span>Welcome, young wizards</span></div>', 3100);
+    }
+  }
+  function confetti() {
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    for (i = 0; i < 16; i++) {
+      html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
+    }
+    return html;
+  }
+  function animateMinutes() {
+    // Bars start at their old width, then slide. Totals count from the old number to the new one.
+    setTimeout(function () {
+      var bars = document.querySelectorAll('.block-fill[data-w]'), i;
+      for (i = 0; i < bars.length; i++) bars[i].style.width = bars[i].getAttribute('data-w') + '%';
+    }, 60);
+    var nums = document.querySelectorAll('.kid-num[data-from]');
+    [].forEach.call(nums, function (el) {
+      var from = +el.getAttribute('data-from'), to = +el.textContent, step = 0, steps = 20;
+      el.textContent = from;
+      var run = setInterval(function () {
+        step++;
+        el.textContent = step >= steps ? to : Math.round(from + (to - from) * step / steps);
+        if (step >= steps) clearInterval(run);
+      }, 45);
+    });
   }
 
   /* ---------- Daily checklist: marks are stored per day, so every morning starts clean ---------- */
@@ -688,6 +941,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     return n;
   }
   var lastChecks = null;
+  var lastMins = null;
+  var lastDay = '';
+  var lastTarget = null;
   function chipsHtml(kid, key, shown, prev) {
     var list = settings().checklist, html = '<div class="chips">', i;
     for (i = 0; i < list.length; i++) {
@@ -734,27 +990,36 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks;
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0;
     for (i = 0; i < s.kids.length; i++) {
       var m = kidMinutes(i, key), total = s.checklist.length, allDone = total > 0 && doneCount(i, key) === total;
       var chips = chipsHtml(i, key, shown, prev), justFinished = allDone && prev && !prev['all-' + i];
+      var was = lastMins && lastMins[i], change = was ? m.total - was.total : 0;
+      mins[i] = m;
       if (allDone) shown['all-' + i] = true;
+      if (justFinished) anyFinished = true;
+      if (!allDone) everyoneDone = false;
       html += '<div class="kid" data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
         '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
         (allDone ? '<span class="kid-flag">' + themeInfo().flag + '</span>' : '') + '</div>' +
-        '<div class="kid-total">' + m.total + ' <small>of ' + m.full + ' min</small></div></div>' +
-        blockBar('After school', m.after, s.blockMinutes) + blockBar('Evening', m.evening, s.blockMinutes) +
+        '<div class="kid-total"><span class="kid-num"' + (change ? ' data-from="' + was.total + '"' : '') + '>' + m.total + '</span> <small>of ' + m.full + ' min</small></div></div>' +
+        blockBar('After school', m.after, s.blockMinutes, was && was.after) + blockBar('Evening', m.evening, s.blockMinutes, was && was.evening) +
+        (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips +
-        (justFinished ? '<div class="parade">' + mascot() + '</div>' : '') + '</div>';
+        (justFinished ? '<div class="parade">' + mascot() + '</div>' + confetti() : '') + '</div>';
     }
     lastChecks = shown;
+    lastMins = mins;
     $('kids').innerHTML = html;
     fitChips();
+    animateMinutes();
+    if (anyFinished && everyoneDone) fxCelebrate();
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
-  function blockBar(name, min, full) {
-    return '<div class="block"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' +
-      Math.round(min / full * 100) + '%"></div></div><div class="block-min">' + min + ' min</div></div>';
+  function blockBar(name, min, full, was) {
+    var target = Math.round(min / full * 100), start = was === undefined || was === null || was === 0 ? target : Math.round(was / full * 100);
+    return '<div class="block"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' + start +
+      '%"' + (start !== target ? ' data-w="' + target + '"' : '') + '></div></div><div class="block-min">' + min + ' min</div></div>';
   }
   function whenText(e, today) {
     var days = Math.round((parseDateKey(e.date) - today) / 86400000);
@@ -984,6 +1249,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       html += '<span class="lab">Camera switching</span><div class="opts">' + optBtn('tour', 'on', 'Tour the cameras', !!d.camTour) + optBtn('tour', 'off', 'Stay on the wall', !d.camTour) + '</div>' +
         '<p class="hint">The tour goes back to all cameras for the last 5 minutes of any countdown.</p>';
     }
+    html += '<span class="lab">Surprise animations</span><div class="opts">' + optBtn('fxLevel', 'often', 'Often', d.fxLevel === 'often') + optBtn('fxLevel', 'normal', 'Normal', d.fxLevel === 'normal') +
+      optBtn('fxLevel', 'rare', 'Rare', d.fxLevel === 'rare') + optBtn('fxLevel', 'off', 'Off', d.fxLevel === 'off') + '</div>' +
+      '<p class="hint">Often is every 1 to 3 minutes, Normal every 3 to 8, Rare every 10 to 20. Celebrations and countdown moments still play when this is off.</p>';
     html += '</div><div class="card"><h2>Kids</h2><div class="pair"><div><label class="lab" for="k0">First</label><input id="k0" data-setup="kid0" data-f="k0" value="' + esc(d.kids[0]) + '"></div>' +
       '<div><label class="lab" for="k1">Second</label><input id="k1" data-setup="kid1" data-f="k1" value="' + esc(d.kids[1]) + '"></div></div></div>';
     html += '<div class="card"><h2>Morning times</h2><div class="day-row"><b></b><span class="lab" style="flex:1;margin:0 0 0 .5em">Ready by</span><span class="lab" style="flex:1;margin:0 0 0 .5em">Out the door</span></div>';
@@ -1067,6 +1335,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tvCams: function () { showCam(camIndex + 1); },
     theme: function (a) { ed.draft.theme = a; put('settings/theme', a); forceEditor(); },
     tour: function (a) { ed.draft.camTour = a === 'on'; put('settings/camTour', a === 'on'); forceEditor(); },
+    fxLevel: function (a) { ed.draft.fxLevel = a; put('settings/fxLevel', a); forceEditor(); },
     closeEd: closeTvEditor,
     pin: pinPress,
     tab: function (a) { ed.tab = a; ed.draft = null; forceEditor(); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
@@ -1272,7 +1541,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     showGate("That family code didn't work. Check it and try again.");
   }
   var pollTimer = null;
-  if (DEMO) window.boardFx = playFx;
+  if (DEMO) window.boardFx = { play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
     else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); }
