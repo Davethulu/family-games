@@ -338,7 +338,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { chanNames: {}, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -694,7 +694,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 
   /* ---------- Music ---------- */
   function musicSource() { return (data.music && data.music.source) || 'off'; }
-  function lofiId() { return (data.music && data.music.video) || LOFI_PRESETS[0].id; }
+  function channels() { return data.channels && data.channels.length ? data.channels : LOFI_PRESETS; }
+  function lofiId() { return (data.music && data.music.video) || channels()[0].id; }
   function renderMusic(fromPress) {
     var src = musicSource(), key = src + ':' + (src === 'lofi' ? lofiId() : '');
     var player = $('player');
@@ -712,7 +713,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   function pressMusic() {
     // A press on the remote lets the browser start sound. If music is off, it turns on; if on, it restarts or stops.
     var src = musicSource();
-    if (src === 'off') { put('music/source', 'lofi'); musicPressed = true; return; }
+    if (src === 'off') { put('music', { source: 'lofi', video: channels()[0].id }); musicPressed = true; return; }
     if (musicPressed) { put('music/source', 'off'); return; }
     musicPressed = true;
     renderMusic(true);
@@ -849,17 +850,29 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     return html + '</div>';
   }
   function musicHtml() {
-    var src = musicSource(), html = '<div class="card"><h2>What plays on the TV</h2><div class="opts">', i, isPreset = false;
-    for (i = 0; i < LOFI_PRESETS.length; i++) {
-      var on = src === 'lofi' && lofiId() === LOFI_PRESETS[i].id;
-      if (on) isPreset = true;
-      html += optBtn('music', LOFI_PRESETS[i].id, LOFI_PRESETS[i].text, on);
+    var src = musicSource(), list = channels(), html = '<div class="card"><h2>What plays on the TV</h2><div class="opts">', i, known = false;
+    for (i = 0; i < list.length; i++) {
+      var on = src === 'lofi' && lofiId() === list[i].id;
+      if (on) known = true;
+      html += optBtn('music', list[i].id, list[i].text, on);
     }
-    if (src === 'lofi' && !isPreset) html += optBtn('music', lofiId(), 'Your video', true);
-    return html + optBtn('music', 'off', 'Off', src === 'off') + '</div>' +
+    if (src === 'lofi' && !known) html += optBtn('music', lofiId(), 'Other video', true);
+    html += optBtn('music', 'off', 'Off', src === 'off') + '</div>' +
       '<p class="hint">TV browsers often won\'t start sound by themselves. If it stays quiet, press OK on the Music button on the TV.</p></div>' +
-      '<div class="card"><h2>Use a different YouTube video</h2><label class="lab" for="yt">Paste a YouTube link</label>' +
-      '<input id="yt" data-draft="ytLink" data-f="yt" value="' + esc(ed.ytLink || '') + '"><button class="go" data-act="saveVideo" data-f="saveVideo">Save video</button></div>';
+      '<div class="card"><h2>Your channels</h2>';
+    for (i = 0; i < list.length; i++) {
+      var name = ed.chanNames[i] !== undefined ? ed.chanNames[i] : list[i].text;
+      html += '<label class="lab" for="ch' + i + '">' + (i === 0 ? 'Default channel' : 'Channel ' + (i + 1)) + '</label>' +
+        '<input id="ch' + i + '" maxlength="40" data-chan="' + i + '" data-f="ch' + i + '" value="' + esc(name) + '"><div class="opts" style="margin-top:.3em">';
+      if (i > 0) html += optBtn('chanDefault', i, 'Make default', false);
+      if (list.length > 1) html += optBtn('chanRemove', i, 'Remove', false);
+      html += '</div>';
+    }
+    html += '<button class="go" data-act="chanSave" data-f="chanSave">Save names</button></div>' +
+      '<div class="card"><h2>Add a channel</h2><label class="lab" for="chn">Name</label><input id="chn" maxlength="40" data-draft="chanName" data-f="chn" value="' + esc(ed.chanName || '') + '">' +
+      '<label class="lab" for="yt">YouTube link</label><input id="yt" data-draft="ytLink" data-f="yt" value="' + esc(ed.ytLink || '') + '">' +
+      '<button class="go" data-act="chanAdd" data-f="chanAdd">Add and play</button></div>';
+    return html;
   }
   function setupHtml() {
     if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
@@ -915,10 +928,11 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if (dateKey(d) < dateKey(now)) d = new Date(y + 1, +ed.evMonth, +ed.evDay);
     return dateKey(d);
   }
+  function copyChannels() { return JSON.parse(JSON.stringify(channels())); }
   function youtubeId(link) {
-    var m = String(link).match(/(?:youtu\.be\/|[?&]v=|\/live\/|\/embed\/|\/shorts\/)([\w-]{6,})/);
+    var m = String(link).match(/(?:youtu\.be\/|[?&]v=|\/live\/|\/embed\/|\/shorts\/)([\w-]{11})(?![\w-])/);
     if (m) return m[1];
-    return /^[\w-]{6,}$/.test(link) ? link : '';
+    return /^[\w-]{11}$/.test(link) ? link : '';
   }
   function pruneOld() {
     // The plan starts fresh daily, so only recent history is kept.
@@ -1005,12 +1019,44 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       else put('music', { source: 'lofi', video: a });
       forceEditor();
     },
-    saveVideo: function () {
-      var id = youtubeId((ed.ytLink || '').replace(/\s/g, ''));
-      if (!id) { toast("That doesn't look like a YouTube link", true); return; }
-      put('music', { source: 'lofi', video: id });
-      ed.ytLink = '';
+    chanSave: function () {
+      var list = copyChannels(), i;
+      for (i = 0; i < list.length; i++) {
+        var name = ed.chanNames[i] !== undefined ? ed.chanNames[i].replace(/^\s+|\s+$/g, '') : list[i].text;
+        if (!name) { toast('Every channel needs a name', true); return; }
+        list[i].text = name;
+      }
+      ed.chanNames = {};
+      put('channels', list);
       toast('Saved');
+      forceEditor();
+    },
+    chanDefault: function (a) {
+      var list = copyChannels(), moved = list.splice(+a, 1)[0];
+      list.unshift(moved);
+      ed.chanNames = {};
+      put('channels', list);
+      toast(moved.text + ' is now the default');
+      forceEditor();
+    },
+    chanRemove: function (a) {
+      var list = copyChannels(), gone = list.splice(+a, 1)[0];
+      ed.chanNames = {};
+      put('channels', list);
+      if (musicSource() === 'lofi' && lofiId() === gone.id) put('music', { source: 'lofi', video: list[0].id });
+      toast('Removed ' + gone.text);
+      forceEditor();
+    },
+    chanAdd: function () {
+      var name = (ed.chanName || '').replace(/^\s+|\s+$/g, ''), id = youtubeId((ed.ytLink || '').replace(/\s/g, ''));
+      if (!name) { toast('Give the channel a name', true); return; }
+      if (!id) { toast("That doesn't look like a YouTube link", true); return; }
+      var list = copyChannels();
+      list.push({ id: id, text: name });
+      put('channels', list);
+      put('music', { source: 'lofi', video: id });
+      ed.chanName = ''; ed.ytLink = '';
+      toast('Added ' + name);
       forceEditor();
     },
     saveSetup: function () {
@@ -1039,6 +1085,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var el = e.target, v = el.type === 'checkbox' ? el.checked : el.value;
     var draft = el.getAttribute && el.getAttribute('data-draft');
     if (draft) { ed[draft] = v; return; }
+    var chan = el.getAttribute && el.getAttribute('data-chan');
+    if (chan !== null && chan !== undefined) { ed.chanNames[chan] = v; return; }
     var key = el.getAttribute && el.getAttribute('data-setup');
     if (key && ed.draft) {
       if (key === 'kid0') ed.draft.kids[0] = v;
