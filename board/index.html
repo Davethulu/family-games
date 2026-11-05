@@ -126,6 +126,38 @@ button { cursor: pointer; }
 @keyframes flicker { 0%, 93%, 100% { opacity: 1; } 94% { opacity: .55; } 96% { opacity: .9; } 97% { opacity: .6; } }
 @keyframes jitter { 0%, 95%, 100% { transform: none; } 96% { transform: translateX(-.5rem); } 98% { transform: translateX(.4rem); } }
 
+/* ---------- Compact countdown with its stops as a list, so the kids' cards get the room ---------- */
+.hero { flex: .62; }
+.kids { flex: 1; }
+.hero-label { font-size: 2.8rem; }
+.hero-count { font-size: 10rem; }
+.hero-sub { font-size: 1.8rem; }
+.stops { display: block; }
+.stop { display: flex; align-items: center; justify-content: space-between; margin: 0 0 .6rem; padding: .55rem 1.2rem; }
+.stop:last-child { margin-bottom: 0; }
+.stop b { font-size: 2.4rem; }
+.stop span { font-size: 1.9rem; }
+
+/* ---------- Timers: each kid's card gets a tile while a timer is going ---------- */
+.kid-row { display: flex; align-items: center; min-height: 0; }
+.kid-main { flex: 1; min-width: 0; }
+.kid-timer { flex-shrink: 0; width: 25rem; margin-left: 1.6rem; padding: 1rem 1rem .9rem; text-align: center; border-radius: 1rem; background: var(--panel2); border: .25rem solid var(--line); }
+.t-label { font-size: 2rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-num { font-size: 5.8rem; line-height: 1.1; font-weight: 700; color: var(--mint); font-variant-numeric: tabular-nums; }
+.t-track { height: 1rem; border-radius: .5rem; background: var(--panel); overflow: hidden; }
+.t-fill { height: 100%; background: var(--mint); transition: width 1s linear; }
+.kid-timer.soon .t-num { color: var(--orange); }
+.kid-timer.soon .t-fill { background: var(--orange); }
+.kid-timer.over { border-color: var(--pink); animation: tOver 1s ease-in-out infinite; }
+.kid-timer.over .t-num { color: var(--pink); }
+.kid-timer.paused { opacity: .65; }
+@keyframes tOver { 0%, 100% { transform: none; } 50% { transform: scale(1.04); } }
+.theme-harvest .t-num { font-family: "Trebuchet MS", "Segoe UI", Roboto, Arial, sans-serif; }
+.ed-time { font-weight: 700; color: var(--mint); margin-left: .4em; }
+.ed-time.over { color: var(--pink); }
+.sync-link { display: inline-block; margin-top: .7em; padding: .5em .9em; border-radius: .5em; background: var(--panel2); color: var(--ink); text-decoration: none; border: .15em solid transparent; }
+.sync-link:focus { outline: none; border-color: var(--gold); }
+
 /* ---------- Daily checklist on each kid's card ---------- */
 .kid { position: relative; overflow: hidden; }
 .kid-head { margin-bottom: .2rem; }
@@ -161,7 +193,7 @@ button { cursor: pointer; }
 .roll .fx-hop { animation: fxSpin 1.6s linear infinite; }
 .fx-say { position: absolute; left: 8rem; bottom: 14rem; padding: .5rem 1.2rem; white-space: nowrap; font-size: 2.4rem; font-weight: 700; border-radius: 1rem; background: #fff; color: #2a1a10; }
 .fx-clip { position: absolute; overflow: hidden; }
-.fx-peek { position: absolute; left: 50%; bottom: 0; width: 15rem; height: 15rem; margin-left: -7.5rem; animation: fxPeek 5s ease-in-out forwards; }
+.fx-peek { position: absolute; left: 50%; bottom: 0; width: 18rem; height: 20rem; margin-left: -9rem; animation: fxPeek 5s ease-in-out forwards; }
 .fx-alert { position: absolute; left: 0; right: 0; top: 4rem; text-align: center; font-size: 2.6rem; font-weight: 700; color: var(--pink); animation: rec .8s steps(1) infinite; }
 .fx-lost { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 700; color: #fff;
   background: repeating-linear-gradient(0deg, #111 0, #111 .5rem, #444 .5rem, #444 .8rem); animation: flicker 1s infinite; }
@@ -187,7 +219,57 @@ button { cursor: pointer; }
 .fx-track { position: absolute; left: 0; right: 0; top: 42%; text-align: center; font-size: 5rem; font-weight: 700; color: #d9ffe9; animation: flicker .9s infinite; }
 .fx-wave { position: absolute; right: -1.2rem; top: 5rem; width: 4rem; height: 6.5rem; background: #8f5f38; border-radius: 2rem; transform-origin: 50% 100%; animation: fxWave .55s ease-in-out infinite alternate; }
 .fx-fly { position: absolute; left: -32rem; top: 5%; width: 28rem; height: 16rem; animation: fxWalk 13s linear forwards; }
-.fx-bird { position: absolute; width: 5.5rem; height: 3.5rem; animation: fxFlap .55s ease-in-out infinite alternate; }
+.fx-bird { position: absolute; width: 6.5rem; height: 4rem; }
+.fx-shadow { position: absolute; left: 18%; right: 18%; bottom: -.6rem; height: 1.3rem; border-radius: 50%; background: rgba(0,0,0,.28); }
+.fx-say::after { content: ""; position: absolute; left: 1.8rem; bottom: -1rem; border-left: 1rem solid transparent; border-right: .3rem solid transparent; border-top: 1.1rem solid #fff; }
+.fx-say { animation: fxSayIn .45s ease-out 1s backwards; box-shadow: 0 .3rem .8rem rgba(0,0,0,.3); }
+.fx-feather { position: absolute; bottom: 8rem; width: 2.2rem; height: 4.4rem; animation: fxFeatherFall 2.6s ease-in both; }
+.fx-speed { position: absolute; left: -9rem; top: 25%; width: 9rem; height: 50%; }
+.fx-speed i { display: block; height: .35rem; margin: 1.3rem 0; background: rgba(255,255,255,.75); border-radius: 1rem; }
+.fx-speed i:nth-child(2) { width: 70%; margin-left: 30%; }
+.fx-box { position: absolute; left: -1rem; right: -1rem; top: -1rem; bottom: 0; border: .28rem dashed var(--pink); animation: rec .8s steps(1) infinite; }
+.fx-lost { flex-direction: column; }
+.fx-lost small { font-size: 2rem; margin-top: .5rem; font-weight: 400; }
+.fx-bars { position: absolute; left: 0; right: 0; bottom: 0; height: 12%; display: flex; }
+.fx-bars i { flex: 1; }
+.fx-whisper { position: absolute; left: 0; right: 0; top: 58%; text-align: center; font-size: 3rem; color: #a9c9b6; animation: fxSayIn 1s ease-out .9s backwards; }
+.fx-stand { position: absolute; left: 48%; top: 28%; width: 22rem; height: 28rem; }
+.fx-letter { position: absolute; left: 4rem; top: 13.5rem; width: 7rem; height: 4.6rem; animation: fxLetter 13s linear forwards; }
+.fx-twink { position: absolute; width: 1.8rem; height: 1.8rem; animation: fxTwink .9s ease-in-out infinite alternate; }
+.bit.far { animation: fxBitFar 4.5s linear forwards; }
+
+/* Moving body parts. The checklist's mascots don't use these, so they stay still. */
+.a-blink { animation: aBlink 4s steps(1) infinite; }
+.a-legA { animation: aSwing .7s ease-in-out infinite alternate; }
+.a-legB { animation: aSwing .7s ease-in-out infinite alternate-reverse; }
+.fast .a-legA, .fast .a-legB { animation-duration: .2s; }
+.a-wig { animation: aWig 1.1s ease-in-out infinite alternate; }
+.a-wigR { animation: aWig 1.1s ease-in-out infinite alternate-reverse; }
+.a-flap { animation: aFlap .45s ease-in-out infinite alternate; }
+.a-flapR { animation: aFlapR .45s ease-in-out infinite alternate; }
+.a-fan { animation: aFan 2.4s ease-in-out infinite alternate; }
+.a-flick { animation: aFlick .35s ease-in-out infinite alternate; }
+.a-flame { animation: aFlame 2.2s ease-in-out infinite; }
+.a-look { animation: aLook 3s ease-in-out infinite; }
+.a-bub { animation: aBub 2s ease-in infinite; }
+.a-pageL { animation: aFlap .32s ease-in-out infinite alternate; }
+.a-pageR { animation: aFlapR .32s ease-in-out infinite alternate; }
+.a-hopSm { animation: fxHop 1.2s ease-in-out infinite; }
+@keyframes aBlink { 0%, 92%, 100% { transform: none; } 93%, 97% { transform: scaleY(.08); } }
+@keyframes aSwing { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
+@keyframes aWig { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+@keyframes aFlap { from { transform: rotate(-22deg); } to { transform: rotate(24deg); } }
+@keyframes aFlapR { from { transform: rotate(22deg); } to { transform: rotate(-24deg); } }
+@keyframes aFan { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes aFlick { from { transform: scale(1, 1); opacity: .86; } to { transform: scale(.88, 1.14); opacity: 1; } }
+@keyframes aFlame { 0%, 40%, 100% { transform: scale(0); } 50%, 80% { transform: scale(1.4); } }
+@keyframes aLook { 0%, 30% { transform: translateX(-1.5px); } 45%, 75% { transform: translateX(1.5px); } 90%, 100% { transform: translateX(-1.5px); } }
+@keyframes aBub { 0% { transform: translateY(6px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-24px); opacity: 0; } }
+@keyframes fxSayIn { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fxFeatherFall { 0% { transform: translateY(0) rotate(0); opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(8rem) translateX(2rem) rotate(150deg); opacity: 0; } }
+@keyframes fxLetter { 0%, 52% { transform: none; opacity: 1; } 90% { transform: translateY(60vh) rotate(260deg); opacity: 1; } 100% { transform: translateY(72vh) rotate(320deg); opacity: 0; } }
+@keyframes fxTwink { from { transform: scale(.25); opacity: .35; } to { transform: scale(1.1); opacity: 1; } }
+@keyframes fxBitFar { to { transform: translateY(110vh) rotate(800deg); } }
 .fx-cloud { position: absolute; left: -28rem; top: 7%; width: 24rem; height: 11rem; animation: fxWalk 17s linear forwards; }
 .fx-bubble { position: absolute; bottom: -7rem; border-radius: 50%; border: .25rem solid rgba(168,199,255,.75); background: rgba(168,199,255,.12); animation: fxRise 7s ease-in forwards; }
 .fx-plane { position: absolute; left: -12rem; top: 62%; width: 9rem; height: 9rem; animation: fxPlane 7s ease-in-out forwards; }
@@ -282,7 +364,11 @@ button { cursor: pointer; }
 .theme-wizard .player { color: var(--muted); }
 .theme-wizard .tv-btn { background: #2a2f5c; color: #f3e6c4; }
 #tv.theme-wizard button:focus { color: #2b1d10; }
-.theme-wizard .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; height: 7rem; overflow: hidden; pointer-events: none; }
+.theme-wizard .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.float-candle { position: absolute; bottom: -10rem; width: 3.6rem; height: 7.6rem; animation: candleRise 30s linear infinite; }
+.candle-sway { width: 100%; height: 100%; animation: candleSway 5s ease-in-out infinite; }
+@keyframes candleRise { 0% { transform: translateY(0); opacity: 0; } 6% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateY(-118vh); opacity: 0; } }
+@keyframes candleSway { 0%, 100% { transform: translateX(-.7rem) rotate(-2deg); } 50% { transform: translateX(.7rem) rotate(2deg); } }
 .twinkle { position: absolute; width: .5rem; height: .5rem; border-radius: 50%; background: #fff6cf; animation: fxTwinkle 3s ease-in-out infinite; }
 .fx-candle { position: absolute; bottom: -10rem; width: 4rem; height: 9rem; animation: fxRise 10s linear forwards; }
 .fx-broom { position: absolute; left: -22rem; top: 48%; width: 18rem; height: 9rem; animation: fxPlane 6s ease-in-out forwards; }
@@ -452,7 +538,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { chanNames: {}, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { chanNames: {}, timerWho: 0, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: 'after', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -526,6 +612,16 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       lastError = !ok;
       if (ok) { data = val || {}; store('cache', JSON.stringify(data)); }
       else if (status === 401 || status === 403) { badCode(); return; }
+      afterData();
+    });
+  }
+  function pollTimers() {
+    // Timers are checked every few seconds so they feel instant. They're tiny, so this stays cheap.
+    if (DEMO || pending) return;
+    request('GET', 'timers', undefined, function (ok, val) {
+      if (!ok || pending) return;
+      if (JSON.stringify(val) === JSON.stringify(data.timers === undefined ? null : data.timers)) return;
+      if (val) data.timers = val; else delete data.timers;
       afterData();
     });
   }
@@ -614,6 +710,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
   }
   function tick() {
+    updateTimers();
     if ($('tv').className.indexOf('hide') >= 0) return;
     var now = new Date(), h = now.getHours(), dayNow = dateKey(now);
     if (lastDay && lastDay !== dayNow) {
@@ -718,7 +815,11 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if (leaves.getAttribute('data-t') !== theme) { leaves.innerHTML = ''; leaves.setAttribute('data-t', theme); }
     if (theme === 'wizard' && !leaves.innerHTML) {
       var sky = '';
-      for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (8 + (i * 37) % 80) + '%;animation-delay:' + (-i * .4) + 's"></span>';
+      for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (.5 + (i * 37) % 60 / 10) + 'rem;animation-delay:' + (-i * .4) + 's"></span>';
+      // Candles drift up the whole screen, always staggered so a few are in view.
+      for (i = 0; i < 8; i++) {
+        sky += '<div class="float-candle" style="left:' + (4 + i * 13) + '%;animation-delay:' + (-i * 4.3) + 's;animation-duration:' + (30 + i % 3 * 5) + 's"><div class="candle-sway" style="animation-delay:' + (-i * .7) + 's">' + CANDLE + '</div></div>';
+      }
       leaves.innerHTML = sky;
     }
     if (theme === 'harvest' && !leaves.innerHTML) {
@@ -734,7 +835,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var FX_FAST = params.indexOf('fxfast') >= 0; // for testing
   var nextFxAt = Date.now() + (FX_FAST ? 8000 : 60000 + Math.random() * 120000);
   var lastFx = -1;
-  var PUMPKIN = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 13 q1 -8 8 -9" fill="none" stroke="#4f6b24" stroke-width="5" stroke-linecap="round"/><ellipse cx="14" cy="37" rx="11" ry="20" fill="#dd7420"/><ellipse cx="50" cy="37" rx="11" ry="20" fill="#dd7420"/><ellipse cx="24" cy="37" rx="11" ry="23" fill="#ee8a2c"/><ellipse cx="40" cy="37" rx="11" ry="23" fill="#ee8a2c"/><ellipse cx="32" cy="37" rx="9" ry="24" fill="#f39b3a"/></svg>';
   var FX_LEAF = '<svg class="mascot" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 C31 9 36 21 20 38 C4 21 9 9 20 2 Z" fill="COLOR"/><path d="M20 6 V38" stroke="#5a2a12" stroke-width="1.5"/></svg>';
   function fxAdd(html, ms) {
     var box = document.createElement('div');
@@ -743,7 +843,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, ms);
   }
   function fxWalker(cls, art, say, ms, style) {
-    fxAdd('<div class="fx-walker ' + cls + '"' + (style ? ' style="' + style + '"' : '') + '>' + (say ? '<div class="fx-say">' + esc(say) + '</div>' : '') + '<div class="fx-hop">' + art + '</div></div>', ms);
+    fxAdd('<div class="fx-walker ' + cls + '"' + (style ? ' style="' + style + '"' : '') + '>' + (say ? '<div class="fx-say">' + esc(say) + '</div>' : '') + '<div class="fx-shadow"></div><div class="fx-hop">' + art + '</div></div>', ms);
   }
   function fxOnFeed(inner, ms, feed) {
     // Sit exactly over one camera feed, so the scene looks like it's happening on that camera.
@@ -751,11 +851,58 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var r = f.getBoundingClientRect(), s = $('fxStage').getBoundingClientRect();
     fxAdd('<div class="fx-clip" style="left:' + (r.left - s.left) + 'px;top:' + (r.top - s.top) + 'px;width:' + r.width + 'px;height:' + r.height + 'px">' + inner + '</div>', ms);
   }
-  var MOUSE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 46 Q-2 40 6 32" fill="none" stroke="#c9b7a6" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="28" cy="44" rx="20" ry="12" fill="#a99a8c"/><circle cx="46" cy="39" r="9" fill="#b8a99b"/><circle cx="43" cy="30" r="5" fill="#d9b6b0"/><circle cx="50" cy="38" r="1.8" fill="#17110c"/><circle cx="55" cy="42" r="1.8" fill="#e58a8a"/></svg>';
-  var SPIDER = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g stroke="#17110c" stroke-width="3" fill="none" stroke-linecap="round"><path d="M22 30 L6 20 M22 36 L4 36 M22 42 L6 52 M42 30 L58 20 M42 36 L60 36 M42 42 L58 52"/></g><circle cx="32" cy="36" r="14" fill="#2d2533"/><circle cx="27" cy="33" r="4" fill="#fff"/><circle cx="37" cy="33" r="4" fill="#fff"/><circle cx="27.5" cy="34" r="1.8" fill="#17110c"/><circle cx="36.5" cy="34" r="1.8" fill="#17110c"/><path d="M27 41 Q32 45 37 41" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
-  var SQUIRREL = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M20 54 C2 50 2 22 18 18 C28 16 28 30 20 32 C14 34 18 44 26 46 Z" fill="#a4592a"/><ellipse cx="33" cy="44" rx="13" ry="13" fill="#b86a35"/><circle cx="44" cy="28" r="9" fill="#b86a35"/><circle cx="41" cy="19" r="3.5" fill="#a4592a"/><circle cx="47" cy="26" r="1.8" fill="#17110c"/><ellipse cx="50" cy="44" rx="5" ry="6" fill="#7a4522"/><path d="M45 39 h10" stroke="#5a2a12" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  // Detailed characters for scenes. The checklist keeps the simpler mascot(), which stays still.
+  function pivot(x, y) { return ' style="transform-origin:' + x + 'px ' + y + 'px"'; }
+  function eyes(lx, rx, y, r, lookClass) {
+    var pupil = r * .55;
+    return '<g class="a-blink"' + pivot((lx + rx) / 2, y) + '><circle cx="' + lx + '" cy="' + y + '" r="' + r + '" fill="#fff"/><circle cx="' + rx + '" cy="' + y + '" r="' + r + '" fill="#fff"/><g class="' + (lookClass || '') + '">' +
+      '<circle cx="' + lx + '" cy="' + y + '" r="' + pupil + '" fill="#17110c"/><circle cx="' + rx + '" cy="' + y + '" r="' + pupil + '" fill="#17110c"/><circle cx="' + (lx + pupil * .4) + '" cy="' + (y - pupil * .4) + '" r="' + (pupil * .3) + '" fill="#fff"/><circle cx="' + (rx + pupil * .4) + '" cy="' + (y - pupil * .4) + '" r="' + (pupil * .3) + '" fill="#fff"/></g></g>';
+  }
+  var BEAR = '<svg class="mascot" viewBox="0 0 90 110" aria-hidden="true">' +
+    '<g class="a-legA"' + pivot(36, 80) + '><rect x="29" y="78" width="12" height="24" rx="5" fill="#22364f"/><ellipse cx="34" cy="103" rx="10" ry="5" fill="#2a1a10"/></g><g class="a-legB"' + pivot(52, 80) + '><rect x="47" y="78" width="12" height="24" rx="5" fill="#22364f"/><ellipse cx="54" cy="103" rx="10" ry="5" fill="#2a1a10"/></g>' +
+    '<rect x="24" y="48" width="40" height="36" rx="12" fill="#35537a"/><path d="M44 49 V77" stroke="#22364f" stroke-width="1.5"/><polygon points="52,55 55,58 54,63 50,63 49,58" fill="#ffc83d"/><rect x="28" y="59" width="10" height="7" rx="1" fill="#22364f"/><rect x="24" y="76" width="40" height="5" fill="#17110c"/><rect x="41" y="75" width="6" height="7" rx="1" fill="#ffc83d"/>' +
+    '<g class="a-legB"' + pivot(26, 54) + '><rect x="16" y="52" width="10" height="26" rx="5" fill="#35537a"/><circle cx="21" cy="80" r="5.5" fill="#8f5f38"/></g>' +
+    '<g class="a-wig"' + pivot(62, 54) + '><rect x="62" y="52" width="10" height="24" rx="5" fill="#35537a"/><circle cx="67" cy="77" r="5.5" fill="#8f5f38"/><rect x="65" y="75" width="16" height="6" rx="1.5" fill="#3a3f47"/><rect x="80" y="73" width="4" height="10" rx="1" fill="#ffe45e"/><polygon points="84,75 90,70 90,86 84,81" fill="rgba(255,240,150,.55)"/></g>' +
+    '<circle cx="23" cy="17" r="8" fill="#7a4e2c"/><circle cx="65" cy="17" r="8" fill="#7a4e2c"/><circle cx="44" cy="31" r="22" fill="#8f5f38"/><ellipse cx="30" cy="38" rx="4" ry="2.5" fill="#a9754c"/><ellipse cx="58" cy="38" rx="4" ry="2.5" fill="#a9754c"/><ellipse cx="44" cy="40" rx="11.5" ry="8.5" fill="#e0bd93"/>' + eyes(36, 52, 30, 4.4) +
+    '<ellipse cx="44" cy="36" rx="4" ry="2.8" fill="#2a1a10"/><path d="M44 39 V42 M38 43 Q44 48 50 43" fill="none" stroke="#2a1a10" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<path d="M23 20 Q44 2 65 20 L65 24 L23 24 Z" fill="#22364f"/><rect x="19" y="22" width="50" height="4.5" rx="2" fill="#141f33"/><circle cx="44" cy="15" r="3.5" fill="#ffc83d"/></svg>';
+  var TURKEY = (function () {
+    var tail = '', colors = ['#a8321a', '#e9962c', '#c9481f', '#f0b13c', '#c9481f', '#e9962c', '#a8321a'], i;
+    for (i = 0; i < 7; i++) {
+      tail += '<g transform="rotate(' + (-78 + i * 26) + ' 40 50)"><ellipse cx="40" cy="21" rx="7" ry="20" fill="' + colors[i] + '"/><ellipse cx="40" cy="9" rx="4.6" ry="6" fill="#fff3dc" opacity=".45"/><path d="M40 7 V44" stroke="#5a2a12" stroke-width=".9" opacity=".6"/></g>';
+    }
+    return '<svg class="mascot" viewBox="0 0 80 92" aria-hidden="true"><g class="a-fan"' + pivot(40, 50) + '>' + tail + '</g>' +
+      '<g class="a-legA"' + pivot(33, 68) + '><path d="M33 68 V85 M33 85 L27 89 M33 85 L33 90 M33 85 L39 89" stroke="#e29a2c" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g class="a-legB"' + pivot(47, 68) + '><path d="M47 68 V85 M47 85 L41 89 M47 85 L47 90 M47 85 L53 89" stroke="#e29a2c" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>' +
+      '<ellipse cx="40" cy="55" rx="19" ry="19" fill="#7a4522"/><path d="M30 52 q4 4 7 0 q3 4 6 0 q3 4 7 0 M32 60 q4 4 7 0 q3 4 7 0" fill="none" stroke="#5a3016" stroke-width="1.6"/>' +
+      '<g class="a-flap"' + pivot(24, 46) + '><ellipse cx="23" cy="56" rx="7" ry="12" fill="#5f3418"/><path d="M19 60 q4 3 8 0" fill="none" stroke="#3f2110" stroke-width="1.2"/></g><g class="a-flapR"' + pivot(56, 46) + '><ellipse cx="57" cy="56" rx="7" ry="12" fill="#5f3418"/><path d="M53 60 q4 3 8 0" fill="none" stroke="#3f2110" stroke-width="1.2"/></g>' +
+      '<rect x="35" y="30" width="10" height="14" rx="5" fill="#9a5e30"/><circle cx="40" cy="26" r="10.5" fill="#9a5e30"/>' + eyes(36, 44, 24, 2.9) + '<polygon points="36,28 44,28 40,34" fill="#f2b632"/><g class="a-wig"' + pivot(43, 31) + '><path d="M42 30 q5 2 3.5 9 q-4 -1 -5 -6 z" fill="#c9241a"/></g></svg>';
+  })();
+  var OWL = (function () {
+    var chest = '', r, c;
+    for (r = 0; r < 3; r++) for (c = 0; c < 4 - r % 2; c++) chest += '<path d="M' + (27 + c * 7 + (r % 2) * 3.5) + ' ' + (52 + r * 6) + ' q3 4 6 0" fill="none" stroke="#a48a63" stroke-width="1.5"/>';
+    return '<svg class="mascot" viewBox="0 0 80 92" aria-hidden="true"><g class="a-flap"' + pivot(19, 38) + '><path d="M19 36 Q2 50 8 74 Q18 68 21 54 Z" fill="#5f4a2f"/><path d="M11 58 q4 3 8 -1 M10 66 q4 2 7 -2" fill="none" stroke="#3f3120" stroke-width="1.3"/></g><g class="a-flapR"' + pivot(61, 38) + '><path d="M61 36 Q78 50 72 74 Q62 68 59 54 Z" fill="#5f4a2f"/><path d="M69 58 q-4 3 -8 -1 M70 66 q-4 2 -7 -2" fill="none" stroke="#3f3120" stroke-width="1.3"/></g>' +
+      '<path d="M32 80 l-5 8 M32 80 v9 M32 80 l5 8 M48 80 l-5 8 M48 80 v9 M48 80 l5 8" stroke="#e6a42c" stroke-width="2.4" stroke-linecap="round"/><polygon points="20,18 15,3 31,13" fill="#7d6242"/><polygon points="60,18 65,3 49,13" fill="#7d6242"/><ellipse cx="40" cy="46" rx="23" ry="36" fill="#7d6242"/><ellipse cx="40" cy="60" rx="16" ry="20" fill="#e8d7b5"/>' + chest +
+      '<circle cx="30" cy="28" r="11" fill="#f3e6c4" stroke="#5f4a2f" stroke-width="1.5"/><circle cx="50" cy="28" r="11" fill="#f3e6c4" stroke="#5f4a2f" stroke-width="1.5"/>' + eyes(30, 50, 28, 6, 'a-look') + '<polygon points="36,34 44,34 40,42" fill="#e6a42c"/></svg>';
+  })();
+  function actor() {
+    var id = themeInfo().id;
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : mascot();
+  }
+  var PUMPKIN = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 15 q-1 -8 5 -11 l4 3 q-5 3 -4 8 z" fill="#4f6b24"/><path d="M36 9 q10 -6 15 2 q-9 4 -15 -2 z" fill="#6f9433"/><path d="M28 12 q-6 -4 -9 1" fill="none" stroke="#4f6b24" stroke-width="1.8"/><ellipse cx="13" cy="38" rx="11" ry="20" fill="#d96f1c"/><ellipse cx="51" cy="38" rx="11" ry="20" fill="#d96f1c"/><ellipse cx="23" cy="38" rx="11" ry="23" fill="#ec8526"/><ellipse cx="41" cy="38" rx="11" ry="23" fill="#ec8526"/><ellipse cx="32" cy="38" rx="9" ry="24" fill="#f49b39"/><path d="M28 18 q-3 20 0 40 M36 18 q3 20 0 40" fill="none" stroke="#d96f1c" stroke-width="1.2"/></svg>';
+  var FEATHER = '<svg class="mascot" viewBox="0 0 24 48" aria-hidden="true"><path d="M12 2 C24 14 22 32 12 40 C2 32 0 14 12 2 Z" fill="COLOR"/><path d="M12 6 V47" stroke="#5a2a12" stroke-width="1.4"/></svg>';
+  var MOUSE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g class="a-wig"' + pivot(10, 46) + '><path d="M10 46 Q-4 40 4 28" fill="none" stroke="#d9a7a0" stroke-width="2.4" stroke-linecap="round"/></g><ellipse cx="27" cy="44" rx="19" ry="12" fill="#a99a8c"/><ellipse cx="24" cy="49" rx="11" ry="6" fill="#c9bcb0"/><circle cx="42" cy="38" r="9.5" fill="#b8a99b"/><circle cx="38" cy="29" r="5.5" fill="#8f8275"/><circle cx="38" cy="29" r="3.2" fill="#d9b6b0"/><circle cx="46" cy="36" r="1.9" fill="#17110c"/><circle cx="51" cy="41" r="1.9" fill="#e58a8a"/><path d="M50 43 l8 -1 M50 44 l8 2" stroke="#6b6157" stroke-width=".9"/><polygon points="46,47 62,43 60,56 46,56" fill="#f2c94c"/><circle cx="53" cy="50" r="1.8" fill="#d9a92f"/><path d="M20 55 v3 M32 55 v3" stroke="#d9a7a0" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  var SPIDER = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g class="a-wig"' + pivot(22, 36) + ' stroke="#17110c" stroke-width="2.8" fill="none" stroke-linecap="round"><path d="M22 30 L10 16 L3 24 M21 36 L6 32 L1 42 M22 42 L8 48 L6 60"/></g><g class="a-wigR"' + pivot(42, 36) + ' stroke="#17110c" stroke-width="2.8" fill="none" stroke-linecap="round"><path d="M42 30 L54 16 L61 24 M43 36 L58 32 L63 42 M42 42 L56 48 L58 60"/></g><circle cx="32" cy="36" r="15" fill="#2d2533"/><ellipse cx="32" cy="30" rx="8" ry="4" fill="#4a3f52"/>' + eyes(26, 38, 34, 4.4, 'a-look') + '<path d="M26 42 Q32 47 38 42" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M28 44 v2 M36 44 v2" stroke="#fff" stroke-width="1.4"/></svg>';
+  var SQUIRREL = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><g class="a-wig"' + pivot(22, 50) + '><path d="M22 54 C0 52 0 18 18 14 C30 12 30 30 21 32 C14 34 18 44 28 46 Z" fill="#a4592a"/><path d="M9 40 C8 30 11 22 18 20" fill="none" stroke="#c98a5a" stroke-width="2.2"/></g><ellipse cx="33" cy="44" rx="13" ry="13" fill="#b86a35"/><ellipse cx="36" cy="48" rx="7" ry="8" fill="#e9c9a3"/><circle cx="44" cy="28" r="9.5" fill="#b86a35"/><circle cx="40" cy="18" r="3.8" fill="#a4592a"/><circle cx="47" cy="26" r="2.1" fill="#17110c"/><circle cx="52" cy="31" r="1.5" fill="#2a1a10"/><ellipse cx="50" cy="44" rx="5" ry="6" fill="#7a4522"/><path d="M45 39 h10" stroke="#5a2a12" stroke-width="3" stroke-linecap="round"/><path d="M26 56 h7 M38 56 h7" stroke="#7a4522" stroke-width="3" stroke-linecap="round"/></svg>';
+  var GOOSE = '<svg class="mascot" viewBox="0 0 80 46" aria-hidden="true"><path d="M8 26 q10 -7 30 -5 q14 1 24 -3 q5 -2 10 0 l6 2 l-6 2 q-6 1 -9 4 q-12 11 -30 9 q-16 -1 -25 -9 z" fill="#4a3a2b"/><path d="M62 18 q5 -2 10 0 q0 3 -3 4 q-5 1 -8 0 z" fill="#17110c"/><circle cx="68" cy="19" r="1.2" fill="#fff"/><path d="M58 20 q2 3 2 6" stroke="#f3e6c4" stroke-width="2.2" fill="none"/><path d="M24 33 q10 4 20 1" fill="none" stroke="#c9bfae" stroke-width="3"/><g class="a-flap"' + pivot(36, 24) + '><path d="M24 24 Q26 2 44 2 Q42 16 44 24 Z" fill="#33281e"/></g></svg>';
+  var CANDLE = '<svg class="mascot" viewBox="0 0 40 84" aria-hidden="true"><circle cx="20" cy="14" r="17" fill="#ffc94d" opacity=".14"/><circle cx="20" cy="15" r="10" fill="#ffc94d" opacity=".22"/><g class="a-flick"' + pivot(20, 23) + '><path d="M20 2 C28 12 26 22 20 24 C14 22 12 12 20 2 Z" fill="#ff9d2e"/><path d="M20 10 C24 15 23 21 20 23 C17 21 16 15 20 10 Z" fill="#fff0ad"/></g><path d="M20 23 v4" stroke="#2b1d10" stroke-width="1.8"/><rect x="11" y="27" width="18" height="55" rx="2" fill="#f4ead2"/><rect x="11" y="27" width="5" height="55" rx="2" fill="#fff9ea"/><rect x="25" y="27" width="4" height="55" rx="1" fill="#dccfb1"/><path d="M11 29 v8 q3 3 3 -2 v-4 q3 12 6 0 q2 7 5 2 q3 4 4 -2 v-4 z" fill="#fffdf4"/></svg>';
+  var BROOM = '<svg class="mascot" viewBox="0 0 130 60" aria-hidden="true"><g transform="rotate(-3 65 34)"><rect x="34" y="31" width="92" height="4" rx="2" fill="#7a4e2c"/><path d="M38 24 L4 12 L12 33 L3 53 L38 42 Z" fill="#c9a24a"/><path d="M34 27 L10 18 M34 33 L8 33 M34 38 L10 47 M36 30 L14 25 M36 36 L14 41" stroke="#8f6f2a" stroke-width="1.3"/><rect x="34" y="23" width="6" height="20" rx="1.5" fill="#7a1f2b"/></g>' +
+    '<g class="a-hopSm"' + pivot(78, 30) + '><path d="M90 30 Q97 18 92 8" class="a-wig" fill="none" stroke="#17131f" stroke-width="3" stroke-linecap="round"/><ellipse cx="78" cy="22" rx="10" ry="9" fill="#17131f"/><polygon points="62,4 63,15 71,10" fill="#17131f"/><polygon points="80,4 79,15 71,10" fill="#17131f"/><circle cx="71" cy="14" r="9" fill="#17131f"/><circle cx="68" cy="13" r="1.8" fill="#e6d24a"/><circle cx="74" cy="13" r="1.8" fill="#e6d24a"/></g></svg>';
+  var FLY_BOOK = '<svg class="mascot" viewBox="0 0 80 60" aria-hidden="true"><g class="a-pageL"' + pivot(40, 30) + '><path d="M40 16 Q22 2 3 12 V48 Q22 38 40 54 Z" fill="#7a1f2b"/><path d="M40 19 Q24 8 8 15 V44 Q24 36 40 50 Z" fill="#f7efd9"/><path d="M13 21 q11 -3 22 3 M13 27 q11 -3 22 3 M13 33 q11 -3 22 3" fill="none" stroke="#a49878" stroke-width="1.2"/></g><g class="a-pageR"' + pivot(40, 30) + '><path d="M40 16 Q58 2 77 12 V48 Q58 38 40 54 Z" fill="#8f2a38"/><path d="M40 19 Q56 8 72 15 V44 Q56 36 40 50 Z" fill="#efe3c6"/><path d="M67 21 q-11 -3 -22 3 M67 27 q-11 -3 -22 3 M67 33 q-11 -3 -22 3" fill="none" stroke="#a49878" stroke-width="1.2"/></g><rect x="38.5" y="16" width="3" height="38" rx="1.5" fill="#4d121c"/></svg>';
+  var DRAGON = '<svg class="mascot" viewBox="0 0 170 90" aria-hidden="true"><path d="M2 42 Q24 34 44 44 L60 40 L58 58 Q32 62 14 50 L3 54 L8 46 Z" fill="#1d3b2a"/><g fill="#2c6e4a"><polygon points="52,42 58,32 64,41"/><polygon points="66,40 73,29 80,39"/><polygon points="82,38 89,27 96,37"/></g><path d="M44 44 Q78 30 108 40 Q112 56 92 64 Q62 72 44 56 Z" fill="#245238"/><path d="M58 60 Q78 66 96 58 Q84 52 58 60" fill="#7fa86a"/><path d="M62 66 v14 l-5 3 M62 80 l5 3 M84 64 v14 l-5 3 M84 78 l5 3" stroke="#1d3b2a" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M100 42 Q116 32 124 22 Q140 16 146 24 L150 34 L136 38 Q124 44 110 54 Z" fill="#245238"/><polygon points="130,18 124,6 136,16" fill="#d9c98f"/><polygon points="139,18 138,6 145,18" fill="#d9c98f"/><circle cx="138" cy="25" r="3" fill="#ffe45e"/><circle cx="139" cy="25" r="1.3" fill="#17110c"/>' +
+    '<g class="a-flame"' + pivot(150, 34) + '><path d="M150 32 Q160 24 170 30 Q162 34 168 42 Q158 40 150 36 Z" fill="#ff8a2a"/><path d="M151 33 Q158 30 163 33 Q158 35 151 35 Z" fill="#ffe27a"/></g><g class="a-flap"' + pivot(76, 36) + '><path d="M60 36 Q58 8 96 0 Q90 10 92 14 Q84 14 84 22 Q76 20 78 30 Q70 28 74 38 Z" fill="#2c6e4a"/><path d="M68 34 Q70 16 88 6" fill="none" stroke="#1d3b2a" stroke-width="1.5"/></g></svg>';
+  var CAULDRON = '<svg class="mascot" viewBox="0 0 80 80" aria-hidden="true"><circle class="a-bub" cx="28" cy="26" r="4" fill="#9af2a4"/><circle class="a-bub" style="animation-delay:.5s" cx="42" cy="24" r="3" fill="#c6f7cb"/><circle class="a-bub" style="animation-delay:1s" cx="53" cy="27" r="5" fill="#7fe08a"/><circle class="a-bub" style="animation-delay:1.5s" cx="36" cy="26" r="2.5" fill="#c6f7cb"/><ellipse cx="40" cy="32" rx="28" ry="6" fill="#5fcf6e"/><ellipse cx="33" cy="31" rx="9" ry="2" fill="#a6f0ae"/><path d="M12 32 Q8 68 40 70 Q72 68 68 32 Z" fill="#1b1b24"/><path d="M18 40 Q15 60 32 65" fill="none" stroke="#3a3a48" stroke-width="3"/><rect x="8" y="28" width="64" height="6" rx="3" fill="#2c2c38"/><circle cx="6" cy="42" r="4" fill="none" stroke="#2c2c38" stroke-width="2.4"/><circle cx="74" cy="42" r="4" fill="none" stroke="#2c2c38" stroke-width="2.4"/><g class="a-flick"' + pivot(40, 78) + '><path d="M24 78 Q26 68 30 72 Q32 64 38 72 Q42 64 46 72 Q52 66 56 78 Z" fill="#ff8a2a"/></g></svg>';
+  var CAT = '<svg class="mascot" viewBox="0 0 80 80" aria-hidden="true"><g class="a-wig"' + pivot(62, 66) + '><path d="M60 68 Q78 62 72 40 Q71 34 67 36" fill="none" stroke="#17131f" stroke-width="6" stroke-linecap="round"/></g><path d="M18 44 Q14 74 40 76 Q66 74 62 44 Z" fill="#17131f"/><polygon points="16,32 14,6 34,20" fill="#17131f"/><polygon points="64,32 66,6 46,20" fill="#17131f"/><polygon points="20,24 19,13 29,20" fill="#c9798c"/><polygon points="60,24 61,13 51,20" fill="#c9798c"/><ellipse cx="40" cy="36" rx="26" ry="22" fill="#17131f"/><g class="a-blink"' + pivot(40, 33) + '><ellipse cx="30" cy="33" rx="6.5" ry="5.5" fill="#e6d24a"/><ellipse cx="50" cy="33" rx="6.5" ry="5.5" fill="#e6d24a"/><g class="a-look"><ellipse cx="30" cy="33" rx="2" ry="5" fill="#000"/><ellipse cx="50" cy="33" rx="2" ry="5" fill="#000"/></g></g><polygon points="37,41 43,41 40,44" fill="#d98a9a"/><path d="M40 44 q-3 3 -6 1 M40 44 q3 3 6 1 M25 42 l-13 -2 M25 45 l-13 2 M55 42 l13 -2 M55 45 l13 2" fill="none" stroke="#6b6577" stroke-width="1.2"/></svg>';
   var PIE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="#c98a45" stroke="#a96d2e" stroke-width="6" stroke-dasharray="6 4"/><circle cx="32" cy="32" r="22" fill="#d9682b"/><circle cx="24" cy="24" r="1.5" fill="#a8461a"/><circle cx="42" cy="26" r="1.5" fill="#a8461a"/><circle cx="40" cy="43" r="1.5" fill="#a8461a"/><circle cx="23" cy="42" r="1.5" fill="#a8461a"/><path d="M32 22 c7 0 10 5 7 9 c5 1 5 8 -1 9 c-3 3 -9 3 -12 0 c-6 -1 -6 -8 -1 -9 c-3 -4 0 -9 7 -9 Z" fill="#fff8ea"/></svg>';
-  var GOOSE = '<svg class="mascot" viewBox="0 0 64 40" aria-hidden="true"><path d="M2 24 Q18 2 32 22 Q46 2 62 24 Q44 18 32 30 Q20 18 2 24 Z" fill="#3b2a1e"/></svg>';
   var CLOUD = '<svg class="mascot" viewBox="0 0 96 44" aria-hidden="true"><path d="M20 40 a14 14 0 0 1 -2 -28 a20 20 0 0 1 38 -4 a15 15 0 0 1 24 12 a11 11 0 0 1 -3 20 Z" fill="rgba(226,235,250,.92)"/></svg>';
   var PLANE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="2,30 62,6 40,58 30,38" fill="#f7f3e8"/><polygon points="30,38 62,6 36,48" fill="#cfd9e8"/></svg>';
   var FX_SAYS = {
@@ -764,12 +911,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
   var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", wizard: 'All spells cast!', calm: 'All done!' };
-  var CANDLE = '<svg class="mascot" viewBox="0 0 32 72" aria-hidden="true"><ellipse cx="16" cy="11" rx="6" ry="10" fill="#ffb636"/><ellipse cx="16" cy="13" rx="3" ry="6" fill="#fff2b0"/><path d="M16 20 v4" stroke="#2b1d10" stroke-width="2"/><rect x="8" y="24" width="16" height="46" rx="2" fill="#f7efd9"/><path d="M8 28 q3 8 5 0 q3 12 6 0 q2 6 5 0 v-4 h-16 z" fill="#fff"/></svg>';
-  var BROOM = '<svg class="mascot" viewBox="0 0 96 48" aria-hidden="true"><rect x="2" y="21" width="62" height="4" rx="2" fill="#7a4e2c" transform="rotate(4 32 23)"/><path d="M60 16 L94 4 L88 24 L94 44 L60 32 Z" fill="#c9a24a"/><path d="M60 15 v18" stroke="#7a1f2b" stroke-width="4"/></svg>';
-  var FLY_BOOK = '<svg class="mascot" viewBox="0 0 64 44" aria-hidden="true"><path d="M32 12 Q16 0 2 8 V38 Q16 30 32 42 Z" fill="#7a1f2b"/><path d="M32 12 Q48 0 62 8 V38 Q48 30 32 42 Z" fill="#8f2a38"/><path d="M32 15 Q19 6 7 12 V34 Q19 28 32 37 Z" fill="#f7efd9"/><path d="M32 15 Q45 6 57 12 V34 Q45 28 32 37 Z" fill="#efe3c6"/></svg>';
-  var DRAGON = '<svg class="mascot" viewBox="0 0 110 60" aria-hidden="true"><path d="M2 40 Q24 26 48 34 Q60 38 76 30 L90 24 L108 28 L92 36 Q76 48 50 46 Q24 44 2 40 Z" fill="#1d3b2a"/><path d="M42 34 Q40 6 70 2 Q60 16 66 32 Z" fill="#2a5a3e"/><path d="M50 36 Q34 16 16 16 Q28 26 32 38 Z" fill="#234d35"/><circle cx="94" cy="28" r="1.8" fill="#ffe45e"/></svg>';
-  var CAULDRON = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="14" r="4" fill="#7fe08a"/><circle cx="34" cy="7" r="3" fill="#a6f0ae"/><circle cx="44" cy="17" r="5" fill="#7fe08a"/><ellipse cx="32" cy="24" rx="24" ry="5" fill="#5fcf6e"/><path d="M8 24 Q4 58 32 60 Q60 58 56 24 Z" fill="#1b1b24"/><rect x="4" y="21" width="56" height="5" rx="2.5" fill="#2c2c38"/></svg>';
-  var CAT = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 30 L10 6 L26 18 Q32 16 38 18 L54 6 L52 30 Q56 56 32 58 Q8 56 12 30 Z" fill="#17131f"/><ellipse cx="23" cy="31" rx="6" ry="5" fill="#e6d24a"/><ellipse cx="41" cy="31" rx="6" ry="5" fill="#e6d24a"/><ellipse cx="23" cy="31" rx="1.8" ry="4.5" fill="#000"/><ellipse cx="41" cy="31" rx="1.8" ry="4.5" fill="#000"/><polygon points="29,39 35,39 32,42" fill="#d98a9a"/></svg>';
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
@@ -781,51 +922,64 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
     fxAdd(html, 7000);
   }
+  function fxFeathers(colors, seconds) {
+    // Feathers drop just as the walker passes each spot.
+    var html = '', i;
+    for (i = 0; i < 7; i++) {
+      var spot = 8 + i * 13.5;
+      html += '<div class="fx-feather" style="left:' + spot + '%;animation-delay:' + (seconds * (spot + 12) / 115) + 's">' + FEATHER.replace('COLOR', colors[i % colors.length]) + '</div>';
+    }
+    fxAdd(html, seconds * 1000 + 3000);
+  }
   var FX_SCENES = {
     office: [
-      function () { fxWalker('', mascot(), fxPickLine('office'), 12500); },
-      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '</div><div class="fx-alert">MOTION DETECTED</div>', 5200); },
-      function () { fxOnFeed('<div class="fx-lost">SIGNAL LOST</div>', 2600); },
-      function () { fxAdd('<div class="fx-dark"><div class="fx-eye" style="left:44%"></div><div class="fx-eye" style="left:52%"></div></div>', 3300); },
-      function () { fxAdd('<div class="fx-flash"></div>', 6100); },
+      function () { fxWalker('', actor(), fxPickLine('office'), 12500); },
+      function () { fxOnFeed('<div class="fx-peek">' + actor() + '<div class="fx-box"></div></div><div class="fx-alert">MOTION DETECTED</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-lost"><span>SIGNAL LOST</span><small>Searching for camera...</small><div class="fx-bars"><i style="background:#d9d9d9"></i><i style="background:#d9c63c"></i><i style="background:#3cc9c9"></i><i style="background:#3cc93c"></i><i style="background:#c93cc9"></i><i style="background:#c93c3c"></i><i style="background:#3c3cc9"></i></div></div>', 2600); },
+      function () { fxAdd('<div class="fx-dark"><div class="fx-eye" style="left:44%"></div><div class="fx-eye" style="left:52%"></div><div class="fx-whisper">Who turned out the lights?</div></div>', 3300); },
+      function () { fxAdd('<div class="fx-stand">' + actor() + '</div><div class="fx-flash"></div>', 6100); },
       function () { fxOnFeed('<div class="fx-small">' + MOUSE + '</div>', 5200); },
       function () { fxOnFeed('<div class="fx-spider" style="left:' + (15 + Math.random() * 65) + '%"><div class="fx-thread"></div>' + SPIDER + '</div>', 6200); },
       function () {
         fxAdd('<div class="fx-tear" style="top:12%;height:10%"></div><div class="fx-tear" style="top:46%;height:6%"></div><div class="fx-tear" style="top:74%;height:13%"></div><div class="fx-track">TRACKING...</div>', 2200);
       },
-      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '<div class="fx-wave"></div></div><div class="fx-alert" style="color:var(--mint)">HI THERE!</div>', 5200); }
+      function () { fxOnFeed('<div class="fx-peek">' + actor() + '<div class="fx-wave"></div></div><div class="fx-alert" style="color:var(--mint)">HI THERE!</div>', 5200); }
     ],
     harvest: [
-      function () { fxWalker('', mascot(), fxPickLine('harvest'), 12500); },
-      function () { fxWalker('fast', mascot(), 'Not this year!', 4800); },
+      function () { fxWalker('', actor(), fxPickLine('harvest'), 12500); fxFeathers(['#c9481f', '#e9962c', '#a8321a'], 12); },
+      function () { fxWalker('fast', '<div class="fx-speed"><i></i><i></i><i></i></div>' + actor(), 'Not this year!', 4800); fxFeathers(['#c9481f', '#e9962c', '#f0b13c'], 4.5); },
       function () { fxWalker('roll', PUMPKIN, '', 9300); },
       function () { fxGust(14); },
       function () {
         var html = '', spots = [[0, 11], [5, 6], [10, 1], [15, 6], [20, 11]], i;
-        for (i = 0; i < spots.length; i++) html += '<div class="fx-bird" style="left:' + spots[i][0] + 'rem;top:' + spots[i][1] + 'rem;animation-delay:' + (i * .08) + 's">' + GOOSE + '</div>';
-        fxAdd('<div class="fx-fly">' + html + '</div>', 13200);
+        for (i = 0; i < spots.length; i++) html += '<div class="fx-bird" style="left:' + spots[i][0] + 'rem;top:' + spots[i][1] + 'rem">' + GOOSE + '</div>';
+        fxAdd('<div class="fx-fly">' + html + '<div class="fx-say" style="left:26rem;bottom:auto;top:-1rem">Honk!</div></div>', 13200);
       },
       function () {
-        var look = mascot();
+        var look = actor();
         fxWalker('', look, 'Follow me!', 12500);
         fxWalker('', look, '', 13500, 'width:11rem;height:11rem;animation-delay:.9s');
         fxWalker('', look, '', 14500, 'width:8rem;height:8rem;animation-delay:1.8s');
       },
-      function () { fxWalker('roll', PIE, '', 9300); fxWalker('', mascot(), 'Come back, pie!', 12500, 'animation-delay:1s;animation-duration:10s'); },
+      function () { fxWalker('roll', PIE, '', 9300); fxWalker('', actor(), 'Come back, pie!', 12500, 'animation-delay:1s;animation-duration:10s'); },
       function () { fxOnFeed('<div class="fx-small">' + SQUIRREL + '</div>', 5200); },
-      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '</div><div class="fx-alert" style="color:#b5481a">Psst... pie time?</div>', 5200); }
+      function () { fxOnFeed('<div class="fx-peek">' + actor() + '</div><div class="fx-alert" style="color:#b5481a">Psst... pie time?</div>', 5200); }
     ],
     wizard: [
-      function () { fxWalker('', mascot(), fxPickLine('wizard'), 12500); },
+      function () { fxWalker('', actor(), fxPickLine('wizard'), 12500); },
       function () {
-        fxAdd('<div class="fx-fly"><div class="fx-hop" style="width:13rem;height:13rem">' + mascot() + '</div><div style="position:absolute;left:3rem;top:11.5rem;width:7rem;height:4.6rem">' + LETTER + '</div></div>', 13200);
+        fxAdd('<div class="fx-fly"><div class="fx-hop" style="width:15rem;height:15rem">' + actor() + '</div><div class="fx-letter">' + LETTER + '</div></div>', 13200);
       },
       function () {
         var html = '', i;
         for (i = 0; i < 7; i++) html += '<div class="fx-candle" style="left:' + (6 + i * 13.5) + '%;animation-delay:' + (i % 3 * .9) + 's">' + CANDLE + '</div>';
         fxAdd(html, 13000);
       },
-      function () { fxAdd('<div class="fx-broom">' + BROOM + '</div>', 6200); },
+      function () {
+        var trail = '', i;
+        for (i = 0; i < 7; i++) trail += '<div class="fx-twink" style="left:' + (-3 - i * 2.2) + 'rem;top:' + (2 + (i * 37) % 7) + 'rem;animation-delay:' + (i * .15) + 's">' + STAR + '</div>';
+        fxAdd('<div class="fx-broom">' + trail + BROOM + '</div>', 6200);
+      },
       function () {
         var html = '', i;
         for (i = 0; i < 18; i++) html += '<div class="fx-spark" style="left:' + (Math.random() * 94) + '%;top:' + (Math.random() * 86) + '%;animation-delay:' + (Math.random() * 1.8) + 's">' + STAR + '</div>';
@@ -886,8 +1040,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     fxOnFeed('<div class="fx-timeup"><b>TIME!</b><small>' + esc(label) + '</small></div>', 4600, $('hero'));
   }
   function fxCelebrate() {
-    var id = themeInfo().id, look = mascot();
-    fxAdd('<div class="fx-cheer"><span>' + esc(CHEERS[id]) + '</span></div>', 7100);
+    var id = themeInfo().id, look = actor();
+    fxAdd(confetti().replace(/class="bit"/g, 'class="bit far"') + confetti().replace(/class="bit"/g, 'class="bit far"') + '<div class="fx-cheer"><span>' + esc(CHEERS[id]) + '</span></div>', 7100);
     if (id === 'harvest') fxGust(14);
     fxWalker('', look, '', 12500);
     fxWalker('', look, '', 13500, 'animation-delay:1s');
@@ -928,6 +1082,63 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
         if (step >= steps) clearInterval(run);
       }, 45);
     });
+  }
+
+  /* ---------- Timers: stored as an end time, so every screen counts down the same ---------- */
+  var TIMER_PRESETS = [{ label: 'Teeth', min: 5 }, { label: 'Shower', min: 10 }, { label: '', min: 5 }, { label: '', min: 10 }, { label: '', min: 15 }, { label: '', min: 20 }, { label: '', min: 30 }];
+  function timerLeft(t) { return t.paused !== undefined && t.paused !== null ? t.paused : t.end - Date.now(); }
+  function liveTimer(kid) {
+    // One left running by accident disappears after half an hour of overtime.
+    var t = data.timers && data.timers[kid];
+    return t && t.total && timerLeft(t) > -1800000 ? t : null;
+  }
+  function timerText(ms) {
+    var over = ms < 0, secs = over ? Math.floor(-ms / 1000) : Math.ceil(ms / 1000);
+    return (over ? '+' : '') + Math.floor(secs / 60) + ':' + pad(secs % 60);
+  }
+  function timerTile(kid) {
+    var t = liveTimer(kid);
+    if (!t) return '';
+    return '<div class="kid-timer" data-kid="' + kid + '"><div class="t-label">' + esc(t.label || 'Timer') + '</div><div class="t-num"></div><div class="t-track"><div class="t-fill"></div></div></div>';
+  }
+  function updateTimers() {
+    var tiles = document.querySelectorAll('.kid-timer'), times = document.querySelectorAll('.ed-time'), i;
+    for (i = 0; i < tiles.length; i++) {
+      var el = tiles[i], t = liveTimer(el.getAttribute('data-kid'));
+      if (!t) continue;
+      var left = timerLeft(t), cls = 'kid-timer' + (t.paused !== undefined && t.paused !== null ? ' paused' : left < 0 ? ' over' : left <= 60000 ? ' soon' : '');
+      if (el.className !== cls) el.className = cls;
+      el.querySelector('.t-num').textContent = timerText(left);
+      el.querySelector('.t-fill').style.width = Math.max(0, Math.min(100, left / t.total * 100)) + '%';
+    }
+    for (i = 0; i < times.length; i++) {
+      var live = liveTimer(times[i].getAttribute('data-kid'));
+      if (!live) continue;
+      var ms = timerLeft(live);
+      times[i].textContent = timerText(ms) + (live.paused !== undefined && live.paused !== null ? ' (paused)' : '');
+      times[i].className = ms < 0 ? 'ed-time over' : 'ed-time';
+    }
+  }
+  function startTimer(label, min) {
+    var kids = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], i;
+    for (i = 0; i < kids.length; i++) put('timers/' + kids[i], { label: label, total: min * 60000, end: Date.now() + min * 60000 });
+    toast('Timer started');
+  }
+  function timersHtml() {
+    var s = settings(), html = '<div class="card"><h2>Timers</h2><span class="lab">Who</span><div class="opts">', k, i;
+    for (k = 0; k < s.kids.length; k++) html += optBtn('timerWho', k, s.kids[k], String(ed.timerWho) === String(k));
+    html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Tap to start</span><div class="opts">';
+    for (i = 0; i < TIMER_PRESETS.length; i++) html += optBtn('timerGo', i, TIMER_PRESETS[i].label ? TIMER_PRESETS[i].label + ' ' + TIMER_PRESETS[i].min : TIMER_PRESETS[i].min + ' min', false);
+    html += '</div><span class="lab">Or set your own</span><div class="pair"><input aria-label="What for" placeholder="What for" maxlength="20" data-draft="timerLabel" data-f="tl" value="' + esc(ed.timerLabel || '') + '">' +
+      '<input aria-label="Minutes" placeholder="Minutes" inputmode="numeric" type="number" min="1" max="180" data-draft="timerMins" data-f="tm" value="' + esc(ed.timerMins || '') + '"></div><button class="go" data-act="timerCustom" data-f="timerCustom">Start timer</button>';
+    for (k = 0; k < s.kids.length; k++) {
+      var t = liveTimer(k);
+      if (!t) continue;
+      var paused = t.paused !== undefined && t.paused !== null;
+      html += '<div class="row" style="flex-wrap:wrap"><div>' + esc(s.kids[k]) + ': ' + esc(t.label || 'Timer') + '<span class="ed-time" data-kid="' + k + '"></span></div></div><div class="opts">' +
+        optBtn('timerAdd', k, '+1 min', false) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div>';
+    }
+    return html + '</div>';
   }
 
   /* ---------- Daily checklist: marks are stored per day, so every morning starts clean ---------- */
@@ -1000,17 +1211,18 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       if (justFinished) anyFinished = true;
       if (!allDone) everyoneDone = false;
       html += '<div class="kid" data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
-        '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
+        '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-row"><div class="kid-main"><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
         (allDone ? '<span class="kid-flag">' + themeInfo().flag + '</span>' : '') + '</div>' +
         '<div class="kid-total"><span class="kid-num"' + (change ? ' data-from="' + was.total + '"' : '') + '>' + m.total + '</span> <small>of ' + m.full + ' min</small></div></div>' +
         blockBar('After school', m.after, s.blockMinutes, was && was.after) + blockBar('Evening', m.evening, s.blockMinutes, was && was.evening) +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
-        (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips +
-        (justFinished ? '<div class="parade">' + mascot() + '</div>' + confetti() : '') + '</div>';
+        (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
+        (justFinished ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + '</div>';
     }
     lastChecks = shown;
     lastMins = mins;
     $('kids').innerHTML = html;
+    updateTimers();
     fitChips();
     animateMinutes();
     if (anyFinished && everyoneDone) fxCelebrate();
@@ -1101,6 +1313,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       html += ed.tab === 'list' ? listHtml() : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : ed.tab === 'music' ? musicHtml() : setupHtml();
     }
     el.innerHTML = html + '</div>';
+    updateTimers();
     if (el.className.indexOf('overlay') >= 0) el.scrollTop = scroll; else window.scrollTo(0, scroll);
     var again = fid && el.querySelector('[data-f="' + fid + '"]');
     if (again) again.focus();
@@ -1125,7 +1338,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     return html;
   }
   function listHtml() {
-    var s = settings(), key = dateKey(new Date()), html = '<div class="card"><h2>Today\'s list</h2>', i, k;
+    var s = settings(), key = dateKey(new Date()), html = timersHtml() + '<div class="card"><h2>Today\'s list</h2>', i, k;
     for (i = 0; i < s.checklist.length; i++) {
       html += '<div class="list-item">' + esc(s.checklist[i]) + '</div><div class="opts">';
       for (k = 0; k < s.kids.length; k++) {
@@ -1210,7 +1423,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
     if (data.icloud && data.icloud.at) {
       var at = new Date(data.icloud.at), hrs = (at.getHours() % 12 || 12) + ':' + pad(at.getMinutes()) + (at.getHours() < 12 ? ' am' : ' pm');
-      html += '<p class="hint">iCloud events are edited in the Calendar app. Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '.</p>';
+      html += '<p class="hint">iCloud events are edited in the Calendar app. Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '. It syncs about once an hour.</p>' +
+        '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Sync now on GitHub</a>' +
+        '<p class="hint">Sign in, tap Run workflow, then the green button. Allow about a minute.</p>';
     }
     return html + '</div>';
   }
@@ -1357,6 +1572,29 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       forceEditor();
     },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    timerWho: function (a) { ed.timerWho = a; forceEditor(); },
+    timerGo: function (a) { var p = TIMER_PRESETS[+a]; startTimer(p.label, p.min); forceEditor(); },
+    timerCustom: function () {
+      var min = parseInt(ed.timerMins, 10);
+      if (!(min >= 1 && min <= 180)) { toast('Enter 1 to 180 minutes', true); return; }
+      startTimer((ed.timerLabel || '').replace(/^\s+|\s+$/g, ''), min);
+      ed.timerLabel = ''; ed.timerMins = '';
+      forceEditor();
+    },
+    timerAdd: function (a) {
+      var t = JSON.parse(JSON.stringify(liveTimer(a)));
+      t.total += 60000;
+      if (t.paused !== undefined && t.paused !== null) t.paused += 60000; else t.end += 60000;
+      put('timers/' + a, t);
+      forceEditor();
+    },
+    timerPause: function (a) {
+      var t = liveTimer(a), next = { label: t.label, total: t.total };
+      if (t.paused !== undefined && t.paused !== null) next.end = Date.now() + t.paused; else next.paused = timerLeft(t);
+      put('timers/' + a, next);
+      forceEditor();
+    },
+    timerStop: function (a) { put('timers/' + a, null); forceEditor(); },
     check: function (a) {
       var parts = a.split('-'), kid = +parts[0], item = +parts[1], key = dateKey(new Date());
       put('checks/' + key + '/' + kid + '/' + item, isChecked(kid, item, key) ? null : true);
@@ -1549,6 +1787,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     renderAll();
     poll();
     pollTimer = setInterval(poll, POLL_MS);
+    setInterval(pollTimers, 4000);
     if (pruneLater) setTimeout(pruneOld, 5000);
   }
   var pruneLater = false;
