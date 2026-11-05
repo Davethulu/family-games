@@ -16,6 +16,9 @@ A menu of our family's browser games. Open `index.html` (or the GitHub Pages lin
 | Word Miner (spelling) | `games/word-miner/` |
 | Duck Name Generator | `games/duck-names/` |
 
+## Family Board
+`board/` is a TV dashboard, not a game, so it isn't on the menu. See `CLAUDE.md`.
+
 ## Adding a game
 1. Make a new folder under `games/` and save the game as `index.html` inside it (plus any files it needs).
 2. Open the main `index.html` and add an entry to the `GAMES` list near the bottom.

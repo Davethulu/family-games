@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Family Board</title>
+<style>
+:root {
+  --bg: #111a2c; --panel: #1b2a41; --panel2: #24364f; --line: #3a4f6d;
+  --ink: #f7f3e8; --muted: #a9b8cc; --mint: #9fe3bf; --blue: #a8c7ff;
+  --orange: #ffc27a; --pink: #ff8fa8; --gold: #ffd95e;
+}
+* { box-sizing: border-box; }
+html { font-size: .625vw; background: var(--bg); }
+body { margin: 0; color: var(--ink); background: var(--bg);
+  font-family: "Trebuchet MS", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.hide { display: none !important; }
+
+/* ---------- TV view: every size is in rem, and rem is fitted to the browser's real space ---------- */
+#tv { position: fixed; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden;
+  display: flex; flex-direction: column; padding: 2.5rem 3.5rem; }
+.tv-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.8rem; }
+.tv-date { font-size: 4.2rem; font-weight: 700; }
+.tv-clock { font-size: 4.2rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.tv-main { display: flex; flex: 1; min-height: 0; margin-bottom: 1.8rem; }
+.hero { flex: 1.25; min-width: 0; margin-right: 1.8rem; background: var(--panel); border-radius: 2rem;
+  padding: 2.4rem 3rem; display: flex; flex-direction: column; }
+.hero-label { font-size: 3.4rem; font-weight: 700; color: var(--mint); }
+.hero-count { font-size: 15.5rem; line-height: 1.08; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hero.soon .hero-label, .hero.soon .hero-count { color: var(--orange); }
+.hero.now .hero-label, .hero.now .hero-count { color: var(--pink); }
+.hero-sub { font-size: 2.3rem; color: var(--muted); }
+.stops { display: flex; margin-top: auto; padding-top: 1.4rem; }
+.stop { flex: 1; min-width: 0; padding: 1rem 1.1rem; margin-right: .8rem; border-radius: 1.1rem; background: var(--panel2); }
+.stop:last-child { margin-right: 0; }
+.stop b { display: block; font-size: 2.3rem; font-variant-numeric: tabular-nums; }
+.stop span { display: block; font-size: 1.55rem; color: var(--muted); line-height: 1.2; }
+.stop.past { opacity: .4; }
+.stop.next { background: var(--mint); color: var(--panel); }
+.stop.next span { color: var(--panel); }
+
+.kids { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.kid { flex: 1; min-height: 0; background: var(--panel); border-radius: 2rem; padding: 1.5rem 2.2rem; margin-bottom: 1.8rem;
+  display: flex; flex-direction: column; justify-content: center; }
+.kid:last-child { margin-bottom: 0; }
+.kid-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .6rem; }
+.kid-name { font-size: 3.2rem; font-weight: 700; }
+.kid-total { font-size: 5rem; font-weight: 700; color: var(--mint); font-variant-numeric: tabular-nums; }
+.kid-total small { font-size: 2rem; color: var(--muted); font-weight: 400; }
+.block { display: flex; align-items: center; margin-top: .55rem; }
+.block-name { width: 13.5rem; font-size: 1.9rem; color: var(--muted); }
+.block-track { flex: 1; height: 1.9rem; border-radius: 1rem; background: var(--panel2); overflow: hidden; }
+.block-fill { height: 100%; background: var(--blue); border-radius: 1rem; }
+.block-min { width: 8rem; text-align: right; font-size: 2.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kid-note { font-size: 1.6rem; color: var(--orange); margin-top: .5rem; }
+
+.tv-bottom { display: flex; height: 21rem; flex-shrink: 0; }
+.cal { flex: 1; min-width: 0; background: var(--panel); border-radius: 2rem; padding: 1.5rem 2.2rem; overflow: hidden; }
+.cal h2 { margin: 0 0 .6rem; font-size: 2.2rem; color: var(--gold); }
+.cal-list { display: flex; flex-wrap: wrap; }
+.ev { width: 50%; padding: .5rem 1.5rem .5rem 0; display: flex; align-items: baseline; font-size: 2.2rem; }
+.ev-when { flex-shrink: 0; width: 10.5rem; font-weight: 700; color: var(--mint); font-size: 2rem; }
+.ev-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ev-date { color: var(--muted); font-size: 1.7rem; margin-left: .8rem; flex-shrink: 0; }
+.empty { color: var(--muted); font-size: 2rem; }
+.side { width: 33rem; margin-left: 1.8rem; display: flex; flex-direction: column; flex-shrink: 0; }
+.player { flex: 1; min-height: 0; border-radius: 1.4rem; overflow: hidden; background: var(--panel); margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: center; text-align: center; font-size: 1.9rem; color: var(--muted); padding: 0; }
+.player iframe { width: 100%; height: 100%; border: 0; display: block; }
+.tv-btns { display: flex; }
+.tv-btn { flex: 1; padding: .8rem; font-size: 1.9rem; font-weight: 700; border-radius: 1rem; border: .3rem solid transparent;
+  background: var(--panel2); margin-right: .8rem; }
+.tv-btn:last-child { margin-right: 0; }
+.status { position: absolute; left: 50%; top: .6rem; transform: translateX(-50%); font-size: 1.5rem; color: var(--orange); }
+#tv button:focus { outline: none; border-color: var(--gold); background: var(--gold); color: var(--panel); }
+
+/* ---------- Switching feeds: a chosen panel grows to fill the screen ---------- */
+.feed-tag, .fx { display: none; }
+.feedbox { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 1rem; }
+.feedbox .player { margin-bottom: 0; }
+#camBack { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; z-index: 4; }
+.cam-big { position: relative; z-index: 5; transform-origin: 0 0; }
+.tv-btns { position: relative; z-index: 6; }
+
+/* ---------- Theme: Security Office. Only cheap effects, since TV processors are slow. ---------- */
+#tv.theme-office { --bg: #020504; --panel: #07100c; --panel2: #10211a; --line: #1f4a35;
+  --ink: #d9ffe9; --muted: #7fb79a; --mint: #5dffa0; --blue: #5dffa0; --orange: #ffc83d; --pink: #ff4b62; --gold: #ffc83d;
+  background: var(--bg); font-family: "Courier New", "DejaVu Sans Mono", "Liberation Mono", monospace; }
+.theme-office .hero, .theme-office .kid, .theme-office .cal, .theme-office .feedbox {
+  position: relative; overflow: hidden; border-radius: .4rem; border: .25rem solid var(--line); background: var(--panel); }
+.theme-office .hero { padding-top: 4.6rem; }
+.theme-office .kid { padding-top: 4.2rem; }
+.theme-office .cal { padding-top: 4.2rem; }
+.theme-office .cal h2 { display: none; }
+.theme-office .player { border-radius: 0; background: #000; }
+.block-name, .block-min, .ev-when, .tv-btn { white-space: nowrap; }
+.theme-office .block-name { width: 15.5rem; }
+.theme-office .block-min { width: 9.5rem; }
+.theme-office .ev-when { width: 13rem; }
+.theme-office .ev { font-size: 2rem; }
+.theme-office .ev-date { font-size: 1.5rem; }
+.theme-office .tv-btn { font-size: 1.55rem; padding: .8rem .2rem; }
+.theme-office .stop, .theme-office .tv-btn { border-radius: .3rem; }
+.theme-office .block-track, .theme-office .block-fill { border-radius: 0; }
+.theme-office .hero-count { color: var(--mint); text-shadow: 0 0 2rem rgba(93,255,160,.55); animation: jitter 7s infinite; }
+.theme-office .hero.soon .hero-count { color: var(--orange); text-shadow: 0 0 2rem rgba(255,200,61,.55); }
+.theme-office .hero.now .hero-count { color: var(--pink); text-shadow: 0 0 2rem rgba(255,75,98,.65); }
+.theme-office .feed-tag { display: flex; justify-content: space-between; position: absolute; left: 0; right: 0; top: 0; z-index: 3;
+  padding: .6rem 1.2rem; font-size: 1.9rem; color: var(--mint); background: rgba(0,0,0,.55); }
+.theme-office .feedbox .feed-tag { position: static; flex-shrink: 0; padding: .3rem .8rem; font-size: 1.5rem; }
+.theme-office .rec { color: var(--pink); animation: rec 2s steps(1) infinite; }
+.theme-office .fx { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 2; overflow: hidden; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0, rgba(255,255,255,.05) .12rem, transparent .12rem, transparent .4rem);
+  animation: flicker 6s infinite; }
+.theme-office .fx::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 18%;
+  background: rgba(190,255,220,.07); animation: roll 8s linear infinite; }
+.theme-office .kid:nth-of-type(2) .fx::after { animation-duration: 11s; animation-delay: -4s; }
+.theme-office .cal .fx::after { animation-duration: 13s; animation-delay: -7s; }
+#tv.switching .fx { background: repeating-linear-gradient(0deg, rgba(255,255,255,.4) 0, rgba(255,255,255,.4) .3rem, rgba(0,0,0,.7) .3rem, rgba(0,0,0,.7) .7rem); }
+@keyframes rec { 0% { opacity: 1; } 50% { opacity: .15; } }
+@keyframes roll { from { transform: translateY(-120%); } to { transform: translateY(620%); } }
+@keyframes flicker { 0%, 93%, 100% { opacity: 1; } 94% { opacity: .55; } 96% { opacity: .9; } 97% { opacity: .6; } }
+@keyframes jitter { 0%, 95%, 100% { transform: none; } 96% { transform: translateX(-.5rem); } 98% { transform: translateX(.4rem); } }
+
+/* ---------- Parent editor: sized in em, so it fits a phone or fills a TV ---------- */
+#editor { background: var(--bg); min-height: 100vh; font-size: 17px; }
+#editor.overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; overflow-y: auto; font-size: 2.1rem; z-index: 10; }
+.ed-wrap { max-width: 44em; margin: 0 auto; padding: 1em; }
+.ed-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .8em; }
+.ed-head h1 { font-size: 1.4em; margin: 0; }
+.tabs { display: flex; margin-bottom: 1em; }
+.tab { flex: 1; padding: .65em .2em; margin-right: .4em; background: var(--panel); border: .15em solid transparent; border-radius: .6em; font-weight: 700; }
+.tab:last-child { margin-right: 0; }
+.tab.on { background: var(--blue); color: var(--panel); }
+.card { background: var(--panel); border-radius: .9em; padding: 1em; margin-bottom: 1em; }
+.card h2 { font-size: 1.1em; margin: 0 0 .6em; color: var(--gold); }
+.lab { display: block; font-size: .9em; color: var(--muted); margin: .9em 0 .35em; }
+.lab:first-child { margin-top: 0; }
+.opts { display: flex; flex-wrap: wrap; margin: 0 -.2em; }
+.opt { flex: 1 1 auto; min-height: 2.7em; padding: .5em .8em; margin: .2em; background: var(--panel2); border: .15em solid transparent; border-radius: .6em; }
+.opt.on { background: var(--mint); color: var(--panel); font-weight: 700; }
+.reason { display: flex; width: 100%; justify-content: space-between; text-align: left; min-height: 2.7em; padding: .55em .8em; margin-bottom: .35em;
+  background: var(--panel2); border: .15em solid transparent; border-radius: .6em; }
+.reason.on { background: var(--mint); color: var(--panel); font-weight: 700; }
+.reason i { font-style: normal; flex-shrink: 0; margin-left: .8em; }
+.go { display: block; width: 100%; min-height: 3em; margin-top: 1em; padding: .6em; background: var(--gold); color: var(--panel);
+  border: .15em solid transparent; border-radius: .7em; font-weight: 700; font-size: 1.05em; }
+.go:disabled { opacity: .45; }
+.small { min-height: 2.4em; padding: .3em .8em; background: var(--panel2); border: .15em solid transparent; border-radius: .5em; }
+.row { display: flex; align-items: center; justify-content: space-between; padding: .55em 0; border-top: 1px solid var(--line); }
+.row:first-of-type { border-top: 0; }
+.row > div { min-width: 0; padding-right: .8em; }
+.row em { display: block; font-style: normal; color: var(--muted); font-size: .85em; }
+input, select { width: 100%; min-height: 2.7em; padding: .4em .6em; background: var(--panel2); border: .15em solid var(--line); border-radius: .5em; }
+.pair { display: flex; }
+.pair > * { flex: 1; min-width: 0; margin-right: .6em; }
+.pair > *:last-child { margin-right: 0; }
+.check { display: flex; align-items: center; margin-top: .9em; }
+.check input { width: 1.5em; min-height: 1.5em; margin: 0 .6em 0 0; flex-shrink: 0; }
+.hint { font-size: .85em; color: var(--muted); margin: .6em 0 0; }
+.day-row { display: flex; align-items: center; padding: .25em 0; }
+.day-row b { width: 3em; flex-shrink: 0; }
+.day-row select { flex: 1; min-width: 0; margin-left: .5em; }
+.keypad { display: flex; flex-wrap: wrap; max-width: 15em; margin: 1em auto; }
+.keypad button { width: 30%; margin: 1.6%; min-height: 3em; font-size: 1.2em; background: var(--panel2); border: .15em solid transparent; border-radius: .6em; }
+.toast { position: fixed; left: 50%; bottom: 1.2em; transform: translateX(-50%); background: var(--mint); color: var(--panel);
+  padding: .6em 1.1em; border-radius: .7em; font-weight: 700; z-index: 20; font-size: 17px; }
+.toast.bad { background: var(--pink); }
+#editor button:focus, #editor input:focus, #editor select:focus, #gate button:focus, #gate input:focus {
+  outline: none; border-color: var(--gold); box-shadow: 0 0 0 .15em var(--gold); }
+
+#gate { padding: 2em 1em; max-width: 30em; margin: 0 auto; font-size: 18px; }
+#gate h1 { font-size: 1.5em; margin: 0 0 .6em; }
+</style>
+</head>
+<body>
+
+<div id="gate" class="hide"></div>
+
+<div id="tv" class="hide">
+  <div class="status hide" id="status"></div>
+  <div class="tv-top"><div class="tv-date" id="tvDate"></div><div class="tv-clock" id="tvClock"></div></div>
+  <div id="camBack" class="hide"></div>
+  <div class="tv-main">
+    <div class="hero" id="hero" data-cam="Countdown">
+      <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 1 &middot; COUNTDOWN</span><span class="feed-time"></span></div>
+      <div class="fx"></div>
+      <div class="hero-label" id="heroLabel"></div>
+      <div class="hero-count" id="heroCount"></div>
+      <div class="hero-sub" id="heroSub"></div>
+      <div class="stops" id="stops"></div>
+    </div>
+    <div class="kids" id="kids"></div>
+  </div>
+  <div class="tv-bottom">
+    <div class="cal" data-cam="Calendar">
+      <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 4 &middot; CALENDAR</span><span class="feed-time"></span></div>
+      <div class="fx"></div>
+      <h2>Coming up</h2><div class="cal-list" id="cal"></div>
+    </div>
+    <div class="side">
+      <div class="feedbox" data-cam="Music">
+        <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 5 &middot; MUSIC</span></div>
+        <div class="player" id="player"></div>
+      </div>
+      <div class="tv-btns">
+        <button class="tv-btn" id="btnCams" data-act="tvCams">Wall</button>
+        <button class="tv-btn" id="btnMusic" data-act="tvMusic">Music</button>
+        <button class="tv-btn" id="btnEdit" data-act="tvEdit">Parents</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="editor" class="hide"></div>
+<div id="toast" class="toast hide"></div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  // Written in plain older JavaScript on purpose: TV browsers can be years behind.
+  // Lofi Girl's live streams. Their IDs change now and then, so parents can also paste a new link.
+  var LOFI_PRESETS = [{ id: '4t4AQ15yj1M', text: 'Cozy Christmas lo-fi' }, { id: '0sfDth4lMLc', text: 'Spooky lo-fi' }];
+  var POLL_MS = 15000;
+  var DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // The rules from the family plan. Kid names are saved in the family's data, not in this public file.
+  var DEFAULT_SETTINGS = {
+    kids: ['Kid 1', 'Kid 2'],
+    pin: '',
+    theme: 'office',
+    camTour: false,
+    blockMinutes: 45,
+    floor: 15,
+    evening: '19:00',
+    bedtime: '',
+    schedule: {
+      sun: { ready: '08:40', out: '' },
+      mon: { ready: '07:50', out: '08:00' },
+      tue: { ready: '07:50', out: '08:00' },
+      wed: { ready: '07:50', out: '08:00' },
+      thu: { ready: '08:40', out: '08:50' },
+      fri: { ready: '07:50', out: '08:00' },
+      sat: { ready: '08:40', out: '' }
+    }
+  };
+  var REASONS = [
+    { id: 'late', text: 'Past the ready-by time', perMin: true, block: 'after' },
+    { id: 'hw', text: 'Past the homework done-by time', perMin: true, block: 'evening' },
+    { id: 'teeth', text: 'Teeth over 5 minutes', perMin: true, block: 'evening' },
+    { id: 'shower', text: 'Shower over 10 minutes', perMin: true, block: 'evening' },
+    { id: 'yell', text: 'Yelling or name-calling', min: 5, block: 'next' },
+    { id: 'yellcalm', text: 'Yelling, calmed within a minute', min: 3, block: 'next' },
+    { id: 'brother', text: "Commenting on brother's behavior", min: 5, block: 'next' },
+    { id: 'forgot', text: 'Forgot materials or work', min: 5, block: 'next' },
+    { id: 'other', text: 'Not on the chart (parent call)', perMin: true, block: 'next' }
+  ];
+
+  var params = location.search;
+  var DEMO = params.indexOf('demo') >= 0;
+  var EDIT_ONLY = params.indexOf('edit') >= 0;
+  var DB = (window.BOARD_CONFIG && window.BOARD_CONFIG.databaseURL || '').replace(/\/+$/, '');
+
+  var code = '';
+  var data = {};
+  var pending = 0;
+  var lastDataJson = '';
+  var lastError = false;
+  var musicKey = null;
+  var tvEditing = false;
+  var pinEntry = null;
+  var pinOk = false;
+  var ed = { tab: 'minutes', kid: 0, reason: '', mins: 5, block: '', evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function store(key, val) {
+    try {
+      if (val === undefined) return localStorage.getItem('board-' + key);
+      localStorage.setItem('board-' + key, val);
+    } catch (e) { return null; }
+    return null;
+  }
+  function dateKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseDateKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function atTime(d, hhmm) { var p = hhmm.split(':'); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), +p[0], +p[1]); }
+  function time12(hhmm) {
+    var p = hhmm.split(':'), h = +p[0];
+    return (h % 12 || 12) + ':' + p[1] + (h < 12 ? ' am' : ' pm');
+  }
+  function newId() { return Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+
+  /* ---------- Data: one small tree, read by polling, written one path at a time so two parents don't collide ---------- */
+  function setLocal(path, val) {
+    var parts = path.split('/'), node = data, i;
+    for (i = 0; i < parts.length - 1; i++) {
+      if (!node[parts[i]] || typeof node[parts[i]] !== 'object') node[parts[i]] = {};
+      node = node[parts[i]];
+    }
+    if (val === null) delete node[parts[i]]; else node[parts[i]] = val;
+  }
+  function saveDemo() { store('demo', JSON.stringify(data)); }
+  function request(method, path, body, cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, DB + '/boards/' + encodeURIComponent(code) + (path ? '/' + path : '') + '.json', true);
+    xhr.timeout = 12000;
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var parsed = null;
+        try { parsed = JSON.parse(xhr.responseText); } catch (e) { cb(false, null, xhr.status); return; }
+        cb(true, parsed, xhr.status);
+      } else cb(false, null, xhr.status);
+    };
+    xhr.onerror = xhr.ontimeout = function () { cb(false, null, 0); };
+    if (body !== undefined) { xhr.setRequestHeader('Content-Type', 'application/json'); xhr.send(JSON.stringify(body)); }
+    else xhr.send();
+  }
+  function put(path, val, done) {
+    setLocal(path, val);
+    renderAll();
+    if (DEMO) { saveDemo(); if (done) done(); return; }
+    pending++;
+    request('PUT', path, val, function (ok) {
+      pending--;
+      if (!ok) toast("Couldn't save. Check the connection and try again.", true);
+      else if (done) done();
+      poll();
+    });
+  }
+  function poll() {
+    if (DEMO) {
+      var saved = store('demo');
+      try { data = saved ? JSON.parse(saved) : data; } catch (e) {}
+      afterData();
+      return;
+    }
+    if (pending) return;
+    request('GET', '', undefined, function (ok, val, status) {
+      if (pending) return;
+      lastError = !ok;
+      if (ok) { data = val || {}; store('cache', JSON.stringify(data)); }
+      else if (status === 401 || status === 403) { badCode(); return; }
+      afterData();
+    });
+  }
+  function afterData() {
+    var json = JSON.stringify(data);
+    if (json !== lastDataJson) { lastDataJson = json; renderAll(); }
+    renderStatus();
+  }
+  function settings() {
+    var s = data.settings || {}, d = DEFAULT_SETTINGS, out = {}, k;
+    for (k in d) out[k] = s[k] === undefined ? d[k] : s[k];
+    out.schedule = {};
+    for (k = 0; k < 7; k++) out.schedule[DAYS[k]] = (s.schedule && s.schedule[DAYS[k]]) || d.schedule[DAYS[k]];
+    return out;
+  }
+
+  /* ---------- Plan logic ---------- */
+  function events() {
+    var list = [], ev = data.events || {}, id;
+    for (id in ev) { var e = ev[id]; if (e && e.date) list.push({ id: id, title: e.title, date: e.date, time: e.time || '', noSchool: !!e.noSchool }); }
+    list.sort(function (a, b) { return (a.date + a.time) < (b.date + b.time) ? -1 : 1; });
+    return list;
+  }
+  function isNoSchool(d) {
+    var k = dateKey(d), list = events(), i;
+    for (i = 0; i < list.length; i++) if (list[i].date === k && list[i].noSchool) return true;
+    return false;
+  }
+  function stopsFor(d) {
+    var s = settings(), key = DAYS[d.getDay()], off = isNoSchool(d);
+    var day = off ? s.schedule.sat : s.schedule[key];
+    var hw = data.homework && data.homework[dateKey(d)];
+    var list = [];
+    if (day.ready) list.push({ at: day.ready, label: 'Ready by' });
+    if (day.out) list.push({ at: day.out, label: 'Out the door' });
+    if (hw) list.push({ at: hw, label: 'Homework done' });
+    if (s.evening) {
+      list.push({ at: minusFifteen(s.evening), label: 'Teeth & shower' });
+      list.push({ at: s.evening, label: 'Evening screens' });
+    }
+    if (s.bedtime) list.push({ at: s.bedtime, label: 'Bedtime' });
+    list.sort(function (a, b) { return a.at < b.at ? -1 : 1; });
+    return list;
+  }
+  function minusFifteen(hhmm) {
+    var p = hhmm.split(':'), t = +p[0] * 60 + +p[1] - 15;
+    return pad(Math.floor(t / 60)) + ':' + pad(t % 60);
+  }
+  function kidMinutes(kid, key) {
+    var s = settings(), log = (data.log && data.log[key]) || {}, raw = { after: 0, evening: 0 }, id;
+    for (id in log) if (log[id].kid === kid && raw[log[id].block] !== undefined) raw[log[id].block] += log[id].min;
+    var cap = s.blockMinutes - s.floor;
+    var after = s.blockMinutes - Math.min(raw.after, cap);
+    var evening = s.blockMinutes - Math.min(raw.evening, cap);
+    return { after: after, evening: evening, total: after + evening, full: s.blockMinutes * 2,
+      over: Math.max(0, raw.after - cap) + Math.max(0, raw.evening - cap) };
+  }
+  function nextBlock() { return new Date().getHours() < 17 ? 'after' : 'evening'; }
+
+  /* ---------- TV rendering ---------- */
+  function fitTv() {
+    // Keep a 16:9 layout inside whatever the TV browser actually leaves, including its toolbars.
+    var w = window.innerWidth, h = window.innerHeight;
+    document.documentElement.style.fontSize = (Math.min(w / 160, h / 90)) + 'px';
+  }
+  function tick() {
+    if ($('tv').className.indexOf('hide') >= 0) return;
+    var now = new Date(), h = now.getHours();
+    $('tvDate').innerHTML = esc(DAY_NAMES[now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate());
+    $('tvClock').innerHTML = (h % 12 || 12) + ':' + pad(now.getMinutes()) + (h < 12 ? ' am' : ' pm');
+
+    var today = stopsFor(now), next = null, tomorrow = false, i;
+    for (i = 0; i < today.length; i++) if (atTime(now, today[i].at) > now) { next = today[i]; break; }
+    var target;
+    if (next) target = atTime(now, next.at);
+    else {
+      var t = addDays(now, 1), list = stopsFor(t);
+      next = list[0]; tomorrow = true;
+      target = next ? atTime(t, next.at) : null;
+    }
+    var hero = $('hero'), level = '';
+    urgent = false;
+    if (target) {
+      var left = Math.floor((target - now) / 1000);
+      var H = Math.floor(left / 3600), M = Math.floor(left % 3600 / 60), S = left % 60;
+      if (left <= 60) level = 'now'; else if (left <= 300) level = 'soon';
+      urgent = left <= 300;
+      $('heroLabel').innerHTML = esc(next.label) + ' ' + time12(next.at) + (tomorrow ? ' tomorrow' : '');
+      $('heroCount').innerHTML = (H ? H + ':' + pad(M) : M) + ':' + pad(S);
+      $('heroSub').innerHTML = H ? 'hours : minutes : seconds' : 'minutes : seconds';
+    } else {
+      $('heroLabel').innerHTML = ''; $('heroCount').innerHTML = ''; $('heroSub').innerHTML = '';
+    }
+    hero.classList[level === 'now' ? 'add' : 'remove']('now');
+    hero.classList[level === 'soon' ? 'add' : 'remove']('soon');
+    renderStops(today, now, tomorrow ? null : next);
+    var stamp = pad(now.getMonth() + 1) + '/' + pad(now.getDate()) + ' ' + pad(h) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    var stamps = document.querySelectorAll('.feed-time');
+    for (i = 0; i < stamps.length; i++) stamps[i].innerHTML = stamp;
+    tourTick();
+  }
+
+  /* ---------- Themes and camera switching ---------- */
+  var THEMES = [{ id: 'office', text: 'Security Office' }, { id: 'calm', text: 'Calm' }];
+  var urgent = false;
+  var camIndex = -1; // -1 is the wall of all feeds
+  var camStarted = 0;
+  function applyTheme() {
+    var tv = $('tv'), theme = settings().theme, i;
+    for (i = 0; i < THEMES.length; i++) tv.classList[THEMES[i].id === theme ? 'add' : 'remove']('theme-' + THEMES[i].id);
+    $('btnCams').className = theme === 'office' ? 'tv-btn' : 'tv-btn hide';
+    if (theme !== 'office' && camIndex !== -1) showCam(-1);
+  }
+  function camFeeds() { return document.querySelectorAll('#tv [data-cam]'); }
+  function showCam(index) {
+    var feeds = camFeeds(), i;
+    for (i = 0; i < feeds.length; i++) { feeds[i].classList.remove('cam-big'); feeds[i].style.transform = ''; }
+    camIndex = index >= feeds.length ? -1 : index;
+    camStarted = Date.now();
+    $('camBack').className = camIndex < 0 ? 'hide' : '';
+    $('btnCams').innerHTML = camIndex < 0 ? 'Wall' : 'Cam ' + (camIndex + 1);
+    if (camIndex >= 0) {
+      var f = feeds[camIndex], r = f.getBoundingClientRect(), W = window.innerWidth, H = window.innerHeight;
+      var s = Math.min(W / r.width, H / r.height);
+      f.classList.add('cam-big');
+      f.style.transform = 'translate(' + ((W - r.width * s) / 2 - r.left) + 'px,' + ((H - r.height * s) / 2 - r.top) + 'px) scale(' + s + ')';
+    }
+    var tv = $('tv');
+    tv.classList.add('switching');
+    setTimeout(function () { tv.classList.remove('switching'); }, 220);
+  }
+  function tourTick() {
+    if (settings().theme !== 'office') return;
+    var waited = Date.now() - camStarted;
+    if (urgent && camIndex !== -1 && camIndex !== 0) { showCam(-1); return; } // the countdown matters most in the last 5 minutes
+    if (!settings().camTour || tvEditing || urgent) return;
+    if (waited > (camIndex < 0 ? 30000 : 10000)) showCam(camIndex + 1);
+  }
+  function renderStops(list, now, next) {
+    var html = '', i;
+    for (i = 0; i < list.length; i++) {
+      var c = 'stop';
+      if (next && list[i] === next) c += ' next';
+      else if (atTime(now, list[i].at) <= now) c += ' past';
+      html += '<div class="' + c + '"><b>' + time12(list[i].at).replace(/ (am|pm)/, '') + '</b><span>' + esc(list[i].label) + '</span></div>';
+    }
+    if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
+  }
+  function renderKids() {
+    var s = settings(), key = dateKey(new Date()), html = '', i;
+    for (i = 0; i < s.kids.length; i++) {
+      var m = kidMinutes(i, key);
+      html += '<div class="kid" data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
+        '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) + '</div>' +
+        '<div class="kid-total">' + m.total + ' <small>of ' + m.full + ' min</small></div></div>' +
+        blockBar('After school', m.after, s.blockMinutes) + blockBar('Evening', m.evening, s.blockMinutes) +
+        (m.over ? '<div class="kid-note">At the 15-minute floor: bedtime 10 minutes earlier, or a chore</div>' : '') + '</div>';
+    }
+    $('kids').innerHTML = html;
+    if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
+  }
+  function blockBar(name, min, full) {
+    return '<div class="block"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' +
+      Math.round(min / full * 100) + '%"></div></div><div class="block-min">' + min + ' min</div></div>';
+  }
+  function whenText(e, today) {
+    var days = Math.round((parseDateKey(e.date) - today) / 86400000);
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Tomorrow';
+    return 'In ' + days + ' days';
+  }
+  function upcoming() {
+    var today = dateKey(new Date());
+    return events().filter(function (e) { return e.date >= today; });
+  }
+  function renderCal() {
+    var today = parseDateKey(dateKey(new Date())), list = upcoming().slice(0, 6), html = '', i;
+    for (i = 0; i < list.length; i++) {
+      var d = parseDateKey(list[i].date);
+      html += '<div class="ev"><span class="ev-when">' + whenText(list[i], today) + '</span><span class="ev-text">' + esc(list[i].title) + '</span>' +
+        '<span class="ev-date">' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate() + (list[i].time ? ', ' + time12(list[i].time) : '') + '</span></div>';
+    }
+    $('cal').innerHTML = html || '<div class="empty">Nothing on the calendar yet. Add something from your phone.</div>';
+  }
+  function renderStatus() {
+    var el = $('status');
+    if (!el) return;
+    el.className = lastError ? 'status' : 'status hide';
+    el.innerHTML = lastError ? 'Offline: showing the last saved info' : '';
+  }
+
+  /* ---------- Music ---------- */
+  function musicSource() { return (data.music && data.music.source) || 'off'; }
+  function lofiId() { return (data.music && data.music.video) || LOFI_PRESETS[0].id; }
+  function renderMusic(fromPress) {
+    var src = musicSource(), key = src + ':' + (src === 'lofi' ? lofiId() : '');
+    var player = $('player');
+    $('btnMusic').innerHTML = src === 'off' ? 'Music: off' : 'Music: on';
+    if (src === 'off') musicPressed = false;
+    if (key === musicKey && !fromPress) return;
+    musicKey = key;
+    if (src === 'lofi') {
+      player.innerHTML = '<iframe allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" title="Lo-fi music" src="https://www.youtube.com/embed/' +
+        encodeURIComponent(lofiId()) + '?autoplay=1&rel=0&playsinline=1"></iframe>';
+    } else {
+      player.innerHTML = 'Music is off';
+    }
+  }
+  function pressMusic() {
+    // A press on the remote lets the browser start sound. If music is off, it turns on; if on, it restarts or stops.
+    var src = musicSource();
+    if (src === 'off') { put('music/source', 'lofi'); musicPressed = true; return; }
+    if (musicPressed) { put('music/source', 'off'); return; }
+    musicPressed = true;
+    renderMusic(true);
+  }
+  var musicPressed = false;
+
+  /* ---------- Parent editor ---------- */
+  function renderEditor() {
+    var el = $('editor');
+    if (el.className.indexOf('hide') >= 0) return;
+    var active = document.activeElement, fid = active && active.getAttribute ? active.getAttribute('data-f') : null;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT') && el.contains(active) && !editorForced) return;
+    editorForced = false;
+    var scroll = el.className.indexOf('overlay') >= 0 ? el.scrollTop : window.pageYOffset;
+    var html = '<div class="ed-wrap"><div class="ed-head"><h1>Family Board</h1>' +
+      (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '') + '</div>';
+    if (tvEditing && !pinOk) html += pinHtml();
+    else {
+      html += '<div class="tabs">' + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('music', 'Music') + tabBtn('setup', 'Setup') + '</div>';
+      html += ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : ed.tab === 'music' ? musicHtml() : setupHtml();
+    }
+    el.innerHTML = html + '</div>';
+    if (el.className.indexOf('overlay') >= 0) el.scrollTop = scroll; else window.scrollTo(0, scroll);
+    var again = fid && el.querySelector('[data-f="' + fid + '"]');
+    if (again) again.focus();
+    else if (tvEditing) { var first = el.querySelector('.tab.on, .keypad button, button'); if (first) first.focus(); }
+  }
+  var editorForced = false;
+  function forceEditor() { editorForced = true; renderEditor(); }
+  function tabBtn(id, text) {
+    return '<button class="tab' + (ed.tab === id ? ' on' : '') + '" data-act="tab" data-arg="' + id + '" data-f="tab-' + id + '">' + text + '</button>';
+  }
+  function optBtn(act, arg, text, on) {
+    return '<button class="opt' + (on ? ' on' : '') + '" data-act="' + act + '" data-arg="' + esc(arg) + '" data-f="' + act + '-' + esc(arg) + '">' + esc(text) + '</button>';
+  }
+  function timeOptions(selected, allowBlank) {
+    var html = allowBlank ? '<option value="">None</option>' : '', t, found = !selected;
+    for (t = 300; t <= 1410; t += 5) {
+      var v = pad(Math.floor(t / 60)) + ':' + pad(t % 60);
+      if (v === selected) found = true;
+      html += '<option value="' + v + '"' + (v === selected ? ' selected' : '') + '>' + time12(v) + '</option>';
+    }
+    if (!found) html = '<option value="' + selected + '" selected>' + time12(selected) + '</option>' + html;
+    return html;
+  }
+  function minutesHtml() {
+    var s = settings(), key = dateKey(new Date()), i, r = null, html = '<div class="card"><h2>Take off minutes</h2><span class="lab">Who</span><div class="opts">';
+    for (i = 0; i < s.kids.length; i++) {
+      var m = kidMinutes(i, key);
+      html += optBtn('kid', i, s.kids[i] + ' · ' + m.total + ' min', ed.kid === i);
+    }
+    html += '</div><span class="lab">What happened</span>';
+    for (i = 0; i < REASONS.length; i++) {
+      var x = REASONS[i];
+      if (x.id === ed.reason) r = x;
+      html += '<button class="reason' + (x.id === ed.reason ? ' on' : '') + '" data-act="reason" data-arg="' + x.id + '" data-f="reason-' + x.id + '"><span>' + esc(x.text) +
+        '</span><i>' + (x.perMin ? '−1 a minute' : '−' + x.min) + '</i></button>';
+    }
+    if (r) {
+      var mins = r.perMin ? ed.mins : r.min;
+      if (r.perMin) {
+        html += '<span class="lab">How many minutes</span><div class="opts">';
+        var counts = [1, 2, 3, 5, 10, 15, 20, 30];
+        for (i = 0; i < counts.length; i++) html += optBtn('mins', counts[i], counts[i], ed.mins === counts[i]);
+        html += '</div>';
+      }
+      html += '<span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', ed.block === 'after') + optBtn('block', 'evening', 'Evening', ed.block === 'evening') + '</div>';
+      html += '<button class="go" data-act="deduct" data-f="deduct">Take off ' + mins + ' min from ' + esc(s.kids[ed.kid]) + '</button>';
+    }
+    html += '</div>';
+
+    html += '<div class="card"><h2>Today so far</h2>';
+    var log = (data.log && data.log[key]) || {}, ids = Object.keys(log).sort();
+    if (!ids.length) html += '<p class="hint">Nothing taken off today. Every day starts fresh.</p>';
+    for (i = ids.length - 1; i >= 0; i--) {
+      var e = log[ids[i]];
+      html += '<div class="row"><div>−' + e.min + ' · ' + esc(s.kids[e.kid]) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
+        '<button class="small" data-act="undo" data-arg="' + esc(ids[i]) + '" data-f="undo-' + esc(ids[i]) + '">Undo</button></div>';
+    }
+    html += '</div>';
+
+    var hw = (data.homework && data.homework[key]) || '';
+    html += '<div class="card"><h2>Homework done-by today</h2><select data-input="homework" data-f="homework">' + timeOptions(hw, true) + '</select></div>';
+    return html;
+  }
+  function calendarHtml() {
+    var now = new Date(), i;
+    if (ed.evMonth === null) { ed.evMonth = now.getMonth(); ed.evDay = now.getDate(); }
+    var html = '<div class="card"><h2>Add to the calendar</h2><label class="lab" for="evT">What</label>' +
+      '<input id="evT" data-draft="evTitle" data-f="evT" maxlength="60" value="' + esc(ed.evTitle) + '"><div class="pair"><div><span class="lab">Month</span><select data-draft="evMonth" data-f="evM">';
+    for (i = 0; i < 12; i++) html += '<option value="' + i + '"' + (i === +ed.evMonth ? ' selected' : '') + '>' + MONTHS[i] + '</option>';
+    html += '</select></div><div><span class="lab">Day</span><select data-draft="evDay" data-f="evD">';
+    for (i = 1; i <= 31; i++) html += '<option value="' + i + '"' + (i === +ed.evDay ? ' selected' : '') + '>' + i + '</option>';
+    html += '</select></div></div><span class="lab">Time (optional)</span><select data-draft="evTime" data-f="evTm">' + timeOptions(ed.evTime, true) + '</select>' +
+      '<label class="check"><input type="checkbox" data-draft="evNoSchool" data-f="evNo"' + (ed.evNoSchool ? ' checked' : '') + '>No school: use the weekend morning times</label>' +
+      '<button class="go" data-act="addEvent" data-f="addEvent">Add to calendar</button></div>';
+    var list = upcoming();
+    html += '<div class="card"><h2>Coming up</h2>';
+    if (!list.length) html += '<p class="hint">Nothing yet.</p>';
+    for (i = 0; i < list.length; i++) {
+      var d = parseDateKey(list[i].date);
+      html += '<div class="row"><div>' + esc(list[i].title) + '<em>' + DAY_NAMES[d.getDay()].slice(0, 3) + ', ' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate() +
+        (list[i].time ? ', ' + time12(list[i].time) : '') + (list[i].noSchool ? ' · No school' : '') + '</em></div>' +
+        '<button class="small" data-act="delEvent" data-arg="' + esc(list[i].id) + '" data-f="del-' + esc(list[i].id) + '">Remove</button></div>';
+    }
+    return html + '</div>';
+  }
+  function musicHtml() {
+    var src = musicSource(), html = '<div class="card"><h2>What plays on the TV</h2><div class="opts">', i, isPreset = false;
+    for (i = 0; i < LOFI_PRESETS.length; i++) {
+      var on = src === 'lofi' && lofiId() === LOFI_PRESETS[i].id;
+      if (on) isPreset = true;
+      html += optBtn('music', LOFI_PRESETS[i].id, LOFI_PRESETS[i].text, on);
+    }
+    if (src === 'lofi' && !isPreset) html += optBtn('music', lofiId(), 'Your video', true);
+    return html + optBtn('music', 'off', 'Off', src === 'off') + '</div>' +
+      '<p class="hint">TV browsers often won\'t start sound by themselves. If it stays quiet, press OK on the Music button on the TV.</p></div>' +
+      '<div class="card"><h2>Use a different YouTube video</h2><label class="lab" for="yt">Paste a YouTube link</label>' +
+      '<input id="yt" data-draft="ytLink" data-f="yt" value="' + esc(ed.ytLink || '') + '"><button class="go" data-act="saveVideo" data-f="saveVideo">Save video</button></div>';
+  }
+  function setupHtml() {
+    if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
+    var d = ed.draft, i;
+    var html = '<div class="card"><h2>Theme</h2><div class="opts">';
+    for (i = 0; i < THEMES.length; i++) html += optBtn('theme', THEMES[i].id, THEMES[i].text, d.theme === THEMES[i].id);
+    html += '</div>';
+    if (d.theme === 'office') {
+      html += '<span class="lab">Camera switching</span><div class="opts">' + optBtn('tour', 'on', 'Tour the cameras', !!d.camTour) + optBtn('tour', 'off', 'Stay on the wall', !d.camTour) + '</div>' +
+        '<p class="hint">The tour goes back to all cameras for the last 5 minutes of any countdown.</p>';
+    }
+    html += '</div><div class="card"><h2>Kids</h2><div class="pair"><div><label class="lab" for="k0">First</label><input id="k0" data-setup="kid0" data-f="k0" value="' + esc(d.kids[0]) + '"></div>' +
+      '<div><label class="lab" for="k1">Second</label><input id="k1" data-setup="kid1" data-f="k1" value="' + esc(d.kids[1]) + '"></div></div></div>';
+    html += '<div class="card"><h2>Morning times</h2><div class="day-row"><b></b><span class="lab" style="flex:1;margin:0 0 0 .5em">Ready by</span><span class="lab" style="flex:1;margin:0 0 0 .5em">Out the door</span></div>';
+    var order = [1, 2, 3, 4, 5, 6, 0];
+    for (i = 0; i < 7; i++) {
+      var k = DAYS[order[i]], sd = d.schedule[k];
+      html += '<div class="day-row"><b>' + DAY_NAMES[order[i]].slice(0, 3) + '</b><select data-setup="ready-' + k + '" data-f="r' + k + '">' + timeOptions(sd.ready, true) + '</select>' +
+        '<select data-setup="out-' + k + '" data-f="o' + k + '">' + timeOptions(sd.out, true) + '</select></div>';
+    }
+    html += '</div><div class="card"><h2>Evening</h2><div class="pair"><div><span class="lab">Screens start</span><select data-setup="evening" data-f="se">' + timeOptions(d.evening, true) + '</select></div>' +
+      '<div><span class="lab">Bedtime</span><select data-setup="bedtime" data-f="sb">' + timeOptions(d.bedtime, true) + '</select></div></div></div>';
+    html += '<div class="card"><h2>Screen time rules</h2><div class="pair"><div><label class="lab" for="bm">Minutes per block</label><input id="bm" type="number" min="15" max="180" data-setup="blockMinutes" data-f="bm" value="' + d.blockMinutes + '"></div>' +
+      '<div><label class="lab" for="fl">Always-yours floor</label><input id="fl" type="number" min="0" max="180" data-setup="floor" data-f="fl" value="' + d.floor + '"></div></div></div>';
+    html += '<div class="card"><h2>TV parent PIN</h2><label class="lab" for="pn">4 digits, asked for when editing with the TV remote</label><input id="pn" inputmode="numeric" maxlength="4" data-setup="pin" data-f="pn" value="' + esc(d.pin) + '"></div>';
+    html += '<button class="go" data-act="saveSetup" data-f="saveSetup">Save setup</button>';
+    if (!DEMO) html += '<div class="card" style="margin-top:1em"><h2>Share with your partner</h2><p class="hint">Send this link. It opens this page with your family code.</p><p style="word-break:break-all">' +
+      esc(location.origin + location.pathname + '?edit#' + code) + '</p></div>';
+    return html;
+  }
+  function pinHtml() {
+    var s = settings();
+    if (!s.pin) return '<div class="card"><h2>Set a PIN first</h2><p>Open this page on your phone, go to Setup, and choose a TV parent PIN. That keeps editing away from curious kids.</p></div>';
+    var html = '<div class="card" style="text-align:center"><h2>Parent PIN</h2><div style="font-size:2em;letter-spacing:.3em;min-height:1.3em">' + new Array((pinEntry || '').length + 1).join('•') + '</div><div class="keypad">', k = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', ''];
+    for (var i = 0; i < k.length; i++) {
+      html += k[i] ? '<button data-act="pin" data-arg="' + k[i] + '" data-f="pin-' + k[i] + '">' + k[i] + '</button>' : '<span style="width:30%;margin:1.6%"></span>';
+    }
+    return html + '</div></div>';
+  }
+  function pinPress(digit) {
+    pinEntry = (pinEntry || '') + digit;
+    if (pinEntry.length >= settings().pin.length) {
+      if (pinEntry === settings().pin) pinOk = true; else toast('Try again', true);
+      pinEntry = '';
+    }
+    forceEditor();
+  }
+  function eventDate() {
+    // No year to pick: a date that has already passed this year means next year.
+    var now = new Date(), y = now.getFullYear(), d = new Date(y, +ed.evMonth, +ed.evDay);
+    if (dateKey(d) < dateKey(now)) d = new Date(y + 1, +ed.evMonth, +ed.evDay);
+    return dateKey(d);
+  }
+  function youtubeId(link) {
+    var m = String(link).match(/(?:youtu\.be\/|[?&]v=|\/live\/|\/embed\/|\/shorts\/)([\w-]{6,})/);
+    if (m) return m[1];
+    return /^[\w-]{6,}$/.test(link) ? link : '';
+  }
+  function pruneOld() {
+    // The plan starts fresh daily, so only recent history is kept.
+    var cutoff = dateKey(addDays(new Date(), -30)), k;
+    for (k in (data.log || {})) if (k < cutoff) put('log/' + k, null);
+    for (k in (data.homework || {})) if (k < cutoff) put('homework/' + k, null);
+    var list = events();
+    for (k = 0; k < list.length; k++) if (list[k].date < cutoff) put('events/' + list[k].id, null);
+  }
+  function openTvEditor() {
+    tvEditing = true; pinOk = false; pinEntry = '';
+    $('editor').className = 'overlay';
+    forceEditor();
+  }
+  function closeTvEditor() {
+    tvEditing = false;
+    $('editor').className = 'hide';
+    $('btnEdit').focus();
+  }
+  function toast(text, bad) {
+    var t = $('toast');
+    t.innerHTML = esc(text); t.className = bad ? 'toast bad' : 'toast';
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.className = 'toast hide'; }, 3000);
+  }
+
+  /* ---------- Actions ---------- */
+  var ACTIONS = {
+    tvMusic: pressMusic,
+    tvEdit: openTvEditor,
+    tvCams: function () { showCam(camIndex + 1); },
+    theme: function (a) { ed.draft.theme = a; put('settings/theme', a); forceEditor(); },
+    tour: function (a) { ed.draft.camTour = a === 'on'; put('settings/camTour', a === 'on'); forceEditor(); },
+    closeEd: closeTvEditor,
+    pin: pinPress,
+    tab: function (a) { ed.tab = a; ed.draft = null; forceEditor(); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
+    kid: function (a) { ed.kid = +a; forceEditor(); },
+    reason: function (a) {
+      var r = REASONS.filter(function (x) { return x.id === a; })[0];
+      ed.reason = a; ed.block = r.block === 'next' ? nextBlock() : r.block;
+      forceEditor();
+    },
+    mins: function (a) { ed.mins = +a; forceEditor(); },
+    block: function (a) { ed.block = a; forceEditor(); },
+    deduct: function () {
+      var r = REASONS.filter(function (x) { return x.id === ed.reason; })[0];
+      if (!r) return;
+      var min = r.perMin ? ed.mins : r.min;
+      put('log/' + dateKey(new Date()) + '/' + newId(), { kid: ed.kid, block: ed.block, min: min, reason: r.text, at: Date.now() });
+      ed.reason = '';
+      toast('Took off ' + min + ' min');
+      forceEditor();
+    },
+    undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    addEvent: function () {
+      var title = (ed.evTitle || '').replace(/^\s+|\s+$/g, '');
+      if (!title) { toast('Add a name for it first', true); return; }
+      put('events/' + newId(), { title: title, date: eventDate(), time: ed.evTime || '', noSchool: !!ed.evNoSchool });
+      ed.evTitle = ''; ed.evTime = ''; ed.evNoSchool = false;
+      toast('Added');
+      forceEditor();
+    },
+    delEvent: function (a) { put('events/' + a, null); forceEditor(); },
+    music: function (a) {
+      if (a === 'off') put('music/source', 'off');
+      else put('music', { source: 'lofi', video: a });
+      forceEditor();
+    },
+    saveVideo: function () {
+      var id = youtubeId((ed.ytLink || '').replace(/\s/g, ''));
+      if (!id) { toast("That doesn't look like a YouTube link", true); return; }
+      put('music', { source: 'lofi', video: id });
+      ed.ytLink = '';
+      toast('Saved');
+      forceEditor();
+    },
+    saveSetup: function () {
+      var d = ed.draft;
+      if (d.pin && !/^\d{4}$/.test(d.pin)) { toast('The PIN needs 4 digits', true); return; }
+      d.blockMinutes = Math.max(15, parseInt(d.blockMinutes, 10) || 45);
+      d.floor = Math.min(d.blockMinutes, Math.max(0, parseInt(d.floor, 10) || 0));
+      put('settings', d);
+      ed.draft = null;
+      toast('Saved');
+      forceEditor();
+    }
+  };
+  document.addEventListener('click', function (e) {
+    var el = e.target;
+    while (el && el !== document && !(el.getAttribute && el.getAttribute('data-act'))) el = el.parentNode;
+    if (!el || el === document) return;
+    var fn = ACTIONS[el.getAttribute('data-act')];
+    if (fn) fn(el.getAttribute('data-arg'));
+  });
+  function onInput(e) {
+    var el = e.target, v = el.type === 'checkbox' ? el.checked : el.value;
+    var draft = el.getAttribute && el.getAttribute('data-draft');
+    if (draft) { ed[draft] = v; return; }
+    var key = el.getAttribute && el.getAttribute('data-setup');
+    if (key && ed.draft) {
+      if (key === 'kid0') ed.draft.kids[0] = v;
+      else if (key === 'kid1') ed.draft.kids[1] = v;
+      else if (key.indexOf('ready-') === 0) ed.draft.schedule[key.slice(6)].ready = v;
+      else if (key.indexOf('out-') === 0) ed.draft.schedule[key.slice(4)].out = v;
+      else ed.draft[key] = v;
+      return;
+    }
+    if (el.getAttribute && el.getAttribute('data-input') === 'homework' && e.type === 'change') {
+      put('homework/' + dateKey(new Date()), v || null);
+      toast('Saved');
+    }
+  }
+  document.addEventListener('input', onInput);
+  document.addEventListener('change', onInput);
+
+  /* ---------- Remote control: arrows move between buttons, Back leaves the editor ---------- */
+  function focusables() {
+    var root = tvEditing ? $('editor') : ($('gate').className.indexOf('hide') < 0 ? $('gate') : $('editor').className.indexOf('hide') < 0 ? $('editor') : $('tv'));
+    var all = root.querySelectorAll('button, input, select'), out = [], i;
+    for (i = 0; i < all.length; i++) if (all[i].offsetWidth > 0 && !all[i].disabled) out.push(all[i]);
+    return out;
+  }
+  function moveFocus(dir) {
+    var list = focusables(), cur = document.activeElement, i;
+    if (list.indexOf(cur) < 0) { if (list.length) list[0].focus(); return; }
+    var a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2, best = null, bestScore = 1e12;
+    for (i = 0; i < list.length; i++) {
+      if (list[i] === cur) continue;
+      var b = list[i].getBoundingClientRect(), bx = b.left + b.width / 2, by = b.top + b.height / 2;
+      var main = dir === 'left' ? a.left - b.right : dir === 'right' ? b.left - a.right : dir === 'up' ? a.top - b.bottom : b.top - a.bottom;
+      if (main < -2) continue;
+      var cross = dir === 'left' || dir === 'right' ? Math.abs(by - ay) : Math.abs(bx - ax);
+      var score = main + cross * 2;
+      if (score < bestScore) { bestScore = score; best = list[i]; }
+    }
+    if (best) { best.focus(); if (best.scrollIntoView) best.scrollIntoView({ block: 'nearest' }); }
+  }
+  document.addEventListener('keydown', function (e) {
+    var dirs = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' }, dir = dirs[e.keyCode], t = e.target, tag = t && t.tagName;
+    var typing = tag === 'INPUT' && t.type !== 'checkbox';
+    if (dir) {
+      if (typing && (dir === 'left' || dir === 'right') && t.value) return;
+      e.preventDefault();
+      moveFocus(dir);
+      return;
+    }
+    if (e.keyCode === 13 && tag === 'SELECT' && t.showPicker) { try { t.showPicker(); e.preventDefault(); } catch (err) {} return; }
+    if (tvEditing && !pinOk && e.keyCode >= 48 && e.keyCode <= 57) { pinPress(String(e.keyCode - 48)); return; }
+    // Escape, plus the Back codes used by LG (461) and Samsung (10009) remotes.
+    var isBack = e.keyCode === 27 || e.keyCode === 461 || e.keyCode === 10009 || e.keyCode === 8;
+    if (tvEditing && !typing && isBack) {
+      e.preventDefault();
+      closeTvEditor();
+    } else if (!tvEditing && camIndex >= 0 && isBack) {
+      e.preventDefault();
+      showCam(-1);
+    }
+  });
+
+  /* ---------- Start up ---------- */
+  function renderAll() {
+    if ($('tv').className.indexOf('hide') < 0) { applyTheme(); renderKids(); renderCal(); renderMusic(); tick(); }
+    renderEditor();
+  }
+  function showGate(message) {
+    var g = $('gate');
+    g.className = '';
+    g.innerHTML = '<h1>Family Board</h1><p>' + esc(message) + '</p>' +
+      '<label class="lab" for="codeBox">Family code</label><input id="codeBox" autocapitalize="off" autocomplete="off" spellcheck="false">' +
+      '<button class="go" id="codeGo">Open board</button>';
+    $('codeGo').onclick = function () {
+      var v = $('codeBox').value.replace(/\s/g, '').toLowerCase();
+      if (v) { store('code', v); code = v; g.className = 'hide'; begin(); }
+    };
+    $('codeBox').focus();
+  }
+  function badCode() {
+    store('code', '');
+    $('tv').className = 'hide'; $('editor').className = 'hide';
+    clearInterval(pollTimer);
+    showGate("That family code didn't work. Check it and try again.");
+  }
+  var pollTimer = null;
+  function begin() {
+    if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
+    else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); }
+    if (!DEMO) { try { data = JSON.parse(store('cache') || '{}') || {}; } catch (e) { data = {}; } }
+    renderAll();
+    poll();
+    pollTimer = setInterval(poll, POLL_MS);
+    if (pruneLater) setTimeout(pruneOld, 5000);
+  }
+  var pruneLater = false;
+  function start() {
+    setInterval(tick, 1000);
+    if (DEMO) { begin(); return; }
+    if (!DB) { $('gate').className = ''; $('gate').innerHTML = '<h1>Family Board</h1><p>The shared database is not connected yet.</p>'; return; }
+    var hash = location.hash.replace(/^#/, '').replace(/\s/g, '').toLowerCase();
+    if (hash) store('code', hash);
+    code = hash || store('code') || '';
+    if (code) begin(); else showGate('Enter your family code. You only need to do this once on each device.');
+  }
+  start();
+})();
+</script>
+</body>
+</html>
