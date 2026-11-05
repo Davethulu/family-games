@@ -61,10 +61,11 @@ button { cursor: pointer; }
 .cal { flex: 1; min-width: 0; background: var(--panel); border-radius: 2rem; padding: 1.5rem 2.2rem; overflow: hidden; }
 .cal h2 { margin: 0 0 .6rem; font-size: 2.2rem; color: var(--gold); }
 .cal-list { display: flex; flex-wrap: wrap; }
-.ev { width: 50%; padding: .5rem 1.5rem .5rem 0; display: flex; align-items: baseline; font-size: 2.2rem; }
-.ev-when { flex-shrink: 0; width: 10.5rem; font-weight: 700; color: var(--mint); font-size: 2rem; }
+.cal-col { width: 50%; min-width: 0; padding-right: 1.5rem; }
+.ev { height: 2.6rem; display: flex; align-items: baseline; font-size: 1.8rem; white-space: nowrap; }
+.ev-when { flex-shrink: 0; width: 9.5rem; font-weight: 700; color: var(--mint); font-size: 1.65rem; }
 .ev-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.ev-date { color: var(--muted); font-size: 1.7rem; margin-left: .8rem; flex-shrink: 0; }
+.ev-date { color: var(--muted); font-size: 1.4rem; margin-left: .8rem; flex-shrink: 0; }
 .empty { color: var(--muted); font-size: 2rem; }
 .side { width: 33rem; margin-left: 1.8rem; display: flex; flex-direction: column; flex-shrink: 0; }
 .player { flex: 1; min-height: 0; border-radius: 1.4rem; overflow: hidden; background: var(--panel); margin-bottom: 1rem;
@@ -99,9 +100,9 @@ button { cursor: pointer; }
 .block-name, .block-min, .ev-when, .tv-btn { white-space: nowrap; }
 .theme-office .block-name { width: 15.5rem; }
 .theme-office .block-min { width: 9.5rem; }
-.theme-office .ev-when { width: 13rem; }
-.theme-office .ev { font-size: 2rem; }
-.theme-office .ev-date { font-size: 1.5rem; }
+.theme-office .ev-when { width: 11rem; font-size: 1.55rem; }
+.theme-office .ev { font-size: 1.6rem; }
+.theme-office .ev-date { font-size: 1.25rem; }
 .theme-office .tv-btn { font-size: 1.55rem; padding: .8rem .2rem; }
 .theme-office .stop, .theme-office .tv-btn { border-radius: .3rem; }
 .theme-office .block-track, .theme-office .block-fill { border-radius: 0; }
@@ -132,13 +133,11 @@ button { cursor: pointer; }
 .kid-total { font-size: 4.2rem; }
 .kid-flag { margin-left: 1.2rem; padding: .2rem .9rem; font-size: 1.7rem; font-weight: 700; border-radius: .6rem; background: var(--gold); color: var(--panel); vertical-align: middle; }
 .chips { display: flex; margin-top: .9rem; }
-.chip { flex: 1; min-width: 0; margin-right: .7rem; padding: .5rem .6rem; border-radius: .8rem; background: var(--panel2); display: flex; align-items: center; min-height: 5.6rem; }
+.chip { flex: 1; min-width: 0; margin-right: .7rem; padding: .4rem .6rem; border-radius: .8rem; background: var(--panel2); display: flex; align-items: center; height: 5.6rem; overflow: hidden; }
 .chip:last-child { margin-right: 0; }
-.chip-icon { width: 4rem; height: 4rem; flex-shrink: 0; margin-right: .5rem; display: flex; align-items: center; justify-content: center; }
+.chip-icon { width: 3.4rem; height: 3.4rem; flex-shrink: 0; margin-right: .4rem; display: flex; align-items: center; justify-content: center; }
 .chip-ring { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: .25rem dashed var(--muted); opacity: .6; }
-.chip-text { min-width: 0; font-size: 1.55rem; line-height: 1.12; color: var(--muted); }
-.theme-office .chip-text { font-size: 1.3rem; }
-.theme-office .chip-icon { width: 3.2rem; margin-right: .3rem; }
+.chip-text { flex: 1; min-width: 0; max-height: 100%; overflow: hidden; font-size: 1.55rem; line-height: 1.12; color: var(--muted); }
 .theme-office .kid { padding-top: 3.6rem; padding-bottom: .8rem; }
 .chip.on { background: var(--mint); }
 .chip.on .chip-text { color: var(--panel); font-weight: 700; }
@@ -146,13 +145,38 @@ button { cursor: pointer; }
 .pop { animation: pop .7s ease-out; }
 .parade { position: absolute; left: 0; bottom: .5rem; width: 9rem; height: 9rem; z-index: 4; animation: parade 5s linear forwards; }
 .hero { position: relative; }
-.hero-art { position: absolute; right: 3rem; bottom: 10.5rem; width: 14rem; height: 14rem; animation: bob 4s ease-in-out infinite; }
 .tv-banner { font-size: 2.6rem; font-weight: 700; display: flex; align-items: center; color: var(--gold); }
 .tv-banner .mascot { width: 4.4rem; height: 4.4rem; margin-right: .8rem; }
 .leaves { display: none; }
 @keyframes pop { 0% { transform: scale(.2) rotate(-20deg); } 60% { transform: scale(1.35) rotate(8deg); } 100% { transform: none; } }
 @keyframes parade { 0% { transform: translateX(-10rem); opacity: 1; } 95% { opacity: 1; } 100% { transform: translateX(62rem); opacity: 0; } }
-@keyframes bob { 0%, 100% { transform: none; } 50% { transform: translateY(-.8rem); } }
+
+/* ---------- Surprise scenes that play now and then. Everything here is removed when it ends. ---------- */
+#fxStage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.fx-walker { position: absolute; left: -22rem; bottom: 1.5rem; width: 15rem; height: 15rem; animation: fxWalk 12s linear forwards; }
+.fx-walker.fast { animation-duration: 4.5s; }
+.fx-walker.roll { width: 10rem; height: 10rem; animation-duration: 9s; }
+.fx-hop { width: 100%; height: 100%; animation: fxHop .7s ease-in-out infinite; }
+.fast .fx-hop { animation-duration: .28s; }
+.roll .fx-hop { animation: fxSpin 1.6s linear infinite; }
+.fx-say { position: absolute; left: 8rem; bottom: 14rem; padding: .5rem 1.2rem; white-space: nowrap; font-size: 2.4rem; font-weight: 700; border-radius: 1rem; background: #fff; color: #2a1a10; }
+.fx-clip { position: absolute; overflow: hidden; }
+.fx-peek { position: absolute; left: 50%; bottom: 0; width: 15rem; height: 15rem; margin-left: -7.5rem; animation: fxPeek 5s ease-in-out forwards; }
+.fx-alert { position: absolute; left: 0; right: 0; top: 4rem; text-align: center; font-size: 2.6rem; font-weight: 700; color: var(--pink); animation: rec .8s steps(1) infinite; }
+.fx-lost { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 700; color: #fff;
+  background: repeating-linear-gradient(0deg, #111 0, #111 .5rem, #444 .5rem, #444 .8rem); animation: flicker 1s infinite; }
+.fx-dark { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; animation: fxDark 3.2s steps(1) forwards; }
+.fx-eye { position: absolute; top: 44%; width: 4rem; height: 2.6rem; border-radius: 50%; background: #ffe45e; box-shadow: 0 0 2rem #ffe45e; animation: fxBlink 1.2s steps(1) infinite; }
+.fx-gust { position: absolute; left: -6rem; width: 5rem; height: 5rem; animation: fxGust 5s linear forwards; }
+.fx-star { position: absolute; left: 10%; top: 8%; width: 8rem; height: 8rem; animation: fxShoot 2.4s ease-in forwards; }
+@keyframes fxWalk { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 30rem)); } }
+@keyframes fxHop { 0%, 100% { transform: rotate(-5deg); } 50% { transform: translateY(-1.4rem) rotate(5deg); } }
+@keyframes fxSpin { to { transform: rotate(360deg); } }
+@keyframes fxPeek { 0% { transform: translateY(100%); } 18%, 80% { transform: translateY(12%); } 100% { transform: translateY(100%); } }
+@keyframes fxDark { 0% { opacity: 1; } 8% { opacity: 0; } 14% { opacity: 1; } 20% { opacity: 0; } 28%, 94% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fxBlink { 0%, 80% { transform: none; } 81% { transform: scaleY(.1); } }
+@keyframes fxGust { from { transform: translate(0, 0) rotate(0); opacity: 1; } to { transform: translate(calc(100vw + 12rem), 14rem) rotate(900deg); opacity: 1; } }
+@keyframes fxShoot { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(70vw, 34vh) scale(1); opacity: 0; } }
 
 /* ---------- Theme: Thanksgiving ---------- */
 #tv.theme-harvest { --bg: #4a2412; --panel: #fff3dc; --panel2: #f6dfb8; --line: #d99a4e; --ink: #4a2412; --muted: #8a5a34;
@@ -165,7 +189,7 @@ button { cursor: pointer; }
 .theme-harvest .stop.next { background: #e9862c; color: #fff; }
 .theme-harvest .stop.next span { color: #fff; }
 .theme-harvest .kid-total { color: #b5481a; }
-.theme-harvest .ev-when { color: #b5481a; width: 12.5rem; }
+.theme-harvest .ev-when { color: #b5481a; width: 10.5rem; }
 .theme-harvest .hero-count, .theme-harvest .tv-clock, .theme-harvest .kid-total, .theme-harvest .block-min, .theme-harvest .stop b { font-family: "Trebuchet MS", "Segoe UI", Roboto, Arial, sans-serif; }
 .theme-harvest .chip.on { background: #f3b35f; }
 .theme-harvest .chip.on .chip-text { color: var(--ink); }
@@ -243,12 +267,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   <div class="status hide" id="status"></div>
   <div class="leaves" id="leaves"></div>
   <div class="tv-top"><div class="tv-date" id="tvDate"></div><div class="tv-banner" id="tvBanner"></div><div class="tv-clock" id="tvClock"></div></div>
+  <div id="fxStage"></div>
   <div id="camBack" class="hide"></div>
   <div class="tv-main">
     <div class="hero" id="hero" data-cam="Countdown">
       <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 1 &middot; COUNTDOWN</span><span class="feed-time"></span></div>
       <div class="fx"></div>
-      <div class="hero-art" id="heroArt"></div>
       <div class="hero-label" id="heroLabel"></div>
       <div class="hero-count" id="heroCount"></div>
       <div class="hero-sub" id="heroSub"></div>
@@ -482,6 +506,19 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     // Keep a 16:9 layout inside whatever the TV browser actually leaves, including its toolbars.
     var w = window.innerWidth, h = window.innerHeight;
     document.documentElement.style.fontSize = (Math.min(w / 160, h / 90)) + 'px';
+    fitChips();
+  }
+  function fitChips() {
+    // TV fonts vary and parents can type anything, so each label shrinks until it really fits its chip.
+    var labels = document.querySelectorAll('.chip-text'), rem = parseFloat(getComputedStyle(document.documentElement).fontSize), i;
+    for (i = 0; i < labels.length; i++) {
+      var el = labels[i], size = 1.55;
+      el.style.fontSize = '';
+      while (size > .9 && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight + 1)) {
+        size -= .05;
+        el.style.fontSize = size * rem + 'px';
+      }
+    }
   }
   function tick() {
     if ($('tv').className.indexOf('hide') >= 0) return;
@@ -519,6 +556,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     for (i = 0; i < stamps.length; i++) stamps[i].innerHTML = stamp;
     renderBanner(now);
     tourTick();
+    fxTick();
   }
 
   /* ---------- Themes and camera switching ---------- */
@@ -569,8 +607,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     for (i = 0; i < THEMES.length; i++) tv.classList[THEMES[i].id === theme ? 'add' : 'remove']('theme-' + THEMES[i].id);
     $('btnCams').className = theme === 'office' ? 'tv-btn' : 'tv-btn hide';
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
-    var art = $('heroArt');
-    if (art.getAttribute('data-t') !== theme) { art.innerHTML = theme === 'calm' ? '' : mascot(); art.setAttribute('data-t', theme); }
     var leaves = $('leaves');
     if (theme === 'harvest' && !leaves.innerHTML) {
       var html = '';
@@ -579,6 +615,66 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       }
       leaves.innerHTML = html;
     }
+  }
+
+  /* ---------- Surprise scenes ---------- */
+  var FX_FAST = params.indexOf('fxfast') >= 0; // for testing
+  var nextFxAt = Date.now() + (FX_FAST ? 8000 : 60000 + Math.random() * 120000);
+  var lastFx = -1;
+  var PUMPKIN = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 13 q1 -8 8 -9" fill="none" stroke="#4f6b24" stroke-width="5" stroke-linecap="round"/><ellipse cx="14" cy="37" rx="11" ry="20" fill="#dd7420"/><ellipse cx="50" cy="37" rx="11" ry="20" fill="#dd7420"/><ellipse cx="24" cy="37" rx="11" ry="23" fill="#ee8a2c"/><ellipse cx="40" cy="37" rx="11" ry="23" fill="#ee8a2c"/><ellipse cx="32" cy="37" rx="9" ry="24" fill="#f39b3a"/></svg>';
+  var FX_LEAF = '<svg class="mascot" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 C31 9 36 21 20 38 C4 21 9 9 20 2 Z" fill="COLOR"/><path d="M20 6 V38" stroke="#5a2a12" stroke-width="1.5"/></svg>';
+  function fxAdd(html, ms) {
+    var box = document.createElement('div');
+    box.innerHTML = html;
+    $('fxStage').appendChild(box);
+    setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, ms);
+  }
+  function fxWalker(cls, art, say, ms) {
+    fxAdd('<div class="fx-walker ' + cls + '">' + (say ? '<div class="fx-say">' + say + '</div>' : '') + '<div class="fx-hop">' + art + '</div></div>', ms);
+  }
+  function fxOnFeed(inner, ms) {
+    // Sit exactly over one camera feed, so the scene looks like it's happening on that camera.
+    var feeds = document.querySelectorAll('#hero, .kid, .cal'), f = feeds[Math.floor(Math.random() * feeds.length)];
+    var r = f.getBoundingClientRect(), s = $('fxStage').getBoundingClientRect();
+    fxAdd('<div class="fx-clip" style="left:' + (r.left - s.left) + 'px;top:' + (r.top - s.top) + 'px;width:' + r.width + 'px;height:' + r.height + 'px">' + inner + '</div>', ms);
+  }
+  var FX_SCENES = {
+    office: [
+      function () { fxWalker('', mascot(), 'Just checking the cameras...', 12500); },
+      function () { fxOnFeed('<div class="fx-peek">' + mascot() + '</div><div class="fx-alert">MOTION DETECTED</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-lost">SIGNAL LOST</div>', 2600); },
+      function () { fxAdd('<div class="fx-dark"><div class="fx-eye" style="left:44%"></div><div class="fx-eye" style="left:52%"></div></div>', 3300); }
+    ],
+    harvest: [
+      function () { fxWalker('', mascot(), 'Gobble gobble!', 12500); },
+      function () { fxWalker('fast', mascot(), 'Not this year!', 4800); },
+      function () { fxWalker('roll', PUMPKIN, '', 9300); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 14; i++) {
+          html += '<div class="fx-gust" style="top:' + (6 + Math.random() * 70) + '%;animation-delay:' + (Math.random() * 1.6) + 's;animation-duration:' + (3 + Math.random() * 2) + 's">' +
+            FX_LEAF.replace('COLOR', LEAF_COLORS[i % LEAF_COLORS.length]) + '</div>';
+        }
+        fxAdd(html, 7000);
+      }
+    ],
+    calm: [function () { fxAdd('<div class="fx-star">' + mascot() + '</div>', 2600); }]
+  };
+  function playFx(index) {
+    var scenes = FX_SCENES[themeInfo().id], pick = index;
+    if (pick === undefined) {
+      pick = Math.floor(Math.random() * scenes.length);
+      if (pick === lastFx) pick = (pick + 1) % scenes.length; // never the same one twice in a row
+    }
+    lastFx = pick;
+    scenes[pick]();
+  }
+  function fxTick() {
+    if (Date.now() < nextFxAt) return;
+    // Wait for a better moment while parents are editing, a feed is enlarged, or a countdown is nearly up.
+    if (tvEditing || urgent || camIndex >= 0) { nextFxAt = Date.now() + 20000; return; }
+    playFx();
+    nextFxAt = Date.now() + (FX_FAST ? 15000 : 180000 + Math.random() * 300000);
   }
 
   /* ---------- Daily checklist: marks are stored per day, so every morning starts clean ---------- */
@@ -653,6 +749,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
     lastChecks = shown;
     $('kids').innerHTML = html;
+    fitChips();
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
   function blockBar(name, min, full) {
@@ -676,13 +773,16 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       if (seen[e.title]) return false;
       seen[e.title] = true;
       return true;
-    }).slice(0, 6);
-    var today = parseDateKey(dateKey(new Date())), html = '', i;
+    }).slice(0, 10);
+    // Reads down the left column first, then down the right.
+    var today = parseDateKey(dateKey(new Date())), perCol = Math.max(5, Math.ceil(list.length / 2)), html = '', i;
     for (i = 0; i < list.length; i++) {
+      if (i % perCol === 0) html += (i ? '</div>' : '') + '<div class="cal-col">';
       var d = parseDateKey(list[i].date);
       html += '<div class="ev"><span class="ev-when">' + whenText(list[i], today) + '</span><span class="ev-text">' + esc(list[i].title) + '</span>' +
         '<span class="ev-date">' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate() + (list[i].time ? ', ' + time12(list[i].time) : '') + '</span></div>';
     }
+    if (html) html += '</div>';
     $('cal').innerHTML = html || '<div class="empty">Nothing on the calendar yet. Add something from your phone.</div>';
   }
   function renderStatus() {
@@ -1172,6 +1272,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     showGate("That family code didn't work. Check it and try again.");
   }
   var pollTimer = null;
+  if (DEMO) window.boardFx = playFx;
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
     else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); }
