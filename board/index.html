@@ -5,16 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Family Board</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
 <style>
 :root {
-  --bg: #111a2c; --panel: #1b2a41; --panel2: #24364f; --line: #3a4f6d;
-  --ink: #f7f3e8; --muted: #a9b8cc; --mint: #9fe3bf; --blue: #a8c7ff;
-  --orange: #ffc27a; --pink: #ff8fa8; --gold: #ffd95e;
+  /* The parents' notebook. Each TV theme sets its own colors on #tv. */
+  --bg: #f1e9d8; --panel: #fbf6ea; --panel2: #eee5d1; --line: #cfc2a6;
+  --ink: #2b2620; --muted: #6f6453; --mint: #2f4a3c; --blue: #2b2620;
+  --orange: #a8591c; --pink: #a83226; --gold: #a83f24;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
+  --wood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .35' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .03 0 0 0 0 .01 0 0 0 .9 -.1'/%3E%3C/filter%3E%3Crect width='600' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  --felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 -.08'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
 }
 * { box-sizing: border-box; }
 html { font-size: .625vw; background: var(--bg); }
 body { margin: 0; color: var(--ink); background: var(--bg);
-  font-family: "Trebuchet MS", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif; }
+  font-family: Karla, "Trebuchet MS", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 .hide { display: none !important; }
@@ -342,7 +348,7 @@ button { cursor: pointer; }
 .theme-harvest .tv-btn { background: #6b3518; color: #fff3dc; }
 .theme-harvest .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
 .leaf { position: absolute; top: -5rem; width: 3.4rem; height: 3.4rem; animation: fall 17s linear infinite; }
-@keyframes fall { from { transform: translateY(0) rotate(0); } to { transform: translateY(100rem) rotate(540deg); } }
+@keyframes fall { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(2.6rem, 25rem) rotate(120deg); } 50% { transform: translate(-1.4rem, 50rem) rotate(250deg); } 75% { transform: translate(2rem, 75rem) rotate(400deg); } 100% { transform: translate(0, 100rem) rotate(540deg); } }
 #tv.theme-harvest button:focus { color: #4a2412; }
 
 /* ---------- The security office's party corner ---------- */
@@ -491,6 +497,273 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 
 #gate { padding: 2em 1em; max-width: 30em; margin: 0 auto; font-size: 18px; }
 #gate h1 { font-size: 1.5em; margin: 0 0 .6em; }
+
+/* ---------- Hand finishing: shared shapes. Timetables, not pills. ---------- */
+#tv { color: var(--ink); }
+.stop { background: none; border-radius: 0; margin: 0; padding: .45rem 0; justify-content: flex-start; border-top: .12rem solid var(--line); }
+.stop:first-child { border-top: 0; }
+.stop b { width: 8.5rem; flex-shrink: 0; }
+.stop span { font-size: 2.1rem; color: var(--ink); }
+.stop.past { opacity: .55; }
+.stop.past span { text-decoration: line-through; }
+.stop.next { animation: none; background: none; color: var(--mint); }
+.stop.next span { color: var(--mint); font-weight: 700; }
+.hero-count { line-height: 1.12; }
+.hero-sub { font-size: 2.1rem; min-height: 2.8rem; }
+.hero-label small { font-size: .78em; font-weight: 400; opacity: .85; margin-left: .4rem; }
+.block-track, .block-fill { border-radius: 0; }
+.block-track { height: 1.5rem; }
+.block-min { margin-left: .8rem; }
+.theme-wizard .block-min { width: 9.5rem; }
+.theme-wizard .kid-total small { font-family: Almendra, "Palatino Linotype", Palatino, serif; }
+.chip { background: none; border-radius: 0; height: 4.8rem; padding: .2rem .3rem; }
+.chip.on { background: none; }
+.chip.on .chip-text { color: var(--ink); }
+.chip-text { font-size: 1.7rem; }
+.chip-ring { border-style: solid; border-width: .2rem; border-radius: .35rem; opacity: .75; }
+.ev { height: 2.75rem; font-size: 1.95rem; }
+.ev-when { width: 11rem; font-size: 1.75rem; }
+.ev-date { font-size: 1.5rem; }
+.tv-btn { border-radius: .4rem; font-size: 1.75rem; }
+.idle { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.idle-disc { width: 7rem; height: 7rem; margin-right: 1.2rem; flex-shrink: 0; }
+.idle-sig { display: none; }
+
+/* ---------- Security Office: real monitors on a dim wall ---------- */
+#tv.theme-office { background: #101412 var(--grain); font-family: VT323, "Courier New", "DejaVu Sans Mono", monospace; }
+.theme-office .tv-date { font-size: 5.2rem; font-weight: 400; text-transform: uppercase; letter-spacing: .1rem; }
+.theme-office .tv-clock { font-size: 5.6rem; font-weight: 400; color: #ff9d2e; text-shadow: 0 0 1.2rem rgba(255,157,46,.5); text-transform: uppercase; background: #060403; padding: 0 1.4rem; border: .2rem solid #2b2f2c; border-radius: .3rem; }
+.theme-office .hero, .theme-office .kid, .theme-office .cal, .theme-office .feedbox {
+  border: .55rem solid #23282a; border-radius: .9rem; background: radial-gradient(ellipse at center, #0d1d15 0%, #040906 100%);
+  box-shadow: 0 0 0 .14rem #000, 0 .5rem 1.2rem rgba(0,0,0,.7), inset 0 0 4rem rgba(0,0,0,.75); }
+.theme-office .hero-label { font-size: 3.7rem; font-weight: 400; }
+.theme-office .hero-count { font-size: 15.5rem; font-weight: 400; line-height: 1; }
+.theme-office .hero-sub { font-size: 2.6rem; }
+.theme-office .stop { border-top-color: #173326; padding: .25rem .7rem; border-radius: 0; }
+.theme-office .stop b { font-size: 3rem; font-weight: 400; }
+.theme-office .stop span { font-size: 2.7rem; text-transform: uppercase; }
+.theme-office .stop.next { background: var(--mint); color: #03130a; }
+.theme-office .stop.next span { color: #03130a; font-weight: 400; }
+.theme-office .feed-tag { font-size: 2.3rem; }
+.theme-office .feedbox .feed-tag { font-size: 1.9rem; }
+.theme-office .kid-name { font-size: 4rem; font-weight: 400; text-transform: uppercase; letter-spacing: .1rem; }
+.theme-office .kid-total { font-size: 5.6rem; font-weight: 400; }
+.theme-office .kid-total small { font-size: 2.4rem; }
+.theme-office .block-name { font-size: 2.5rem; text-transform: uppercase; }
+.theme-office .block-min { font-size: 2.8rem; font-weight: 400; }
+.theme-office .block-track { background: #0c1a13; height: 1.5rem; }
+.theme-office .block-fill { background: repeating-linear-gradient(90deg, var(--mint) 0, var(--mint) 1.1rem, transparent 1.1rem, transparent 1.45rem); }
+.theme-office .kid-flag { background: none; border: .18rem solid var(--mint); color: var(--mint); border-radius: 0; font-weight: 400; font-size: 2.2rem; }
+.theme-office .chip { border: .14rem solid #1d4331; padding: .2rem .5rem; }
+.theme-office .chip.on { border-color: var(--mint); background: rgba(93,255,160,.09); }
+.theme-office .chip.on .chip-text { color: var(--mint); font-weight: 400; }
+.theme-office .chip-text { font-size: 2.1rem; line-height: 1; text-transform: uppercase; }
+.theme-office .ev { font-size: 2.3rem; }
+.theme-office .ev-when { font-size: 2.2rem; width: 13rem; text-transform: uppercase; }
+.theme-office .ev-date { font-size: 1.9rem; }
+.theme-office .tv-btn { font-size: 2.2rem; background: #2a2f2d; color: #c9d6cf; box-shadow: inset 0 .15rem 0 #454c49, 0 .3rem 0 #050706; }
+.theme-office .room { border-bottom: .35rem solid #2c312e; padding: 0 1.6rem; }
+.theme-office .idle-disc, .theme-office .idle-off { display: none; }
+.theme-office .idle-sig { display: block; font-size: 3.6rem; letter-spacing: .3rem; color: #6d8a7b; }
+.theme-office .fx-cheer span { font-weight: 400; }
+
+/* ---------- Thanksgiving: recipe cards taped down on the wood table ---------- */
+#tv.theme-harvest { --bg: #5a3218; --panel: #fbf3df; --panel2: #f0e2c2; --line: #d8c7a0; --ink: #3c2415; --muted: #7d5c3c; --mint: #b5481a;
+  background: #6a3b1c var(--wood); font-family: Kalam, "Segoe Print", "Comic Sans MS", Georgia, serif; }
+.theme-harvest .hero, .theme-harvest .kid, .theme-harvest .cal, .theme-harvest .player {
+  border: 0; border-radius: .25rem; background: #fbf3df var(--grain); box-shadow: .25rem .45rem 1rem rgba(30,12,2,.5); overflow: visible; }
+.theme-harvest .hero { transform: rotate(-.35deg); }
+.theme-harvest .kid { transform: rotate(.28deg); }
+.theme-harvest .kid:nth-of-type(2) { transform: rotate(-.2deg); }
+.theme-harvest .cal { transform: rotate(.15deg); }
+.theme-harvest .player { transform: rotate(-.6deg); }
+.theme-harvest .kid::before, .theme-harvest .hero::before { content: ""; position: absolute; left: 50%; top: -1rem; width: 11rem; height: 2.2rem; margin-left: -5.5rem; background: rgba(226,203,150,.75); transform: rotate(-1.5deg); box-shadow: 0 .1rem .2rem rgba(0,0,0,.15); }
+.theme-harvest .kid:nth-of-type(2)::before { left: 22%; transform: rotate(2deg); }
+.theme-harvest .hero-label { color: #a83f18; font-weight: 700; font-size: 3rem; border-bottom: .2rem solid #d9594c; padding-bottom: .2rem; }
+.theme-harvest .hero-count { font-family: Bevan, Georgia, serif; font-size: 8.8rem; font-weight: 400; color: #6b2a10; margin-top: .6rem; }
+.theme-harvest .hero-sub { color: var(--muted); }
+.theme-harvest .stop b, .theme-harvest .block-min { font-family: inherit; font-weight: 700; }
+.theme-harvest .stop { padding: .35rem .8rem; border: .18rem solid transparent; border-top: .12rem solid var(--line); }
+.theme-harvest .stop:first-child { border-top: .18rem solid transparent; }
+.theme-harvest .stop.next { background: none; color: #a83f18; border: .22rem solid #c9481f; border-radius: 1.6rem .5rem 1.8rem .6rem / .7rem 1.5rem .5rem 1.3rem; }
+.theme-harvest .stop.next span { color: #a83f18; }
+.theme-harvest .kid-name { font-size: 3.4rem; }
+.theme-harvest .kid-total { font-family: Bevan, Georgia, serif; font-weight: 400; font-size: 3.8rem; }
+.theme-harvest .kid-total small { font-family: Kalam, Georgia, serif; }
+.theme-harvest .block-name { font-size: 2.1rem; }
+.theme-harvest .block-track { background: none; border: .17rem solid #6b3f20; border-radius: 1rem .3rem .9rem .4rem / .4rem 1rem .3rem .9rem; height: 1.7rem; }
+.theme-harvest .block-fill { background: repeating-linear-gradient(115deg, #cf5a24 0, #cf5a24 .55rem, #eb9150 .55rem, #eb9150 .8rem); }
+.theme-harvest .kid-flag { background: none; color: #a8201a; border: .2rem solid #a8201a; border-radius: .3rem; display: inline-block; transform: rotate(-4deg); font-size: 1.8rem; }
+.theme-harvest .chip.on { background: none; }
+.theme-harvest .chip.on .chip-text { color: var(--ink); font-weight: 700; }
+.theme-harvest .chip-ring { border-color: #6b3f20; border-radius: .7rem .25rem .6rem .3rem / .3rem .7rem .25rem .6rem; }
+.theme-harvest .chip-text { font-size: 1.9rem; line-height: 1.35; }
+.theme-harvest .cal h2 { font-size: 2.6rem; }
+.theme-harvest .ev { font-size: 2.05rem; }
+.theme-harvest .ev-when { color: #a83f18; font-weight: 700; font-size: 1.85rem; width: 11.5rem; }
+.theme-harvest .t-num { font-family: Bevan, Georgia, serif; font-weight: 400; font-size: 4.6rem; }
+.theme-harvest .tv-btn { background: #e8d4a8; color: #3c2415; border-radius: .2rem; box-shadow: .1rem .25rem .4rem rgba(0,0,0,.4); }
+.theme-harvest .idle-disc { color: #6b3f20; }
+.theme-harvest .fx-cheer span { font-family: Bevan, Georgia, serif; font-weight: 400; background: #fbf3df; color: #a83f18; box-shadow: .3rem .5rem 1.2rem rgba(0,0,0,.5); border-radius: .3rem; }
+.theme-harvest .tv-date, .theme-harvest .tv-clock { text-shadow: 0 .2rem .3rem rgba(0,0,0,.45); }
+
+/* ---------- Christmas: stitched felt ---------- */
+#tv.theme-christmas { --panel: #17402f; --panel2: #205240; --line: #2f6b54;
+  background: #7e1820 var(--felt); font-family: Cabin, "Trebuchet MS", Arial, sans-serif; }
+.theme-christmas .hero, .theme-christmas .kid, .theme-christmas .cal, .theme-christmas .player {
+  position: relative; border: 0; border-radius: 1.3rem; background: #17402f var(--felt); box-shadow: 0 .3rem .7rem rgba(40,0,0,.55); }
+.theme-christmas .hero::after, .theme-christmas .kid::after, .theme-christmas .cal::after, .theme-christmas .player::after { content: ""; position: absolute; left: .6rem; top: .6rem; right: .6rem; bottom: .6rem; border: .2rem dashed rgba(255,240,205,.5); border-radius: .85rem; pointer-events: none; }
+.theme-christmas .tv-date, .theme-christmas .kid-name, .theme-christmas .cal h2, .theme-christmas .hero-label, .theme-christmas .tv-banner { font-family: "Berkshire Swash", Georgia, serif; font-weight: 400; }
+.theme-christmas .kid-name { font-size: 3.5rem; }
+.theme-christmas .cal h2 { font-size: 2.7rem; }
+.theme-christmas .hero-label { font-size: 3.2rem; }
+.theme-christmas .hero-count, .theme-christmas .kid-total, .theme-christmas .t-num, .theme-christmas .tv-clock { font-family: "Berkshire Swash", Georgia, serif; font-weight: 400; }
+.theme-christmas .hero-count { font-size: 11rem; line-height: 1.3; }
+.theme-christmas .stop b, .theme-christmas .block-min { font-family: inherit; }
+.theme-christmas .stop.next { background: #f4e9d2; color: #17402f; padding-left: .8rem; padding-right: .8rem; border-radius: .4rem; border-top-color: transparent; }
+.theme-christmas .stop.next span { color: #17402f; }
+.theme-christmas .block-track { background: #0f2e21; border-radius: 1rem; height: 1.7rem; }
+.theme-christmas .block-fill { border-radius: 1rem; background: repeating-linear-gradient(115deg, #d9362b 0, #d9362b .95rem, #fff6e6 .95rem, #fff6e6 1.9rem); }
+.theme-christmas .chip { background: none; border: .16rem dashed rgba(255,240,205,.4); border-radius: .6rem; }
+.theme-christmas .chip.on { background: #f4e9d2; border-color: #f4e9d2; }
+.theme-christmas .chip-text { color: var(--ink); }
+.theme-christmas .chip.on .chip-text { color: #17402f; font-weight: 700; }
+.theme-christmas .chip-ring { border-color: rgba(255,246,230,.75); border-radius: 50%; }
+.theme-christmas .kid-flag { background: #d9362b; border-radius: .3rem; font-size: 1.7rem; }
+.theme-christmas .ev-when { color: #f2c14e; }
+.theme-christmas .tv-btn { background: #17402f var(--felt); color: #fff6e6; border: .2rem dashed rgba(255,240,205,.6); }
+.theme-christmas .fx-cheer span { font-family: "Berkshire Swash", Georgia, serif; font-weight: 400; background: #17402f; color: #ffe08a; outline: .3rem dashed rgba(255,240,205,.7); outline-offset: -1rem; }
+.wire-svg { position: absolute; left: 0; top: 0; width: 100%; height: 2.6rem; overflow: visible; }
+.bulb { margin-left: -.55rem; }
+.bulb::before { content: ""; position: absolute; left: .3rem; top: -.28rem; width: .5rem; height: .4rem; background: #1b2b22; border-radius: .1rem; }
+
+/* ---------- Wizard School: torn parchment under a candlelit ceiling ---------- */
+#tv.theme-wizard { --panel: #efe0b9; --panel2: #e3cf9f; --line: #c4ab74;
+  background: radial-gradient(ellipse at 50% 115%, #252c63 0%, #0c0f2a 70%); font-family: Almendra, "Palatino Linotype", "Book Antiqua", Palatino, serif; }
+.theme-wizard .tv-top { min-height: 7rem; align-items: center; margin-bottom: 1.2rem; }
+.theme-wizard .tv-date, .theme-wizard .tv-clock { font-weight: 400; font-size: 4.6rem; }
+.theme-wizard .hero, .theme-wizard .kid, .theme-wizard .cal {
+  border: 0; border-radius: 0; background: #efe0b9 var(--grain); box-shadow: inset 0 0 4.5rem rgba(122,78,24,.5); clip-path: polygon(0% 0%,3.8% 0.8%,7.7% 0.3%,11.5% 0.2%,15.4% 0.7%,19.2% 0.5%,23.1% 0.3%,26.9% 0.7%,30.8% 0.7%,34.6% 0.5%,38.5% 0.6%,42.3% 0.6%,46.2% 0.7%,50% 0.2%,53.8% 0.3%,57.7% 0.6%,61.5% 0.6%,65.4% 0%,69.2% 0.6%,73.1% 0.4%,76.9% 0.8%,80.8% 0.7%,84.6% 0.1%,88.5% 0.5%,92.3% 0.8%,96.2% 0.6%,99.5% 0%,99.6% 3.8%,99.3% 7.7%,99.3% 11.5%,99.7% 15.4%,99.8% 19.2%,99.4% 23.1%,99.8% 26.9%,99.9% 30.8%,99.8% 34.6%,99.7% 38.5%,99.8% 42.3%,99.3% 46.2%,99.6% 50%,99.5% 53.8%,99.4% 57.7%,100% 61.5%,99.8% 65.4%,99.6% 69.2%,99.6% 73.1%,99.7% 76.9%,99.9% 80.8%,99.3% 84.6%,100% 88.5%,99.7% 92.3%,99.8% 96.2%,100% 99.4%,96.2% 99.2%,92.3% 99.5%,88.5% 99.9%,84.6% 99.6%,80.8% 99.7%,76.9% 99.7%,73.1% 99.6%,69.2% 99.7%,65.4% 99.5%,61.5% 99.4%,57.7% 99.8%,53.8% 99.2%,50% 99.6%,46.2% 99.2%,42.3% 99.4%,38.5% 99.4%,34.6% 99.5%,30.8% 99.5%,26.9% 99.4%,23.1% 99.2%,19.2% 99.6%,15.4% 99.4%,11.5% 99.8%,7.7% 99.5%,3.8% 99.7%,0.2% 100%,0.3% 96.2%,0.6% 92.3%,0.6% 88.5%,0.1% 84.6%,0.6% 80.8%,0.1% 76.9%,0.3% 73.1%,0.1% 69.2%,0.1% 65.4%,0.7% 61.5%,0.2% 57.7%,0.5% 53.8%,0.1% 50%,0.3% 46.2%,0.4% 42.3%,0.1% 38.5%,0.7% 34.6%,0.6% 30.8%,0.6% 26.9%,0.6% 23.1%,0.7% 19.2%,0.5% 15.4%,0.2% 11.5%,0% 7.7%,0.2% 3.8%); }
+.theme-wizard .player { border: .2rem solid #b8923a; border-radius: .2rem; background: #161a3d; color: #e6c65c; }
+.theme-wizard .hero-label { font-size: 3.1rem; color: #7a1f2b; }
+.theme-wizard .hero-count, .theme-wizard .kid-total, .theme-wizard .t-num, .theme-wizard .tv-clock, .theme-wizard .stop b, .theme-wizard .block-min { font-family: Cinzel, "Palatino Linotype", Palatino, serif; }
+.theme-wizard .hero-count { font-size: 9.6rem; font-weight: 500; color: #33101a; }
+.theme-wizard .tv-clock { font-size: 4rem; }
+.theme-wizard .chip-text { line-height: 1.3; }
+.theme-wizard .stop { border-top-color: rgba(107,82,48,.35); }
+.theme-wizard .stop span { font-size: 2.2rem; }
+.theme-wizard .stop.next { background: none; color: #7a1f2b; border-top: .14rem double #7a1f2b; border-bottom: .14rem double #7a1f2b; }
+.theme-wizard .stop.next span { color: #7a1f2b; }
+.theme-wizard .kid-name { font-size: 3.5rem; }
+.theme-wizard .block-name { font-size: 2.1rem; }
+.theme-wizard .block-track { background: repeating-linear-gradient(90deg, rgba(90,62,28,.6) 0, rgba(90,62,28,.6) .12rem, transparent .12rem, transparent 11.11%); height: 1.3rem; border-bottom: .14rem solid #5a3e1c; }
+.theme-wizard .block-fill { background: #6d1a26; opacity: .9; }
+.theme-wizard .chip.on { background: none; }
+.theme-wizard .chip.on .chip-text { color: #7a1f2b; font-weight: 700; }
+.theme-wizard .chip-ring { border-color: #5a3e1c; border-radius: 50%; }
+.theme-wizard .chip-text { font-size: 1.9rem; }
+.theme-wizard .kid-flag { border-radius: 1.2rem .4rem 1.2rem .4rem; }
+.theme-wizard .cal h2 { font-size: 2.7rem; }
+.theme-wizard .ev { font-size: 2.05rem; }
+.theme-wizard .tv-btn { background: #1a1e47; color: #e6c65c; border: .17rem solid #b8923a; border-radius: .15rem; }
+.theme-wizard .fx-cheer span { border-radius: .2rem; }
+.float-candle { top: .3rem; bottom: auto; width: 2.7rem; height: 5.7rem; animation: candleHover 7s ease-in-out infinite; }
+.float-candle.edge { top: auto; bottom: -10rem; animation: candleRise 36s linear infinite; }
+.float-candle.edge.right { left: auto; right: .4rem; }
+@keyframes candleHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(.8rem); } }
+
+/* ---------- Calm: a quiet printed page, no boxes at all ---------- */
+#tv.theme-calm { --bg: #1f1b17; --panel: #29241f; --panel2: #352e27; --line: #4a4138; --ink: #efe6d6; --muted: #a3968a; --mint: #e39a6d; --blue: #efe6d6; --orange: #e9b45f; --pink: #ec7f66; --gold: #e39a6d;
+  background: #1f1b17 var(--grain); font-family: Fraunces, Georgia, "Times New Roman", serif; }
+.theme-calm .hero, .theme-calm .kid, .theme-calm .cal, .theme-calm .player { background: none; border-radius: 0; }
+.theme-calm .tv-date, .theme-calm .tv-clock { font-weight: 300; }
+.theme-calm .tv-clock { color: var(--ink); }
+.theme-calm .tv-top { border-bottom: .15rem solid var(--ink); padding-bottom: .9rem; }
+.theme-calm .hero { padding: 0 3rem 0 0; margin-right: 3rem; border-right: .12rem solid var(--line); }
+.theme-calm .hero-label { font-weight: 300; }
+.theme-calm .hero-count { font-weight: 300; font-size: 11.5rem; color: var(--ink); }
+.theme-calm .kid { padding: .6rem 0; margin-bottom: 0; border-bottom: .12rem solid var(--line); }
+.theme-calm .kid:last-child { border-bottom: 0; }
+.theme-calm .kid-name, .theme-calm .kid-total { font-weight: 300; }
+.theme-calm .block-track { background: var(--line); height: .35rem; }
+.theme-calm .block-fill { background: var(--ink); }
+.theme-calm .block-min { font-weight: 300; }
+.theme-calm .stop b { font-weight: 300; }
+.theme-calm .chip.on .chip-text { font-weight: 600; }
+.theme-calm .chip-ring { border-radius: 50%; }
+.theme-calm .kid-flag { background: none; color: var(--mint); padding: 0; font-weight: 300; font-style: italic; }
+.theme-calm .tv-bottom { border-top: .15rem solid var(--ink); padding-top: 1rem; }
+.theme-calm .cal { padding: 0; }
+.theme-calm .cal h2 { font-weight: 300; color: var(--ink); }
+.theme-calm .ev-when { font-weight: 300; }
+.theme-calm .player { border-left: .12rem solid var(--line); }
+.theme-calm .tv-btn { background: none; border: .14rem solid var(--line); font-weight: 300; }
+.theme-calm .fx-cheer span { font-weight: 300; }
+
+/* ---------- Parent editor: a paper notebook, made for thumbs ---------- */
+#editor, #gate { color: var(--ink); background: var(--bg) var(--grain); }
+#editor button, #gate button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; color: var(--ink); }
+#editor button:active { transform: translateY(.06em); }
+.ed-wrap { max-width: 34em; padding: .8em .85em 6.6em; }
+.ed-head { align-items: baseline; margin-bottom: .5em; }
+.ed-head h1 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.5em; line-height: 1.1; }
+.ed-date { color: var(--muted); font-size: .92em; }
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; margin: 0; background: var(--ink); padding: .25em .2em calc(.25em + env(safe-area-inset-bottom, 0px)); }
+.tab { min-height: 3.2em; margin: 0 .12em; padding: .2em 0; background: none; color: #d8ceba !important; border: .12em solid transparent; border-radius: .35em; font-size: .88em; }
+.tab:last-child { margin-right: .12em; }
+.tab.on { background: var(--panel); color: var(--ink) !important; }
+#editor.overlay .tabs { position: static; border-radius: .4em; margin-bottom: .8em; padding-bottom: .25em; }
+#editor.overlay .ed-wrap { padding-bottom: 2em; }
+.card { background: var(--panel); border-radius: .3em; padding: .9em; margin-bottom: .8em; box-shadow: 0 .08em .25em rgba(70,50,20,.2); }
+.card h2 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.25em; margin: 0 0 .35em; }
+.lab { margin: .85em 0 .3em; font-size: .92em; }
+.opts { margin: 0 -.15em; }
+.opt, .mark, .reason, .small, .keypad button { background: var(--panel2); border: .08em solid var(--line); }
+.opt { min-height: 3em; padding: .4em .5em; margin: .15em; border-radius: .35em; flex: 1 1 22%; }
+.opt.on, .mark.on, .reason.on, .day.on, #editor .opt.on, #editor .mark.on, #editor .reason.on, #editor .day.on { background: var(--mint); color: var(--panel); border-color: var(--mint); font-weight: 700; }
+.reason { min-height: 3.1em; align-items: center; padding: .4em .75em; margin-bottom: .3em; border-radius: .35em; }
+.reason i { color: inherit; opacity: .75; font-size: .9em; }
+.nums { background: var(--panel2); margin: -.25em 0 .5em; padding: .55em .5em .45em; border-radius: 0 0 .35em .35em; }
+.nums .lab { margin: 0 0 .25em .15em; }
+.nums .opt { background: var(--panel); flex: 1 1 18%; min-width: 3em; }
+.go { min-height: 3.2em; margin-top: .85em; background: var(--gold); border: 0; border-radius: .35em; }
+#editor .go { color: var(--panel); }
+.go:disabled { opacity: .4; }
+.small { min-height: 2.8em; padding: .3em .8em; border-radius: .35em; flex-shrink: 0; }
+.linkish { display: block; width: 100%; min-height: 3em; margin-top: .6em; padding: .3em; background: none; border: .08em dashed var(--muted); border-radius: .35em; }
+.who { display: flex; margin: 0 -.15em; }
+.who .opt { flex: 1 1 40%; min-height: 3.7em; font-size: 1.08em; }
+.who small { display: block; font-size: .78em; font-weight: 400; opacity: .85; }
+.list-row { display: flex; align-items: center; padding: .3em 0; border-top: 1px solid var(--line); }
+.list-row:first-of-type { border-top: 0; }
+.list-name { flex: 1; min-width: 0; padding-right: .5em; font-weight: 700; line-height: 1.15; }
+.mark { flex: 0 0 auto; width: 6.2em; min-height: 3.3em; padding: .2em .25em; margin: 0 0 0 .3em; border-radius: .35em; }
+.mark span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9em; }
+.mark .ring { width: 1.15em; height: 1.15em; margin: 0 .35em 0 .1em; border-width: .12em; }
+.mark .mascot { width: 1.6em; height: 1.6em; margin-right: .25em; }
+.row { min-height: 3em; }
+.stepper { display: flex; align-items: center; margin-top: .3em; }
+.stepper button { flex: 0 0 3.2em; min-height: 3.2em; font-size: 1.05em; }
+.stepper b { flex: 1; text-align: center; font-size: 1.3em; }
+.stepper .opt { margin: 0; }
+.month-head { display: flex; align-items: center; justify-content: space-between; margin-top: .8em; }
+.month-head b { font-size: 1.05em; }
+.month { display: flex; flex-wrap: wrap; margin: .3em -.08em 0; }
+.month > * { width: 14.28%; padding: .08em; }
+.dow { text-align: center; color: var(--muted); font-size: .8em; padding-bottom: .2em; }
+.day { min-height: 2.75em; width: 100%; background: var(--panel2); border: .08em solid transparent; border-radius: .3em; padding: 0; }
+.day:disabled { background: none; opacity: .3; }
+.day.today { border-color: var(--gold); }
+.toast { display: flex; align-items: center; left: .8em; right: .8em; bottom: 4.7em; transform: none; justify-content: space-between; border-radius: .35em; font-weight: 700; box-shadow: 0 .2em .7em rgba(40,25,5,.4); padding: .4em .5em .4em 1em; min-height: 3.2em; }
+#editor.overlay ~ .toast { bottom: 1.2em; }
+.toast button { flex-shrink: 0; min-height: 2.5em; padding: 0 1em; margin-left: .8em; background: var(--panel); color: var(--ink); border: 0; border-radius: .3em; font-weight: 700; }
+.toast.hide { display: none !important; }
+#editor button:focus, #editor input:focus, #editor select:focus, #gate button:focus, #gate input:focus { box-shadow: none; }
+#editor input:focus, #editor select:focus, #editor textarea:focus, #gate input:focus { border-color: var(--gold); box-shadow: 0 0 0 .1em var(--gold); }
+#editor.overlay button:focus, #editor.overlay select:focus { border-color: var(--gold); box-shadow: 0 0 0 .18em var(--gold); }
+input, select, textarea { background: #fffdf6; border: .08em solid var(--line); border-radius: .3em; }
+#gate h1 { font-family: Kalam, "Segoe Print", Georgia, serif; }
+#gate { min-height: 100vh; max-width: none; }
 </style>
 </head>
 <body>
@@ -518,7 +791,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     <div class="cal" data-cam="Calendar">
       <div class="feed-tag"><span><span class="rec">&#9679;</span> CAM 4 &middot; CALENDAR</span><span class="feed-time"></span></div>
       <div class="fx"></div>
-      <h2>Coming up</h2><div class="cal-list" id="cal"></div>
+      <h2 id="calTitle">Coming up</h2><div class="cal-list" id="cal"></div>
     </div>
     <div class="side">
       <div class="feedbox" data-cam="Music">
@@ -597,7 +870,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   var tvEditing = false;
   var pinEntry = null;
   var pinOk = false;
-  var ed = { chanNames: {}, timerWho: 0, tab: 'list', kid: 0, reason: '', mins: 5, block: '', giveKid: 0, giveBlock: '', giveMins: 5, evTitle: '', evMonth: null, evDay: null, evTime: '', evNoSchool: false, draft: null };
+  var ed = { chanNames: {}, timerWho: 0, timerMins: 25, tab: 'list', kid: 0, reason: '', block: '', giveOpen: false, evOpen: false, evTitle: '', evPick: '', evView: null, evHour: '', evMin: '00', evNoSchool: false, more: '', draft: null };
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -761,8 +1034,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     // TV fonts vary and parents can type anything, so each label shrinks until it really fits its chip.
     var labels = document.querySelectorAll('.chip-text'), rem = parseFloat(getComputedStyle(document.documentElement).fontSize), i;
     for (i = 0; i < labels.length; i++) {
-      var el = labels[i], size = 1.55;
+      var el = labels[i], size;
       el.style.fontSize = '';
+      size = parseFloat(getComputedStyle(el).fontSize) / rem;
       while (size > .9 && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight + 1)) {
         size -= .05;
         el.style.fontSize = size * rem + 'px';
@@ -799,9 +1073,10 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       var H = Math.floor(left / 3600), M = Math.floor(left % 3600 / 60), S = left % 60;
       if (left <= 60) level = 'now'; else if (left <= 300) level = 'soon';
       urgent = left <= 300;
-      $('heroLabel').innerHTML = esc(next.label) + ' ' + time12(next.at) + (tomorrow ? ' tomorrow' : '');
+      $('heroLabel').innerHTML = esc(next.label) + ' <small>' + time12(next.at) + (tomorrow ? ' tomorrow' : '') + '</small>';
       $('heroCount').innerHTML = (H ? H + ':' + pad(M) : M) + ':' + pad(S);
-      $('heroSub').innerHTML = H ? 'hours : minutes : seconds' : 'minutes : seconds';
+      var then = tomorrow ? null : today[i + 1];
+      $('heroSub').innerHTML = then ? 'Then ' + esc(then.label.toLowerCase()) + ' at ' + time12(then.at) : '';
     } else {
       $('heroLabel').innerHTML = ''; $('heroCount').innerHTML = ''; $('heroSub').innerHTML = '';
     }
@@ -820,7 +1095,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!' }, { id: 'calm', text: 'Calm', flag: 'All done!' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -847,7 +1122,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L10 4 L24 12 Q32 9 40 12 L54 4 L50 18 Q58 30 54 44 Q50 60 32 60 Q14 60 10 44 Q6 30 14 18 Z" fill="#7d6242"/><path d="M20 40 Q32 62 44 40 Q42 54 32 56 Q22 54 20 40 Z" fill="#e8d7b5"/>' +
         '<circle cx="23" cy="27" r="10" fill="#f3e6c4"/><circle cx="41" cy="27" r="10" fill="#f3e6c4"/><circle cx="23" cy="27" r="5" fill="#1d1408"/><circle cx="41" cy="27" r="5" fill="#1d1408"/><circle cx="25" cy="25" r="1.6" fill="#fff"/><circle cx="43" cy="25" r="1.6" fill="#fff"/><polygon points="28,33 36,33 32,40" fill="#e6a42c"/></svg>';
     }
-    return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
+    return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 35 C17 40 22 47 26 53 C34 37 43 22 55 11" fill="none" stroke="#e39a6d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
   function thanksgivingDay(year) {
     var first = new Date(year, 10, 1).getDay();
@@ -881,34 +1156,42 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     $('btnCams').className = theme === 'office' ? 'tv-btn' : 'tv-btn hide';
     if (theme !== 'office' && camIndex !== -1) showCam(-1);
     var leaves = $('leaves');
+    $('calTitle').innerHTML = esc(themeInfo().cal);
     if (leaves.getAttribute('data-t') !== theme) { leaves.innerHTML = ''; leaves.setAttribute('data-t', theme); }
     if (theme === 'office' && !leaves.innerHTML) {
       leaves.innerHTML = '<div class="room"><div class="room-fan">' + DESK_FAN + '</div><div class="room-pizza">' + PIZZA_BOX + '</div><div class="room-balloons">' + BALLOON_BUNCH + '</div></div>';
     }
     if (theme === 'christmas' && !leaves.innerHTML) {
-      var winter = '', bulbs = ['#ff5a4d', '#ffd24d', '#5fe08a', '#5ac8ff'];
+      var winter = '', bulbs = ['#ff5a4d', '#ffd24d', '#5fe08a', '#5ac8ff', '#ff5a4d', '#5fe08a', '#ffd24d'], wire = 'M0 2', spans = 8, s2, f;
       for (i = 0; i < 26; i++) {
-        var size = .5 + (i * 7) % 5 * .18;
-        winter += '<span class="flake" style="left:' + ((i * 37) % 100) + '%;width:' + size + 'rem;height:' + size + 'rem;animation-delay:' + (-i * 1.1) + 's;animation-duration:' + (15 + i % 5 * 2.5) + 's"></span>';
+        var size = .3 + (i * 7) % 5 * .16;
+        winter += '<span class="flake" style="left:' + ((i * 37) % 100) + '%;width:' + size + 'rem;height:' + size + 'rem;opacity:' + (.45 + (i * 3) % 5 * .12) + ';animation-delay:' + (-i * 1.1) + 's;animation-duration:' + (15 + i % 5 * 2.5) + 's"></span>';
       }
-      for (i = 0; i < 24; i++) {
-        winter += '<span class="bulb" style="left:' + (1.5 + i * 4.1) + '%;top:' + (.55 + (i % 2) * .4) + 'rem;background:' + bulbs[i % 4] + ';animation-delay:' + (i % 4 * .45) + 's"></span>';
+      // The light string sags between hooks, and the bulbs hang along the same curve.
+      for (s2 = 0; s2 < spans; s2++) {
+        wire += ' Q' + (s2 + .5) * 125 + ' 36 ' + (s2 + 1) * 125 + ' 2';
+        for (i = 0; i < 3; i++) {
+          f = .2 + i * .3;
+          winter += '<span class="bulb" style="left:' + ((s2 + f) / spans * 100) + '%;top:' + (.35 + 6.8 * f * (1 - f)) + 'rem;background:' + bulbs[(s2 * 3 + i) % 7] + ';animation-delay:' + (-((s2 * 5 + i * 3) % 7) * .4) + 's;animation-duration:' + (1.6 + (s2 + i) % 3 * .5) + 's"></span>';
+        }
       }
-      leaves.innerHTML = '<div class="wire"></div>' + winter;
+      leaves.innerHTML = '<svg class="wire-svg" viewBox="0 0 1000 26" preserveAspectRatio="none" aria-hidden="true"><path d="' + wire + '" fill="none" stroke="#1b2b22" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>' + winter;
     }
     if (theme === 'wizard' && !leaves.innerHTML) {
       var sky = '';
       for (i = 0; i < 24; i++) sky += '<span class="twinkle" style="left:' + (i * 4.1 + (i % 3)) + '%;top:' + (.5 + (i * 37) % 60 / 10) + 'rem;animation-delay:' + (-i * .4) + 's"></span>';
-      // Candles drift up the whole screen, always staggered so a few are in view.
-      for (i = 0; i < 8; i++) {
-        sky += '<div class="float-candle" style="left:' + (4 + i * 13) + '%;animation-delay:' + (-i * 4.3) + 's;animation-duration:' + (30 + i % 3 * 5) + 's"><div class="candle-sway" style="animation-delay:' + (-i * .7) + 's">' + CANDLE + '</div></div>';
+      // Most candles hover along the ceiling, clear of the text. Two drift up the side margins.
+      for (i = 0; i < 9; i++) {
+        sky += '<div class="float-candle" style="left:' + (29 + i * 6.1) + '%;top:' + (.1 + (i * 5) % 3 * .45) + 'rem;animation-delay:' + (-i * 1.3) + 's"><div class="candle-sway" style="animation-delay:' + (-i * .7) + 's">' + CANDLE + '</div></div>';
       }
+      sky += '<div class="float-candle edge" style="left:.4rem"><div class="candle-sway">' + CANDLE + '</div></div><div class="float-candle edge right" style="animation-delay:-17s"><div class="candle-sway" style="animation-delay:-2s">' + CANDLE + '</div></div>';
       leaves.innerHTML = sky;
     }
     if (theme === 'harvest' && !leaves.innerHTML) {
       var html = '';
       for (i = 0; i < LEAF_COLORS.length; i++) {
-        html += '<svg class="leaf" viewBox="0 0 40 40" style="left:' + (5 + i * 14) + '%;animation-delay:' + (-i * 2.6) + 's;animation-duration:' + (15 + i % 3 * 3) + 's" aria-hidden="true"><path d="M20 2 C31 9 36 21 20 38 C4 21 9 9 20 2 Z" fill="' + LEAF_COLORS[i] + '"/><path d="M20 6 V38" stroke="#5a2a12" stroke-width="1.5"/></svg>';
+        var leafSize = 2.4 + (i * 3) % 4 * .5, leafShape = i % 2 ? 'M20 2 L25 11 L34 8 L31 18 L38 22 L29 27 L31 35 L22 31 L20 38 L18 31 L9 35 L11 27 L2 22 L9 18 L6 8 L15 11 Z' : 'M20 2 C31 9 36 21 20 38 C4 21 9 9 20 2 Z';
+        html += '<svg class="leaf" viewBox="0 0 40 40" style="left:' + (5 + i * 14) + '%;width:' + leafSize + 'rem;height:' + leafSize + 'rem;animation-delay:' + (-i * 2.6) + 's;animation-duration:' + (15 + i % 3 * 3) + 's" aria-hidden="true"><path d="' + leafShape + '" fill="' + LEAF_COLORS[i] + '"/><path d="M20 6 V38" stroke="#5a2a12" stroke-width="1.2"/></svg>';
       }
       leaves.innerHTML = html;
     }
@@ -1329,7 +1612,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   }
 
   /* ---------- Timers: stored as an end time, so every screen counts down the same ---------- */
-  var TIMER_PRESETS = [{ label: 'Teeth', min: 5 }, { label: 'Shower', min: 10 }, { label: '', min: 5 }, { label: '', min: 10 }, { label: '', min: 15 }, { label: '', min: 20 }, { label: '', min: 30 }];
+  var TIMER_PRESETS = [{ label: 'Teeth', min: 5 }, { label: 'Shower', min: 10 }, { label: '', min: 1 }, { label: '', min: 2 }, { label: '', min: 3 }, { label: '', min: 5 }, { label: '', min: 10 }, { label: '', min: 15 }, { label: '', min: 20 }, { label: '', min: 30 }, { label: '', min: 45 }, { label: '', min: 60 }];
   function timerLeft(t) { return t.paused !== undefined && t.paused !== null ? t.paused : t.end - Date.now(); }
   function liveTimer(kid) {
     // One left running by accident disappears after half an hour of overtime.
@@ -1369,20 +1652,21 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     toast('Timer started');
   }
   function timersHtml() {
-    var s = settings(), html = '<div class="card"><h2>Timers</h2><span class="lab">Who</span><div class="opts">', k, i;
-    for (k = 0; k < s.kids.length; k++) html += optBtn('timerWho', k, s.kids[k], String(ed.timerWho) === String(k));
-    html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Tap to start</span><div class="opts">';
-    for (i = 0; i < TIMER_PRESETS.length; i++) html += optBtn('timerGo', i, TIMER_PRESETS[i].label ? TIMER_PRESETS[i].label + ' ' + TIMER_PRESETS[i].min : TIMER_PRESETS[i].min + ' min', false);
-    html += '</div><span class="lab">Or set your own</span><div class="pair"><input aria-label="What for" placeholder="What for" maxlength="20" data-draft="timerLabel" data-f="tl" value="' + esc(ed.timerLabel || '') + '">' +
-      '<input aria-label="Minutes" placeholder="Minutes" inputmode="numeric" type="number" min="1" max="180" data-draft="timerMins" data-f="tm" value="' + esc(ed.timerMins || '') + '"></div><button class="go" data-act="timerCustom" data-f="timerCustom">Start timer</button>';
+    var s = settings(), html = '', k, i;
     for (k = 0; k < s.kids.length; k++) {
       var t = liveTimer(k);
       if (!t) continue;
       var paused = t.paused !== undefined && t.paused !== null;
-      html += '<div class="row" style="flex-wrap:wrap"><div>' + esc(s.kids[k]) + ': ' + esc(t.label || 'Timer') + '<span class="ed-time" data-kid="' + k + '"></span></div></div><div class="opts">' +
-        optBtn('timerAdd', k, '+1 min', false) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div>';
+      html += '<div class="card"><h2>' + esc(s.kids[k]) + (t.label ? ': ' + esc(t.label) : '') + '<span class="ed-time" data-kid="' + k + '"></span></h2><div class="opts">' +
+        optBtn('timerAdd', k, '+1 min', false) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div></div>';
     }
-    return html + '</div>';
+    html += '<div class="card"><h2>Start a timer</h2><div class="who">';
+    for (k = 0; k < s.kids.length; k++) html += optBtn('timerWho', k, s.kids[k], String(ed.timerWho) === String(k));
+    html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Tap a time and it starts</span><div class="opts">';
+    for (i = 0; i < TIMER_PRESETS.length; i++) html += optBtn('timerGo', i, TIMER_PRESETS[i].label ? TIMER_PRESETS[i].label + ' ' + TIMER_PRESETS[i].min : TIMER_PRESETS[i].min + ' min', false);
+    html += '</div><span class="lab">Other</span><div class="stepper">' + optBtn('timerStep', -5, '−5', false) + '<b>' + ed.timerMins + ' min</b>' + optBtn('timerStep', 5, '+5', false) + '</div>' +
+      '<button class="go" data-act="timerCustom" data-f="timerCustom">Start ' + ed.timerMins + ' min timer</button></div>';
+    return html;
   }
 
   /* ---------- Daily checklist: marks are stored per day, so every morning starts clean ---------- */
@@ -1478,11 +1762,17 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       '%"' + (start !== target ? ' data-w="' + target + '"' : '') + '></div></div><div class="block-min">' + min + ' min</div></div>';
   }
   function whenText(e, today) {
-    var days = Math.round((parseDateKey(e.date) - today) / 86400000);
+    var days = Math.round((parseDateKey(e.date) - today) / 86400000), d = parseDateKey(e.date);
     if (days < 0) return 'Now'; // a multi-day event already under way
     if (days === 0) return 'Today';
     if (days === 1) return 'Tomorrow';
-    return 'In ' + days + ' days';
+    return DAY_NAMES[d.getDay()].slice(0, 3) + ' ' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate();
+  }
+  function aheadText(e, today) {
+    var days = Math.round((parseDateKey(e.date) - today) / 86400000), parts = [];
+    if (e.time) parts.push(time12(e.time));
+    if (days > 1) parts.push(days + ' days');
+    return parts.join(' · ');
   }
   function upcoming() {
     var today = dateKey(new Date());
@@ -1499,9 +1789,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var today = parseDateKey(dateKey(new Date())), perCol = Math.max(5, Math.ceil(list.length / 2)), html = '', i;
     for (i = 0; i < list.length; i++) {
       if (i % perCol === 0) html += (i ? '</div>' : '') + '<div class="cal-col">';
-      var d = parseDateKey(list[i].date);
       html += '<div class="ev"><span class="ev-when">' + whenText(list[i], today) + '</span><span class="ev-text">' + esc(list[i].title) + '</span>' +
-        '<span class="ev-date">' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate() + (list[i].time ? ', ' + time12(list[i].time) : '') + '</span></div>';
+        '<span class="ev-date">' + aheadText(list[i], today) + '</span></div>';
     }
     if (html) html += '</div>';
     $('cal').innerHTML = html || '<div class="empty">Nothing on the calendar yet. Add something from your phone.</div>';
@@ -1528,7 +1817,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       player.innerHTML = '<iframe allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" title="Lo-fi music" src="https://www.youtube.com/embed/' +
         encodeURIComponent(lofiId()) + '?autoplay=1&rel=0&playsinline=1&enablejsapi=1"></iframe>';
     } else {
-      player.innerHTML = 'Music is off';
+      player.innerHTML = '<div class="idle"><svg class="idle-disc" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="currentColor"/><g fill="none" stroke="#fff" stroke-opacity=".16"><circle cx="32" cy="32" r="25"/><circle cx="32" cy="32" r="20.5"/><circle cx="32" cy="32" r="16"/></g><circle cx="32" cy="32" r="10" fill="#e8a23a"/><circle cx="32" cy="32" r="2" fill="#222"/></svg><span class="idle-off">Music is off</span><span class="idle-sig">NO SIGNAL</span></div>';
     }
   }
   function pressMusic() {
@@ -1549,12 +1838,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA') && el.contains(active) && !editorForced) return;
     editorForced = false;
     var scroll = el.className.indexOf('overlay') >= 0 ? el.scrollTop : window.pageYOffset;
-    var html = '<div class="ed-wrap"><div class="ed-head"><h1>Family Board</h1>' +
-      (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '') + '</div>';
+    var today = new Date(), html = '<div class="ed-wrap"><div class="ed-head"><h1>Family Board</h1>' +
+      (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '<span class="ed-date">' + DAY_NAMES[today.getDay()] + ', ' + MONTHS[today.getMonth()].slice(0, 3) + ' ' + today.getDate() + '</span>') + '</div>';
     if (tvEditing && !pinOk) html += pinHtml();
     else {
-      html += '<div class="tabs">' + tabBtn('list', 'List') + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('music', 'Music') + tabBtn('setup', 'Setup') + '</div>';
-      html += ed.tab === 'list' ? listHtml() : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : ed.tab === 'music' ? musicHtml() : setupHtml();
+      html += '<div class="tabs">' + tabBtn('list', 'Checklist') + tabBtn('minutes', 'Minutes') + tabBtn('timers', 'Timers') + tabBtn('calendar', 'Calendar') + tabBtn('more', 'More') + '</div>';
+      html += ed.tab === 'list' ? listHtml() : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'timers' ? timersHtml() : ed.tab === 'calendar' ? calendarHtml() : moreHtml();
     }
     el.innerHTML = html + '</div>';
     updateTimers();
@@ -1582,9 +1871,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     return html;
   }
   function listHtml() {
-    var s = settings(), key = dateKey(new Date()), html = timersHtml() + '<div class="card"><h2>Today\'s list</h2>', i, k;
+    var s = settings(), key = dateKey(new Date()), html = '<div class="card"><h2>Today\'s list</h2>', i, k;
     for (i = 0; i < s.checklist.length; i++) {
-      html += '<div class="list-item">' + esc(s.checklist[i]) + '</div><div class="opts">';
+      html += '<div class="list-row"><div class="list-name">' + esc(s.checklist[i]) + '</div>';
       for (k = 0; k < s.kids.length; k++) {
         var on = isChecked(k, i, key);
         html += '<button class="mark' + (on ? ' on' : '') + '" data-act="check" data-arg="' + k + '-' + i + '" data-f="check-' + k + '-' + i + '">' +
@@ -1593,65 +1882,60 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       html += '</div>';
     }
     html += '<p class="hint">';
-    for (k = 0; k < s.kids.length; k++) html += esc(s.kids[k]) + ': ' + doneCount(k, key) + ' of ' + s.checklist.length + (k < s.kids.length - 1 ? ' · ' : '');
-    return html + '. The list clears itself every day.</p></div>';
+    for (k = 0; k < s.kids.length; k++) html += esc(s.kids[k]) + ' ' + doneCount(k, key) + ' of ' + s.checklist.length + (k < s.kids.length - 1 ? ' · ' : '');
+    return html + '. It clears itself each morning.</p></div>';
   }
   function minutesHtml() {
-    var s = settings(), key = dateKey(new Date()), i, r = null, html = '<div class="card"><h2>Take off minutes</h2><span class="lab">Who</span><div class="opts">';
+    var s = settings(), key = dateKey(new Date()), block = ed.block || nextBlock(), i, html = '<div class="card"><div class="who">';
     for (i = 0; i < s.kids.length; i++) {
       var m = kidMinutes(i, key);
-      html += optBtn('kid', i, s.kids[i] + ' · ' + m.total + ' min', ed.kid === i);
+      html += '<button class="opt' + (ed.kid === i ? ' on' : '') + '" data-act="kid" data-arg="' + i + '" data-f="kid-' + i + '">' + esc(s.kids[i]) + '<small>' + m.total + ' of ' + m.full + ' min</small></button>';
     }
-    html += '</div><span class="lab">What happened</span>';
+    html += '</div><span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', block === 'after') + optBtn('block', 'evening', 'Evening', block === 'evening') + '</div>' +
+      '<span class="lab">Tap what happened</span>';
     for (i = 0; i < REASONS.length; i++) {
       var x = REASONS[i];
-      if (x.id === ed.reason) r = x;
       html += '<button class="reason' + (x.id === ed.reason ? ' on' : '') + '" data-act="reason" data-arg="' + x.id + '" data-f="reason-' + x.id + '"><span>' + esc(x.text) +
-        '</span><i>' + (x.perMin ? '−1 a minute' : '−' + x.min) + '</i></button>';
-    }
-    if (r) {
-      var mins = r.perMin ? ed.mins : r.min;
-      if (r.perMin) {
-        html += '<span class="lab">How many minutes</span><div class="opts">';
-        var counts = [1, 2, 3, 4, 5, 10, 15, 20, 30];
-        for (i = 0; i < counts.length; i++) html += optBtn('mins', counts[i], counts[i], ed.mins === counts[i]);
-        html += '</div>';
+        '</span><i>' + (x.perMin ? 'per min' : '−' + x.min) + '</i></button>';
+      if (x.perMin && x.id === ed.reason) {
+        html += '<div class="nums"><span class="lab">How many minutes?</span><div class="opts">';
+        var counts = [1, 2, 3, 4, 5, 10, 15, 20, 30], c;
+        for (c = 0; c < counts.length; c++) html += optBtn('takeMins', counts[c], counts[c], false);
+        html += '</div></div>';
       }
-      html += '<span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', ed.block === 'after') + optBtn('block', 'evening', 'Evening', ed.block === 'evening') + '</div>';
-      html += '<button class="go" data-act="deduct" data-f="deduct">Take off ' + mins + ' min from ' + esc(s.kids[ed.kid]) + '</button>';
     }
     html += '</div>';
 
-    html += '<div class="card"><h2>Give minutes back</h2><span class="lab">Who</span><div class="opts">';
-    for (i = 0; i < s.kids.length; i++) html += optBtn('giveKid', i, s.kids[i], ed.giveKid === i);
-    var giveTo = ed.giveBlock || nextBlock();
-    html += '</div><span class="lab">To which block</span><div class="opts">' + optBtn('giveBlock', 'after', 'After school', giveTo === 'after') + optBtn('giveBlock', 'evening', 'Evening', giveTo === 'evening') +
-      '</div><span class="lab">How many minutes</span><div class="opts">';
-    var backs = [1, 2, 3, 5, 10, 15, 20, 30];
-    for (i = 0; i < backs.length; i++) html += optBtn('giveMins', backs[i], backs[i], ed.giveMins === backs[i]);
-    html += '</div><button class="go" data-act="give" data-f="give">Give back ' + ed.giveMins + ' min to ' + esc(s.kids[ed.giveKid]) + '</button></div>';
-
     html += '<div class="card"><h2>Today so far</h2>';
     var log = (data.log && data.log[key]) || {}, ids = Object.keys(log).sort();
-    if (!ids.length) html += '<p class="hint">Nothing taken off today. Every day starts fresh.</p>';
+    if (!ids.length) html += '<p class="hint">Nothing taken off today.</p>';
     for (i = ids.length - 1; i >= 0; i--) {
       var e = log[ids[i]];
       html += '<div class="row"><div>' + (e.min < 0 ? '+' + (-e.min) : '−' + e.min) + ' · ' + esc(s.kids[e.kid]) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
         '<button class="small" data-act="undo" data-arg="' + esc(ids[i]) + '" data-f="undo-' + esc(ids[i]) + '">Undo</button></div>';
     }
+    html += '<button class="linkish" data-act="giveToggle" data-f="giveToggle">' + (ed.giveOpen ? 'Close' : 'Give minutes back') + '</button>';
+    if (ed.giveOpen) {
+      html += '<span class="lab">Back to ' + esc(s.kids[ed.kid]) + ', ' + (block === 'after' ? 'After school' : 'Evening') + '. Tap how many.</span><div class="opts">';
+      var backs = [1, 2, 3, 5, 10, 15, 20, 30];
+      for (i = 0; i < backs.length; i++) html += optBtn('give', backs[i], '+' + backs[i], false);
+      html += '</div>';
+    }
     html += '</div>';
 
-    var hw = (data.homework && data.homework[key]) || '';
-    html += '<div class="card"><h2>Homework done-by today</h2><select data-input="homework" data-f="homework">' + timeOptions(hw, true) + '</select></div>';
-    return html;
+    var hw = (data.homework && data.homework[key]) || '', hwTimes = ['15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30'];
+    if (hw && hwTimes.indexOf(hw) < 0) hwTimes.push(hw);
+    html += '<div class="card"><h2>Homework done by</h2><div class="opts">' + optBtn('homework', '', 'No time', !hw);
+    for (i = 0; i < hwTimes.length; i++) html += optBtn('homework', hwTimes[i], time12(hwTimes[i]).replace(/ (am|pm)/, ''), hw === hwTimes[i]);
+    return html + '</div></div>';
   }
   /* ---------- Sync now: asks GitHub to run the calendar job, using a limited key kept in the family's database ---------- */
   var SYNC_URL = 'https://api.github.com/repos/Davethulu/family-games/actions/workflows/icloud-sync.yml/dispatches';
   function syncHtml() {
-    var html = '<div class="card"><h2>iCloud sync</h2>', stamp = data.icloud && data.icloud.at;
+    var html = '<div class="card"><h2>iCloud calendar</h2>', stamp = data.icloud && data.icloud.at;
     if (stamp) {
       var at = new Date(stamp), hrs = (at.getHours() % 12 || 12) + ':' + pad(at.getMinutes()) + (at.getHours() < 12 ? ' am' : ' pm');
-      html += '<p class="hint" style="margin-top:0">Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '. It also syncs about once an hour. iCloud events are edited in the Calendar app.</p>';
+      html += '<p class="hint" style="margin-top:0">Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '.</p>';
     }
     if (ed.syncing && Date.now() - ed.syncing > 180000) {
       ed.syncing = 0;
@@ -1659,12 +1943,15 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
     if (data.syncKey) {
       html += '<button class="go" data-act="syncNow" data-f="syncNow"' + (ed.syncing ? ' disabled' : '') + '>' + (ed.syncing ? 'Syncing, about a minute...' : 'Sync now') + '</button>' +
-        '<button class="small" style="margin-top:.8em" data-act="syncKeyRemove" data-f="syncKeyRemove">Remove sync key</button>';
+        '<button class="linkish" data-act="syncKeyRemove" data-f="syncKeyRemove">Remove sync key</button>';
     } else {
-      html += '<button class="go" disabled>Sync now</button><p class="hint">To turn on this button, paste a limited GitHub key below. It only needs Actions access to the family-games repository.</p>' +
-        '<label class="lab" for="sk">GitHub key</label><input id="sk" type="password" autocomplete="off" spellcheck="false" data-draft="syncKeyDraft" data-f="sk" value="' + esc(ed.syncKeyDraft || '') + '">' +
-        '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>' +
-        '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Or sync on GitHub</a>';
+      html += '<button class="go" disabled>Sync now</button><button class="linkish" data-act="syncSetup" data-f="syncSetup">Turn on this button</button>';
+      if (ed.syncSetup) {
+        html += '<p class="hint">Paste a limited GitHub key. It only needs Actions access to the family-games repository.</p>' +
+          '<label class="lab" for="sk">GitHub key</label><input id="sk" type="password" autocomplete="off" spellcheck="false" data-draft="syncKeyDraft" data-f="sk" value="' + esc(ed.syncKeyDraft || '') + '">' +
+          '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>' +
+          '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Or sync on GitHub</a>';
+      }
     }
     return html + '</div>';
   }
@@ -1690,17 +1977,39 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     xhr.onerror = xhr.ontimeout = function () { toast("Couldn't reach GitHub. Check the connection.", true); };
     xhr.send(JSON.stringify({ ref: 'main' }));
   }
+  function monthHtml() {
+    var now = new Date(), todayKey = dateKey(now), i;
+    if (!ed.evPick) ed.evPick = todayKey;
+    if (!ed.evView) ed.evView = { y: now.getFullYear(), m: now.getMonth() };
+    var v = ed.evView, atStart = v.y === now.getFullYear() && v.m === now.getMonth();
+    var html = '<div class="month-head"><button class="small" data-act="evNav" data-arg="-1" data-f="evPrev"' + (atStart ? ' disabled' : '') + ' aria-label="Earlier month">&lsaquo;</button><b>' + MONTHS[v.m] + ' ' + v.y +
+      '</b><button class="small" data-act="evNav" data-arg="1" data-f="evNext" aria-label="Later month">&rsaquo;</button></div><div class="month">', letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    for (i = 0; i < 7; i++) html += '<div class="dow">' + letters[i] + '</div>';
+    var blanks = new Date(v.y, v.m, 1).getDay(), count = new Date(v.y, v.m + 1, 0).getDate();
+    for (i = 0; i < blanks; i++) html += '<div></div>';
+    for (i = 1; i <= count; i++) {
+      var k = dateKey(new Date(v.y, v.m, i));
+      html += '<div><button class="day' + (k === ed.evPick ? ' on' : '') + (k === todayKey ? ' today' : '') + '" data-act="evPick" data-arg="' + k + '" data-f="day-' + k + '"' + (k < todayKey ? ' disabled' : '') + '>' + i + '</button></div>';
+    }
+    return html + '</div>';
+  }
   function calendarHtml() {
-    var now = new Date(), i;
-    if (ed.evMonth === null) { ed.evMonth = now.getMonth(); ed.evDay = now.getDate(); }
-    var html = '<div class="card"><h2>Add to the calendar</h2><label class="lab" for="evT">What</label>' +
-      '<input id="evT" data-draft="evTitle" data-f="evT" maxlength="60" value="' + esc(ed.evTitle) + '"><div class="pair"><div><span class="lab">Month</span><select data-draft="evMonth" data-f="evM">';
-    for (i = 0; i < 12; i++) html += '<option value="' + i + '"' + (i === +ed.evMonth ? ' selected' : '') + '>' + MONTHS[i] + '</option>';
-    html += '</select></div><div><span class="lab">Day</span><select data-draft="evDay" data-f="evD">';
-    for (i = 1; i <= 31; i++) html += '<option value="' + i + '"' + (i === +ed.evDay ? ' selected' : '') + '>' + i + '</option>';
-    html += '</select></div></div><span class="lab">Time (optional)</span><select data-draft="evTime" data-f="evTm">' + timeOptions(ed.evTime, true) + '</select>' +
-      '<label class="check"><input type="checkbox" data-draft="evNoSchool" data-f="evNo"' + (ed.evNoSchool ? ' checked' : '') + '>No school: use the weekend morning times</label>' +
-      '<button class="go" data-act="addEvent" data-f="addEvent">Add to calendar</button></div>';
+    var i, html = '';
+    if (!ed.evOpen) html += '<button class="go" style="margin:0 0 .8em" data-act="evOpen" data-f="evOpen">Add to the calendar</button>';
+    else {
+      html += '<div class="card"><h2>Add to the calendar</h2><input aria-label="What is it" placeholder="What is it?" data-draft="evTitle" data-f="evT" maxlength="60" value="' + esc(ed.evTitle) + '">' + monthHtml() +
+        '<span class="lab">What time?</span><div class="opts">' + optBtn('evHour', '', 'All day', !ed.evHour);
+      for (i = 7; i <= 20; i++) html += optBtn('evHour', pad(i), (i % 12 || 12) + (i < 12 ? ' am' : ' pm'), ed.evHour === pad(i));
+      html += '</div>';
+      if (ed.evHour) {
+        var marks = ['00', '15', '30', '45'];
+        html += '<div class="opts" style="margin-top:.4em">';
+        for (i = 0; i < 4; i++) html += optBtn('evMin', marks[i], ':' + marks[i], ed.evMin === marks[i]);
+        html += '</div>';
+      }
+      html += '<div class="opts" style="margin-top:.6em">' + optBtn('evNoSchool', 'x', ed.evNoSchool ? 'No school that day' : 'School as usual', !!ed.evNoSchool) + '</div>' +
+        '<button class="go" data-act="addEvent" data-f="addEvent">Add it</button><button class="linkish" data-act="evClose" data-f="evClose">Never mind</button></div>';
+    }
     var list = upcoming();
     html += '<div class="card"><h2>Coming up</h2>';
     if (!list.length) html += '<p class="hint">Nothing yet.</p>';
@@ -1713,65 +2022,77 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     }
     return html + '</div>' + syncHtml();
   }
-  function musicHtml() {
-    var src = musicSource(), list = channels(), html = '<div class="card"><h2>What plays on the TV</h2><div class="opts">', i, known = false;
+  var MORE_SECTIONS = [['kids', "Kids' names"], ['morning', 'Morning times'], ['evening', 'Evening and bedtime'], ['checklist', 'Checklist items'], ['rules', 'Screen time rules'], ['pin', 'TV PIN'], ['channels', 'Music channels'], ['share', 'Share with your partner']];
+  function moreHtml() {
+    if (ed.more) return sectionHtml(ed.more);
+    var s = settings(), src = musicSource(), list = channels(), known = false, i;
+    var html = '<div class="card"><h2>Music on the TV</h2><div class="opts">' + optBtn('music', 'off', 'Off', src === 'off');
     for (i = 0; i < list.length; i++) {
       var on = src === 'lofi' && lofiId() === list[i].id;
       if (on) known = true;
       html += optBtn('music', list[i].id, list[i].text, on);
     }
     if (src === 'lofi' && !known) html += optBtn('music', lofiId(), 'Other video', true);
-    html += optBtn('music', 'off', 'Off', src === 'off') + '</div>' +
-      '<p class="hint">TV browsers often won\'t start sound by themselves. If it stays quiet, press OK on the Music button on the TV.</p></div>' +
-      '<div class="card"><h2>Your channels</h2>';
-    for (i = 0; i < list.length; i++) {
-      var name = ed.chanNames[i] !== undefined ? ed.chanNames[i] : list[i].text;
-      html += '<label class="lab" for="ch' + i + '">' + (i === 0 ? 'Default channel' : 'Channel ' + (i + 1)) + '</label>' +
-        '<input id="ch' + i + '" maxlength="40" data-chan="' + i + '" data-f="ch' + i + '" value="' + esc(name) + '"><div class="opts" style="margin-top:.3em">';
-      if (i > 0) html += optBtn('chanDefault', i, 'Make default', false);
-      if (list.length > 1) html += optBtn('chanRemove', i, 'Remove', false);
-      html += '</div>';
+    html += '</div><p class="hint">If it stays quiet, press OK on the Music button with the TV remote.</p></div><div class="card"><h2>Theme</h2><div class="opts">';
+    for (i = 0; i < THEMES.length; i++) html += optBtn('theme', THEMES[i].id, THEMES[i].text, s.theme === THEMES[i].id);
+    html += '</div>';
+    if (s.theme === 'office') html += '<span class="lab">Cameras</span><div class="opts">' + optBtn('tour', 'on', 'Tour', !!s.camTour) + optBtn('tour', 'off', 'Stay on the wall', !s.camTour) + '</div>';
+    if (s.theme === 'office' && tvEditing) html += '<div class="opts" style="margin-top:.4em">' + optBtn('testFinale', 'go', 'Play the finale now', false) + '</div>';
+    html += '<span class="lab">Surprise animations</span><div class="opts">' + optBtn('fxLevel', 'often', 'Often', s.fxLevel === 'often') + optBtn('fxLevel', 'normal', 'Normal', s.fxLevel === 'normal') +
+      optBtn('fxLevel', 'rare', 'Rare', s.fxLevel === 'rare') + optBtn('fxLevel', 'off', 'Off', s.fxLevel === 'off') + '</div></div><div class="card"><h2>Settings</h2>';
+    for (i = 0; i < MORE_SECTIONS.length; i++) {
+      if (MORE_SECTIONS[i][0] === 'share' && DEMO) continue;
+      html += '<button class="reason" data-act="moreOpen" data-arg="' + MORE_SECTIONS[i][0] + '" data-f="more-' + MORE_SECTIONS[i][0] + '"><span>' + MORE_SECTIONS[i][1] + '</span><i>&rsaquo;</i></button>';
     }
-    html += '<button class="go" data-act="chanSave" data-f="chanSave">Save names</button></div>' +
-      '<div class="card"><h2>Add a channel</h2><label class="lab" for="chn">Name</label><input id="chn" maxlength="40" data-draft="chanName" data-f="chn" value="' + esc(ed.chanName || '') + '">' +
-      '<label class="lab" for="yt">YouTube link</label><input id="yt" data-draft="ytLink" data-f="yt" value="' + esc(ed.ytLink || '') + '">' +
-      '<button class="go" data-act="chanAdd" data-f="chanAdd">Add and play</button></div>';
-    return html;
+    return html + '</div>';
   }
-  function setupHtml() {
+  function sectionHtml(id) {
     if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
-    var d = ed.draft, i;
-    var html = '<div class="card"><h2>Theme</h2><select aria-label="Theme" data-input="theme" data-f="theme">';
-    for (i = 0; i < THEMES.length; i++) html += '<option value="' + THEMES[i].id + '"' + (d.theme === THEMES[i].id ? ' selected' : '') + '>' + esc(THEMES[i].text) + '</option>';
-    html += '</select>';
-    if (d.theme === 'office') {
-      html += '<span class="lab">Camera switching</span><div class="opts">' + optBtn('tour', 'on', 'Tour the cameras', !!d.camTour) + optBtn('tour', 'off', 'Stay on the wall', !d.camTour) + '</div>' +
-        '<p class="hint">The tour goes back to all cameras for the last 5 minutes of any countdown.</p>';
+    var d = ed.draft, i, html = '<button class="small" style="margin-bottom:.6em" data-act="moreOpen" data-arg="" data-f="moreBack">&lsaquo; Back</button><div class="card">', save = true;
+    if (id === 'kids') {
+      html += '<h2>Kids\' names</h2><div class="pair"><div><label class="lab" for="k0">First</label><input id="k0" data-setup="kid0" data-f="k0" value="' + esc(d.kids[0]) + '"></div>' +
+        '<div><label class="lab" for="k1">Second</label><input id="k1" data-setup="kid1" data-f="k1" value="' + esc(d.kids[1]) + '"></div></div>';
+    } else if (id === 'morning') {
+      html += '<h2>Morning times</h2><div class="day-row"><b></b><span class="lab" style="flex:1;margin:0 0 0 .5em">Ready by</span><span class="lab" style="flex:1;margin:0 0 0 .5em">Out the door</span></div>';
+      var order = [1, 2, 3, 4, 5, 6, 0];
+      for (i = 0; i < 7; i++) {
+        var k = DAYS[order[i]], sd = d.schedule[k];
+        html += '<div class="day-row"><b>' + DAY_NAMES[order[i]].slice(0, 3) + '</b><select data-setup="ready-' + k + '" data-f="r' + k + '">' + timeOptions(sd.ready, true) + '</select>' +
+          '<select data-setup="out-' + k + '" data-f="o' + k + '">' + timeOptions(sd.out, true) + '</select></div>';
+      }
+    } else if (id === 'evening') {
+      html += '<h2>Evening and bedtime</h2><div class="pair"><div><span class="lab">Screens start</span><select data-setup="evening" data-f="se">' + timeOptions(d.evening, true) + '</select></div>' +
+        '<div><span class="lab">Bedtime</span><select data-setup="bedtime" data-f="sb">' + timeOptions(d.bedtime, true) + '</select></div></div>';
+    } else if (id === 'checklist') {
+      html += '<h2>Checklist items</h2><label class="lab" for="cl">One per line, up to 6. Short names fit best on the TV.</label>' +
+        '<textarea id="cl" rows="6" data-setup="checklistText" data-f="cl">' + esc(d.checklistText !== undefined ? d.checklistText : d.checklist.join('\n')) + '</textarea>';
+    } else if (id === 'rules') {
+      html += '<h2>Screen time rules</h2><div class="pair"><div><label class="lab" for="bm">Minutes per block</label><input id="bm" type="number" min="15" max="180" data-setup="blockMinutes" data-f="bm" value="' + d.blockMinutes + '"></div>' +
+        '<div><label class="lab" for="fl">Always-yours floor</label><input id="fl" type="number" min="0" max="180" data-setup="floor" data-f="fl" value="' + d.floor + '"></div></div>';
+    } else if (id === 'pin') {
+      html += '<h2>TV PIN</h2><label class="lab" for="pn">4 digits, asked for when editing with the TV remote</label><input id="pn" inputmode="numeric" maxlength="4" data-setup="pin" data-f="pn" value="' + esc(d.pin) + '">';
+    } else if (id === 'share') {
+      save = false;
+      html += '<h2>Share with your partner</h2><p class="hint">Send this link. It opens this page with your family code.</p><p style="word-break:break-all">' + esc(location.origin + location.pathname + '?edit#' + code) + '</p>';
+    } else if (id === 'channels') {
+      save = false;
+      var list = channels();
+      html += '<h2>Music channels</h2>';
+      for (i = 0; i < list.length; i++) {
+        var name = ed.chanNames[i] !== undefined ? ed.chanNames[i] : list[i].text;
+        html += '<label class="lab" for="ch' + i + '">' + (i === 0 ? 'Default channel' : 'Channel ' + (i + 1)) + '</label>' +
+          '<input id="ch' + i + '" maxlength="40" data-chan="' + i + '" data-f="ch' + i + '" value="' + esc(name) + '"><div class="opts" style="margin-top:.3em">';
+        if (i > 0) html += optBtn('chanDefault', i, 'Make default', false);
+        if (list.length > 1) html += optBtn('chanRemove', i, 'Remove', false);
+        html += '</div>';
+      }
+      html += '<button class="go" data-act="chanSave" data-f="chanSave">Save names</button></div>' +
+        '<div class="card"><h2>Add a channel</h2><label class="lab" for="chn">Name</label><input id="chn" maxlength="40" data-draft="chanName" data-f="chn" value="' + esc(ed.chanName || '') + '">' +
+        '<label class="lab" for="yt">YouTube link</label><input id="yt" data-draft="ytLink" data-f="yt" value="' + esc(ed.ytLink || '') + '">' +
+        '<button class="go" data-act="chanAdd" data-f="chanAdd">Add and play</button>';
     }
-    if (d.theme === 'office' && tvEditing) html += '<span class="lab">Finale when both boys finish</span><div class="opts">' + optBtn('testFinale', 'go', 'Play it now on the TV', false) + '</div>';
-    html += '<span class="lab">Surprise animations</span><div class="opts">' + optBtn('fxLevel', 'often', 'Often', d.fxLevel === 'often') + optBtn('fxLevel', 'normal', 'Normal', d.fxLevel === 'normal') +
-      optBtn('fxLevel', 'rare', 'Rare', d.fxLevel === 'rare') + optBtn('fxLevel', 'off', 'Off', d.fxLevel === 'off') + '</div>' +
-      '<p class="hint">Often is every 1 to 3 minutes, Normal every 3 to 8, Rare every 10 to 20. Celebrations and countdown moments still play when this is off.</p>';
-    html += '</div><div class="card"><h2>Kids</h2><div class="pair"><div><label class="lab" for="k0">First</label><input id="k0" data-setup="kid0" data-f="k0" value="' + esc(d.kids[0]) + '"></div>' +
-      '<div><label class="lab" for="k1">Second</label><input id="k1" data-setup="kid1" data-f="k1" value="' + esc(d.kids[1]) + '"></div></div></div>';
-    html += '<div class="card"><h2>Morning times</h2><div class="day-row"><b></b><span class="lab" style="flex:1;margin:0 0 0 .5em">Ready by</span><span class="lab" style="flex:1;margin:0 0 0 .5em">Out the door</span></div>';
-    var order = [1, 2, 3, 4, 5, 6, 0];
-    for (i = 0; i < 7; i++) {
-      var k = DAYS[order[i]], sd = d.schedule[k];
-      html += '<div class="day-row"><b>' + DAY_NAMES[order[i]].slice(0, 3) + '</b><select data-setup="ready-' + k + '" data-f="r' + k + '">' + timeOptions(sd.ready, true) + '</select>' +
-        '<select data-setup="out-' + k + '" data-f="o' + k + '">' + timeOptions(sd.out, true) + '</select></div>';
-    }
-    html += '</div><div class="card"><h2>Evening</h2><div class="pair"><div><span class="lab">Screens start</span><select data-setup="evening" data-f="se">' + timeOptions(d.evening, true) + '</select></div>' +
-      '<div><span class="lab">Bedtime</span><select data-setup="bedtime" data-f="sb">' + timeOptions(d.bedtime, true) + '</select></div></div></div>';
-    html += '<div class="card"><h2>Daily checklist</h2><label class="lab" for="cl">One item per line, up to 6. Short names fit best on the TV.</label>' +
-      '<textarea id="cl" rows="6" data-setup="checklistText" data-f="cl">' + esc(d.checklistText !== undefined ? d.checklistText : d.checklist.join('\n')) + '</textarea></div>';
-    html += '<div class="card"><h2>Screen time rules</h2><div class="pair"><div><label class="lab" for="bm">Minutes per block</label><input id="bm" type="number" min="15" max="180" data-setup="blockMinutes" data-f="bm" value="' + d.blockMinutes + '"></div>' +
-      '<div><label class="lab" for="fl">Always-yours floor</label><input id="fl" type="number" min="0" max="180" data-setup="floor" data-f="fl" value="' + d.floor + '"></div></div></div>';
-    html += '<div class="card"><h2>TV parent PIN</h2><label class="lab" for="pn">4 digits, asked for when editing with the TV remote</label><input id="pn" inputmode="numeric" maxlength="4" data-setup="pin" data-f="pn" value="' + esc(d.pin) + '"></div>';
-    html += '<button class="go" data-act="saveSetup" data-f="saveSetup">Save setup</button>';
-    if (!DEMO) html += '<div class="card" style="margin-top:1em"><h2>Share with your partner</h2><p class="hint">Send this link. It opens this page with your family code.</p><p style="word-break:break-all">' +
-      esc(location.origin + location.pathname + '?edit#' + code) + '</p></div>';
-    return html;
+    if (save) html += '<button class="go" data-act="saveSetup" data-f="saveSetup">Save</button>';
+    return html + '</div>';
   }
   function pinHtml() {
     var s = settings();
@@ -1789,12 +2110,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       pinEntry = '';
     }
     forceEditor();
-  }
-  function eventDate() {
-    // No year to pick: a date that has already passed this year means next year.
-    var now = new Date(), y = now.getFullYear(), d = new Date(y, +ed.evMonth, +ed.evDay);
-    if (dateKey(d) < dateKey(now)) d = new Date(y + 1, +ed.evMonth, +ed.evDay);
-    return dateKey(d);
   }
   function copyChannels() { return JSON.parse(JSON.stringify(channels())); }
   function youtubeId(link) {
@@ -1822,11 +2137,19 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     $('btnEdit').focus();
     if (finaleWaiting) { finaleWaiting = false; fxFinale(); }
   }
-  function toast(text, bad) {
+  function toast(text, bad, undoId) {
     var t = $('toast');
-    t.innerHTML = esc(text); t.className = bad ? 'toast bad' : 'toast';
+    t.innerHTML = '<span>' + esc(text) + '</span>' + (undoId ? '<button data-act="undoToast" data-arg="' + esc(undoId) + '">Undo</button>' : '');
+    t.className = bad ? 'toast bad' : 'toast';
     clearTimeout(toast.timer);
-    toast.timer = setTimeout(function () { t.className = 'toast hide'; }, 3000);
+    toast.timer = setTimeout(function () { t.className = 'toast hide'; }, undoId ? 7000 : 3000);
+  }
+  function takeOff(r, min) {
+    var id = newId(), block = ed.block || nextBlock(), name = settings().kids[ed.kid];
+    put('log/' + dateKey(new Date()) + '/' + id, { kid: ed.kid, block: block, min: min, reason: r.text, at: Date.now() });
+    ed.reason = ''; ed.block = '';
+    toast('−' + min + ' from ' + name + ', ' + (block === 'after' ? 'after school' : 'evening'), false, id);
+    forceEditor();
   }
 
   /* ---------- Actions ---------- */
@@ -1834,27 +2157,28 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     tvMusic: pressMusic,
     tvEdit: openTvEditor,
     tvCams: function () { showCam(camIndex + 1); },
-    tour: function (a) { ed.draft.camTour = a === 'on'; put('settings/camTour', a === 'on'); forceEditor(); },
-    fxLevel: function (a) { ed.draft.fxLevel = a; put('settings/fxLevel', a); forceEditor(); },
+    tour: function (a) { put('settings/camTour', a === 'on'); forceEditor(); },
+    fxLevel: function (a) { put('settings/fxLevel', a); forceEditor(); },
+    theme: function (a) { put('settings/theme', a); forceEditor(); },
+    moreOpen: function (a) { ed.more = a; ed.draft = null; ed.chanNames = {}; forceEditor(); window.scrollTo(0, 0); },
     closeEd: closeTvEditor,
     pin: pinPress,
-    tab: function (a) { ed.tab = a; ed.draft = null; forceEditor(); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
+    tab: function (a) { ed.tab = a; ed.draft = null; ed.more = ''; forceEditor(); $('editor').scrollTop = 0; window.scrollTo(0, 0); var f = $('editor').querySelector('[data-f="tab-' + a + '"]'); if (f) f.focus(); },
     kid: function (a) { ed.kid = +a; forceEditor(); },
     reason: function (a) {
-      ed.reason = a; ed.block = nextBlock(); ed.mins = 1;
-      forceEditor();
-    },
-    mins: function (a) { ed.mins = +a; forceEditor(); },
-    block: function (a) { ed.block = a; forceEditor(); },
-    deduct: function () {
-      var r = REASONS.filter(function (x) { return x.id === ed.reason; })[0];
+      // A fixed penalty applies on the tap. A per-minute one opens its numbers, and the number applies it.
+      var r = REASONS.filter(function (x) { return x.id === a; })[0];
       if (!r) return;
-      var min = r.perMin ? ed.mins : r.min;
-      put('log/' + dateKey(new Date()) + '/' + newId(), { kid: ed.kid, block: ed.block, min: min, reason: r.text, at: Date.now() });
-      ed.reason = '';
-      toast('Took off ' + min + ' min');
+      if (!r.perMin) { takeOff(r, r.min); return; }
+      ed.reason = ed.reason === a ? '' : a;
       forceEditor();
     },
+    takeMins: function (a) {
+      var r = REASONS.filter(function (x) { return x.id === ed.reason; })[0];
+      if (r) takeOff(r, +a);
+    },
+    block: function (a) { ed.block = a; forceEditor(); },
+    undoToast: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); toast('Undone'); forceEditor(); },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
     testFinale: function () { closeTvEditor(); fxFinale(); },
     syncNow: syncNow,
@@ -1870,13 +2194,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     syncKeyRemove: function () { put('syncKey', null); forceEditor(); },
     timerWho: function (a) { ed.timerWho = a; forceEditor(); },
     timerGo: function (a) { var p = TIMER_PRESETS[+a]; startTimer(p.label, p.min); forceEditor(); },
-    timerCustom: function () {
-      var min = parseInt(ed.timerMins, 10);
-      if (!(min >= 1 && min <= 180)) { toast('Enter 1 to 180 minutes', true); return; }
-      startTimer((ed.timerLabel || '').replace(/^\s+|\s+$/g, ''), min);
-      ed.timerLabel = ''; ed.timerMins = '';
-      forceEditor();
-    },
+    timerStep: function (a) { ed.timerMins = Math.max(5, Math.min(180, ed.timerMins + +a)); forceEditor(); },
+    timerCustom: function () { startTimer('', ed.timerMins); forceEditor(); },
     timerAdd: function (a) {
       var t = JSON.parse(JSON.stringify(liveTimer(a)));
       t.total += 60000;
@@ -1897,23 +2216,30 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       if (doneCount(kid, key) === settings().checklist.length) toast(settings().kids[kid] + ': ' + themeInfo().flag);
       forceEditor();
     },
-    giveKid: function (a) { ed.giveKid = +a; forceEditor(); },
-    giveBlock: function (a) { ed.giveBlock = a; forceEditor(); },
-    giveMins: function (a) { ed.giveMins = +a; forceEditor(); },
-    give: function () {
+    giveToggle: function () { ed.giveOpen = !ed.giveOpen; forceEditor(); },
+    give: function (a) {
       // Only what was actually taken can come back, so a block never goes above its full time.
-      var key = dateKey(new Date()), block = ed.giveBlock || nextBlock(), taken = kidMinutes(ed.giveKid, key).taken[block], min = Math.min(ed.giveMins, taken);
+      var key = dateKey(new Date()), block = ed.block || nextBlock(), taken = kidMinutes(ed.kid, key).taken[block], min = Math.min(+a, taken), id = newId();
       if (min <= 0) { toast('Nothing has been taken from that block today', true); return; }
-      put('log/' + key + '/' + newId(), { kid: ed.giveKid, block: block, min: -min, reason: 'Minutes given back', at: Date.now() });
-      ed.giveBlock = '';
-      toast('Gave back ' + min + ' min');
+      put('log/' + key + '/' + id, { kid: ed.kid, block: block, min: -min, reason: 'Minutes given back', at: Date.now() });
+      ed.giveOpen = false;
+      toast('+' + min + ' back to ' + settings().kids[ed.kid], false, id);
       forceEditor();
     },
+    homework: function (a) { put('homework/' + dateKey(new Date()), a || null); forceEditor(); },
+    syncSetup: function () { ed.syncSetup = !ed.syncSetup; forceEditor(); },
+    evOpen: function () { ed.evOpen = true; forceEditor(); },
+    evClose: function () { ed.evOpen = false; forceEditor(); },
+    evNav: function (a) { var d = new Date(ed.evView.y, ed.evView.m + +a, 1); ed.evView = { y: d.getFullYear(), m: d.getMonth() }; forceEditor(); },
+    evPick: function (a) { ed.evPick = a; forceEditor(); },
+    evHour: function (a) { ed.evHour = a; forceEditor(); },
+    evMin: function (a) { ed.evMin = a; forceEditor(); },
+    evNoSchool: function () { ed.evNoSchool = !ed.evNoSchool; forceEditor(); },
     addEvent: function () {
       var title = (ed.evTitle || '').replace(/^\s+|\s+$/g, '');
       if (!title) { toast('Add a name for it first', true); return; }
-      put('events/' + newId(), { title: title, date: eventDate(), time: ed.evTime || '', noSchool: !!ed.evNoSchool });
-      ed.evTitle = ''; ed.evTime = ''; ed.evNoSchool = false;
+      put('events/' + newId(), { title: title, date: ed.evPick || dateKey(new Date()), time: ed.evHour ? ed.evHour + ':' + ed.evMin : '', noSchool: !!ed.evNoSchool });
+      ed.evTitle = ''; ed.evHour = ''; ed.evMin = '00'; ed.evNoSchool = false; ed.evPick = ''; ed.evView = null; ed.evOpen = false;
       toast('Added');
       forceEditor();
     },
@@ -1973,7 +2299,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
         delete d.checklistText;
       }
       put('settings', d);
-      ed.draft = null;
+      ed.draft = null; ed.more = '';
       toast('Saved');
       forceEditor();
     }
@@ -1989,14 +2315,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     var el = e.target, v = el.type === 'checkbox' ? el.checked : el.value;
     var draft = el.getAttribute && el.getAttribute('data-draft');
     if (draft) { ed[draft] = v; return; }
-    if (el.getAttribute && el.getAttribute('data-input') === 'theme') {
-      if (e.type !== 'change') return;
-      if (ed.draft) ed.draft.theme = v;
-      put('settings/theme', v);
-      toast('Theme changed');
-      forceEditor();
-      return;
-    }
     var chan = el.getAttribute && el.getAttribute('data-chan');
     if (chan !== null && chan !== undefined) { ed.chanNames[chan] = v; return; }
     var key = el.getAttribute && el.getAttribute('data-setup');
@@ -2007,10 +2325,6 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       else if (key.indexOf('out-') === 0) ed.draft.schedule[key.slice(4)].out = v;
       else ed.draft[key] = v;
       return;
-    }
-    if (el.getAttribute && el.getAttribute('data-input') === 'homework' && e.type === 'change') {
-      put('homework/' + dateKey(new Date()), v || null);
-      toast('Saved');
     }
   }
   document.addEventListener('input', onInput);
@@ -2087,7 +2401,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   if (DEMO) window.boardFx = { play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
-    else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); }
+    else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitChips); }
     if (!DEMO) { try { data = JSON.parse(store('cache') || '{}') || {}; } catch (e) { data = {}; } }
     renderAll();
     poll();
