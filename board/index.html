@@ -940,6 +940,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   function put(path, val, done) {
     setLocal(path, val);
+    lastDataJson = JSON.stringify(data); // so a poll that disagrees with this write redraws instead of leaving it frozen
     renderAll();
     if (DEMO) { saveDemo(); if (done) done(); return; }
     pending++;
@@ -1828,9 +1829,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var kids = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], key = dateKey(new Date()), name = block === 'after' ? 'After school screens' : 'Evening screens', started = 0, i;
     for (i = 0; i < kids.length; i++) {
       bankScreenTime(kids[i]);
-      put('timers/' + kids[i], null);
+      setLocal('timers/' + kids[i], null); // local only: a separate clear can reach the server after the new timer and wipe it
       var left = kidMinutes(kids[i], key)[block] * 60000 - usedMs(kids[i], block, key);
-      if (left <= 0) continue;
+      if (left <= 0) { put('timers/' + kids[i], null); continue; }
       put('timers/' + kids[i], { label: name, screen: block, kid: kids[i], day: key, total: left, start: Date.now() });
       started++;
     }
