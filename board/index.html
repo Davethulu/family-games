@@ -1806,6 +1806,44 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       times[i].textContent = timerText(ms) + (live.paused !== undefined && live.paused !== null ? ' (paused)' : '');
       times[i].className = ms < 0 ? 'ed-time over' : 'ed-time';
     }
+    checkTimersDone();
+  }
+  var timerWas = {}, lastBell = 0;
+  function checkTimersDone() {
+    // Each screen watches for the moment a timer crosses zero, so opening the page later doesn't ring for an old one.
+    var kids = settings().kids, names = [], labels = [], k;
+    for (k = 0; k < kids.length; k++) {
+      var t = liveTimer(k), left = t ? timerLeft(t) : null;
+      if (t && left <= 0 && timerWas[k] > 0) { names.push(kids[k]); labels.push(t.label || 'Timer'); }
+      timerWas[k] = left;
+    }
+    if (!names.length) return;
+    var text = labels.length > 1 && labels[0] === labels[1] ? names.join(' & ') + ': ' + labels[0] : names.map(function (n, i) { return n + ': ' + labels[i]; }).join(' · ');
+    if ($('tv').className.indexOf('hide') < 0) fxTimeUp(text);
+    if ($('editor').className.indexOf('hide') < 0) {
+      toast("Time's up! " + text, true);
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(function () { $('toast').className = 'toast hide'; }, 10000);
+    }
+    ringBell();
+  }
+  function ringBell() {
+    var a = getAudio();
+    if (!a || Date.now() - lastBell < 5000) return;
+    lastBell = Date.now();
+    if (a.state === 'suspended') a.resume();
+    // If the browser is still blocking sound, skip it. Notes queued now would play at the next button press.
+    setTimeout(function () {
+      if (a.state === 'suspended') return;
+      var t = a.currentTime + .05, i;
+      for (i = 0; i < 6; i++) {
+        var at = t + i * .42 + (i > 2 ? .5 : 0);
+        tone(a, 880, at, 1.1, 'sine', .32);
+        tone(a, 2217, at, .5, 'sine', .1);
+      }
+      duckMusic(true);
+      setTimeout(function () { duckMusic(false); }, 4000);
+    }, 150);
   }
   function refreshKidMinutes(kid) {
     // While screen time runs, the kid's card counts down with it.
@@ -1823,7 +1861,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var t = data.timers && data.timers[kid];
     if (!t || !t.screen) return;
     var cap = kidMinutes(t.kid, t.day)[t.screen] * 60000;
-    if (t.start) put('used/' + t.day + '/' + t.kid + '/' + t.screen, Math.min(usedMs(t.kid, t.screen, t.day), cap));
+    if (!t.start) return;
+    var ms = Math.min(usedMs(t.kid, t.screen, t.day), cap);
+    delete t.start; // otherwise this stretch counts twice until the timer is replaced
+    put('used/' + t.day + '/' + t.kid + '/' + t.screen, ms);
   }
   function startScreen(block) {
     var kids = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], key = dateKey(new Date()), name = block === 'after' ? 'After school screens' : 'Evening screens', started = 0, i;
