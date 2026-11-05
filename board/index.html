@@ -1030,9 +1030,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var cap = s.blockMinutes - s.floor;
     var after = s.blockMinutes - Math.max(0, Math.min(raw.after, cap));
     var evening = s.blockMinutes - Math.max(0, Math.min(raw.evening, cap));
-    return { after: after, evening: evening, total: after + evening, full: s.blockMinutes * 2, taken: raw,
+    var leftAfter = minutesLeft(after, kid, 'after', key), leftEvening = minutesLeft(evening, kid, 'evening', key);
+    return { after: after, evening: evening, total: after + evening, leftAfter: leftAfter, leftEvening: leftEvening, left: leftAfter + leftEvening, full: s.blockMinutes * 2, taken: raw,
       over: Math.max(0, raw.after - cap) + Math.max(0, raw.evening - cap) };
   }
+  function usedMs(kid, block, key) {
+    // Time already watched, plus the stretch running now. It's worked out on each screen, so penalties change the countdown right away.
+    var day = data.used && data.used[key], ms = (day && day[kid] && day[kid][block]) || 0, t = data.timers && data.timers[kid];
+    if (t && t.screen === block && t.day === key && t.start) ms += Date.now() - t.start;
+    return ms;
+  }
+  function minutesLeft(block, kid, name, key) { return Math.max(0, Math.ceil((block * 60000 - usedMs(kid, name, key)) / 60000)); }
   function nextBlock() { return new Date().getHours() < 17 ? 'after' : 'evening'; }
 
   /* ---------- TV rendering ---------- */
@@ -1760,10 +1768,14 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
 
   /* ---------- Timers: stored as an end time, so every screen counts down the same ---------- */
   var TIMER_PRESETS = [{ label: 'Teeth', min: 5 }, { label: 'Shower', min: 10 }, { label: '', min: 1 }, { label: '', min: 2 }, { label: '', min: 3 }, { label: '', min: 5 }, { label: '', min: 10 }, { label: '', min: 15 }, { label: '', min: 20 }, { label: '', min: 30 }, { label: '', min: 45 }, { label: '', min: 60 }];
-  function timerLeft(t) { return t.paused !== undefined && t.paused !== null ? t.paused : t.end - Date.now(); }
+  function timerLeft(t) {
+    if (t.screen) return kidMinutes(t.kid, t.day)[t.screen] * 60000 - usedMs(t.kid, t.screen, t.day);
+    return t.paused !== undefined && t.paused !== null ? t.paused : t.end - Date.now();
+  }
   function liveTimer(kid) {
     // One left running by accident disappears after half an hour of overtime.
     var t = data.timers && data.timers[kid];
+    if (t && t.screen && t.day !== dateKey(new Date())) return null;
     return t && t.total && timerLeft(t) > -1800000 ? t : null;
   }
   function timerText(ms) {
@@ -1784,6 +1796,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (el.className !== cls) el.className = cls;
       el.querySelector('.t-num').textContent = timerText(left);
       el.querySelector('.t-fill').style.width = Math.max(0, Math.min(100, left / t.total * 100)) + '%';
+      if (t.screen) refreshKidMinutes(t.kid);
     }
     for (i = 0; i < times.length; i++) {
       var live = liveTimer(times[i].getAttribute('data-kid'));
@@ -1793,9 +1806,42 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       times[i].className = ms < 0 ? 'ed-time over' : 'ed-time';
     }
   }
+  function refreshKidMinutes(kid) {
+    // While screen time runs, the kid's card counts down with it.
+    var m = kidMinutes(kid, dateKey(new Date())), full = settings().blockMinutes, num = document.querySelector('.kid-num[data-k="' + kid + '"]');
+    if (num && +num.textContent !== m.left) num.textContent = m.left;
+    [['after', m.leftAfter], ['evening', m.leftEvening]].forEach(function (b) {
+      var row = document.querySelector('[data-b="' + kid + '-' + b[0] + '"]');
+      if (!row) return;
+      row.querySelector('.block-min').textContent = b[1] + ' min';
+      row.querySelector('.block-fill').style.width = Math.round(b[1] / full * 100) + '%';
+    });
+  }
+  function bankScreenTime(kid) {
+    // Saves what a screen timer has used so far, so stopping keeps the rest for later. Overtime doesn't count against a later give-back.
+    var t = data.timers && data.timers[kid];
+    if (!t || !t.screen) return;
+    var cap = kidMinutes(t.kid, t.day)[t.screen] * 60000;
+    if (t.start) put('used/' + t.day + '/' + t.kid + '/' + t.screen, Math.min(usedMs(t.kid, t.screen, t.day), cap));
+  }
+  function startScreen(block) {
+    var kids = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], key = dateKey(new Date()), name = block === 'after' ? 'After school screens' : 'Evening screens', started = 0, i;
+    for (i = 0; i < kids.length; i++) {
+      bankScreenTime(kids[i]);
+      put('timers/' + kids[i], null);
+      var left = kidMinutes(kids[i], key)[block] * 60000 - usedMs(kids[i], block, key);
+      if (left <= 0) continue;
+      put('timers/' + kids[i], { label: name, screen: block, kid: kids[i], day: key, total: left, start: Date.now() });
+      started++;
+    }
+    toast(started ? name + ' started' : 'No minutes left in that block', !started);
+  }
   function startTimer(label, min) {
     var kids = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], i;
-    for (i = 0; i < kids.length; i++) put('timers/' + kids[i], { label: label, total: min * 60000, end: Date.now() + min * 60000 });
+    for (i = 0; i < kids.length; i++) {
+      bankScreenTime(kids[i]);
+      put('timers/' + kids[i], { label: label, total: min * 60000, end: Date.now() + min * 60000 });
+    }
     toast('Timer started');
   }
   function timersHtml() {
@@ -1805,11 +1851,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (!t) continue;
       var paused = t.paused !== undefined && t.paused !== null;
       html += '<div class="card"><h2>' + esc(s.kids[k]) + (t.label ? ': ' + esc(t.label) : '') + '<span class="ed-time" data-kid="' + k + '"></span></h2><div class="opts">' +
-        optBtn('timerAdd', k, '+1 min', false) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div></div>';
+        (t.screen ? '' : optBtn('timerAdd', k, '+1 min', false)) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div></div>';
     }
-    html += '<div class="card"><h2>Start a timer</h2><div class="who">';
+    html += '<div class="card"><h2>Start</h2><div class="who">';
     for (k = 0; k < s.kids.length; k++) html += optBtn('timerWho', k, s.kids[k], String(ed.timerWho) === String(k));
-    html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Tap a time and it starts</span><div class="opts">';
+    html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Use up screen time. Tap to start.</span><div class="who">';
+    var who = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], key = dateKey(new Date());
+    [['after', 'After school', 'leftAfter'], ['evening', 'Evening', 'leftEvening']].forEach(function (b) {
+      var parts = who.map(function (w) { var n = kidMinutes(w, key)[b[2]]; return who.length > 1 ? esc(s.kids[w]) + ' ' + n : n + ' min left'; });
+      html += '<button class="opt" data-act="screenGo" data-arg="' + b[0] + '" data-f="screenGo-' + b[0] + '">' + b[1] + '<small>' + parts.join(' · ') + '</small></button>';
+    });
+    html += '</div><span class="lab">Or a timer. Tap a time and it starts.</span><div class="opts">';
     for (i = 0; i < TIMER_PRESETS.length; i++) html += optBtn('timerGo', i, TIMER_PRESETS[i].label ? TIMER_PRESETS[i].label + ' ' + TIMER_PRESETS[i].min : TIMER_PRESETS[i].min + ' min', false);
     html += '</div><span class="lab">Other</span><div class="stepper">' + optBtn('timerStep', -5, '−5', false) + '<b>' + ed.timerMins + ' min</b>' + optBtn('timerStep', 5, '+5', false) + '</div>' +
       '<button class="go" data-act="timerCustom" data-f="timerCustom">Start ' + ed.timerMins + ' min timer</button></div>';
@@ -1893,8 +1945,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       html += '<div class="kid" data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
         '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-row"><div class="kid-main"><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
         (allDone ? '<span class="kid-flag">' + themeInfo().flag + '</span>' : '') + '</div>' +
-        '<div class="kid-total"><span class="kid-num"' + (change ? ' data-from="' + was.total + '"' : '') + '>' + m.total + '</span> <small>of ' + m.full + ' min</small></div></div>' +
-        blockBar('After school', m.after, s.blockMinutes, was && was.after) + blockBar('Evening', m.evening, s.blockMinutes, was && was.evening) +
+        '<div class="kid-total"><span class="kid-num" data-k="' + i + '"' + (change ? ' data-from="' + was.left + '"' : '') + '>' + m.left + '</span> <small>of ' + m.full + ' min</small></div></div>' +
+        blockBar('After school', m.leftAfter, s.blockMinutes, was && was.leftAfter, i + '-after') + blockBar('Evening', m.leftEvening, s.blockMinutes, was && was.leftEvening, i + '-evening') +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
         (justFinished ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + '</div>';
@@ -1908,9 +1960,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (anyFinished && everyoneDone) bothFinished();
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
-  function blockBar(name, min, full, was) {
+  function blockBar(name, min, full, was, id) {
     var target = Math.round(min / full * 100), start = was === undefined || was === null || was === 0 ? target : Math.round(was / full * 100);
-    return '<div class="block"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' + start +
+    return '<div class="block" data-b="' + id + '"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' + start +
       '%"' + (start !== target ? ' data-w="' + target + '"' : '') + '></div></div><div class="block-min">' + min + ' min</div></div>';
   }
   function whenText(e, today) {
@@ -2042,7 +2094,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var s = settings(), key = dateKey(new Date()), block = ed.block || nextBlock(), i, html = '<div class="card"><div class="who">';
     for (i = 0; i < s.kids.length; i++) {
       var m = kidMinutes(i, key);
-      html += '<button class="opt' + (ed.kid === i ? ' on' : '') + '" data-act="kid" data-arg="' + i + '" data-f="kid-' + i + '">' + esc(s.kids[i]) + '<small>' + m.total + ' of ' + m.full + ' min</small></button>';
+      html += '<button class="opt' + (ed.kid === i ? ' on' : '') + '" data-act="kid" data-arg="' + i + '" data-f="kid-' + i + '">' + esc(s.kids[i]) + '<small>' + m.left + ' of ' + m.full + ' min</small></button>';
     }
     html += '</div><span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', block === 'after') + optBtn('block', 'evening', 'Evening', block === 'evening') + '</div>' +
       '<span class="lab">Tap what happened</span>';
@@ -2277,6 +2329,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     for (k in (data.log || {})) if (k < cutoff) put('log/' + k, null);
     for (k in (data.homework || {})) if (k < cutoff) put('homework/' + k, null);
     for (k in (data.checks || {})) if (k < cutoff) put('checks/' + k, null);
+    for (k in (data.used || {})) if (k < cutoff) put('used/' + k, null);
     var list = events();
     for (k = 0; k < list.length; k++) if (list[k].date < cutoff && !list[k].icloud) put('events/' + list[k].id, null);
   }
@@ -2348,6 +2401,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     },
     syncKeyRemove: function () { put('syncKey', null); forceEditor(); },
     timerWho: function (a) { ed.timerWho = a; forceEditor(); },
+    screenGo: function (a) { startScreen(a); forceEditor(); },
     timerGo: function (a) { var p = TIMER_PRESETS[+a]; startTimer(p.label, p.min); forceEditor(); },
     timerStep: function (a) { ed.timerMins = Math.max(5, Math.min(180, ed.timerMins + +a)); forceEditor(); },
     timerCustom: function () { startTimer('', ed.timerMins); forceEditor(); },
@@ -2360,11 +2414,18 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     },
     timerPause: function (a) {
       var t = liveTimer(a), next = { label: t.label, total: t.total };
+      if (t.screen) {
+        next.screen = t.screen; next.kid = t.kid; next.day = t.day;
+        if (t.start) { bankScreenTime(a); next.paused = true; } else next.start = Date.now();
+        put('timers/' + a, next);
+        forceEditor();
+        return;
+      }
       if (t.paused !== undefined && t.paused !== null) next.end = Date.now() + t.paused; else next.paused = timerLeft(t);
       put('timers/' + a, next);
       forceEditor();
     },
-    timerStop: function (a) { put('timers/' + a, null); forceEditor(); },
+    timerStop: function (a) { bankScreenTime(a); put('timers/' + a, null); forceEditor(); },
     check: function (a) {
       var parts = a.split('-'), kid = +parts[0], item = parts[1], part = item.charAt(0) === 'p' ? 'pm' : 'am', key = dateKey(new Date());
       put('checks/' + key + '/' + kid + '/' + item, isChecked(kid, item, key) ? null : true);
