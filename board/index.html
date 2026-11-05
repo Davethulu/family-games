@@ -631,6 +631,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       // What's already true when the page opens shouldn't animate as if it just happened.
       var opening = !lastDataJson;
       if (opening) { lastChecks = null; lastMins = null; }
+      if (ed.syncing && data.icloud && data.icloud.at !== ed.syncFrom) { ed.syncing = 0; toast('Calendar synced'); editorForced = true; }
       lastDataJson = json;
       renderAll();
       if (opening && $('tv').className.indexOf('hide') < 0) playIntro();
@@ -1400,6 +1401,51 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
     html += '<div class="card"><h2>Homework done-by today</h2><select data-input="homework" data-f="homework">' + timeOptions(hw, true) + '</select></div>';
     return html;
   }
+  /* ---------- Sync now: asks GitHub to run the calendar job, using a limited key kept in the family's database ---------- */
+  var SYNC_URL = 'https://api.github.com/repos/Davethulu/family-games/actions/workflows/icloud-sync.yml/dispatches';
+  function syncHtml() {
+    var html = '<div class="card"><h2>iCloud sync</h2>', stamp = data.icloud && data.icloud.at;
+    if (stamp) {
+      var at = new Date(stamp), hrs = (at.getHours() % 12 || 12) + ':' + pad(at.getMinutes()) + (at.getHours() < 12 ? ' am' : ' pm');
+      html += '<p class="hint" style="margin-top:0">Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '. It also syncs about once an hour. iCloud events are edited in the Calendar app.</p>';
+    }
+    if (ed.syncing && Date.now() - ed.syncing > 180000) {
+      ed.syncing = 0;
+      html += '<p class="hint" style="color:var(--orange)">That sync is taking longer than usual. It may still finish, or you can try again.</p>';
+    }
+    if (data.syncKey) {
+      html += '<button class="go" data-act="syncNow" data-f="syncNow"' + (ed.syncing ? ' disabled' : '') + '>' + (ed.syncing ? 'Syncing, about a minute...' : 'Sync now') + '</button>' +
+        '<button class="small" style="margin-top:.8em" data-act="syncKeyRemove" data-f="syncKeyRemove">Remove sync key</button>';
+    } else {
+      html += '<p class="hint">To turn on the Sync now button, paste a limited GitHub key here. It only needs Actions access to the family-games repository.</p>' +
+        '<label class="lab" for="sk">GitHub key</label><input id="sk" type="password" autocomplete="off" spellcheck="false" data-draft="syncKeyDraft" data-f="sk" value="' + esc(ed.syncKeyDraft || '') + '">' +
+        '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>' +
+        '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Or sync on GitHub</a>';
+    }
+    return html + '</div>';
+  }
+  function syncNow() {
+    if (ed.syncing || !data.syncKey) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', SYNC_URL, true);
+    xhr.timeout = 15000;
+    xhr.setRequestHeader('Authorization', 'Bearer ' + data.syncKey);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+      if (xhr.status === 204) {
+        ed.syncing = Date.now();
+        ed.syncFrom = data.icloud && data.icloud.at;
+        toast('Sync started');
+      } else if (xhr.status === 401 || xhr.status === 403 || xhr.status === 404) {
+        toast('GitHub refused the key. It may have expired, so try a new one.', true);
+      } else {
+        toast("GitHub couldn't start the sync. Try again in a minute.", true);
+      }
+      forceEditor();
+    };
+    xhr.onerror = xhr.ontimeout = function () { toast("Couldn't reach GitHub. Check the connection.", true); };
+    xhr.send(JSON.stringify({ ref: 'main' }));
+  }
   function calendarHtml() {
     var now = new Date(), i;
     if (ed.evMonth === null) { ed.evMonth = now.getMonth(); ed.evDay = now.getDate(); }
@@ -1421,13 +1467,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
         (list[i].icloud ? '<span class="hint" style="margin:0;flex-shrink:0">iCloud</span>'
           : '<button class="small" data-act="delEvent" data-arg="' + esc(list[i].id) + '" data-f="del-' + esc(list[i].id) + '">Remove</button>') + '</div>';
     }
-    if (data.icloud && data.icloud.at) {
-      var at = new Date(data.icloud.at), hrs = (at.getHours() % 12 || 12) + ':' + pad(at.getMinutes()) + (at.getHours() < 12 ? ' am' : ' pm');
-      html += '<p class="hint">iCloud events are edited in the Calendar app. Last synced ' + MONTHS[at.getMonth()].slice(0, 3) + ' ' + at.getDate() + ', ' + hrs + '. It syncs about once an hour.</p>' +
-        '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Sync now on GitHub</a>' +
-        '<p class="hint">Sign in, tap Run workflow, then the green button. Allow about a minute.</p>';
-    }
-    return html + '</div>';
+    return html + '</div>' + syncHtml();
   }
   function musicHtml() {
     var src = musicSource(), list = channels(), html = '<div class="card"><h2>What plays on the TV</h2><div class="opts">', i, known = false;
@@ -1572,6 +1612,17 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       forceEditor();
     },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
+    syncNow: syncNow,
+    syncKeySave: function () {
+      var key = (ed.syncKeyDraft || '').replace(/\s/g, '');
+      // Only GitHub's limited keys are accepted, so a broader one can't end up in the database.
+      if (key.indexOf('github_pat_') !== 0) { toast('Use a fine-grained key. It starts with github_pat_', true); return; }
+      ed.syncKeyDraft = '';
+      put('syncKey', key);
+      toast('Key saved');
+      forceEditor();
+    },
+    syncKeyRemove: function () { put('syncKey', null); forceEditor(); },
     timerWho: function (a) { ed.timerWho = a; forceEditor(); },
     timerGo: function (a) { var p = TIMER_PRESETS[+a]; startTimer(p.label, p.min); forceEditor(); },
     timerCustom: function () {
