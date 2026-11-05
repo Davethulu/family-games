@@ -848,6 +848,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     camTour: false,
     fxLevel: 'normal',
     checklist: ['Dressed', 'Breakfast', 'Floss and brush', 'Backpack & Chromebook'],
+    checklist2: ['Homework done', 'Room clean', 'Teeth brushed', 'Showered'],
     blockMinutes: 45,
     floor: 15,
     evening: '19:00',
@@ -1018,17 +1019,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (day.ready) list.push({ at: day.ready, label: 'Ready by' });
     if (day.out) list.push({ at: day.out, label: 'Out the door' });
     if (hw) list.push({ at: hw, label: 'Homework done' });
-    if (s.evening) {
-      list.push({ at: minusFifteen(s.evening), label: 'Teeth & shower' });
-      list.push({ at: s.evening, label: 'Evening screens' });
-    }
+    if (s.evening) list.push({ at: s.evening, label: 'Evening screens' });
     if (s.bedtime) list.push({ at: s.bedtime, label: 'Bedtime' });
     list.sort(function (a, b) { return a.at < b.at ? -1 : 1; });
     return list;
-  }
-  function minusFifteen(hhmm) {
-    var p = hhmm.split(':'), t = +p[0] * 60 + +p[1] - 15;
-    return pad(Math.floor(t / 60)) + ':' + pad(t % 60);
   }
   function kidMinutes(kid, key) {
     var s = settings(), log = (data.log && data.log[key]) || {}, raw = { after: 0, evening: 0 }, id;
@@ -1072,6 +1066,13 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       return;
     }
     lastDay = dayNow;
+    var part = checkPart();
+    if (lastPart && lastPart !== part) {
+      lastPart = part; lastChecks = null;
+      renderAll();
+      return;
+    }
+    lastPart = part;
     $('tvDate').innerHTML = esc(DAY_NAMES[now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate());
     $('tvClock').innerHTML = (h % 12 || 12) + '<span style="opacity:' + (now.getSeconds() % 2 ? '.35' : '1') + '">:</span>' + pad(now.getMinutes()) + (h < 12 ? ' am' : ' pm');
 
@@ -1820,19 +1821,24 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var day = data.checks && data.checks[key];
     return !!(day && day[kid] && day[kid][item]);
   }
-  function doneCount(kid, key) {
-    var list = settings().checklist, n = 0, i;
-    for (i = 0; i < list.length; i++) if (isChecked(kid, i, key)) n++;
+  // The board shows the morning list until 3 pm, then the after-school one. Its marks are stored as p0, p1...
+  function checkPart() { return new Date().getHours() >= 15 ? 'pm' : 'am'; }
+  function partList(part) { return part === 'pm' ? settings().checklist2 : settings().checklist; }
+  function partItem(part, i) { return part === 'pm' ? 'p' + i : i; }
+  function doneCount(kid, key, part) {
+    var list = partList(part), n = 0, i;
+    for (i = 0; i < list.length; i++) if (isChecked(kid, partItem(part, i), key)) n++;
     return n;
   }
   var lastChecks = null;
   var lastMins = null;
   var lastDay = '';
+  var lastPart = '';
   var lastTarget = null;
   function chipsHtml(kid, key, shown, prev) {
-    var list = settings().checklist, html = '<div class="chips">', i;
+    var part = checkPart(), list = partList(part), html = '<div class="chips">', i;
     for (i = 0; i < list.length; i++) {
-      var on = isChecked(kid, i, key), id = kid + '-' + i;
+      var on = isChecked(kid, partItem(part, i), key), id = kid + '-' + partItem(part, i);
       if (on) shown[id] = true;
       html += '<div class="chip' + (on ? ' on' : '') + '"><span class="chip-icon' + (on && prev && !prev[id] ? ' pop' : '') + '">' + (on ? mascot() : '<span class="chip-ring"></span>') +
         '</span><span class="chip-text">' + esc(list[i]) + '</span></div>';
@@ -1877,7 +1883,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   function renderKids() {
     var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0;
     for (i = 0; i < s.kids.length; i++) {
-      var m = kidMinutes(i, key), total = s.checklist.length, allDone = total > 0 && doneCount(i, key) === total;
+      var m = kidMinutes(i, key), total = partList(checkPart()).length, allDone = total > 0 && doneCount(i, key, checkPart()) === total;
       var chips = chipsHtml(i, key, shown, prev), justFinished = allDone && prev && !prev['all-' + i];
       var was = lastMins && lastMins[i], change = was ? m.total - was.total : 0;
       mins[i] = m;
@@ -2017,19 +2023,20 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     return html;
   }
   function listHtml() {
-    var s = settings(), key = dateKey(new Date()), html = '<div class="card"><h2>Today\'s list</h2>', i, k;
-    for (i = 0; i < s.checklist.length; i++) {
-      html += '<div class="list-row"><div class="list-name">' + esc(s.checklist[i]) + '</div>';
+    var s = settings(), key = dateKey(new Date()), part = ed.listPart || checkPart(), list = partList(part), i, k;
+    var html = '<div class="card"><div class="opts" style="margin-bottom:.5em">' + optBtn('listPart', 'am', 'Morning', part === 'am') + optBtn('listPart', 'pm', 'After 3 pm', part === 'pm') + '</div>';
+    for (i = 0; i < list.length; i++) {
+      html += '<div class="list-row"><div class="list-name">' + esc(list[i]) + '</div>';
       for (k = 0; k < s.kids.length; k++) {
-        var on = isChecked(k, i, key);
-        html += '<button class="mark' + (on ? ' on' : '') + '" data-act="check" data-arg="' + k + '-' + i + '" data-f="check-' + k + '-' + i + '">' +
+        var item = partItem(part, i), on = isChecked(k, item, key);
+        html += '<button class="mark' + (on ? ' on' : '') + '" data-act="check" data-arg="' + k + '-' + item + '" data-f="check-' + k + '-' + item + '">' +
           (on ? mascot() : '<span class="ring"></span>') + '<span>' + esc(s.kids[k]) + '</span></button>';
       }
       html += '</div>';
     }
     html += '<p class="hint">';
-    for (k = 0; k < s.kids.length; k++) html += esc(s.kids[k]) + ' ' + doneCount(k, key) + ' of ' + s.checklist.length + (k < s.kids.length - 1 ? ' · ' : '');
-    return html + '. It clears itself each morning.</p></div>';
+    for (k = 0; k < s.kids.length; k++) html += esc(s.kids[k]) + ' ' + doneCount(k, key, part) + ' of ' + list.length + (k < s.kids.length - 1 ? ' · ' : '');
+    return html + '. The lists clear themselves each morning.</p></div>';
   }
   function minutesHtml() {
     var s = settings(), key = dateKey(new Date()), block = ed.block || nextBlock(), i, html = '<div class="card"><div class="who">';
@@ -2210,8 +2217,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       html += '<h2>Evening and bedtime</h2><div class="pair"><div><span class="lab">Screens start</span><select data-setup="evening" data-f="se">' + timeOptions(d.evening, true) + '</select></div>' +
         '<div><span class="lab">Bedtime</span><select data-setup="bedtime" data-f="sb">' + timeOptions(d.bedtime, true) + '</select></div></div>';
     } else if (id === 'checklist') {
-      html += '<h2>Checklist items</h2><label class="lab" for="cl">One per line, up to 6. Short names fit best on the TV.</label>' +
-        '<textarea id="cl" rows="6" data-setup="checklistText" data-f="cl">' + esc(d.checklistText !== undefined ? d.checklistText : d.checklist.join('\n')) + '</textarea>';
+      html += '<h2>Checklist items</h2><p class="hint">One per line, up to 6. Short names fit best on the TV.</p><label class="lab" for="cl">Morning</label>' +
+        '<textarea id="cl" rows="6" data-setup="checklistText" data-f="cl">' + esc(d.checklistText !== undefined ? d.checklistText : d.checklist.join('\n')) + '</textarea>' +
+        '<label class="lab" for="cl2">After 3 pm</label><textarea id="cl2" rows="6" data-setup="checklistText2" data-f="cl2">' + esc(d.checklistText2 !== undefined ? d.checklistText2 : d.checklist2.join('\n')) + '</textarea>';
     } else if (id === 'rules') {
       html += '<h2>Screen time rules</h2><div class="pair"><div><label class="lab" for="bm">Minutes per block</label><input id="bm" type="number" min="15" max="180" data-setup="blockMinutes" data-f="bm" value="' + d.blockMinutes + '"></div>' +
         '<div><label class="lab" for="fl">Always-yours floor</label><input id="fl" type="number" min="0" max="180" data-setup="floor" data-f="fl" value="' + d.floor + '"></div></div>';
@@ -2324,6 +2332,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (r) takeOff(r, +a);
     },
     block: function (a) { ed.block = a; forceEditor(); },
+    listPart: function (a) { ed.listPart = a; forceEditor(); },
     undoToast: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); toast('Undone'); forceEditor(); },
     undo: function (a) { put('log/' + dateKey(new Date()) + '/' + a, null); forceEditor(); },
     testFinale: function () { closeTvEditor(); fxFinale(); },
@@ -2357,9 +2366,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     },
     timerStop: function (a) { put('timers/' + a, null); forceEditor(); },
     check: function (a) {
-      var parts = a.split('-'), kid = +parts[0], item = +parts[1], key = dateKey(new Date());
+      var parts = a.split('-'), kid = +parts[0], item = parts[1], part = item.charAt(0) === 'p' ? 'pm' : 'am', key = dateKey(new Date());
       put('checks/' + key + '/' + kid + '/' + item, isChecked(kid, item, key) ? null : true);
-      if (doneCount(kid, key) === settings().checklist.length) toast(settings().kids[kid] + ': ' + themeInfo().flag);
+      if (doneCount(kid, key, part) === partList(part).length) toast(settings().kids[kid] + ': ' + themeInfo().flag);
       forceEditor();
     },
     giveToggle: function () { ed.giveOpen = !ed.giveOpen; forceEditor(); },
@@ -2443,6 +2452,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (d.checklistText !== undefined) {
         d.checklist = d.checklistText.split('\n').map(function (t) { return t.replace(/^\s+|\s+$/g, ''); }).filter(Boolean).slice(0, 6);
         delete d.checklistText;
+      }
+      if (d.checklistText2 !== undefined) {
+        d.checklist2 = d.checklistText2.split('\n').map(function (t) { return t.replace(/^\s+|\s+$/g, ''); }).filter(Boolean).slice(0, 6);
+        delete d.checklistText2;
       }
       put('settings', d);
       ed.draft = null; ed.more = '';
