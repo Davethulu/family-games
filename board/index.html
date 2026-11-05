@@ -1417,7 +1417,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
       html += '<button class="go" data-act="syncNow" data-f="syncNow"' + (ed.syncing ? ' disabled' : '') + '>' + (ed.syncing ? 'Syncing, about a minute...' : 'Sync now') + '</button>' +
         '<button class="small" style="margin-top:.8em" data-act="syncKeyRemove" data-f="syncKeyRemove">Remove sync key</button>';
     } else {
-      html += '<p class="hint">To turn on the Sync now button, paste a limited GitHub key here. It only needs Actions access to the family-games repository.</p>' +
+      html += '<button class="go" disabled>Sync now</button><p class="hint">To turn on this button, paste a limited GitHub key below. It only needs Actions access to the family-games repository.</p>' +
         '<label class="lab" for="sk">GitHub key</label><input id="sk" type="password" autocomplete="off" spellcheck="false" data-draft="syncKeyDraft" data-f="sk" value="' + esc(ed.syncKeyDraft || '') + '">' +
         '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>' +
         '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Or sync on GitHub</a>';
