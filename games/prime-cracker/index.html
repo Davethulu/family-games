@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Prime Cracker</title>
+<style>
+  :root { --ink:#fbf1df; --muted:#c9b59b; --gold:#ffcf5c; --bad:#ff8f7a; --good:#8df0a8; --panel:rgba(20,11,8,.62); --bg1:#6b4426; --bg2:#26150d; --bg3:#120a07; }
+  body[data-round="deep"] { --bg1:#1f5a5e; --bg2:#10292f; --bg3:#081518; }
+  body[data-round="fork"] { --bg1:#54367f; --bg2:#21163c; --bg3:#100b20; }
+  body[data-round="boss"] { --bg1:#8a2c1c; --bg2:#34110c; --bg3:#180706; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    height:100%; overflow:hidden; color:var(--ink); background:var(--bg3);
+    font-family: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+    -webkit-user-select:none; user-select:none; touch-action:manipulation;
+  }
+  button { font:inherit; color:inherit; border:0; cursor:pointer; touch-action:manipulation; }
+  #app {
+    position:fixed; inset:0; display:flex; flex-direction:column;
+    background:radial-gradient(circle at 50% 34%, var(--bg1), var(--bg2) 62%, var(--bg3));
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* Left padding leaves room for the arcade's Menu button. */
+  #hud { flex:none; display:flex; align-items:center; gap:6px; padding:8px 8px 0 96px; min-height:54px; }
+  #rName { flex:1; min-width:0; line-height:1.15; }
+  #rName b { display:block; font-size:17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #rName small { display:block; color:var(--muted); font-size:12.5px; font-weight:700; white-space:nowrap; }
+  .icon { flex:none; width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.12); font-size:19px; }
+  .icon:active { transform:scale(.9); }
+  #stats { flex:none; display:flex; align-items:center; justify-content:space-between; padding:6px 12px 2px; font-weight:800; font-size:15px; }
+  #shields { letter-spacing:-1px; font-size:17px; min-height:22px; }
+  #shields .gone { filter:grayscale(1) brightness(.45); opacity:.55; }
+  #shields .lost { display:inline-block; animation:shieldLost .5s; }
+  @keyframes shieldLost { 30% { transform:scale(1.6) rotate(-14deg); } }
+  #gems { color:var(--gold); }
+  #streak { color:var(--muted); font-size:13px; }
+  #fuse { flex:none; height:8px; margin:4px 12px 0; border-radius:8px; background:rgba(0,0,0,.4); overflow:hidden; display:none; }
+  #fuse i { display:block; height:100%; width:100%; background:linear-gradient(90deg,#ff5b35,#ffcf5c); }
+  #fuse.low i { background:#ff5b35; }
+
+  /* ---------- the tree ---------- */
+  #cave { flex:1; min-height:0; position:relative; overflow:hidden; }
+  #lines { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  #lines line { stroke:rgba(255,235,205,.5); stroke-width:3; stroke-linecap:round; }
+  #nodes { position:absolute; inset:0; }
+  .node { position:absolute; left:0; top:0; width:100px; height:100px; background:none; will-change:transform; }
+  .face {
+    position:absolute; inset:0; display:grid; place-items:center; font-weight:900; font-size:44px; line-height:1;
+    color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.45);
+    background:radial-gradient(circle at 34% 28%, #a99a8c, #6e6157 58%, #443a33);
+    border-radius:47% 53% 44% 56% / 55% 46% 54% 45%;
+    box-shadow:inset -6px -8px 0 rgba(0,0,0,.22), 0 6px 0 rgba(0,0,0,.25);
+  }
+  .node.d3 .face { font-size:38px; }
+  .node.d4 .face { font-size:30px; }
+  .node.active .face { box-shadow:inset -6px -8px 0 rgba(0,0,0,.22), 0 0 0 5px var(--gold), 0 0 26px rgba(255,207,92,.75); }
+  .node.gem .face {
+    color:#2a1509; text-shadow:0 1px 0 rgba(255,255,255,.45); background:linear-gradient(145deg,#fff 0%, var(--c) 34%, var(--c) 68%, rgba(0,0,0,.28) 140%);
+    border-radius:0; box-shadow:none; clip-path:polygon(50% 0, 96% 26%, 96% 74%, 50% 100%, 4% 74%, 4% 26%);
+  }
+  .node.pop .face { animation:pop .34s cubic-bezier(.3,1.7,.5,1); }
+  @keyframes pop { from { transform:scale(.3); } }
+  .node.drop .face { animation:drop .42s cubic-bezier(.3,1.25,.5,1); }
+  @keyframes drop { from { transform:translateY(-280px) rotate(-22deg); } }
+  .node.hit .face { animation:hit .17s; }
+  @keyframes hit { 50% { transform:scale(.88) rotate(4deg); } }
+  .node.shake .face { animation:shake .38s; }
+  @keyframes shake { 20%,60% { transform:translateX(-9px) rotate(-3deg); } 40%,80% { transform:translateX(9px) rotate(3deg); } }
+  #strike { position:absolute; left:0; top:0; font-size:46px; pointer-events:none; animation:strike .17s ease-in forwards; transform-origin:80% 80%; }
+  @keyframes strike { from { rotate:42deg; } to { rotate:-28deg; } }
+  .spark { position:absolute; left:0; top:0; width:9px; height:9px; border-radius:2px; pointer-events:none; }
+
+  /* ---------- message + controls ---------- */
+  #status {
+    flex:none; min-height:62px; margin:0 10px; padding:8px 12px; border-radius:14px; background:var(--panel);
+    font-size:15.5px; font-weight:700; line-height:1.28; display:flex; flex-direction:column; justify-content:center; gap:3px;
+  }
+  #status.bad { background:rgba(96,24,14,.86); }
+  #status.good { background:rgba(18,72,40,.84); }
+  #status .hint { color:var(--gold); font-size:14px; }
+  #status b { color:var(--gold); }
+  #status.bad b { color:#ffd4c9; }
+  #tray { flex:none; width:100%; max-width:540px; margin:0 auto; padding:8px 10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .grid { display:grid; gap:8px; grid-template-columns:repeat(3,1fr); }
+  .grid.four { grid-template-columns:repeat(4,1fr); }
+  .grid.two { grid-template-columns:repeat(2,1fr); }
+  .hammer {
+    position:relative; height:60px; border-radius:15px; background:var(--c); color:#2a1509; font-size:29px; font-weight:900;
+    box-shadow:0 5px 0 rgba(0,0,0,.42), inset 0 2px 0 rgba(255,255,255,.55);
+  }
+  .hammer.tool::before { content:'🔨'; position:absolute; left:7px; top:5px; font-size:13px; opacity:.85; }
+  .hammer:active { transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.42); }
+  .hammer:disabled { filter:grayscale(1) brightness(.5); opacity:.55; box-shadow:none; transform:translateY(3px); }
+  .hammer.chip { font-size:24px; }
+  .pair { height:60px; border-radius:15px; background:#efe3cf; color:#2a1509; font-size:25px; font-weight:900; box-shadow:0 5px 0 rgba(0,0,0,.42); }
+  .pair:last-child:nth-child(odd) { grid-column:span 2; }
+  .pair:active { transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.42); }
+  .pair:disabled { filter:brightness(.42); box-shadow:none; transform:translateY(3px); }
+  .wide { height:48px; border-radius:14px; font-weight:900; font-size:16.5px; background:#3b2a50; color:#fff; box-shadow:0 4px 0 rgba(0,0,0,.42); flex:none; }
+  .actions .wide { flex:1; }
+  .wide:active { transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.42); }
+  .wide:disabled { opacity:.42; box-shadow:none; }
+  .wide.go { background:var(--gold); color:#2a1509; }
+  .wide.big { height:58px; font-size:19px; flex:none; width:100%; }
+  .actions { display:flex; gap:8px; }
+  .spacer { height:48px; }
+  .formula {
+    min-height:46px; padding:6px 10px; border-radius:12px; background:rgba(0,0,0,.42); text-align:center;
+    font-size:25px; font-weight:900; line-height:1.3;
+  }
+  .formula .t { color:var(--c); white-space:nowrap; }
+  .formula sup { font-size:.66em; line-height:0; }
+  .formula .op { color:var(--muted); font-weight:700; }
+  .formula .blank { color:var(--muted); font-weight:700; }
+  .formula small { display:block; color:var(--muted); font-size:14px; font-weight:700; }
+
+  /* ---------- full-screen cards ---------- */
+  #screen {
+    position:fixed; inset:0; z-index:5; overflow-y:auto; -webkit-overflow-scrolling:touch; display:none;
+    background:radial-gradient(circle at 50% 26%, var(--bg1), var(--bg2) 66%, var(--bg3));
+    padding:calc(env(safe-area-inset-top) + 62px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 20px) calc(env(safe-area-inset-left) + 16px);
+    touch-action:pan-y;
+  }
+  #screen.on { display:block; }
+  .card { max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+  .card h1 { font-size:38px; line-height:1.05; text-align:center; color:var(--gold); text-shadow:0 3px 0 rgba(0,0,0,.4); }
+  .card h2 { font-size:28px; line-height:1.1; text-align:center; color:var(--gold); }
+  .card p { font-size:16.5px; line-height:1.36; font-weight:600; text-align:center; }
+  .card p.sub { color:var(--muted); font-size:15px; }
+  .big-emoji { font-size:62px; text-align:center; line-height:1.1; }
+  .demo { background:rgba(0,0,0,.34); border-radius:14px; padding:12px; font-size:22px; font-weight:900; text-align:center; line-height:1.35; }
+  .demo sup { font-size:.66em; line-height:0; }
+  .demo .op { color:var(--muted); font-weight:700; }
+  .rcard {
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:12px 14px; border-radius:16px;
+    background:rgba(255,245,225,.11); box-shadow:0 4px 0 rgba(0,0,0,.34);
+  }
+  .rcard:active { transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.34); }
+  .rcard:disabled { opacity:.5; box-shadow:none; transform:none; }
+  .rcard .em { font-size:34px; flex:none; width:42px; text-align:center; }
+  .rcard .tx { flex:1; min-width:0; }
+  .rcard b { display:block; font-size:18px; }
+  .rcard small { display:block; color:var(--muted); font-size:13.5px; font-weight:700; line-height:1.25; }
+  .rcard .sc { flex:none; text-align:right; font-size:13px; font-weight:800; color:var(--gold); white-space:nowrap; }
+  .panel { background:rgba(0,0,0,.34); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:7px; }
+  .panel h3 { font-size:15px; color:var(--gold); }
+  .panel .row { display:flex; justify-content:space-between; gap:10px; font-size:17px; font-weight:800; }
+  .panel .row sup { font-size:.66em; line-height:0; }
+  .panel .row span:last-child { color:var(--bad); font-size:14px; white-space:nowrap; }
+  .panel p { text-align:left; font-size:15px; }
+  .stars { font-size:40px; text-align:center; letter-spacing:4px; line-height:1.1; }
+  .stars i { font-style:normal; filter:grayscale(1) brightness(.45); }
+  .score { text-align:center; font-size:21px; font-weight:900; }
+  .score small { display:block; color:var(--muted); font-size:14px; }
+
+  @media (max-height:620px) {
+    .hammer, .pair { height:50px; }
+    #status { min-height:52px; font-size:14.5px; padding:6px 10px; }
+    .spacer, .wide { height:42px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node.drop .face, .node.shake .face, .node.hit .face, .node.pop .face, #strike { animation-duration:.01s; }
+  }
+</style>
+</head>
+<body data-round="quarry">
+<div id="app">
+  <header id="hud">
+    <div id="rName"><b></b><small></small></div>
+    <button id="quit" class="icon" aria-label="Back to all rounds">🗺️</button>
+    <button id="mute" class="icon" aria-label="Sound on or off">🔊</button>
+  </header>
+  <div id="stats"><span id="shields" aria-label="Shields"></span><span id="streak"></span><span id="gems"></span></div>
+  <div id="fuse"><i></i></div>
+  <main id="cave"><svg id="lines" aria-hidden="true"></svg><div id="nodes"></div></main>
+  <section id="status" aria-live="polite"></section>
+  <section id="tray"></section>
+</div>
+<div id="screen"></div>
+
+<script>
+'use strict';
+/* ---------- number helpers ---------- */
+function factorize(n) {
+  const out = [];
+  for (let p = 2; p * p <= n; p++) while (n % p === 0) { out.push(p); n /= p; }
+  if (n > 1) out.push(n);
+  return out;
+}
+const isPrime = n => n > 1 && factorize(n).length === 1;
+const smallest = n => factorize(n)[0];
+function truePairs(n) {
+  const out = [];
+  for (let a = 2; a * a <= n; a++) if (n % a === 0) out.push([a, n / a]);
+  return out;
+}
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const digitsOf = n => String(n).split('').map(Number);
+const digitSum = n => digitsOf(n).reduce((x, y) => x + y, 0);
+function range(lo, hi, test) {
+  const out = [];
+  for (let n = lo; n <= hi; n++) if (test(n)) out.push(n);
+  return out;
+}
+const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+
+/* ---------- rounds ---------- */
+const hasRepeat = n => { const f = factorize(n); return f.some((p, i) => p === f[i + 1]); };
+const maxFactor = n => { const f = factorize(n); return f[f.length - 1]; };
+const divisorCount = n => {
+  const c = {}; factorize(n).forEach(p => { c[p] = (c[p] || 0) + 1; });
+  return Object.values(c).reduce((x, e) => x * (e + 1), 1);
+};
+const ROUNDS = [
+  {
+    id: 'quarry', name: 'Quarry', emoji: '⛰️', blurb: 'Numbers 12 to 60. Crack them into primes.',
+    mode: 'hammer', hammers: [2, 3, 5, 7], shields: 5, exp: false, regular: 6,
+    pool: range(12, 60, n => !isPrime(n) && maxFactor(n) <= 7),
+    primes: [23, 29, 31, 37, 41, 43, 47, 53, 59], tricky: [51, 57], bothTraps: true,
+    intro: 'Tap a prime hammer that goes into the boulder. It cracks into two pieces. Keep going until every piece is a gem, because gems are prime.',
+    demo: '84<br>→ 2 × 42<br>→ 2 × 2 × 21<br>→ 2 × 2 × 3 × 7',
+    tip: 'Some boulders are already prime. Be careful: a wrong call cracks a shield.'
+  },
+  {
+    id: 'deep', name: 'Deep Mine', emoji: '⛏️', blurb: 'Numbers 60 to 200, with exponents.',
+    mode: 'hammer', hammers: [2, 3, 5, 7, 11, 13], shields: 5, exp: true, regular: 6,
+    pool: range(60, 200, n => hasRepeat(n) && factorize(n).length >= 3 && maxFactor(n) <= 13),
+    primes: [101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199],
+    tricky: [91, 119, 133, 143, 161, 187], bothTraps: true,
+    intro: 'Same cracking, but now the answer uses exponents. The exponent counts how many of that prime you found. Tap a prime once for each gem.',
+    demo: '2 × 2 × 2 × 3 × 3 = 2<sup>3</sup> × 3<sup>2</sup>',
+    tip: 'Watch for sneaky ones like 91. It looks prime, but it isn\'t.'
+  },
+  {
+    id: 'fork', name: 'Fork in the Rock', emoji: '🔀', blurb: 'Split any way you like. Same primes every time.',
+    mode: 'pair', hammers: [2, 3, 5, 7, 11, 13], shields: 5, exp: true, regular: 5,
+    pool: range(36, 200, n => divisorCount(n) >= 8 && maxFactor(n) <= 7),
+    primes: [101, 103, 107, 109, 113, 127, 131, 137, 139], tricky: [91, 119, 133, 143], bothTraps: false,
+    intro: 'No hammers this time. Pick any factor pair to split a rock, and tap a rock to work on it next. One pair on each list is fake, so multiply to check.',
+    demo: '36 → 4 × 9 or 36 → 6 × 6<br>Both end at 2<sup>2</sup> × 3<sup>2</sup>',
+    tip: 'Every number has only one set of primes, no matter how you split it.'
+  },
+  {
+    id: 'boss', name: 'Boss Boulders', emoji: '🔥', blurb: 'Huge numbers and a burning fuse.',
+    mode: 'hammer', hammers: [2, 3, 5, 7, 11, 13], shields: 4, exp: true, regular: 3, timer: true,
+    pool: range(200, 1200, n => factorize(n).length >= 5 && maxFactor(n) <= 13),
+    finale: [1260, 1680, 2310, 2520],
+    primes: [211, 223, 227, 229, 233, 239, 241, 251, 257, 263], tricky: [221, 247, 253, 287], bothTraps: false,
+    intro: 'The boulders are big and the fuse is burning. If it runs out, you lose a shield and the boulder comes back later. Finish early for bonus gems.',
+    demo: '2520 = 2<sup>3</sup> × 3<sup>2</sup> × 5 × 7',
+    tip: 'Start with the small primes. Each crack makes the number easier.'
+  }
+];
+
+function buildQueue(r) {
+  const sorted = r.pool.slice().sort((a, b) => a - b);
+  // One pick from each slice of the sorted pool, so boulders get harder as the round goes on.
+  const items = [];
+  for (let k = 0; k < r.regular; k++) {
+    const a = Math.floor(k * sorted.length / r.regular), b = Math.floor((k + 1) * sorted.length / r.regular);
+    items.push({ n: pick(sorted.slice(a, Math.max(b, a + 1))) });
+  }
+  const traps = r.bothTraps ? [pick(r.primes), pick(r.tricky)] : [pick(Math.random() < .5 ? r.primes : r.tricky)];
+  traps.forEach(n => items.splice(1 + Math.floor(Math.random() * items.length), 0, { n }));
+  // Numbers missed in an earlier round come back here, before any finale.
+  shuffle([...session.pending]).slice(0, 2).forEach(n => {
+    if (!items.some(it => it.n === n)) items.splice(1 + Math.floor(Math.random() * items.length), 0, { n, back: true });
+  });
+  if (r.finale) items.push({ n: pick(r.finale) });
+  return items;
+}
+
+/* ---------- explanations ---------- */
+function whyNot(n, p) {
+  if (p > n) return `${p} is bigger than <b>${n}</b>, so it can't go in.`;
+  if (p === 2) return `<b>${n}</b> ends in ${n % 10}, so it's odd. 2 can't go in.`;
+  if (p === 5) return `<b>${n}</b> doesn't end in 0 or 5, so 5 can't go in.`;
+  if (p === 3) return `${digitsOf(n).join(' + ')} = ${digitSum(n)}. That's not a multiple of 3, so 3 can't go in <b>${n}</b>.`;
+  return `<b>${n}</b> ÷ ${p} = ${Math.floor(n / p)} remainder ${n % p}, so ${p} can't go in.`;
+}
+function nudge(n) {
+  if (isPrime(n)) return 'Hint: if no prime goes in, it might already be prime.';
+  const s = smallest(n);
+  if (s === 2) return `Hint: ${n} is even, so 2 goes in.`;
+  if (s === 3) return `Hint: the digits add up to ${digitSum(n)}, so try 3.`;
+  if (s === 5) return `Hint: ${n} ends in ${n % 10}, so try 5.`;
+  return `Hint: try dividing by ${s}.`;
+}
+function notPrimeWhy(n) {
+  const s = smallest(n);
+  if (s === 2) return `Not prime. <b>${n}</b> is even, so 2 goes in.`;
+  if (s === 3) return `Not prime. The digits of <b>${n}</b> add up to ${digitSum(n)}, so 3 goes in.`;
+  if (s === 5) return `Not prime. <b>${n}</b> ends in ${n % 10}, so 5 goes in.`;
+  return `Not prime. <b>${n}</b> = ${s} × ${n / s}.`;
+}
+const ruleTag = p => p === 2 ? 'div2' : p === 3 ? 'div3' : p === 5 ? 'div5' : 'big';
+const TROUBLE = {
+  div2: ['The rule for 2', 'A number is divisible by 2 if it ends in 0, 2, 4, 6 or 8.'],
+  div3: ['The rule for 3', 'Add up the digits. If the sum is a multiple of 3, then 3 goes in.'],
+  div5: ['The rule for 5', 'A number is divisible by 5 if it ends in 0 or 5.'],
+  big: ['Testing 7, 11 and 13', 'There is no quick rule to rely on here, so try the division.'],
+  prime: ['Spotting primes', 'Before calling a number prime, test 2, 3, 5, 7, 11 and 13.'],
+  pair: ['Checking factor pairs', 'Multiply the two numbers. They have to make the number exactly.'],
+  count: ['Writing the answer', 'Count each prime in the tree. The exponent is how many you counted.'],
+  time: ['Beating the fuse', 'Start with the small primes, and use the rules for 2, 3 and 5 to save time.']
+};
+
+/* ---------- saved progress ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('prime-cracker-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('prime-cracker-' + k, JSON.stringify(v)); } catch (e) {} }
+};
+let progress = store.get('progress', { unlocked: 0, rounds: {} });
+if (!progress || typeof progress.unlocked !== 'number' || !progress.rounds) progress = { unlocked: 0, rounds: {} };
+const session = { pending: new Set() };   // numbers missed and not yet cracked cleanly
+
+/* ---------- sound ---------- */
+let muted = store.get('muted', false), actx = null;
+function audio() {
+  if (muted) return null;
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  } catch (e) { return null; }
+}
+function tone(freq, dur, type, vol, delay) {
+  const c = audio(); if (!c) return;
+  const t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(vol || .14, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + .02);
+}
+const sfx = {
+  crack() { tone(120, .13, 'square', .13); tone(70, .2, 'sine', .22); },
+  gem(i) { tone(660 * Math.pow(1.122, i || 0), .22, 'triangle', .14); },
+  miss() { tone(150, .24, 'sawtooth', .1); tone(96, .3, 'sawtooth', .1, .06); },
+  tap() { tone(520, .05, 'triangle', .07); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .24, 'triangle', .14, i * .09)); },
+  lose() { [330, 262, 196].forEach((f, i) => tone(f, .32, 'sawtooth', .08, i * .15)); }
+};
+function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+/* ---------- gem colors: each prime keeps one color everywhere ---------- */
+const GEM = { 2: '#ff8585', 3: '#ffc64f', 5: '#74e38f', 7: '#74ccff', 11: '#cba6ff', 13: '#ffa3db' };
+const gemColor = p => GEM[p] || '#eef2f6';
+
+/* ---------- formula text ---------- */
+function formulaHTML(list, useExp) {
+  const sorted = list.slice().sort((a, b) => a - b);
+  const op = ' <span class="op">×</span> ';
+  if (!useExp) return sorted.map(p => `<span class="t" style="--c:${gemColor(p)}">${p}</span>`).join(op);
+  const seen = [...new Set(sorted)];
+  return seen.map(p => {
+    const e = sorted.filter(x => x === p).length;
+    return `<span class="t" style="--c:${gemColor(p)}">${p}${e > 1 ? `<sup>${e}</sup>` : ''}</span>`;
+  }).join(op);
+}
+function plainFormula(n) {
+  const f = factorize(n);
+  if (f.length === 1) return `${n} is prime`;
+  const seen = [...new Set(f)];
+  return `${n} = ` + seen.map(p => { const e = f.filter(x => x === p).length; return p + (e > 1 ? `<sup>${e}</sup>` : ''); }).join(' × ');
+}
+
+/* ---------- dom ---------- */
+const $ = id => document.getElementById(id);
+const cave = $('cave'), nodesEl = $('nodes'), linesEl = $('lines'), statusEl = $('status'), tray = $('tray'), screenEl = $('screen');
+
+/* ---------- game state ---------- */
+let G = null;      // current round
+let B = null;      // current boulder
+let uid = 0;
+
+/* ---------- tree drawing ---------- */
+function makeNode(n, parent) {
+  const nd = { id: ++uid, n, parent, kids: null, prime: isPrime(n), gem: false, x: 0, y: 0, s: .1, tx: 0, ty: 0, ts: 1 };
+  nd.gem = nd.prime && !!parent;   // a whole boulder never shows whether it's prime until you decide
+  const el = document.createElement('button');
+  el.className = 'node d' + String(n).length;
+  el.dataset.id = nd.id;
+  el.innerHTML = `<span class="face">${n}</span>`;
+  el.setAttribute('aria-label', 'Rock ' + n);
+  nodesEl.appendChild(el);
+  nd.el = el;
+  if (parent) {
+    nd.line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    linesEl.appendChild(nd.line);
+    nd.x = parent.x; nd.y = parent.y; nd.s = parent.s * .7;
+  }
+  B.nodes.push(nd);
+  styleNode(nd);
+  return nd;
+}
+function styleNode(nd) {
+  nd.el.classList.toggle('gem', nd.gem);
+  nd.el.classList.toggle('active', B.active === nd && B.phase === 'crack');
+  if (nd.gem) { nd.el.style.setProperty('--c', gemColor(nd.n)); nd.el.setAttribute('aria-label', 'Prime gem ' + nd.n); }
+}
+function styleAll() { B.nodes.forEach(styleNode); }
+function flash(nd, cls) {
+  nd.el.classList.remove('pop', 'drop', 'hit', 'shake');
+  void nd.el.offsetWidth;
+  nd.el.classList.add(cls);
+}
+function layout() {
+  if (!B) return;
+  const W = cave.clientWidth, H = cave.clientHeight, root = B.root;
+  let leaves = 0, maxDepth = 0;
+  (function walk(nd, d) {
+    nd.d = d; maxDepth = Math.max(maxDepth, d);
+    if (nd.kids) { walk(nd.kids[0], d + 1); walk(nd.kids[1], d + 1); nd.ox = (nd.kids[0].ox + nd.kids[1].ox) / 2; }
+    else nd.ox = leaves++;
+  })(root, 0);
+  if (!root.kids) {
+    root.tx = W / 2; root.ty = H / 2; root.ts = Math.min(W * .56, H * .78, 170) / 100;
+  } else {
+    const rows = maxDepth + 1;
+    const size = Math.min(W / leaves, H / rows, 78) * .9;
+    const gapX = Math.min(W / leaves, size * 1.4), gapY = Math.min(H / rows, size * 1.42);
+    const left = (W - (leaves - 1) * gapX) / 2, top = (H - (rows - 1) * gapY) / 2;
+    B.nodes.forEach(nd => { nd.tx = left + nd.ox * gapX; nd.ty = top + nd.d * gapY; nd.ts = size / 100; });
+  }
+  startTween();
+}
+let tweening = false, lastT = 0;
+function startTween() { if (!tweening) { tweening = true; lastT = performance.now(); requestAnimationFrame(tween); } }
+function tween(t) {
+  if (!B) { tweening = false; return; }
+  const k = 1 - Math.exp(-Math.min(t - lastT, 60) / 62);
+  lastT = t;
+  let moving = false;
+  B.nodes.forEach(nd => {
+    nd.x += (nd.tx - nd.x) * k; nd.y += (nd.ty - nd.y) * k; nd.s += (nd.ts - nd.s) * k;
+    if (Math.abs(nd.tx - nd.x) > .3 || Math.abs(nd.ty - nd.y) > .3 || Math.abs(nd.ts - nd.s) > .002) moving = true;
+    else { nd.x = nd.tx; nd.y = nd.ty; nd.s = nd.ts; }
+    paintNode(nd);
+  });
+  if (moving) requestAnimationFrame(tween); else tweening = false;
+}
+function paintNode(nd) {
+  nd.el.style.transform = `translate(${nd.x - 50}px,${nd.y - 50}px) scale(${nd.s})`;
+  if (nd.line) {
+    nd.line.setAttribute('x1', nd.parent.x); nd.line.setAttribute('y1', nd.parent.y);
+    nd.line.setAttribute('x2', nd.x); nd.line.setAttribute('y2', nd.y);
+  }
+}
+function burst(x, y, color, count) {
+  for (let i = 0; i < (count || 10); i++) {
+    const s = document.createElement('i');
+    s.className = 'spark'; s.style.background = color;
+    nodesEl.appendChild(s);
+    const a = Math.random() * Math.PI * 2, d = 34 + Math.random() * 62;
+    const anim = s.animate([
+      { transform: `translate(${x}px,${y}px) scale(1) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${x + Math.cos(a) * d}px,${y + Math.sin(a) * d + 26}px) scale(.3) rotate(220deg)`, opacity: 0 }
+    ], { duration: 420 + Math.random() * 220, easing: 'cubic-bezier(.2,.7,.4,1)' });
+    anim.onfinish = () => s.remove();
+  }
+}
+
+/* ---------- boulder flow ---------- */
+function clearBoulder() {
+  nodesEl.innerHTML = ''; linesEl.innerHTML = '';
+}
+function nextBoulder() {
+  G.pos++;
+  if (G.pos >= G.queue.length) return endRound(true);
+  clearBoulder();
+  const item = G.queue[G.pos], n = item.n;
+  B = { item, n, nodes: [], active: null, phase: 'crack', fresh: true, misses: 0, dim: new Set(), lock: false, primeDim: false, firstPair: null, opts: {}, build: [], left: 0, total: 0 };
+  B.root = makeNode(n, null);
+  B.active = B.root;
+  layout();
+  const root = B.root; root.x = root.tx; root.y = root.ty; root.s = root.ts; paintNode(root);
+  flash(root, 'drop');
+  styleAll();
+  if (G.r.timer) { B.total = B.left = 12 + factorize(n).length * 9; }
+  renderFuse();
+  renderHud();
+  setStatus(crackPrompt(item));
+  renderTray();
+  layout();
+}
+function crackPrompt(item) {
+  const n = B.active.n, back = item && item.back ? '🔁 Back again! ' : '';
+  if (G.r.mode === 'pair') return `${back}Pick two numbers that multiply to <b>${n}</b>.`;
+  return `${back}Which prime goes into <b>${n}</b>?`;
+}
+function setStatus(html, cls, hint) {
+  statusEl.className = cls || '';
+  statusEl.innerHTML = `<div>${html}</div>` + (hint ? `<div class="hint">${hint}</div>` : '');
+}
+function compositeLeaves() { return B.nodes.filter(nd => !nd.kids && !nd.prime); }
+
+function strikeThen(nd, fn) {
+  B.lock = true;
+  flash(nd, 'hit');
+  const h = document.createElement('span');
+  h.id = 'strike'; h.textContent = '🔨';
+  h.style.transform = `translate(${nd.tx + 4}px,${nd.ty - 46}px)`;
+  nodesEl.appendChild(h);
+  setTimeout(() => {
+    h.remove();
+    B.lock = false;
+    fn();
+  }, 170);
+}
+function split(nd, a, b) {
+  const pieces = [a, b].sort((x, y) => {
+    const px = isPrime(x), py = isPrime(y);
+    return px !== py ? (px ? -1 : 1) : x - y;
+  });
+  nd.kids = pieces.map(v => makeNode(v, nd));
+  nd.el.setAttribute('aria-label', 'Cracked rock ' + nd.n);
+  B.fresh = false;
+  B.dim = new Set();
+  sfx.crack(); buzz(14);
+  burst(nd.tx, nd.ty, '#b9a998', 12);
+  let i = 0;
+  nd.kids.forEach(k => {
+    flash(k, 'pop');
+    if (k.gem) { burst(nd.tx, nd.ty, gemColor(k.n), 8); sfx.gem(i++); }
+  });
+  const rest = compositeLeaves();
+  if (!rest.length) { B.active = null; layout(); return enterBuild(); }
+  if (!B.active || B.active.kids) B.active = rest[0];
+  styleAll();
+  layout();
+  renderTray();
+  const go = B.active.n;
+  if (G.r.mode === 'pair') setStatus(`<b>${nd.n}</b> = ${a} × ${b}. Now split <b>${go}</b>${rest.length > 1 ? ', or tap another rock' : ''}.`);
+  else setStatus(`<b>${nd.n}</b> ÷ ${a} = ${b}. Which prime goes into <b>${go}</b>?`);
+}
+function chooseHammer(p) {
+  if (!B || B.lock || B.phase !== 'crack' || !B.active) return;
+  const nd = B.active;
+  if (nd.n % p === 0 && nd.n !== p) {
+    strikeThen(nd, () => split(nd, p, nd.n / p));
+  } else {
+    B.dim.add(p);
+    miss(whyNot(nd.n, p), ruleTag(p), nd);
+  }
+}
+function pairOptions(nd) {
+  if (B.opts[nd.id]) return B.opts[nd.id];
+  const n = nd.n, truth = truePairs(n), opts = shuffle(truth).slice(0, 3).map(p => ({ a: p[0], b: p[1] }));
+  const fakes = [];
+  const addFake = (a, b) => {
+    a = Math.max(2, a); b = Math.max(2, b);
+    if (a > b) [a, b] = [b, a];
+    if (a * b !== n && !fakes.some(f => f.a === a && f.b === b)) fakes.push({ a, b });
+  };
+  if (truth.length) {
+    const t = pick(truth);
+    if (Math.random() < .5) addFake(t[0], t[1] + 1); else addFake(t[0] + 1, t[1]);
+  } else {
+    // Whole boulder is prime: offer pairs that come close.
+    [2, 3, 5].forEach(a => addFake(a, Math.round(n / a)));
+    addFake(7, Math.round(n / 7) + 1);
+  }
+  const all = shuffle(opts.concat(fakes)).slice(0, 4);
+  B.opts[nd.id] = all;
+  return all;
+}
+function choosePair(i) {
+  if (!B || B.lock || B.phase !== 'crack' || !B.active) return;
+  const nd = B.active, o = pairOptions(nd)[i];
+  if (!o || o.used) return;
+  if (o.a * o.b === nd.n) {
+    if (nd === B.root) B.firstPair = [o.a, o.b];
+    strikeThen(nd, () => split(nd, o.a, o.b));
+  } else {
+    o.used = true;
+    miss(`${o.a} × ${o.b} = ${o.a * o.b}, not <b>${nd.n}</b>.`, 'pair', nd);
+  }
+}
+function choosePrime() {
+  if (!B || B.lock || B.phase !== 'crack' || !B.fresh || B.primeDim) return;
+  const root = B.root;
+  if (root.prime) {
+    root.gem = true;
+    B.active = null;
+    B.phase = 'done';
+    styleAll();
+    flash(root, 'pop');
+    burst(root.tx, root.ty, gemColor(root.n), 18);
+    sfx.gem(4); buzz(14);
+    finishBoulder('prime');
+  } else {
+    B.primeDim = true;
+    miss(notPrimeWhy(root.n), 'prime', root);
+  }
+}
+function tapNode(id) {
+  if (!B || B.lock || B.phase !== 'crack' || G.r.mode !== 'pair') return;
+  const nd = B.nodes.find(x => x.id === id);
+  if (!nd || nd.kids || nd.prime || nd === B.active) return;
+  B.active = nd;
+  sfx.tap();
+  styleAll();
+  renderTray();
+  setStatus(`Pick two numbers that multiply to <b>${nd.n}</b>.`);
+}
+function miss(msg, tag, nd, hintText) {
+  B.misses++;
+  G.misses++;
+  G.tags[tag] = (G.tags[tag] || 0) + 1;
+  G.trouble.set(B.n, (G.trouble.get(B.n) || 0) + 1);
+  G.shields--;
+  G.clean = 0;
+  G.streak = 0;
+  sfx.miss(); buzz([30, 40, 30]);
+  if (nd) flash(nd, 'shake');
+  renderHud(true);
+  const hint = hintText !== undefined ? hintText : (B.misses >= 2 && nd ? nudge(nd.n) : '');
+  setStatus(msg, 'bad', hint);
+  renderTray();
+  if (G.shields <= 0) {
+    B.lock = true;
+    G.ending = setTimeout(() => endRound(false), 1900);
+  }
+}
+
+/* ---------- writing the answer ---------- */
+function enterBuild() {
+  B.phase = 'build';
+  B.build = [];
+  styleAll();
+  renderTray();
+  layout();
+  setStatus(G.r.exp
+    ? `All prime! Write <b>${B.n}</b> with exponents. Tap a prime once for each gem.`
+    : `All prime! Now write <b>${B.n}</b>. Tap a prime once for each gem.`, 'good');
+}
+function tapBuild(p) {
+  if (!B || B.lock || B.phase !== 'build') return;
+  B.build.push(p);
+  sfx.tap();
+  renderTray();
+  layout();
+}
+function undoBuild() {
+  if (!B || B.lock || B.phase !== 'build' || !B.build.length) return;
+  B.build.pop();
+  renderTray();
+  layout();
+}
+function checkBuild() {
+  if (!B || B.lock || B.phase !== 'build' || !B.build.length) return;
+  const truth = factorize(B.n), mine = B.build.slice().sort((a, b) => a - b);
+  if (truth.join() === mine.join()) {
+    B.phase = 'done';
+    return finishBoulder('solved');
+  }
+  const made = mine.reduce((x, y) => x * y, 1);
+  const off = [...new Set(truth.concat(mine))].sort((a, b) => a - b)
+    .find(p => truth.filter(x => x === p).length !== mine.filter(x => x === p).length);
+  const need = truth.filter(x => x === off).length;
+  const hint = B.misses >= 1
+    ? (need ? `Hint: the tree has ${COUNT_WORDS[need]} ${need === 1 ? 'gem' : 'gems'} labeled ${off}.` : `Hint: there are no ${off}s in the tree.`)
+    : '';
+  miss(`That makes ${made.toLocaleString('en-US')}, not <b>${B.n.toLocaleString('en-US')}</b>. Count the ${off}s in your tree again.`, 'count', null, hint);
+}
+
+/* ---------- finishing a boulder ---------- */
+function finishBoulder(kind) {
+  B.phase = 'done';
+  B.active = null;
+  styleAll();
+  const f = factorize(B.n), clean = B.misses === 0 && kind !== 'time';
+  const base = kind === 'prime' ? 15 : 10 * f.length;
+  let gain = 0;
+  if (kind !== 'time') {
+    gain = base + (clean ? Math.round(base / 2) + Math.min(G.streak, 5) * 2 : 0);
+    if (G.r.timer) gain += Math.floor(B.left / 2);
+  }
+  G.gems += gain;
+  let repaired = false;
+  if (clean) {
+    G.streak++; G.clean++;
+    if (G.clean >= 3) {
+      G.clean = 0;
+      if (G.shields < G.r.shields) { G.shields++; repaired = true; }
+    }
+    if (B.item.back) session.pending.delete(B.n);
+  } else {
+    G.streak = 0; G.clean = 0;
+    session.pending.add(B.n);
+    if (!B.item.back) G.queue.splice(Math.min(G.pos + 3, G.queue.length), 0, { n: B.n, back: true });
+  }
+  renderHud();
+  renderFuse();
+  let msg;
+  if (kind === 'time') msg = 'The fuse ran out! This one comes back later.';
+  else if (kind === 'prime') msg = `Yes! Only 1 and ${B.n} go into <b>${B.n}</b>. +${gain} 💎`;
+  else msg = `${clean ? 'Clean crack!' : 'Cracked!'} +${gain} 💎`;
+  if (repaired) msg += ' 🛡️ Shield repaired!';
+  if (kind !== 'time' && !clean && !B.item.back) msg += ' You\'ll see this one again soon.';
+  let extra = '';
+  if (kind === 'solved' && G.r.mode === 'pair' && B.firstPair) {
+    const others = truePairs(B.n).filter(p => p[0] !== Math.min(...B.firstPair));
+    if (others.length) {
+      const o = pick(others);
+      extra = `Starting with ${o[0]} × ${o[1]} would give the very same primes.`;
+    }
+  }
+  setStatus(msg, kind === 'time' ? 'bad' : 'good', extra);
+  if (kind !== 'time' && (clean || kind === 'solved')) sfx.gem(6);
+  renderTray();
+  layout();
+  if (kind === 'time' && G.shields <= 0) {
+    B.lock = true;
+    G.ending = setTimeout(() => endRound(false), 1900);
+  }
+}
+function timeOut() {
+  B.misses++;
+  G.misses++;
+  G.tags.time = (G.tags.time || 0) + 1;
+  G.trouble.set(B.n, (G.trouble.get(B.n) || 0) + 1);
+  G.shields--;
+  sfx.miss(); buzz([30, 40, 30]);
+  // Finish the tree so the answer is visible.
+  let rest;
+  while ((rest = compositeLeaves()).length) {
+    const nd = rest[0], s = smallest(nd.n);
+    const pieces = [s, nd.n / s].sort((x, y) => (isPrime(x) !== isPrime(y)) ? (isPrime(x) ? -1 : 1) : x - y);
+    nd.kids = pieces.map(v => makeNode(v, nd));
+  }
+  if (B.root.prime) B.root.gem = true;
+  finishBoulder('time');
+}
+
+/* ---------- rendering ---------- */
+function renderHud(lostOne) {
+  const r = G.r;
+  $('rName').querySelector('b').textContent = r.name;
+  $('rName').querySelector('small').textContent = `Boulder ${Math.min(G.pos + 1, G.queue.length)} of ${G.queue.length}`;
+  let s = '';
+  for (let i = 0; i < r.shields; i++) {
+    const cls = i >= G.shields ? (lostOne && i === G.shields ? 'gone lost' : 'gone') : '';
+    s += `<span class="${cls}">🛡️</span>`;
+  }
+  $('shields').innerHTML = s;
+  $('streak').textContent = G.streak >= 2 ? `🔥 ${G.streak} in a row` : '';
+  $('gems').textContent = `💎 ${G.gems}`;
+}
+function renderFuse() {
+  const el = $('fuse');
+  if (!G || !G.r.timer) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const f = B && B.total ? Math.max(0, B.left / B.total) : 0;
+  el.firstElementChild.style.width = (f * 100) + '%';
+  el.classList.toggle('low', B && B.left < 10);
+}
+function renderTray() {
+  if (!B) return;
+  const r = G.r;
+  let html = '';
+  if (B.phase === 'crack') {
+    if (r.mode === 'pair') {
+      const opts = pairOptions(B.active);
+      html += '<div class="grid two">' + opts.map((o, i) =>
+        `<button class="pair" data-pair="${i}" ${o.used ? 'disabled' : ''}>${o.a} × ${o.b}</button>`).join('') + '</div>';
+    } else {
+      const four = r.hammers.length <= 4;
+      html += `<div class="grid ${four ? 'four' : ''}">` + r.hammers.map(p =>
+        `<button class="hammer tool" style="--c:${gemColor(p)}" data-hammer="${p}" aria-label="Hammer ${p}" ${B.dim.has(p) ? 'disabled' : ''}>${p}</button>`).join('') + '</div>';
+    }
+    html += B.fresh
+      ? `<button class="wide" data-prime="1" ${B.primeDim ? 'disabled' : ''}>💎 It's already prime</button>`
+      : '<div class="spacer"></div>';
+  } else if (B.phase === 'build') {
+    const chips = [...new Set(r.hammers.concat(factorize(B.n)))].sort((a, b) => a - b);
+    html += `<div class="formula">${B.n} = ${B.build.length ? formulaHTML(B.build, r.exp) : '<span class="blank">?</span>'}</div>`;
+    // One row of primes, so the tree keeps its space while the answer gets written.
+    html += `<div class="grid" style="grid-template-columns:repeat(${Math.min(chips.length, 6)},1fr)">` + chips.map(p =>
+      `<button class="hammer chip" style="--c:${gemColor(p)}" data-build="${p}" aria-label="Add a ${p}">${p}</button>`).join('') + '</div>';
+    html += `<div class="actions"><button class="wide" data-undo="1" ${B.build.length ? '' : 'disabled'}>↩ Undo</button><button class="wide go" data-check="1" ${B.build.length ? '' : 'disabled'}>✓ Check</button></div>`;
+  } else {
+    const f = factorize(B.n);
+    const answer = f.length === 1 ? `${B.n} is prime` : `${B.n} = ${formulaHTML(f, r.exp)}`;
+    const showExp = !r.exp && hasRepeat(B.n);
+    html += `<div class="formula">${answer}${showExp ? `<small>With exponents: ${plainFormula(B.n).split('= ')[1]}</small>` : ''}</div>`;
+    if (G.shields > 0) html += `<button class="wide go big" data-next="1">${G.pos + 1 >= G.queue.length ? 'Finish round ▸' : 'Next boulder ▸'}</button>`;
+  }
+  tray.innerHTML = html;
+}
+
+/* ---------- screens ---------- */
+function showScreen(html, round) {
+  if (round) document.body.dataset.round = round;
+  screenEl.innerHTML = html;
+  screenEl.classList.add('on');
+  screenEl.scrollTop = 0;
+}
+function hideScreen() { screenEl.classList.remove('on'); }
+function stopRound() {
+  if (G && G.ending) clearTimeout(G.ending);
+  G = null; B = null;
+  clearBoulder();
+}
+function starsHTML(n) {
+  let s = '';
+  for (let i = 0; i < 3; i++) s += i < n ? '⭐' : '<i>⭐</i>';
+  return s;
+}
+function showTitle() {
+  stopRound();
+  const cards = ROUNDS.map((r, i) => {
+    const locked = i > progress.unlocked, rec = progress.rounds[r.id];
+    const score = rec ? `${'⭐'.repeat(rec.stars)}<br>💎 ${rec.best}` : '';
+    return `<button class="rcard" data-round="${i}" ${locked ? 'disabled' : ''}>
+      <span class="em">${locked ? '🔒' : r.emoji}</span>
+      <span class="tx"><b>${i + 1}. ${r.name}</b><small>${locked ? 'Clear the round before this to unlock it.' : r.blurb}</small></span>
+      <span class="sc">${score}</span></button>`;
+  }).join('');
+  showScreen(`<div class="card">
+    <div class="big-emoji">🔨💎</div>
+    <h1>Prime Cracker</h1>
+    <p>Smash number boulders into their prime gems.</p>
+    ${cards}
+  </div>`, 'quarry');
+}
+function startRound(i) {
+  stopRound();
+  const r = ROUNDS[i];
+  G = { i, r, queue: buildQueue(r), pos: -1, shields: r.shields, gems: 0, streak: 0, clean: 0, misses: 0, tags: {}, trouble: new Map(), ending: null };
+  showScreen(`<div class="card">
+    <div class="big-emoji">${r.emoji}</div>
+    <h2>Round ${i + 1}: ${r.name}</h2>
+    <p>${r.intro}</p>
+    <div class="demo">${r.demo}</div>
+    <p class="sub">${r.tip}</p>
+    <button class="wide go big" data-begin="1">Start cracking ▸</button>
+    <button class="wide" data-title="1" style="flex:none">All rounds</button>
+  </div>`, r.id);
+}
+function endRound(cleared) {
+  const g = G;
+  if (!g) return;
+  const r = g.r;
+  let stars = 0, newBest = false;
+  if (cleared) {
+    stars = g.misses <= 1 ? 3 : g.misses <= 4 ? 2 : 1;
+    const rec = progress.rounds[r.id] || { best: 0, stars: 0 };
+    newBest = g.gems > rec.best;
+    progress.rounds[r.id] = { best: Math.max(rec.best, g.gems), stars: Math.max(rec.stars, stars) };
+    progress.unlocked = Math.max(progress.unlocked, Math.min(g.i + 1, ROUNDS.length - 1));
+    store.set('progress', progress);
+    sfx.win();
+  } else sfx.lose();
+
+  const hard = [...g.trouble.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const hardHTML = hard.length ? `<div class="panel"><h3>Numbers to review</h3>${hard.map(([n, c]) =>
+    `<div class="row"><span>${plainFormula(n)}</span><span>${c} ${c === 1 ? 'miss' : 'misses'}</span></div>`).join('')}</div>` : '';
+  const worst = Object.entries(g.tags).sort((a, b) => b[1] - a[1])[0];
+  const tipHTML = worst ? `<div class="panel"><h3>Practice this: ${TROUBLE[worst[0]][0]}</h3><p>${TROUBLE[worst[0]][1]}</p></div>` : '';
+  const hasNext = cleared && g.i + 1 < ROUNDS.length;
+  const champ = cleared && !hasNext;
+  const head = champ ? ['🏆', 'Master Cracker!', 'You cracked the biggest boulders in the mine.']
+    : cleared ? ['💎', `${r.name} cleared!`, g.misses ? 'Nice work. Check the list below before you move on.' : 'Not one miss. That\'s a perfect round!']
+    : ['💥', 'Cave-in!', 'Your shields ran out, but every miss taught you something. Look these over and try again.'];
+  showScreen(`<div class="card">
+    <div class="big-emoji">${head[0]}</div>
+    <h2>${head[1]}</h2>
+    ${cleared ? `<div class="stars" aria-label="${stars} of 3 stars">${starsHTML(stars)}</div>` : ''}
+    <div class="score">💎 ${g.gems}${newBest ? '<small>New best!</small>' : ''}</div>
+    <p>${head[2]}</p>
+    ${hardHTML}${tipHTML}
+    ${hasNext ? `<button class="wide go big" data-round="${g.i + 1}">Next round ▸</button>` : ''}
+    <button class="wide ${hasNext ? '' : 'go big'}" data-round="${g.i}" style="flex:none">${cleared ? 'Play this round again' : 'Try again'}</button>
+    <button class="wide" data-title="1" style="flex:none">All rounds</button>
+  </div>`);
+  stopRound();
+}
+
+/* ---------- input ---------- */
+tray.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.disabled) return;
+  const d = b.dataset;
+  if (d.hammer) chooseHammer(+d.hammer);
+  else if (d.pair !== undefined) choosePair(+d.pair);
+  else if (d.prime) choosePrime();
+  else if (d.build) tapBuild(+d.build);
+  else if (d.undo) undoBuild();
+  else if (d.check) checkBuild();
+  else if (d.next && B && !B.lock) nextBoulder();
+});
+nodesEl.addEventListener('click', e => {
+  const b = e.target.closest('.node');
+  if (b) tapNode(+b.dataset.id);
+});
+screenEl.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.disabled) return;
+  const d = b.dataset;
+  audio();
+  if (d.round !== undefined) startRound(+d.round);
+  else if (d.begin) { hideScreen(); nextBoulder(); }
+  else if (d.title) showTitle();
+});
+$('quit').addEventListener('click', showTitle);
+function renderMute() { $('mute').textContent = muted ? '🔇' : '🔊'; }
+$('mute').addEventListener('click', () => { muted = !muted; store.set('muted', muted); renderMute(); if (!muted) sfx.tap(); });
+window.addEventListener('resize', layout);
+
+/* The fuse only burns while the boulder is on screen and the tab is visible. */
+let lastTick = performance.now();
+setInterval(() => {
+  const now = performance.now(), dt = (now - lastTick) / 1000;
+  lastTick = now;
+  if (!G || !B || !G.r.timer || document.hidden || screenEl.classList.contains('on')) return;
+  if ((B.phase !== 'crack' && B.phase !== 'build') || B.lock) return;
+  B.left -= dt;
+  if (B.left <= 0) { B.left = 0; timeOut(); }
+  renderFuse();
+}, 100);
+
+renderMute();
+showTitle();
+</script>
+</body>
+</html>
