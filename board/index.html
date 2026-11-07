@@ -1033,6 +1033,24 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-pigs .chips { flex-wrap: wrap; }
 .theme-pigs .chip:first-child:nth-last-child(n+5), .theme-pigs .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
 
+/* The science pig never stops: pour, shake, ponder, repeat. Paused while eating, being nagged, or celebrating. */
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: noahPour 7s ease-in-out infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: noahPonder 7s ease-in-out infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: noahBrow 7s ease-in-out infinite; }
+@keyframes noahPour { 0%, 12% { transform: none; } 24% { transform: rotate(-55deg); } 30%, 40% { transform: rotate(-80deg); } 43% { transform: rotate(-72deg); } 46% { transform: rotate(-84deg); } 49% { transform: rotate(-72deg); } 56%, 100% { transform: none; } }
+@keyframes noahPonder { 0%, 58% { transform: none; } 66%, 92% { transform: rotate(7deg); } 100% { transform: none; } }
+@keyframes noahBrow { 0%, 60% { transform: none; } 68%, 90% { transform: translateY(-4px) rotate(-12deg); } 100% { transform: none; } }
+.sty-think { position: absolute; left: 11.4rem; top: 1rem; width: 11rem; height: 7rem; z-index: 3; }
+.sty-think i { position: absolute; border-radius: 50%; background: #fff; border: .18rem solid #1b1b1b; }
+.sty-think i:nth-child(1) { left: .2rem; bottom: .2rem; width: 1rem; height: 1rem; }
+.sty-think i:nth-child(2) { left: 1.3rem; bottom: 1.3rem; width: 1.6rem; height: 1.6rem; }
+.think-cloud { position: absolute; left: 2.6rem; top: 0; width: 8.4rem; height: 4.4rem; border-radius: 2.2rem; background: #fff; border: .2rem solid #1b1b1b; }
+.think-cloud span { position: absolute; left: 0; right: 0; top: .7rem; text-align: center; font: 700 2.2rem Oswald, Arial, sans-serif; color: #2a6fb5; }
+.eating .sty-think, .nag .sty-think, .party .sty-think { display: none; }
+.sty-poof { position: absolute; right: 9.6rem; bottom: 10.4rem; width: 3rem; height: 3rem; border-radius: 50%; background: radial-gradient(circle, rgba(222,150,235,.9), rgba(198,79,209,0) 70%); z-index: 3; opacity: 0; animation: noahPoof 7s ease-out 3.1s infinite; }
+@keyframes noahPoof { 0% { opacity: 0; transform: scale(.3); } 6% { opacity: 1; transform: scale(1.2); } 18% { opacity: 0; transform: translateY(-2.6rem) scale(2); } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sty-science .sty-pig *, .think-cloud span, .sty-poof { animation: none !important; } }
+
 /* A kid finishing their own list */
 .party-say { position: absolute; left: 12rem; top: 1rem; z-index: 4; padding: .4rem 1rem; background: #fff; border: .2rem solid #1b1b1b; border-radius: .4rem; font: 700 2rem Oswald, Arial, sans-serif; animation: pgPop 5.6s ease-out 1s both; }
 .party-egg { position: absolute; bottom: .6rem; width: 5rem; height: 8.2rem; z-index: 3; animation: pgEggIn 1.4s ease-out both; }
@@ -2284,6 +2302,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     snackCount: '1... 2... 3... 4!',
     snackRich: 'Cha-ching!',
     rocketCount: '3... 2... 1...',
+    scienceThoughts: ['H\u2082O?', 'E = mc\u00b2', 'Hmm...', 'Eureka!', '?!'],
     dadLines: ['Hnnngh!', 'Behold!', 'Strong pig, happy pig!'],
     bathLines: ['Ahhh...', 'Hot bath. Do not disturb.'],
     finaleCap: 'MOTHER PIG COUNTRY',
@@ -2364,7 +2383,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       '<rect x="80" y="66" width="13" height="9" fill="#fff" stroke="#1b1b1b"/><text x="86.5" y="73" font-size="6" text-anchor="middle" font-family="Oswald, Arial" font-weight="700">5\u00a2</text></svg>';
   }
   var LAB = '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><rect x="8" y="64" width="84" height="6" fill="#6b4220"/><rect x="14" y="70" width="5" height="28" fill="#6b4220"/><rect x="81" y="70" width="5" height="28" fill="#6b4220"/>' +
-    '<path d="M24 34 V46 L14 64 H40 L30 46 V34 Z" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><path d="M17 58 H37 L40 64 H14 Z" fill="#c64fd1"/>' +
+    '<path d="M24 34 V46 L14 64 H40 L30 46 V34 Z" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><path d="M17 58 H37 L40 64 H14 Z" fill="#c64fd1"/><circle class="a-bub" cx="25" cy="44" r="1.8" fill="#e9b6f0"/><circle class="a-bub" style="animation-delay:.7s" cx="29" cy="46" r="1.4" fill="#e9b6f0"/><circle class="a-bub" style="animation-delay:1.3s" cx="27" cy="45" r="1.1" fill="#e9b6f0"/>' +
     '<rect x="50" y="36" width="9" height="28" rx="4.5" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><rect x="51" y="50" width="7" height="13" rx="3.5" fill="#4fd17a"/>' +
     '<rect x="66" y="40" width="9" height="24" rx="4.5" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><rect x="67" y="52" width="7" height="11" rx="3.5" fill="#f4c430"/><circle cx="27" cy="28" r="2.4" fill="#c64fd1" opacity=".7"/><circle cx="31" cy="20" r="1.8" fill="#c64fd1" opacity=".5"/></svg>';
   function rocketArt(face) {
@@ -2394,11 +2413,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     // who: 'mama', 'dad', or a kid index
     return who === 'mama' || who === 'dad' ? PIG_THEME[who] : kidPig(who);
   }
+  function thoughtNow() { var l = PIG_THEME.scienceThoughts; return l[Math.floor(Date.now() / 3500) % l.length]; }
+  function thinkHtml() {
+    // A thought cloud; pigTick changes the thought every few seconds. Plus a puff from the flask.
+    return '<div class="sty-think"><i></i><i></i><div class="think-cloud"><span>' + esc(thoughtNow()) + '</span></div></div><div class="sty-poof"></div>';
+  }
   function styHtml(i, total, done, party, everyone) {
     var cfg = kidPig(i), name = settings().kids[i] || '', level = total ? Math.round(done / total * 100) : 0, allDone = total > 0 && done >= total, html = '', k;
     html = '<div class="sty sty-' + cfg.role + (party ? ' party' : '') + '" data-k="' + i + '" data-level="' + level + '" data-done="' + (allDone ? 1 : 0) + '" data-n="' + done + '/' + total + '">' +
       '<div class="sty-extra">' + (cfg.role === 'snack' ? standArt(name) : LAB) + '</div>' +
       (party && cfg.role === 'science' ? '<div class="party-rocket">' + rocketArt(false) + '</div>' : '') +
+      (cfg.role === 'science' ? thinkHtml() : '') +
       '<div class="sty-pig">' + pigArt(pigLook(cfg, { medal: allDone })) + '</div>' +
       '<div class="trough"><div class="slop" style="height:' + level + '%"></div><div class="trough-n">' + done + '/' + total + '</div></div>';
     if (party && cfg.role === 'snack') {
@@ -2426,6 +2451,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (num.textContent !== label) num.textContent = label;
       var speed = (.3 + .9 * frac).toFixed(1) + 's';
       if (eating && sty.style.getPropertyValue('--eat') !== speed) sty.style.setProperty('--eat', speed);
+      var thought = sty.querySelector('.think-cloud span');
+      if (thought && thought.textContent !== thoughtNow()) { thought.textContent = thoughtNow(); thought.className = ''; void thought.offsetWidth; thought.className = 'pop'; }
     }
   }
   function pigScene(html, ms) { fxAdd('<div class="pg-scene ' + html.cls + '">' + html.body + '</div>', ms); }
