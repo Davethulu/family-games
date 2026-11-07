@@ -1029,7 +1029,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes nagTwo { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes eWag { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
 @keyframes eTap { to { transform: rotate(-14deg); } }
-.sty-replay { position: absolute; left: .8rem; top: .8rem; z-index: 4; width: auto; flex: none; padding: .5rem 1.2rem; font-size: 1.7rem; }
+/* Compact, so it stays in the corner left of the speech and thought bubbles. */
+.sty-replay { position: absolute; left: .8rem; top: .8rem; z-index: 4; width: auto; max-width: 10rem; flex: none; padding: .4rem 1rem; font-size: 1.5rem; }
 .theme-pigs .chips { flex-wrap: wrap; }
 .theme-pigs .chip:first-child:nth-last-child(n+5), .theme-pigs .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
 
@@ -2469,7 +2470,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     if (party) html += '<div class="party-say">' + esc(cfg.role === 'snack' ? PIG_THEME.snackRich + ' ' + PIG_THEME.snackCount : PIG_THEME.rocketCount) + '</div>';
     html += '<div class="sty-nag"><div class="nag-wag">' + eggArt('wag') + '<div class="nag-say">' + esc(PIG_THEME.nagWag) + '</div></div><div class="nag-wait">' + eggArt('wait') + '<div class="nag-say">' + esc(PIG_THEME.nagWait) + '</div></div></div>' +
-      (everyone ? '<button class="tv-btn sty-replay" data-act="pigReplay" data-arg="' + i + '" data-f="pigReplay-' + i + '">Replay parade</button>' : '');
+      (everyone ? '<button class="tv-btn sty-replay" data-act="pigReplay" data-arg="' + i + '" data-f="pigReplay-' + i + '" aria-label="Replay parade">Replay</button>' : '');
     return html + '</div>';
   }
   function pigTick() {
