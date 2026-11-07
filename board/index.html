@@ -1034,51 +1034,54 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-pigs .chip:first-child:nth-last-child(n+5), .theme-pigs .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
 
 /* The science pig never stops: pour, shake, ponder, repeat. Paused while eating, being nagged, or celebrating. */
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: sciencePour 7s ease-in-out infinite; }
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: sciencePonder 7s ease-in-out infinite; }
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: scienceBrow 7s ease-in-out infinite; }
-@keyframes sciencePour { 0%, 12% { transform: none; } 24% { transform: rotate(-55deg); } 30%, 40% { transform: rotate(-80deg); } 43% { transform: rotate(-72deg); } 46% { transform: rotate(-84deg); } 49% { transform: rotate(-72deg); } 56%, 100% { transform: none; } }
-@keyframes sciencePonder { 0%, 58% { transform: none; } 66%, 92% { transform: rotate(7deg); } 100% { transform: none; } }
-@keyframes scienceBrow { 0%, 60% { transform: none; } 68%, 90% { transform: translateY(-4px) rotate(-12deg); } 100% { transform: none; } }
+/* Both kid pigs share a 20s cycle: the science pig acts in the first part, the snack pig in the middle, then both rest. */
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: sciencePour 20s ease-in-out var(--phase, 0s) infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: sciencePonder 20s ease-in-out var(--phase, 0s) infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: scienceBrow 20s ease-in-out var(--phase, 0s) infinite; }
+@keyframes sciencePour { 0%, 2% { transform: none; } 6% { transform: rotate(-55deg); } 8%, 11% { transform: rotate(-80deg); } 12% { transform: rotate(-72deg); } 13% { transform: rotate(-84deg); } 14% { transform: rotate(-72deg); } 17%, 100% { transform: none; } }
+@keyframes sciencePonder { 0%, 17% { transform: none; } 20%, 28% { transform: rotate(7deg); } 31%, 100% { transform: none; } }
+@keyframes scienceBrow { 0%, 18% { transform: none; } 21%, 27% { transform: translateY(-4px) rotate(-12deg); } 30%, 100% { transform: none; } }
 .sty-think { position: absolute; left: 11.4rem; top: 1rem; width: 11rem; height: 7rem; z-index: 3; }
 .sty-think i { position: absolute; border-radius: 50%; background: #fff; border: .18rem solid #1b1b1b; }
 .sty-think i:nth-child(1) { left: .2rem; bottom: .2rem; width: 1rem; height: 1rem; }
 .sty-think i:nth-child(2) { left: 1.3rem; bottom: 1.3rem; width: 1.6rem; height: 1.6rem; }
 .think-cloud { position: absolute; left: 2.6rem; top: 0; min-width: 6rem; height: 4.4rem; padding: 0 1.2rem; border-radius: 2.2rem; background: #fff; border: .2rem solid #1b1b1b; white-space: nowrap; text-align: center; }
 .think-cloud span { display: inline-block; font: 700 2.2rem/4rem Oswald, Arial, sans-serif; color: #2a6fb5; }
-.eating .sty-think, .nag .sty-think, .party .sty-think, .eating .sty-coins, .nag .sty-coins, .party .sty-coins { display: none; }
+.nag .sty-think, .party .sty-think, .eating .sty-coins, .nag .sty-coins, .party .sty-coins { display: none; }
+.sty-think { transition: opacity .6s ease; }
+.sty-think.quiet { opacity: 0; }
 /* The snack stand: the pig calls out, counts coins, wiggles his eyebrows, then restocks. */
 .sty-think.say { left: 12.6rem; top: .8rem; }
 .sty-think.say .think-cloud { left: 0; border-radius: .8rem; }
 .sty-think.say .think-cloud::after { content: ""; position: absolute; left: 1.6rem; bottom: -1.1rem; border: .55rem solid transparent; border-top: .8rem solid #1b1b1b; }
 .sty-think.say .think-cloud span { color: #2f8a4a; font-size: 2rem; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: snackTally 8s ease-in-out infinite; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browL, .sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: snackBrow 8s ease-in-out infinite; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: snackNod 8s ease-in-out infinite; }
-@keyframes snackTally { 0%, 6% { transform: none; } 12% { transform: rotate(-70deg); } 16% { transform: rotate(-58deg); } 20% { transform: rotate(-70deg); } 24% { transform: rotate(-58deg); } 28% { transform: rotate(-70deg); } 34%, 64% { transform: none; } 72%, 80% { transform: rotate(-95deg) scaleY(1.5); } 88%, 100% { transform: none; } }
-@keyframes snackBrow { 0%, 38% { transform: none; } 40%, 44%, 48%, 52% { transform: translateY(-4px); } 42%, 46%, 50% { transform: none; } 54%, 100% { transform: none; } }
-@keyframes snackNod { 0%, 8% { transform: none; } 12%, 30% { transform: rotate(-5deg); } 36%, 100% { transform: none; } }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: snackTally 20s ease-in-out var(--phase, 0s) infinite; }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browL, .sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: snackBrow 20s ease-in-out var(--phase, 0s) infinite; }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: snackNod 20s ease-in-out var(--phase, 0s) infinite; }
+@keyframes snackTally { 0%, 50% { transform: none; } 53% { transform: rotate(-70deg); } 55% { transform: rotate(-58deg); } 57% { transform: rotate(-70deg); } 59% { transform: rotate(-58deg); } 61% { transform: rotate(-70deg); } 64%, 70% { transform: none; } 73%, 77% { transform: rotate(-95deg) scaleY(1.5); } 81%, 100% { transform: none; } }
+@keyframes snackBrow { 0%, 64% { transform: none; } 65%, 67%, 69% { transform: translateY(-4px); } 66%, 68%, 70%, 100% { transform: none; } }
+@keyframes snackNod { 0%, 51% { transform: none; } 54%, 62% { transform: rotate(-5deg); } 65%, 100% { transform: none; } }
 .sty-coins { position: absolute; left: 12.4rem; bottom: 9.6rem; width: 2.4rem; height: 2.4rem; z-index: 3; }
-.sty-coins b { position: absolute; left: 0; top: 0; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #f4c430; border: .2rem solid #a07a10; color: #a07a10; font: 700 1.4rem/1.8rem Oswald, Arial; text-align: center; opacity: 0; animation: coinUp 8s ease-out infinite; }
-.sty-coins b:nth-child(2) { animation-delay: .6s; } .sty-coins b:nth-child(3) { animation-delay: 1.2s; }
-@keyframes coinUp { 0%, 9% { opacity: 0; transform: translateY(1rem) scale(.4); } 12% { opacity: 1; transform: none; } 20% { opacity: 0; transform: translateY(-2.6rem) rotateY(360deg); } 100% { opacity: 0; } }
+.sty-coins b { position: absolute; left: 0; top: 0; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #f4c430; border: .2rem solid #a07a10; color: #a07a10; font: 700 1.4rem/1.8rem Oswald, Arial; text-align: center; opacity: 0; animation: coinUp 20s ease-out var(--phase, 0s) infinite; }
+.sty-coins b:nth-child(2) { animation-delay: calc(var(--phase, 0s) + .4s); } .sty-coins b:nth-child(3) { animation-delay: calc(var(--phase, 0s) + .8s); }
+@keyframes coinUp { 0%, 52% { opacity: 0; transform: translateY(1rem) scale(.4); } 53% { opacity: 1; transform: none; } 57% { opacity: 0; transform: translateY(-2.6rem) rotateY(360deg); } 100% { opacity: 0; } }
 
 /* Mama sips her Diet Cola and Dad stretches, up in the header. */
-.hdr-pig:first-child .p-armR { animation: mamaSip 6s ease-in-out infinite; }
-.hdr-pig:last-child .p-armL { animation: dadStretchL 9s ease-in-out infinite; }
-.hdr-pig:last-child .p-armR { animation: dadStretchR 9s ease-in-out infinite; }
-@keyframes mamaSip { 0%, 40% { transform: none; } 50%, 64% { transform: rotate(-150deg) scaleY(1.3); } 74%, 100% { transform: none; } }
-@keyframes dadStretchL { 0%, 70% { transform: none; } 78%, 88% { transform: rotate(160deg) scaleY(1.6); } 96%, 100% { transform: none; } }
-@keyframes dadStretchR { 0%, 70% { transform: none; } 78%, 88% { transform: rotate(-160deg) scaleY(1.6); } 96%, 100% { transform: none; } }
+.hdr-pig:first-child .p-armR { animation: mamaSip 15s ease-in-out infinite; }
+.hdr-pig:last-child .p-armL { animation: dadStretchL 23s ease-in-out infinite; }
+.hdr-pig:last-child .p-armR { animation: dadStretchR 23s ease-in-out infinite; }
+@keyframes mamaSip { 0%, 74% { transform: none; } 78%, 86% { transform: rotate(-150deg) scaleY(1.3); } 90%, 100% { transform: none; } }
+@keyframes dadStretchL { 0%, 86% { transform: none; } 89%, 94% { transform: rotate(160deg) scaleY(1.6); } 97%, 100% { transform: none; } }
+@keyframes dadStretchR { 0%, 86% { transform: none; } 89%, 94% { transform: rotate(-160deg) scaleY(1.6); } 97%, 100% { transform: none; } }
 
 /* The pit crew keeps busy between jobs. Job animations are more specific, so they take over. */
-.c-oil .j-armR { animation: crewWipe 9s ease-in-out infinite; }
-.c-tire .j-foreR { animation: gunSpin 7s ease-in-out 2s infinite; }
-@keyframes crewWipe { 0%, 60% { transform: none; } 66%, 78%, 90% { transform: rotate(-70deg); } 72%, 84% { transform: rotate(-45deg); } 96%, 100% { transform: none; } }
-@keyframes gunSpin { 0%, 80% { transform: none; } 83%, 89% { transform: rotate(-20deg); } 86%, 92% { transform: rotate(-8deg); } 96%, 100% { transform: none; } }
+.c-oil .j-armR { animation: crewWipe 17s ease-in-out infinite; }
+.c-tire .j-foreR { animation: gunSpin 14s ease-in-out 6s infinite; }
+@keyframes crewWipe { 0%, 78% { transform: none; } 81%, 87%, 93% { transform: rotate(-70deg); } 84%, 90% { transform: rotate(-45deg); } 97%, 100% { transform: none; } }
+@keyframes gunSpin { 0%, 90% { transform: none; } 92%, 96% { transform: rotate(-20deg); } 94%, 98% { transform: rotate(-8deg); } 100% { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .sty-snack .sty-pig *, .sty-coins b, .hdr-pig *, .c-oil .j-armR, .c-tire .j-foreR { animation: none !important; } }
-.sty-poof { position: absolute; right: 9.6rem; bottom: 10.4rem; width: 3rem; height: 3rem; border-radius: 50%; background: radial-gradient(circle, rgba(222,150,235,.9), rgba(198,79,209,0) 70%); z-index: 3; opacity: 0; animation: sciencePoof 7s ease-out 3.1s infinite; }
-@keyframes sciencePoof { 0% { opacity: 0; transform: scale(.3); } 6% { opacity: 1; transform: scale(1.2); } 18% { opacity: 0; transform: translateY(-2.6rem) scale(2); } 100% { opacity: 0; } }
+.sty-poof { position: absolute; right: 9.6rem; bottom: 10.4rem; width: 3rem; height: 3rem; border-radius: 50%; background: radial-gradient(circle, rgba(222,150,235,.9), rgba(198,79,209,0) 70%); z-index: 3; opacity: 0; animation: sciencePoof 20s ease-out var(--phase, 0s) infinite; }
+@keyframes sciencePoof { 0%, 12% { opacity: 0; transform: scale(.3); } 13% { opacity: 1; transform: scale(1.2); } 17% { opacity: 0; transform: translateY(-2.6rem) scale(2); } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sty-science .sty-pig *, .think-cloud span, .sty-poof { animation: none !important; } }
 
 /* A kid finishing their own list */
@@ -1233,12 +1236,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-calm .block-fill::after { display: none; }
 @keyframes barShine { 0%, 72% { transform: translateX(0); } 92%, 100% { transform: translateX(480%); } }
 /* Running timers tick, a little firmer in the last minute. */
-.kid-timer:not(.paused):not(.over) .t-num { animation: tTick 1s ease-out infinite; }
-.kid-timer.soon .t-num { animation-name: tTickSoon; }
+.kid-timer.soon:not(.paused) .t-num { animation: tTickSoon 1s ease-out infinite; }
+
 @keyframes tTick { 0% { transform: scale(1.04); } 30%, 100% { transform: none; } }
 @keyframes tTickSoon { 0% { transform: scale(1.12); } 40%, 100% { transform: none; } }
 /* Today's events get a small pulsing dot. */
-.ev-today .ev-when::before { content: ""; display: inline-block; width: .9rem; height: .9rem; margin-right: .6rem; border-radius: 50%; background: currentColor; vertical-align: .15em; animation: todayDot 2s ease-in-out infinite; }
+.ev-today .ev-when::before { content: ""; display: inline-block; width: .9rem; height: .9rem; margin-right: .6rem; border-radius: 50%; background: currentColor; vertical-align: .15em; animation: todayDot 4s ease-in-out infinite; }
 @keyframes todayDot { 50% { opacity: .25; transform: scale(.7); } }
 /* The author fades in a beat after the quote. */
 .hero-quote cite { animation: quoteIn 1.2s ease-out .7s backwards; display: inline-block; }
@@ -1290,12 +1293,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 /* Mother Pig Country: pigs blink, Mama and Dad bob, and the slop bubbles. */
 .p-eyes { animation: pigBlink 5.5s steps(1) infinite; }
 @keyframes pigBlink { 0%, 95%, 100% { transform: none; } 96% { transform: scaleY(.12); } }
-.hdr-pig { animation: hdrBob 2.4s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.hdr-pig { animation: hdrBob 4.5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
 .hdr-pig:last-child { animation-delay: -1.2s; }
 @keyframes hdrBob { from { transform: rotate(-4deg); } to { transform: rotate(4deg) translateY(-.2rem); } }
-.sty:not(.eating) .slop::before, .sty:not(.eating) .slop::after { content: ""; position: absolute; top: .3rem; width: .9rem; height: .9rem; border-radius: 50%; border: .18rem solid #e9c08a; opacity: 0; animation: slopBub 3.6s ease-out infinite; }
+.sty:not(.eating) .slop::before, .sty:not(.eating) .slop::after { content: ""; position: absolute; top: .3rem; width: .9rem; height: .9rem; border-radius: 50%; border: .18rem solid #e9c08a; opacity: 0; animation: slopBub 7s ease-out infinite; }
 .sty:not(.eating) .slop::before { left: 30%; }
-.sty:not(.eating) .slop::after { left: 62%; animation-delay: 1.8s; }
+.sty:not(.eating) .slop::after { left: 62%; animation-delay: 3.5s; }
 @keyframes slopBub { 0% { opacity: 0; transform: scale(.3); } 40% { opacity: 1; transform: none; } 70% { opacity: 0; transform: scale(1.4); } 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2444,15 +2447,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     // who: 'mama', 'dad', or a kid index
     return who === 'mama' || who === 'dad' ? PIG_THEME[who] : kidPig(who);
   }
-  function thoughtNow(role) { var l = role === 'snack' ? PIG_THEME.snackCalls : PIG_THEME.scienceThoughts; return l[Math.floor(Date.now() / 3500) % l.length]; }
+  // They take turns on a 20-second cycle: the science pig speaks first, the snack pig halfway through, one new line each turn.
+  function thoughtNow(role) { var l = role === 'snack' ? PIG_THEME.snackCalls : PIG_THEME.scienceThoughts; return l[Math.floor(Date.now() / 20000) % l.length]; }
+  function turnNow(role) { var t = Date.now() % 20000; return role === 'snack' ? t >= 10000 && t < 16000 : t < 6000; }
   function thinkHtml(role) {
     // The science pig gets a thought cloud and a puff from the flask; the snack pig gets a speech bubble and coins. pigTick changes the words every few seconds.
-    if (role === 'snack') return '<div class="sty-think say"><div class="think-cloud"><span>' + esc(thoughtNow(role)) + '</span></div></div><div class="sty-coins"><b>$</b><b>$</b><b>$</b></div>';
-    return '<div class="sty-think"><i></i><i></i><div class="think-cloud"><span>' + esc(thoughtNow(role)) + '</span></div></div><div class="sty-poof"></div>';
+    if (role === 'snack') return '<div class="sty-think say' + (turnNow(role) ? '' : ' quiet') + '"><div class="think-cloud"><span>' + esc(thoughtNow(role)) + '</span></div></div><div class="sty-coins"><b>$</b><b>$</b><b>$</b></div>';
+    return '<div class="sty-think' + (turnNow(role) ? '' : ' quiet') + '"><i></i><i></i><div class="think-cloud"><span>' + esc(thoughtNow(role)) + '</span></div></div><div class="sty-poof"></div>';
   }
   function styHtml(i, total, done, party, everyone) {
     var cfg = kidPig(i), name = settings().kids[i] || '', level = total ? Math.round(done / total * 100) : 0, allDone = total > 0 && done >= total, html = '', k;
-    html = '<div class="sty sty-' + cfg.role + (party ? ' party' : '') + '" data-k="' + i + '" data-level="' + level + '" data-done="' + (allDone ? 1 : 0) + '" data-n="' + done + '/' + total + '">' +
+    html = '<div class="sty sty-' + cfg.role + (party ? ' party' : '') + '" style="--phase:' + (-(Date.now() % 20000) / 1000).toFixed(2) + 's" data-k="' + i + '" data-level="' + level + '" data-done="' + (allDone ? 1 : 0) + '" data-n="' + done + '/' + total + '">' +
       '<div class="sty-extra">' + (cfg.role === 'snack' ? standArt(name) : LAB) + '</div>' +
       (party && cfg.role === 'science' ? '<div class="party-rocket">' + rocketArt(false) + '</div>' : '') +
       thinkHtml(cfg.role) +
@@ -2485,7 +2490,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       var speed = (frac > .5 ? 2.2 : frac > .2 ? 1.7 : 1.2) + 's';
       if (eating && sty.style.getPropertyValue('--eat') !== speed) sty.style.setProperty('--eat', speed);
       var thought = sty.querySelector('.think-cloud span');
-      var words = thoughtNow(sty.classList.contains('sty-snack') ? 'snack' : 'science');
+      var role = sty.classList.contains('sty-snack') ? 'snack' : 'science', words = thoughtNow(role), bubble = sty.querySelector('.sty-think');
+      if (bubble && bubble.classList.contains('quiet') === turnNow(role)) bubble.classList[turnNow(role) ? 'remove' : 'add']('quiet');
       if (thought && thought.textContent !== words) { thought.textContent = words; thought.className = ''; void thought.offsetWidth; thought.className = 'pop'; }
     }
   }
