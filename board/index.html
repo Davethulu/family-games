@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Family Board</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fredoka:wght@500;600&family=Pixelify+Sans:wght@400;700&family=Racing+Sans+One&family=Barlow+Semi+Condensed:wght@500;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fredoka:wght@500;600&family=Pixelify+Sans:wght@400;700&family=Racing+Sans+One&family=Russo+One&family=Oswald:wght@500;700&family=Barlow+Semi+Condensed:wght@500;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
 <style>
 :root {
   /* The parents' notebook. Each TV theme sets its own colors on #tv. */
@@ -967,6 +967,199 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes rpFly { from { transform: translateX(-90rem); } to { transform: translateX(175rem); } }
 @keyframes rpWave { from { transform: skewY(-1.5deg); } to { transform: skewY(1.5deg); } }
 
+/* ---------- Mother Pig Country: a barnyard propaganda poster ---------- */
+#tv.theme-pigs { --bg: #c8102e; --panel: #f3e7cf; --panel2: #e6d6b5; --line: #1b1b1b; --ink: #1b1b1b; --muted: #5a4a3a; --mint: #c8102e; --blue: #c8102e; --orange: #d9731a; --pink: #c8102e; --gold: #f4c430;
+  background: repeating-conic-gradient(from -8deg at 50% 125%, #c8102e 0 6deg, #b20d27 6deg 12deg); font-family: Oswald, "Arial Narrow", Arial, sans-serif; }
+.theme-pigs .hero, .theme-pigs .kid, .theme-pigs .cal { border: .45rem solid #1b1b1b; border-radius: 0; box-shadow: .8rem .8rem 0 #1b1b1b; background: #f3e7cf; }
+.theme-pigs .hero { background: repeating-conic-gradient(from 180deg at 100% 100%, #f7e6ad 0 5deg, #f3e7cf 5deg 10deg); }
+.theme-pigs .player { background: #1b1b1b; border-radius: 0; color: #f4c430; border: .45rem solid #1b1b1b; }
+.theme-pigs .tv-date, .theme-pigs .tv-clock { font-family: "Russo One", Impact, sans-serif; font-weight: 400; color: #f4c430; text-transform: uppercase; text-shadow: .3rem .3rem 0 #1b1b1b; }
+.theme-pigs .hero-label, .theme-pigs .kid-name, .theme-pigs .cal h2 { font-family: "Russo One", Impact, sans-serif; font-weight: 400; text-transform: uppercase; }
+.theme-pigs .hero-label { color: #c8102e; }
+.theme-pigs .hero-count, .theme-pigs .kid-total, .theme-pigs .t-num { font-family: "Russo One", Impact, sans-serif; font-weight: 400; }
+.theme-pigs .hero-count { color: #1b1b1b; font-size: 10.5rem; }
+.theme-pigs .kid-name, .theme-pigs .cal h2 { color: #1b1b1b; }
+.theme-pigs .kid-total { color: #c8102e; }
+.theme-pigs .kid-total small { font-family: Oswald, Arial, sans-serif; }
+.theme-pigs .block-track { background: #e0cfa6; height: 1.6rem; border-radius: 0; border: .2rem solid #1b1b1b; }
+.theme-pigs .block-fill { border-radius: 0; background: repeating-linear-gradient(135deg, #c8102e 0 1rem, #a50d24 1rem 2rem); }
+.theme-pigs .block-min, .theme-pigs .stop b, .theme-pigs .chip-text, .theme-pigs .ev-when { font-weight: 700; }
+.theme-pigs .stop.next { background: #c8102e; color: #f4c430; padding-left: .8rem; padding-right: .8rem; border-top-color: transparent; }
+.theme-pigs .stop.next span { color: #f4c430; }
+.theme-pigs .chip-ring { border-radius: 0; border-color: #1b1b1b; border-style: solid; }
+.theme-pigs .kid-flag { background: #c8102e; color: #f4c430; border-radius: 0; font-family: "Russo One", Impact, sans-serif; font-weight: 400; }
+.theme-pigs .ev-when { color: #c8102e; }
+.theme-pigs .tv-btn { background: #1b1b1b; color: #f4c430; border-radius: 0; font-family: "Russo One", Impact, sans-serif; font-weight: 400; }
+#tv.theme-pigs button:focus { box-shadow: 0 0 0 .4rem #f4c430; }
+.theme-pigs .fx-cheer span { font-family: "Russo One", Impact, sans-serif; font-weight: 400; background: #f4c430; color: #c8102e; border: .4rem solid #1b1b1b; border-radius: 0; }
+.theme-pigs .fx-curtain { background: #c8102e; color: #f4c430; font-family: "Russo One", Impact, sans-serif; font-weight: 400; text-shadow: .4rem .4rem 0 #1b1b1b; }
+.theme-pigs .fx-say { font-weight: 700; border: .25rem solid #1b1b1b; border-radius: .4rem; }
+.theme-pigs .tv-banner { align-items: center; line-height: 1.05; }
+.theme-pigs .slogan { display: flex; flex-direction: column; text-align: center; margin: 0 1.4rem; }
+.theme-pigs .tv-banner b { font: 400 2.9rem "Russo One", Impact, sans-serif; color: #f4c430; text-shadow: .25rem .25rem 0 #1b1b1b; }
+.theme-pigs .tv-banner small { font: 700 1.6rem Oswald, Arial, sans-serif; color: #f3e7cf; }
+.hdr-pig { width: 4.6rem; height: 6.4rem; flex-shrink: 0; } /* Mama and Dad keep watch on either side of the slogan */
+
+/* Each kid's sty: pig, trough, and their own corner */
+.sty { display: none; }
+.theme-pigs .kid { padding-right: 39.5rem; }
+.theme-pigs .kid-timer { position: absolute; right: 1.6rem; top: 1.6rem; width: 14rem; margin: 0; padding: .6rem; z-index: 4; border-radius: 0; border: .3rem solid #1b1b1b; background: #f3e7cf; }
+.theme-pigs .kid-timer .t-num { font-size: 4rem; }
+.theme-pigs .sty { display: block; position: absolute; right: .8rem; top: .8rem; bottom: .8rem; width: 37.4rem; overflow: hidden; border: .3rem solid #1b1b1b;
+  background: linear-gradient(#6b4220, #6b4220) 0 30% / 100% .5rem no-repeat, linear-gradient(#6b4220, #6b4220) 0 58% / 100% .5rem no-repeat,
+    repeating-linear-gradient(90deg, #d39a5c 0 2.6rem, #b9804a 2.6rem 3rem) 0 0 / 100% 70% no-repeat, #7a5230; }
+.sty-pig { position: absolute; left: 3.2rem; bottom: 2.6rem; width: 11.5rem; height: 16rem; z-index: 1; }
+.sty-science .sty-pig { width: 10rem; height: 13.8rem; left: 4rem; }
+.trough { position: absolute; left: 1.2rem; bottom: .8rem; width: 17rem; height: 4.8rem; z-index: 2; background: #8b5a2b; border-top: .5rem solid #5a3416; clip-path: polygon(0 0, 100% 0, 93% 100%, 7% 100%); }
+.slop { position: absolute; left: 1rem; right: 1rem; bottom: 0; max-height: 100%; background: radial-gradient(circle at 30% 35%, #e0ad6a 0 .45rem, transparent .5rem) 0 0 / 2.2rem 1.3rem, #b97a3c; transition: height 1s ease; }
+.trough-n { position: absolute; left: 0; right: 0; bottom: .5rem; text-align: center; font: 400 2rem "Russo One", Impact, sans-serif; color: #f3e7cf; text-shadow: .15rem .15rem 0 #1b1b1b; }
+.sty-extra { position: absolute; right: .6rem; bottom: .6rem; width: 15rem; height: 15rem; }
+.eating .sty-pig .p-head { animation: pigEat var(--eat, .9s) ease-in-out infinite; }
+@keyframes pigEat { 50% { transform: translateY(9px) rotate(-6deg); } }
+.sty-nag { display: none; position: absolute; left: 18.6rem; bottom: .6rem; width: 7.4rem; height: 12rem; z-index: 3; }
+.nag .sty-nag { display: block; animation: nagIn .9s ease-out; }
+.nag-wag, .nag-wait { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.nag .nag-wag { animation: nagOne 3.6s steps(1) forwards; }
+.nag .nag-wait { opacity: 0; animation: nagTwo 3.6s steps(1) forwards; }
+.nag-say { position: absolute; right: 5.5rem; top: -9.4rem; width: 15rem; padding: .4rem .8rem; background: #fff; border: .2rem solid #1b1b1b; border-radius: .4rem; font: 700 1.6rem Oswald, Arial, sans-serif; color: #1b1b1b; text-align: center; }
+.e-wag { animation: eWag .22s ease-in-out infinite alternate; }
+.e-tap { animation: eTap .35s ease-in-out infinite alternate; }
+@keyframes nagIn { from { transform: translateX(22rem); } }
+@keyframes nagOne { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes nagTwo { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes eWag { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+@keyframes eTap { to { transform: rotate(-14deg); } }
+.sty-replay { position: absolute; left: .8rem; top: .8rem; z-index: 4; width: auto; flex: none; padding: .5rem 1.2rem; font-size: 1.7rem; }
+.theme-pigs .chips { flex-wrap: wrap; }
+.theme-pigs .chip:first-child:nth-last-child(n+5), .theme-pigs .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
+
+/* A kid finishing their own list */
+.party-say { position: absolute; left: 12rem; top: 1rem; z-index: 4; padding: .4rem 1rem; background: #fff; border: .2rem solid #1b1b1b; border-radius: .4rem; font: 700 2rem Oswald, Arial, sans-serif; animation: pgPop 5.6s ease-out 1s both; }
+.party-egg { position: absolute; bottom: .6rem; width: 5rem; height: 8.2rem; z-index: 3; animation: pgEggIn 1.4s ease-out both; }
+.party-coin { position: absolute; right: 12rem; bottom: 6rem; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #f4c430; border: .2rem solid #a07a10; z-index: 4; color: #a07a10; font: 700 1.4rem/1.8rem Oswald, Arial; text-align: center; animation: pgCoin 1.1s ease-in both; }
+.party.sty-snack .p-browL, .party.sty-snack .p-browR { animation: pgBrow .16s ease-in-out 4s 14 alternate; }
+.party-rocket { position: absolute; right: 2.5rem; bottom: .6rem; width: 6.4rem; height: 15rem; z-index: 3; animation: pgLaunch 2s ease-in 3.4s forwards; }
+.party-rocket .r-part { animation: pgPart .4s ease-out both; }
+.party-rocket .r-flame { opacity: 0; animation: pgFlame .12s linear 3.2s infinite alternate; }
+.party.sty-science .p-browR, .smug .p-browR { animation: pgSmug 3s ease-in-out 4.6s both; }
+.party .p-medal { animation: pgMedal .6s ease-out 5.4s backwards; }
+@keyframes pgPop { 0% { opacity: 0; transform: scale(.4); } 8%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes pgEggIn { from { transform: translateX(16rem); } }
+@keyframes pgCoin { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 20% { opacity: 1; } 60% { transform: translate(-8rem, -5rem) rotateY(360deg); } 100% { transform: translate(-15rem, 2rem) rotateY(720deg); opacity: 0; } }
+@keyframes pgBrow { to { transform: translateY(-4px); } }
+@keyframes pgLaunch { to { transform: translateY(-34rem); } }
+@keyframes pgPart { from { transform: scale(0); opacity: 0; } }
+@keyframes pgFlame { from { opacity: .7; transform: scaleY(.8); } to { opacity: 1; transform: scaleY(1.2); } }
+@keyframes pgSmug { 15%, 80% { transform: translateY(-5px) rotate(-14deg); } }
+@keyframes pgMedal { from { transform: scale(0) rotate(-90deg); } }
+
+/* Ambient scenes */
+.pg-scene { position: absolute; left: 50%; bottom: .8rem; width: 46rem; height: 19rem; margin-left: -23rem; }
+.pg-say { position: absolute; padding: .4rem 1rem; background: #fff; border: .25rem solid #1b1b1b; border-radius: .5rem; font: 700 2.3rem Oswald, Arial, sans-serif; color: #1b1b1b; white-space: nowrap; animation: pgPop 1.8s ease-out both; z-index: 3; }
+.cp-pig { position: absolute; bottom: 0; width: 12rem; height: 16.5rem; }
+.cp-mama { left: 9rem; animation: cpInL 1.4s ease-out both; }
+.cp-dad { right: 9rem; animation: cpInR 1.4s ease-out both; }
+.cp-mama .pig-svg { transform-origin: 50% 100%; animation: cpLean .6s ease-in-out 4.2s both; }
+.cp-dad .pig-svg { transform-origin: 50% 100%; animation: cpLeanR .6s ease-in-out 4.2s both; }
+.cp-heart { position: absolute; left: 50%; bottom: 13rem; font-size: 3.4rem; color: #e8365d; opacity: 0; animation: cpHeart 2.6s ease-out both; }
+.cp-kids { position: absolute; right: -15rem; bottom: 0; width: 16rem; height: 12rem; display: flex; align-items: flex-end; animation: cpInR 1s ease-out 3.6s both; }
+.cp-kids > div { width: 8rem; height: 11rem; }
+.cp-kids > div:first-child { height: 9.5rem; }
+@keyframes cpInL { from { transform: translateX(-70rem); } }
+@keyframes cpInR { from { transform: translateX(70rem); } }
+@keyframes cpLean { to { transform: rotate(9deg); } }
+@keyframes cpLeanR { to { transform: rotate(-9deg); } }
+@keyframes cpHeart { 0% { opacity: 0; transform: translateY(0) scale(.3); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14rem) scale(1.2); } }
+.dl-pig { position: absolute; left: 50%; bottom: 0; width: 14rem; height: 19rem; margin-left: -7rem; }
+.dl-bar { position: absolute; left: 50%; bottom: 0; width: 26rem; height: 6rem; margin-left: -13rem; z-index: 2; animation: dlBar 7s ease-in-out both; }
+.dl .p-armL { animation: dlArmL 7s ease-in-out both; }
+.dl .p-armR { animation: dlArmR 7s ease-in-out both; }
+.dl .p-muscle { opacity: 0; animation: dlMuscle 7s ease-in-out both; }
+.dl .p-belly { animation: dlBelly 7s ease-out both; }
+@keyframes dlBar { 0%, 10% { transform: none; } 24%, 46% { transform: translateY(-15.5rem); } 52%, 100% { transform: none; } }
+@keyframes dlArmL { 0%, 10% { transform: none; } 24%, 46% { transform: rotate(165deg) scaleY(2.3); } 56%, 80% { transform: rotate(110deg) scaleY(1.2); } 90%, 100% { transform: none; } }
+@keyframes dlArmR { 0%, 10% { transform: none; } 24%, 46% { transform: rotate(-165deg) scaleY(2.3); } 56%, 80% { transform: rotate(-110deg) scaleY(1.2); } 90%, 100% { transform: none; } }
+@keyframes dlMuscle { 0%, 54% { opacity: 0; transform: scale(.2); } 60%, 80% { opacity: 1; transform: scale(1.5); } 88%, 100% { opacity: 0; transform: scale(.2); } }
+@keyframes dlBelly { 0%, 84% { transform: none; } 92% { transform: scale(1.6); } 96% { transform: scale(1.4); } 100% { transform: scale(1.5); } }
+.ls-stand { position: absolute; left: 4rem; bottom: 0; width: 20rem; height: 19rem; z-index: 2; }
+.ls-pig { position: absolute; left: 8rem; bottom: 4rem; width: 11rem; height: 15rem; z-index: 1; }
+.ls .p-browL, .ls .p-browR { animation: pgBrow .16s ease-in-out 5s 14 alternate; }
+.ls-egg { position: absolute; bottom: 0; width: 6.2rem; height: 10rem; animation: lsWalk 1.6s ease-out both; }
+.ls-coin { position: absolute; left: 25rem; bottom: 7rem; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: #f4c430; border: .25rem solid #a07a10; color: #a07a10; font: 700 1.6rem/2.1rem Oswald, Arial; text-align: center; z-index: 3; animation: lsCoin 1s ease-in both; }
+@keyframes lsWalk { from { transform: translateX(40rem); } }
+@keyframes lsCoin { 0% { transform: none; opacity: 0; } 20% { opacity: 1; } 55% { transform: translate(-5rem, -6rem) rotateY(360deg); } 100% { transform: translate(-11rem, 1rem) rotateY(720deg); opacity: 0; } }
+.nr-pig { position: absolute; left: 10rem; bottom: 0; width: 9.5rem; height: 13rem; animation: nrJump .8s ease-in 3.4s forwards; }
+.nr-lab { position: absolute; left: 0; bottom: 0; width: 10rem; height: 10rem; }
+.nr-rocket { position: absolute; left: 24rem; bottom: 0; width: 8rem; height: 19rem; animation: nrLaunch 2.4s ease-in 4.4s forwards; }
+.nr-rocket .r-part { animation: pgPart .45s ease-out both; }
+.nr-rocket .r-face { opacity: 0; animation: nrFace .1s 4.1s forwards; }
+.nr-rocket .r-flame { opacity: 0; animation: pgFlame .12s linear 4.2s infinite alternate; }
+@keyframes nrJump { to { transform: translate(15rem, -7rem) scale(.4); opacity: 0; } }
+@keyframes nrLaunch { 0% { transform: none; } 10% { transform: translateY(.6rem); } 100% { transform: translateY(-95rem); } }
+@keyframes nrFace { to { opacity: 1; } }
+.wr-cloud { position: absolute; left: 50%; bottom: 0; width: 22rem; height: 15rem; margin-left: -11rem; }
+.wr-puff { position: absolute; border-radius: 50%; background: #e8dcc4; border: .25rem solid #b9a98a; animation: wrPuff .3s ease-in-out infinite alternate; }
+.wr-spin { position: absolute; left: 3rem; top: 2rem; right: 3rem; bottom: 1rem; animation: fxSpin .9s linear infinite; }
+.wr-spin > div { position: absolute; width: 7rem; height: 7rem; }
+@keyframes wrPuff { to { transform: scale(1.12); } }
+.lily-run { position: absolute; left: 0; bottom: 1rem; width: 21rem; height: 12.6rem; animation: lilyX 8s linear both; }
+.lily-roll { width: 100%; height: 100%; transform-origin: 50% 65%; animation: lilyRoll 8s ease-in-out both; }
+@keyframes lilyX { 0% { transform: translateX(-25rem); } 30%, 72% { transform: translateX(68rem); } 100% { transform: translateX(175rem); } }
+@keyframes lilyRoll { 0%, 30% { transform: none; } 36% { transform: rotate(180deg) translateY(2rem); } 42% { transform: rotate(168deg) translateY(2rem); } 48% { transform: rotate(192deg) translateY(2rem); } 54% { transform: rotate(168deg) translateY(2rem); } 60% { transform: rotate(192deg) translateY(2rem); } 66% { transform: rotate(180deg) translateY(2rem); } 72%, 100% { transform: none; } }
+.mik { position: absolute; left: 0; top: 18%; width: 16rem; height: 19rem; animation: mikFly 7s ease-in-out both; }
+@keyframes mikFly { 0% { transform: translate(-22rem, -12rem) rotate(-25deg); } 25%, 70% { transform: translate(70rem, 22rem) rotate(0); } 100% { transform: translate(180rem, -30rem) rotate(25deg); } }
+
+/* The finale */
+.pigfin { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 30; overflow: hidden; pointer-events: auto; background: #a50d24; font-family: "Russo One", Impact, sans-serif; animation: raceIn .5s ease-out; }
+.pf-rays { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; background: repeating-conic-gradient(from 0deg at 50% 50%, #c8102e 0 7.5deg, #a50d24 7.5deg 15deg); animation: pfSpin 60s linear infinite; }
+.pf-poster { position: absolute; left: 5rem; top: 7rem; width: 40rem; height: 66rem; overflow: hidden; background: repeating-conic-gradient(from 180deg at 50% 100%, #f4c430 0 6deg, #f3e7cf 6deg 12deg); border: .8rem solid #1b1b1b; box-shadow: 1.2rem 1.2rem 0 #1b1b1b; animation: pfPop .7s ease-out .2s backwards; }
+.pf-poster .pf-hero { position: absolute; left: 4rem; right: 4rem; top: 4rem; bottom: 10rem; }
+.pf-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem 0; background: #c8102e; color: #f4c430; text-align: center; font-size: 3.6rem; line-height: 1.1; border-top: .6rem solid #1b1b1b; }
+.pf-slogan { position: absolute; left: 50rem; right: 3rem; top: 4rem; text-align: center; font-size: 8.6rem; line-height: 1; color: #f4c430; text-shadow: .5rem .5rem 0 #1b1b1b; transform: rotate(-4deg) skewX(-8deg); }
+.pf-s1 { animation: pfSlam .5s ease-out .7s backwards, pfOut .4s ease-in 8s forwards; }
+.pf-s2 { opacity: 0; animation: pfSlamIn .5s ease-out 8.6s forwards; }
+.pf-march { position: absolute; left: 0; bottom: 1rem; display: flex; z-index: 3; animation: pfMarch 10s linear 2.4s both; }
+.pf-march > div { width: 9rem; height: 15rem; margin-right: 1.6rem; flex-shrink: 0; }
+.pf-mik { position: absolute; left: 0; top: 24rem; width: 16rem; height: 19rem; z-index: 4; animation: pfFly 4.5s ease-in-out 4s both; }
+.pf-podium { position: absolute; left: 60rem; bottom: 16rem; width: 66rem; height: 36rem; z-index: 2; animation: pfRise .9s ease-out 6s both; }
+.pf-fam { display: flex; align-items: flex-end; justify-content: space-around; height: 24rem; }
+.pf-fam > div { position: relative; width: 14rem; height: 21rem; }
+.pf-fam > .pf-small { height: 17.5rem; width: 12rem; }
+.pf-fam > .pf-mid { height: 19.5rem; }
+.pf-steps { display: flex; justify-content: space-around; height: 12rem; background: #f4c430; border: .5rem solid #1b1b1b; color: #c8102e; font-size: 7.5rem; line-height: 11rem; }
+.pf-peeg { position: absolute; left: 50%; top: -5.5rem; margin-left: -8rem; width: 16rem; padding: .3rem 0; text-align: center; background: #fff; border: .3rem solid #1b1b1b; border-radius: .5rem; font-size: 2.3rem; color: #c8102e; opacity: 0; animation: pfShow .3s ease-out 11s forwards; }
+.pf-lily { position: absolute; left: 0; bottom: 13rem; width: 22rem; height: 13.2rem; z-index: 4; animation: pfLilyX 3s ease-out 7.4s both; }
+.pf-lily > div { width: 100%; height: 100%; transform-origin: 50% 65%; animation: pfRoll 3s ease-out 7.4s both, pfWig .3s ease-in-out 10.4s infinite alternate; }
+.pf-big { position: absolute; left: 0; right: 0; top: 36%; z-index: 5; text-align: center; font-size: 15rem; color: #f4c430; -webkit-text-stroke: .4rem #1b1b1b; text-shadow: .8rem .8rem 0 #1b1b1b; opacity: 0; animation: pfSlamC .5s ease-out 11s forwards, pfShake .1s linear 11.5s 24 alternate; }
+.pf-fall { position: absolute; top: -6rem; width: 3.6rem; height: 6rem; z-index: 5; animation: pfFall 5s linear both; }
+.pf-burst { position: absolute; width: 14rem; height: 14rem; z-index: 1; opacity: 0; animation: pfBurst 1.6s ease-out both; }
+.pigfin.out { animation: raceOut .6s ease-in forwards; }
+.pigfin.still *, .pigfin.still { animation: none !important; }
+.pigfin.still .pf-s1, .pigfin.still .pf-mik, .pigfin.still .pf-fall, .pigfin.still .pf-burst { display: none; }
+.pigfin.still .pf-s2, .pigfin.still .pf-peeg, .pigfin.still .pf-big { opacity: 1; }
+.pigfin.still .pf-march { left: 0; }
+.pigfin.still .pf-lily { transform: translateX(36rem); }
+.pigfin.still .pf-lily > div { transform: rotate(180deg); }
+@keyframes pfSpin { to { transform: rotate(360deg); } }
+@keyframes pfPop { from { transform: scale(.2) rotate(-12deg); opacity: 0; } }
+@keyframes pfSlam { from { transform: scale(3) rotate(-4deg); opacity: 0; } }
+@keyframes pfSlamIn { from { transform: scale(3) rotate(-4deg); opacity: 0; } to { transform: rotate(-4deg) skewX(-8deg); opacity: 1; } }
+@keyframes pfSlamC { from { transform: scale(3); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pfOut { to { opacity: 0; transform: translateY(-10rem) rotate(-4deg); } }
+@keyframes pfMarch { from { transform: translateX(165rem); } to { transform: translateX(-125rem); } }
+@keyframes pfFly { from { transform: translate(-20rem, 12rem) rotate(-15deg); } to { transform: translate(178rem, -16rem) rotate(12deg); } }
+@keyframes pfRise { from { transform: translateY(62rem); } }
+@keyframes pfShow { to { opacity: 1; } }
+@keyframes pfLilyX { from { transform: translateX(170rem); } to { transform: translateX(36rem); } }
+@keyframes pfRoll { from { transform: none; } to { transform: rotate(900deg); } }
+@keyframes pfWig { from { transform: rotate(168deg); } to { transform: rotate(192deg); } }
+@keyframes pfShake { from { transform: translate(-.4rem, .2rem) rotate(-1deg); } to { transform: translate(.4rem, -.2rem) rotate(1deg); } }
+@keyframes pfFall { from { transform: translateY(0) rotate(0); } to { transform: translateY(105rem) rotate(540deg); } }
+@keyframes pfBurst { 0% { opacity: 0; transform: scale(.2) rotate(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4) rotate(90deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .sty *, .hdr-pig *, .pg-scene, .pg-scene * { animation: none !important; transition: none !important; }
+}
+
 /* Calmer for anyone who asks their device for less motion */
 @media (prefers-reduced-motion: reduce) {
   .head, .flag, .crew *, .crew, .pit-car, .w-tire, .pit-fuel i, .oil-light, .race *, .race { animation: none !important; transition: none !important; }
@@ -1501,7 +1694,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'pigs', text: 'Mother Pig Country', flag: 'Glorious!', cal: 'The Plan' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -1531,6 +1724,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (id === 'bricks') return BRICK_HEAD;
     if (id === 'miner') return GEM;
     if (id === 'pitstop') return CHECKER;
+    if (id === 'pigs') return PIG_FACE;
     return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 35 C17 40 22 47 26 53 C34 37 43 22 55 11" fill="none" stroke="#e39a6d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
   // Wizard School's own crest. The motto is Latin for "brush your teeth".
@@ -1564,6 +1758,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       else if (toGo === 1) html = "It's Christmas Eve!";
       else if (toGo > 1 && toGo <= 60) html = toGo + ' days until Christmas';
       if (html) html = mascot() + '<span>' + html + '</span>';
+    }
+    if (themeInfo().id === 'pigs') {
+      var sl = PIG_THEME.slogans[Math.floor(now.getTime() / 60000) % PIG_THEME.slogans.length];
+      html = '<span class="hdr-pig">' + pigArt(PIG_THEME.mama) + '</span><span class="slogan"><b>' + esc(sl[0]) + '</b><small>' + esc(sl[1]) + '</small></span><span class="hdr-pig">' + pigArt(PIG_THEME.dad) + '</span>';
     }
     var el = $('tvBanner');
     if (el.getAttribute('data-h') !== html) { el.innerHTML = html; el.setAttribute('data-h', html); }
@@ -1900,11 +2098,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   // Any remote button, or a tap, skips the race.
   function skipRace(e) {
-    if (!raceOn) return;
-    if (e.type === 'click' && !(e.target.closest && e.target.closest('#race'))) return;
+    if (!raceOn && !pigOn) return;
+    if (e.type === 'click' && !(e.target.closest && e.target.closest('#race, #pigfin'))) return;
     e.preventDefault();
     e.stopPropagation();
-    endRace();
+    if (pigOn) endPigFinale(); else endRace();
   }
   document.addEventListener('keydown', skipRace, true);
   document.addEventListener('click', skipRace, true);
@@ -1940,14 +2138,292 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       var f = noise(t, .6, 500, .8);
       f.frequency.exponentialRampToValueAtTime(1800, t + .5);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.22, t + .25); g.gain.linearRampToValueAtTime(0, t + .6);
+    } else if (kind === 'oink') {
+      for (i = 0; i < 2; i++) {
+        var po = a.createOscillator(), pf = a.createBiquadFilter(), at = t + i * .26;
+        po.type = 'sawtooth'; pf.type = 'lowpass'; pf.frequency.value = 1100;
+        po.frequency.setValueAtTime(270, at); po.frequency.exponentialRampToValueAtTime(140, at + .2);
+        po.connect(pf); pf.connect(g); po.start(at); po.stop(at + .22);
+      }
+      g.gain.setValueAtTime(.17, t);
+    } else if (kind === 'drum') {
+      for (i = 0; i < 8; i++) noise(t + i * .34, .08, 1900, .9);
+      g.gain.setValueAtTime(.3, t);
+    } else if (kind === 'bark') {
+      for (i = 0; i < 2; i++) {
+        var bo = a.createOscillator(), bf = a.createBiquadFilter(), bt = t + i * .2;
+        bo.type = 'square'; bf.type = 'lowpass'; bf.frequency.value = 1700;
+        bo.frequency.setValueAtTime(430, bt); bo.frequency.exponentialRampToValueAtTime(720, bt + .09);
+        bo.connect(bf); bf.connect(g); bo.start(bt); bo.stop(bt + .11);
+      }
+      g.gain.setValueAtTime(.12, t);
     } else if (kind === 'cheer') {
       noise(t, 4, 1300, .6);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t + .6); g.gain.setValueAtTime(.2, t + 2.6); g.gain.linearRampToValueAtTime(0, t + 4);
     }
   }
+  /* ---------- Mother Pig Country ---------- */
+  // Everything you'd want to change for this theme lives here. Kid pigs follow the order of Kids' names; names come from settings.
+  var PIG_THEME = {
+    mama: { shirt: '#c8102e', glasses: 'round', bun: true, hold: 'cola' },
+    dad: { shirt: '#4d5b6b', hoodie: true, belly: true },
+    kids: [{ role: 'science', shirt: '#2a6fb5', hold: 'tube' }, { role: 'snack', shirt: '#2f8a4a', glasses: 'thick' }],
+    colaLabel: 'DIET COLA',
+    yell: 'PEEEEEEG!',
+    posters: ['GLORIOUS EGG!', 'MOTHER PIG COUNTRY!'],
+    slogans: [['СЛАВА ЯЙЦУ!', 'Glory to the Egg!'], ['СВИНЬЯ СМОТРИТ!', 'Pig is watching!'], ['ХРЮ-ХРЮ!', 'Oink oink!'], ['ЧИСТИ ЗУБЫ, ТОВАРИЩ!', 'Brush your teeth, comrade!'],
+      ['КОРЫТО ПОЛНО!', 'The trough is full!'], ['МАТЬ-СВИНЬЯ ЗОВЁТ!', 'Mother Pig is calling!'], ['ДОМАШКА ЖДЁТ!', 'Homework is waiting!']],
+    eggLines: ['Ve march for glorious egg!', 'Is very good job, comrade!', 'Left, right, left... vhich one is left?', 'Ve are strong. Ve are also... fragile.', 'Ve check the list. Da.'],
+    nagWag: 'Tsk tsk! Not good job.',
+    nagWait: "Come on, let's go, da?",
+    eggHungry: 'Ve are so hungry!',
+    mikawaName: 'CAPTAIN MIKAWA',
+    mikawaLines: ['Never fear! I have organized this one sock!', 'I have rescued this crumb!', 'Stand back! I am... stretching.', 'Justice! Also, vhere is bathroom?'],
+    couple: ['Dip,', 'dip,', 'dip!'],
+    kiss: 'MWAH!',
+    ewww: 'Ewww!',
+    snackCount: '1... 2... 3... 4!',
+    snackRich: 'Cha-ching!',
+    rocketCount: '3... 2... 1...',
+    dadLines: ['Hnnngh!', 'Behold!', '...still round.'],
+    finaleCap: 'MOTHER PIG COUNTRY',
+    cheer: 'For Mother Pig Country!'
+  };
+  function kidPig(i) { return PIG_THEME.kids[i] || PIG_THEME.kids[i % 2]; }
+  function pigArt(o) {
+    // A round, flat cartoon pig, front on. Head, arms, brows and belly are their own groups so scenes can move them.
+    o = o || {};
+    var pink = '#f6a7ba', dark = '#e98aa3', shirt = o.shirt || '#c8102e', walkA = o.walk ? 'a-legA' : '', walkB = o.walk ? 'a-legB' : '';
+    var html = '<svg class="mascot pig-svg" viewBox="0 0 80 112" aria-hidden="true">' +
+      '<g class="' + walkA + '"' + pivot(33, 92) + '><rect x="29" y="90" width="8" height="17" rx="3.5" fill="' + dark + '"/><rect x="28" y="104" width="10" height="5" rx="2.5" fill="#5a2b3a"/></g>' +
+      '<g class="' + walkB + '"' + pivot(47, 92) + '><rect x="43" y="90" width="8" height="17" rx="3.5" fill="' + dark + '"/><rect x="42" y="104" width="10" height="5" rx="2.5" fill="#5a2b3a"/></g>';
+    if (o.hoodie) html += '<ellipse cx="40" cy="42" rx="28" ry="26" fill="' + shirt + '"/>';
+    html += '<ellipse cx="40" cy="78" rx="23" ry="21" fill="' + shirt + '"/>';
+    if (o.bun) html += '<path d="M18 86 L62 86 L67 99 L13 99 Z" fill="' + shirt + '"/>';
+    if (o.hoodie) html += '<path d="M35 60 v13 M45 60 v13" stroke="#e8e8e8" stroke-width="1.6"/><rect x="28" y="79" width="24" height="9" rx="3" fill="rgba(0,0,0,.18)"/>';
+    if (o.belly) html += '<g class="p-belly"' + pivot(40, 90) + '><ellipse cx="40" cy="90" rx="13" ry="8" fill="' + pink + '"/><circle cx="40" cy="90" r="1.3" fill="#c06a82"/></g>';
+    if (o.medal) html += '<g class="p-medal"' + pivot(40, 74) + '><path d="M36 62 L40 70 L44 62" fill="#c8102e"/><circle cx="40" cy="74" r="5" fill="#f4c430" stroke="#a07a10" stroke-width="1.2"/><circle cx="40" cy="74" r="2" fill="#a07a10"/></g>';
+    var tool = o.hold === 'cola' ? '<rect x="63" y="72" width="11" height="16" rx="2" fill="#d5d9de"/><rect x="63" y="76.5" width="11" height="7" fill="#c8102e"/><text x="68.5" y="81.6" font-size="2.6" text-anchor="middle" fill="#fff" font-family="Oswald, Arial" font-weight="700">' + esc(PIG_THEME.colaLabel) + '</text>'
+      : o.hold === 'tube' ? '<rect x="66" y="64" width="6" height="21" rx="3" fill="#eaf7ff" stroke="#7aaac0" stroke-width="1"/><rect x="66.5" y="75" width="5" height="9.5" rx="2.5" fill="#4fd17a"/><rect x="65" y="63" width="8" height="2" rx="1" fill="#7aaac0"/>' : '';
+    var muscle = function (x) { return o.muscles ? '<g class="p-muscle"' + pivot(x, 75) + '><circle cx="' + x + '" cy="75" r="6" fill="' + pink + '" stroke="' + dark + '" stroke-width="1"/></g>' : ''; };
+    var arms = '<g class="p-armL ' + walkB + '"' + pivot(19, 66) + '><line x1="19" y1="66" x2="11" y2="84" stroke="' + shirt + '" stroke-width="7" stroke-linecap="round"/>' + muscle(14) + '<circle cx="11" cy="86" r="4.5" fill="' + dark + '"/></g>' +
+      '<g class="p-armR ' + walkA + '"' + pivot(61, 66) + '><line x1="61" y1="66" x2="69" y2="84" stroke="' + shirt + '" stroke-width="7" stroke-linecap="round"/>' + muscle(66) + '<circle cx="69" cy="86" r="4.5" fill="' + dark + '"/>' + tool + '</g>'; // drawn after the head, so raised arms show
+    html += '<g class="p-head"' + pivot(40, 62) + '><path d="M20 26 L17 7 L33 18 Z M60 26 L63 7 L47 18 Z" fill="' + dark + '"/><circle cx="40" cy="40" r="24" fill="' + pink + '"/>';
+    if (o.bun) html += '<path d="M17 34 Q18 14 40 14 Q62 14 63 34 Q58 22 40 22 Q22 22 17 34 Z" fill="#7a4a2e"/><circle cx="40" cy="10" r="8" fill="#7a4a2e"/><rect x="34" y="15" width="12" height="3" rx="1.5" fill="#c8102e"/>';
+    if (o.hoodie) html += '<path d="M16 30 Q22 12 40 12 Q58 12 64 30" fill="none" stroke="' + shirt + '" stroke-width="4"/>';
+    html += '<circle cx="31" cy="36" r="3.2" fill="#1d1d1d"/><circle cx="49" cy="36" r="3.2" fill="#1d1d1d"/><circle cx="32" cy="35" r="1" fill="#fff"/><circle cx="50" cy="35" r="1" fill="#fff"/>' +
+      '<g class="p-browL"' + pivot(31, 26) + '><path d="M26 27.5 Q31 24 36 27.5" stroke="#9a4a62" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>' +
+      '<g class="p-browR"' + pivot(49, 26) + '><path d="M44 27.5 Q49 24 54 27.5" stroke="#9a4a62" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>';
+    if (o.glasses === 'round') html += '<g fill="none" stroke="#3a3a3a" stroke-width="1.6"><circle cx="31" cy="36" r="6.5"/><circle cx="49" cy="36" r="6.5"/><path d="M37.5 36 h5"/></g>';
+    if (o.glasses === 'thick') html += '<g fill="none" stroke="#111" stroke-width="3.4"><rect x="22.5" y="30" width="16" height="12" rx="3"/><rect x="41.5" y="30" width="16" height="12" rx="3"/><path d="M38.5 35 h3"/></g>';
+    return html + '<circle cx="25" cy="48" r="3.6" fill="#ff8fa8" opacity=".6"/><circle cx="55" cy="48" r="3.6" fill="#ff8fa8" opacity=".6"/>' +
+      '<ellipse cx="40" cy="49" rx="10" ry="7" fill="#ee8aa2"/><ellipse cx="36.5" cy="49" rx="1.7" ry="2.5" fill="#b5546e"/><ellipse cx="43.5" cy="49" rx="1.7" ry="2.5" fill="#b5546e"/>' +
+      '<path d="M33 58 Q40 63 47 58" stroke="#b5546e" stroke-width="2" fill="none" stroke-linecap="round"/></g>' + arms + '</svg>';
+  }
+  function pigLook(cfg, extra) { var o = {}, k; for (k in cfg) o[k] = cfg[k]; for (k in (extra || {})) o[k] = extra[k]; return o; }
+  var PIG_FACE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 22 L9 4 L24 14 Z M52 22 L55 4 L40 14 Z" fill="#e98aa3"/><circle cx="32" cy="34" r="24" fill="#f6a7ba"/><circle cx="23" cy="30" r="3" fill="#1d1d1d"/><circle cx="41" cy="30" r="3" fill="#1d1d1d"/><ellipse cx="32" cy="43" rx="10" ry="7" fill="#ee8aa2"/><ellipse cx="28.5" cy="43" rx="1.7" ry="2.5" fill="#b5546e"/><ellipse cx="35.5" cy="43" rx="1.7" ry="2.5" fill="#b5546e"/></svg>';
+  function eggArt(pose, flag) {
+    // An egg soldier in a little cap. Poses: march, banner, wag (finger), wait (foot tap and watch).
+    var legA = pose === 'march' || pose === 'banner' ? 'a-legA' : '', legB = pose === 'march' || pose === 'banner' ? 'a-legB' : pose === 'wait' ? 'e-tap' : '';
+    var html = '<svg class="mascot" viewBox="0 0 50 82" aria-hidden="true">' +
+      '<g class="' + legA + '"' + pivot(20, 60) + '><path d="M20 60 L19 76" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/><ellipse cx="17" cy="77" rx="4.5" ry="2.4" fill="#1b1b1b"/></g>' +
+      '<g class="' + legB + '"' + pivot(30, 60) + '><path d="M30 60 L31 76" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/><ellipse cx="33" cy="77" rx="4.5" ry="2.4" fill="#1b1b1b"/></g>' +
+      '<ellipse cx="25" cy="44" rx="17" ry="21" fill="#fbf4e4" stroke="#d8ccb2" stroke-width="1.2"/><rect x="9" y="52" width="32" height="3.5" fill="#6b4a2a"/>' +
+      '<circle cx="19" cy="38" r="2.2" fill="#1b1b1b"/><circle cx="31" cy="38" r="2.2" fill="#1b1b1b"/><path d="M15.5 33.5 L22 35 M34.5 33.5 L28 35" stroke="#1b1b1b" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<path d="M17 45 Q21 42 25 45 Q29 42 33 45 Q29 47.5 25 46.2 Q21 47.5 17 45 Z" fill="#5a3a22"/><circle cx="15" cy="43" r="2" fill="#ffb3a0" opacity=".7"/><circle cx="35" cy="43" r="2" fill="#ffb3a0" opacity=".7"/>' +
+      '<path d="M9 28 Q25 13 41 28 Z" fill="#c8102e"/><rect x="7" y="26.5" width="30" height="3.4" rx="1.5" fill="#1b1b1b"/><circle cx="25" cy="21.5" r="2.6" fill="#f4c430"/>';
+    if (pose === 'wag') return html + '<path d="M9 44 L4 50 L9 55" stroke="#1b1b1b" stroke-width="2.6" fill="none" stroke-linecap="round"/><g class="e-wag"' + pivot(41, 42) + '><path d="M41 44 L46 30 L46 23" stroke="#1b1b1b" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="46" cy="30" r="2.2" fill="#fbf4e4" stroke="#1b1b1b" stroke-width="1"/></g></svg>';
+    if (pose === 'wait') return html + '<path d="M9 44 L12 36 L19 33" stroke="#1b1b1b" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="36" r="2.4" fill="#f4c430" stroke="#1b1b1b" stroke-width="1"/><path d="M41 44 L46 50 L41 55" stroke="#1b1b1b" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';
+    html += '<g class="a-legB"' + pivot(9, 44) + '><path d="M9 44 L3 58" stroke="#1b1b1b" stroke-width="2.6" stroke-linecap="round"/></g>';
+    if (pose === 'banner') return html + '<path d="M41 44 L45 33" stroke="#1b1b1b" stroke-width="2.6" stroke-linecap="round"/><path d="M45 2 V64" stroke="#7a5230" stroke-width="2"/><rect x="45" y="2" width="44" height="17" fill="#c8102e" stroke="#1b1b1b" stroke-width="1"/>' +
+      '<text x="67" y="13.5" font-size="6.4" text-anchor="middle" fill="#f4c430" font-family="Russo One, Impact, sans-serif">' + esc(flag || '') + '</text></svg>';
+    return html + '<g class="a-legA"' + pivot(41, 44) + '><path d="M41 44 L47 58" stroke="#1b1b1b" stroke-width="2.6" stroke-linecap="round"/></g></svg>';
+  }
+  var MIKAWA = '<svg class="mascot" viewBox="0 0 92 112" aria-hidden="true">' +
+    '<path d="M28 40 Q4 62 8 104 L28 94 L46 104 Z" fill="#3aa0d8"/><path d="M14 64 L32 60 M10 78 L36 74 M9 92 L40 88" stroke="#f08a24" stroke-width="3"/>' +
+    '<path d="M38 80 L34 100 M54 80 L58 100" stroke="#8bc34a" stroke-width="6" stroke-linecap="round"/><rect x="27" y="98" width="13" height="9" rx="3" fill="#d62828"/><rect x="52" y="98" width="13" height="9" rx="3" fill="#d62828"/>' +
+    '<ellipse cx="46" cy="56" rx="22" ry="28" fill="#fbf4e4" stroke="#d8ccb2" stroke-width="1.2"/><path d="M25 52 Q46 42 67 52 L67 70 Q46 80 25 70 Z" fill="#8bc34a" opacity=".92"/>' +
+    '<path d="M27 70 Q46 82 65 70 L63 80 Q46 89 29 80 Z" fill="#f08a24"/><rect x="26" y="67" width="40" height="4.5" fill="#7b3fb5"/><rect x="42" y="66" width="8" height="6.5" rx="1" fill="#f4c430"/>' +
+    '<g transform="rotate(-16 46 58)"><rect x="17" y="53" width="58" height="10" rx="1" fill="#fff" stroke="#c8102e" stroke-width="1.2"/><text x="46" y="60.6" font-size="6" font-family="Russo One, Impact, sans-serif" text-anchor="middle" fill="#c8102e">' + esc(PIG_THEME.mikawaName) + '</text></g>' +
+    '<path d="M30 22 L24 12 L34 18 Z M62 22 L68 12 L58 18 Z" fill="#c8a06a"/><rect x="31" y="31" width="30" height="9" rx="4.5" fill="#7b3fb5"/><circle cx="39" cy="35.5" r="2.4" fill="#fff"/><circle cx="53" cy="35.5" r="2.4" fill="#fff"/><circle cx="39" cy="35.5" r="1.2" fill="#1b1b1b"/><circle cx="53" cy="35.5" r="1.2" fill="#1b1b1b"/>' +
+    '<path d="M38 46 Q46 52 54 46" stroke="#1b1b1b" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M67 52 L80 30" stroke="#8bc34a" stroke-width="5" stroke-linecap="round"/><circle cx="81" cy="28" r="4.5" fill="#f4e04a"/>' +
+    '<path d="M25 54 L16 62" stroke="#8bc34a" stroke-width="5" stroke-linecap="round"/><g><circle cx="13" cy="62" r="13" fill="#c8a06a" stroke="#8a6a3a" stroke-width="1.6"/><path d="M6 56 L20 68 M20 56 L6 68" stroke="#bdbdbd" stroke-width="3" opacity=".8"/><text x="13" y="66" font-size="9" font-family="Russo One, Impact, sans-serif" text-anchor="middle" fill="#c8102e">CM</text></g></svg>';
+  var LILY = '<svg class="mascot" viewBox="0 0 122 72" aria-hidden="true"><path d="M27 34 Q6 20 3 36 Q12 32 25 41 Z" fill="#b88a55"/>' +
+    (function () { var legs = '', xs = [36, 46, 80, 90], i; for (i = 0; i < 4; i++) legs += '<g class="' + (i % 2 ? 'a-legB' : 'a-legA') + '"' + pivot(xs[i], 44) + '><rect x="' + (xs[i] - 3) + '" y="44" width="6.5" height="21" rx="2.5" fill="#c9a06b"/><rect x="' + (xs[i] - 3) + '" y="56" width="6.5" height="10" rx="2.5" fill="#fff"/></g>'; return legs; })() +
+    '<ellipse cx="62" cy="38" rx="35" ry="15" fill="#c9a06b"/><ellipse cx="64" cy="45" rx="24" ry="6.5" fill="#e6cfa4"/><rect x="86" y="27" width="10" height="5" rx="2" fill="#c8102e"/>' +
+    '<ellipse cx="96" cy="25" rx="13" ry="11" fill="#c9a06b"/><path d="M101 21 L119 27 Q119 33 106 33 Z" fill="#c9a06b"/><path d="M104 31 Q112 33 118 30" stroke="#a9805a" stroke-width="1.2" fill="none"/><path d="M108 32 Q110 39 113 33" fill="#ff8fa8"/><circle cx="118" cy="27.5" r="2.4" fill="#1b1b1b"/>' +
+    '<path d="M88 17 L85 1 L96 13 Z M95 15 L99 0 L104 15 Z" fill="#b88a55"/><path d="M89 14 L87 5 L93 12 Z" fill="#e6cfa4"/><circle cx="98" cy="22" r="1.9" fill="#1b1b1b"/><circle cx="98.6" cy="21.4" r=".6" fill="#fff"/></svg>';
+  function standArt(name) {
+    var label = (name ? name + '\u2019s ' : '') + 'Snack Stand', fit = label.length > 15 ? ' textLength="80" lengthAdjust="spacingAndGlyphs"' : '', awning = '', i;
+    for (i = 0; i < 8; i++) awning += '<rect x="' + (2 + i * 12) + '" y="16" width="12" height="11" fill="' + (i % 2 ? '#f3e7cf' : '#c8102e') + '"/><circle cx="' + (8 + i * 12) + '" cy="27" r="6" fill="' + (i % 2 ? '#f3e7cf' : '#c8102e') + '"/>';
+    return '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><rect x="6" y="20" width="4" height="50" fill="#6b4220"/><rect x="90" y="20" width="4" height="50" fill="#6b4220"/>' + awning +
+      '<rect x="6" y="1" width="88" height="14" rx="2" fill="#f4c430" stroke="#1b1b1b" stroke-width="1.5"/><text x="50" y="11.2" font-size="8" text-anchor="middle" fill="#1b1b1b" font-family="Russo One, Impact, sans-serif"' + fit + '>' + esc(label) + '</text>' +
+      '<rect x="3" y="62" width="94" height="36" fill="#c58b4e" stroke="#1b1b1b" stroke-width="1.5"/><path d="M3 74 H97 M3 86 H97" stroke="#9a6a38" stroke-width="1.5"/>' +
+      '<path d="M16 62 L19 50 L29 50 L32 62 Z" fill="#e8365d"/><path d="M36 62 L39 48 L49 48 L52 62 Z" fill="#2a6fb5"/><circle cx="64" cy="58" r="4.5" fill="#c58b4e" stroke="#7a5230"/><circle cx="74" cy="58" r="4.5" fill="#c58b4e" stroke="#7a5230"/><circle cx="69" cy="52" r="4.5" fill="#c58b4e" stroke="#7a5230"/>' +
+      '<rect x="80" y="66" width="13" height="9" fill="#fff" stroke="#1b1b1b"/><text x="86.5" y="73" font-size="6" text-anchor="middle" font-family="Oswald, Arial" font-weight="700">5\u00a2</text></svg>';
+  }
+  var LAB = '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><rect x="8" y="64" width="84" height="6" fill="#6b4220"/><rect x="14" y="70" width="5" height="28" fill="#6b4220"/><rect x="81" y="70" width="5" height="28" fill="#6b4220"/>' +
+    '<path d="M24 34 V46 L14 64 H40 L30 46 V34 Z" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><path d="M17 58 H37 L40 64 H14 Z" fill="#c64fd1"/>' +
+    '<rect x="50" y="36" width="9" height="28" rx="4.5" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><rect x="51" y="50" width="7" height="13" rx="3.5" fill="#4fd17a"/>' +
+    '<rect x="66" y="40" width="9" height="24" rx="4.5" fill="#eaf7ff" stroke="#5a7a8a" stroke-width="1.5"/><rect x="67" y="52" width="7" height="11" rx="3.5" fill="#f4c430"/><circle cx="27" cy="28" r="2.4" fill="#c64fd1" opacity=".7"/><circle cx="31" cy="20" r="1.8" fill="#c64fd1" opacity=".5"/></svg>';
+  function rocketArt(face) {
+    return '<svg class="mascot" viewBox="0 0 40 100" aria-hidden="true"><g class="r-flame"' + pivot(20, 80) + '><path d="M12 80 Q20 104 28 80 Z" fill="#ff8a2a"/><path d="M15 80 Q20 96 25 80 Z" fill="#ffe27a"/></g>' +
+      '<g class="r-part" style="animation-delay:.2s"><path d="M10 62 L2 82 L10 78 Z M30 62 L38 82 L30 78 Z" fill="#c8102e"/></g>' +
+      '<g class="r-part" style="animation-delay:.8s"><rect x="10" y="26" width="20" height="56" rx="6" fill="#f3e7cf" stroke="#1b1b1b" stroke-width="1.5"/></g>' +
+      '<g class="r-part" style="animation-delay:1.4s"><path d="M10 30 Q20 0 30 30 Z" fill="#c8102e" stroke="#1b1b1b" stroke-width="1.5"/></g>' +
+      '<g class="r-part" style="animation-delay:1.9s"><circle cx="20" cy="46" r="6.5" fill="#5fb4f5" stroke="#1b1b1b" stroke-width="1.5"/>' +
+      (face ? '<g class="r-face"><circle cx="20" cy="47" r="4.6" fill="#f6a7ba"/><ellipse cx="20" cy="48.5" rx="2.2" ry="1.5" fill="#ee8aa2"/></g>' : '') + '</g></svg>';
+  }
+  var BARBELL = '<svg class="mascot" viewBox="0 0 130 30" aria-hidden="true"><rect x="4" y="13" width="122" height="4" fill="#8a8a8a"/><rect x="8" y="1" width="11" height="28" rx="1.5" fill="#1b1b1b"/><rect x="20" y="4" width="8" height="22" rx="1.5" fill="#333"/>' +
+    '<rect x="111" y="1" width="11" height="28" rx="1.5" fill="#1b1b1b"/><rect x="102" y="4" width="8" height="22" rx="1.5" fill="#333"/><text x="65" y="10" font-size="7" text-anchor="middle" fill="#c8102e" font-family="Russo One, Impact, sans-serif">1000 KG</text></svg>';
+  var EMBLEM = '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,3 61,36 96,36 68,57 78,91 50,70 22,91 32,57 4,36 39,36" fill="#f4c430" stroke="#1b1b1b" stroke-width="2.5"/>' +
+    '<circle cx="50" cy="52" r="17" fill="#c8102e" stroke="#1b1b1b" stroke-width="2"/><path d="M40 66 L60 38" stroke="#d5d9de" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="38" cy="68" rx="5" ry="6.5" fill="#d5d9de" transform="rotate(35 38 68)"/>' +
+    '<ellipse cx="54" cy="50" rx="6.5" ry="8.5" fill="#fbf4e4" stroke="#1b1b1b" stroke-width="1.2"/></svg>';
+  var WHEAT = '<svg class="mascot" viewBox="0 0 24 40" aria-hidden="true"><path d="M12 40 V8" stroke="#c99a1a" stroke-width="1.6"/>' +
+    '<g fill="#f4c430"><ellipse cx="8" cy="12" rx="3" ry="5" transform="rotate(-25 8 12)"/><ellipse cx="16" cy="12" rx="3" ry="5" transform="rotate(25 16 12)"/><ellipse cx="8" cy="21" rx="3" ry="5" transform="rotate(-25 8 21)"/><ellipse cx="16" cy="21" rx="3" ry="5" transform="rotate(25 16 21)"/><ellipse cx="12" cy="5" rx="3" ry="5"/></g></svg>';
+  var BURST = '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,0 58,36 96,22 66,50 96,78 58,64 50,100 42,64 4,78 34,50 4,22 42,36" fill="#f4c430" stroke="#1b1b1b" stroke-width="2"/></svg>';
+  function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function famPig(who) {
+    // who: 'mama', 'dad', or a kid index
+    return who === 'mama' || who === 'dad' ? PIG_THEME[who] : kidPig(who);
+  }
+  function styHtml(i, total, done, party, everyone) {
+    var cfg = kidPig(i), name = settings().kids[i] || '', level = total ? Math.round(done / total * 100) : 0, allDone = total > 0 && done >= total, html = '', k;
+    html = '<div class="sty sty-' + cfg.role + (party ? ' party' : '') + '" data-k="' + i + '" data-level="' + level + '" data-done="' + (allDone ? 1 : 0) + '" data-n="' + done + '/' + total + '">' +
+      '<div class="sty-extra">' + (cfg.role === 'snack' ? standArt(name) : LAB) + '</div>' +
+      (party && cfg.role === 'science' ? '<div class="party-rocket">' + rocketArt(false) + '</div>' : '') +
+      '<div class="sty-pig">' + pigArt(pigLook(cfg, { medal: allDone })) + '</div>' +
+      '<div class="trough"><div class="slop" style="height:' + level + '%"></div><div class="trough-n">' + done + '/' + total + '</div></div>';
+    if (party && cfg.role === 'snack') {
+      for (k = 0; k < 3; k++) html += '<div class="party-egg" style="right:' + (13 + k * 4.6) + 'rem;animation-delay:' + (k * .4) + 's">' + eggArt('march') + '</div>';
+      for (k = 0; k < 3; k++) html += '<div class="party-coin" style="animation-delay:' + (2.2 + k * .5) + 's">$</div>';
+    }
+    if (party) html += '<div class="party-say">' + esc(cfg.role === 'snack' ? PIG_THEME.snackRich + ' ' + PIG_THEME.snackCount : PIG_THEME.rocketCount) + '</div>';
+    html += '<div class="sty-nag"><div class="nag-wag">' + eggArt('wag') + '<div class="nag-say">' + esc(PIG_THEME.nagWag) + '</div></div><div class="nag-wait">' + eggArt('wait') + '<div class="nag-say">' + esc(PIG_THEME.nagWait) + '</div></div></div>' +
+      (everyone ? '<button class="tv-btn sty-replay" data-act="pigReplay" data-arg="' + i + '" data-f="pigReplay-' + i + '">Replay parade</button>' : '');
+    return html + '</div>';
+  }
+  function pigTick() {
+    // Called every second. While a kid's timer runs, the trough is their timer: they eat, and faster as it runs low.
+    // Past zero, an egg soldier waits with them until the timer is stopped or their list is done.
+    var sties = document.querySelectorAll('.sty'), i;
+    for (i = 0; i < sties.length; i++) {
+      var sty = sties[i], kid = sty.getAttribute('data-k'), t = liveTimer(kid), paused = t && t.paused !== undefined && t.paused !== null, left = t ? timerLeft(t) : 0;
+      var eating = !!(t && !paused && left > 0), nag = !!(t && !paused && left <= 0 && sty.getAttribute('data-done') !== '1');
+      var frac = t ? Math.max(0, Math.min(1, left / t.total)) : 0, slop = sty.querySelector('.slop'), num = sty.querySelector('.trough-n');
+      if (sty.classList.contains('eating') !== eating) sty.classList[eating ? 'add' : 'remove']('eating');
+      if (sty.classList.contains('nag') !== nag) sty.classList[nag ? 'add' : 'remove']('nag');
+      var height = t ? Math.round(frac * 100) + '%' : sty.getAttribute('data-level') + '%';
+      if (slop.style.height !== height) slop.style.height = height;
+      var label = t ? timerText(left) : sty.getAttribute('data-n');
+      if (num.textContent !== label) num.textContent = label;
+      var speed = (.3 + .9 * frac).toFixed(1) + 's';
+      if (eating && sty.style.getPropertyValue('--eat') !== speed) sty.style.setProperty('--eat', speed);
+    }
+  }
+  function pigScene(html, ms) { fxAdd('<div class="pg-scene ' + html.cls + '">' + html.body + '</div>', ms); }
+  function sayAt(text, style, delay, dur) { return '<div class="pg-say" style="' + style + ';animation-delay:' + delay + 's' + (dur ? ';animation-duration:' + dur + 's' : '') + '">' + esc(text) + '</div>'; }
+  var PIG_SCENES = {
+    parade: function () {
+      var i, flag = pick(PIG_THEME.slogans)[0];
+      themeSound('drum');
+      for (i = 0; i < 6; i++) fxWalker('', eggArt(i === 0 ? 'banner' : 'march', flag), i === 1 ? pick(PIG_THEME.eggLines) : '', 14000, 'width:8rem;height:13rem;animation-delay:' + (i * 1.1) + 's');
+    },
+    chase: function () {
+      var who = [1, 0, 'dad', 'mama'], i;
+      themeSound('oink');
+      for (i = 0; i < 4; i++) fxWalker('fast', pigArt(pigLook(famPig(who[i]), { walk: true })), i === 0 ? PIG_THEME.yell : '', 6400, 'width:' + (who[i] === 0 ? 9.5 : 11) + 'rem;height:' + (who[i] === 0 ? 13 : 15) + 'rem;animation-duration:5.6s;animation-delay:' + (i * .55) + 's');
+    },
+    wrestle: function () {
+      var puffs = '', spots = [[0, 4, 9], [5, 0, 10], [11, 2, 10], [14, 6, 8], [3, 7, 9], [9, 8, 8]], i;
+      for (i = 0; i < spots.length; i++) puffs += '<div class="wr-puff" style="left:' + spots[i][0] + 'rem;top:' + spots[i][1] + 'rem;width:' + spots[i][2] + 'rem;height:' + spots[i][2] + 'rem;animation-delay:' + (i * .07) + 's"></div>';
+      themeSound('oink');
+      pigScene({ cls: 'wr', body: '<div class="wr-cloud">' + puffs + '<div class="wr-spin"><div style="left:0;top:0">' + PIG_FACE + '</div><div style="right:0;bottom:0">' + PIG_FACE + '</div></div></div>' + sayAt(PIG_THEME.yell, 'left:28rem;top:-1rem', .4, 4) }, 5200);
+    },
+    lily: function () {
+      fxAdd('<div class="lily-run"><div class="lily-roll">' + LILY + '</div></div>', 8200);
+      themeSound('bark');
+      setTimeout(function () { themeSound('bark'); }, 2900);
+    },
+    mikawa: function () { fxAdd('<div class="mik"><div class="fx-say">' + esc(pick(PIG_THEME.mikawaLines)) + '</div>' + MIKAWA + '</div>', 7200); },
+    couple: function () {
+      var hearts = '', i;
+      for (i = 0; i < 6; i++) hearts += '<span class="cp-heart" style="margin-left:' + (-4 + i * 1.6) + 'rem;animation-delay:' + (4.5 + i * .28) + 's">&#9829;</span>';
+      pigScene({ cls: 'cp', body: '<div class="cp-pig cp-mama">' + pigArt(PIG_THEME.mama) + '</div><div class="cp-pig cp-dad">' + pigArt(PIG_THEME.dad) + '</div>' +
+        sayAt(PIG_THEME.couple[0], 'left:3rem;top:-1rem', 1.6, 1.4) + sayAt(PIG_THEME.couple[1], 'right:3rem;top:-1rem', 2.3, 1.4) + sayAt(PIG_THEME.couple[2], 'left:5rem;top:-1rem', 3, 1.4) +
+        sayAt(PIG_THEME.kiss, 'left:19rem;top:-2rem', 4.3, 2) + hearts +
+        '<div class="cp-kids"><div>' + pigArt(kidPig(0)) + '</div><div>' + pigArt(kidPig(1)) + '</div></div>' + sayAt(PIG_THEME.ewww, 'right:-12rem;top:2rem', 4.8, 2.6) }, 8400);
+    },
+    dad: function () {
+      pigScene({ cls: 'dl', body: '<div class="dl-pig">' + pigArt(pigLook(PIG_THEME.dad, { muscles: true })) + '</div><div class="dl-bar">' + BARBELL + '</div>' +
+        sayAt(PIG_THEME.dadLines[0], 'left:30rem;top:0', 1.2, 1.6) + sayAt(PIG_THEME.dadLines[1], 'left:30rem;top:0', 4, 1.6) + sayAt(PIG_THEME.dadLines[2], 'left:30rem;top:2rem', 6.2, 1.6) }, 8000);
+    },
+    rocket: function () {
+      pigScene({ cls: 'nr', body: '<div class="nr-lab">' + LAB + '</div><div class="nr-pig">' + pigArt(kidPig(0)) + '</div><div class="nr-rocket">' + rocketArt(true) + '</div>' + sayAt(PIG_THEME.rocketCount, 'left:30rem;top:1rem', 2.4, 1.8) }, 7600);
+      setTimeout(function () { themeSound('rev'); }, 4300);
+    },
+    snack: function () {
+      var eggs = '', coins = '', i;
+      for (i = 0; i < 4; i++) eggs += '<div class="ls-egg" style="left:' + (24 + i * 6) + 'rem;animation-delay:' + (i * .45) + 's">' + eggArt('march') + '</div>';
+      for (i = 0; i < 4; i++) coins += '<div class="ls-coin" style="animation-delay:' + (2.6 + i * .55) + 's">$</div>';
+      pigScene({ cls: 'ls', body: '<div class="ls-pig">' + pigArt(kidPig(1)) + '</div><div class="ls-stand">' + standArt(settings().kids[1] || '') + '</div>' + eggs + coins +
+        sayAt(PIG_THEME.eggHungry, 'left:24rem;top:-2rem', 1.6, 1.6) + sayAt(PIG_THEME.snackCount, 'left:4rem;top:-2rem', 2.8, 2.2) + sayAt(PIG_THEME.snackRich, 'left:6rem;top:-2rem', 5, 2.6) }, 8000);
+    },
+    smug: function () { fxOnFeed('<div class="fx-peek smug">' + pigArt(kidPig(0)) + '</div>', 5200, document.querySelector('.cal')); },
+    peeg: function () {
+      var who = pick(['mama', 'dad', 0, 1]);
+      themeSound('oink');
+      fxOnFeed('<div class="fx-peek">' + pigArt(famPig(who)) + '</div><div class="fx-alert" style="color:#c8102e;font-family:Russo One, Impact, sans-serif;font-size:4rem">' + esc(PIG_THEME.yell) + '</div>', 5200, document.querySelector('.cal'));
+    }
+  };
+  var pigOn = false, pigTimers = [], pigWaiting = false;
+  function queuePigFinale() {
+    // Once per list per day on this screen, after each kid's own celebration has had its moment.
+    var key = 'pigfin-' + dateKey(new Date()) + '-' + checkPart();
+    if (store(key) || $('tv').className.indexOf('hide') >= 0) return;
+    store(key, '1');
+    if (tvEditing) { pigWaiting = true; return; }
+    pigTimers.push(setTimeout(playPigFinale, 6800));
+  }
+  function playPigFinale() {
+    if (pigOn) return;
+    if (raceOn) endRace();
+    pigOn = true;
+    nextFxAt = Date.now() + 90000;
+    var still = reducedMotion(), kids = settings().kids, march = '', fam = '', falls = '', bursts = '', i;
+    for (i = 0; i < 10; i++) march += '<div>' + eggArt(i % 3 === 0 ? 'banner' : 'march', PIG_THEME.slogans[i % PIG_THEME.slogans.length][0]) + '</div>';
+    var who = ['dad', 'mama', 1, 0];
+    for (i = 0; i < who.length; i++) fam += '<div class="' + (who[i] === 0 ? 'pf-small' : who[i] === 1 ? 'pf-mid' : '') + '"><div class="pf-peeg">' + esc(PIG_THEME.yell) + '</div>' + pigArt(pigLook(famPig(who[i]), { medal: typeof who[i] === 'number' })) + '</div>';
+    for (i = 0; i < 14; i++) falls += '<div class="pf-fall" style="left:' + (3 + i * 7) + '%;animation-delay:' + (8.6 + (i * 7 % 5) * .35) + 's">' + WHEAT + '</div>';
+    for (i = 0; i < 6; i++) bursts += '<div class="pf-burst" style="left:' + [8, 70, 40, 88, 22, 55][i] + '%;top:' + [12, 8, 50, 46, 70, 25][i] + '%;animation-delay:' + (8.6 + i * .3) + 's">' + BURST + '</div>';
+    var box = document.createElement('div');
+    box.className = 'pigfin' + (still ? ' still' : '');
+    box.id = 'pigfin';
+    box.innerHTML = '<div class="pf-rays"></div>' + bursts + '<div class="pf-poster"><div class="pf-hero">' + pigArt(PIG_THEME.mama) + '</div><div class="pf-cap">' + esc(PIG_THEME.finaleCap) + '</div></div>' +
+      '<div class="pf-slogan pf-s1">' + esc(PIG_THEME.posters[0]) + '</div><div class="pf-slogan pf-s2">' + esc(PIG_THEME.posters[1]) + '</div>' +
+      '<div class="pf-podium"><div class="pf-fam">' + fam + '</div><div class="pf-steps"><span>1</span><span>1</span><span>1</span><span>1</span></div></div>' +
+      '<div class="pf-march">' + march + '</div><div class="pf-mik">' + MIKAWA + '</div><div class="pf-lily"><div>' + LILY + '</div></div>' + falls +
+      '<div class="pf-big">' + esc(PIG_THEME.yell) + '</div><div class="race-skip">Press OK to skip</div>';
+    $('fxStage').appendChild(box);
+    $('tv').classList.add('racing');
+    if (still) { pigTimers.push(setTimeout(endPigFinale, 7000)); return; }
+    pigTimers.push(setTimeout(function () { themeSound('drum'); }, 2400));
+    pigTimers.push(setTimeout(function () { themeSound('bark'); }, 7600));
+    pigTimers.push(setTimeout(function () { fxAdd(confetti().replace(/class="bit"/g, 'class="bit far"') + confetti(), 6000); themeSound('cheer'); }, 8600));
+    pigTimers.push(setTimeout(function () { themeSound('oink'); }, 11000));
+    pigTimers.push(setTimeout(endPigFinale, 15000));
+  }
+  function endPigFinale() {
+    var i, box = $('pigfin');
+    for (i = 0; i < pigTimers.length; i++) clearTimeout(pigTimers[i]);
+    pigTimers = [];
+    if (box) { box.className += ' out'; setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); $('tv').classList.remove('racing'); }, 600); }
+    pigOn = false;
+  }
   function actor() {
     var id = themeInfo().id;
-    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : mascot();
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : id === 'pigs' ? eggArt('march') : mascot();
   }
   var DESK_FAN = '<svg class="mascot" viewBox="0 0 64 68" aria-hidden="true"><path d="M32 40 V60" stroke="#6a7075" stroke-width="5"/><ellipse cx="32" cy="63" rx="17" ry="4.5" fill="#4c5257"/><circle cx="32" cy="27" r="25" fill="#10231b" stroke="#8a9398" stroke-width="2.4"/><g class="a-whirl"' + pivot(32, 27) + '><path d="M32 27 C24 8 42 4 42 15 Q42 22 32 27 Z M32 27 C51 19 55 37 44 37 Q37 37 32 27 Z M32 27 C40 46 22 50 22 39 Q22 32 32 27 Z M32 27 C13 35 9 17 20 17 Q27 17 32 27 Z" fill="#b9c4c9"/></g><path d="M7 27 H57 M32 2 V52 M14 9 L50 45 M50 9 L14 45" stroke="#8a9398" stroke-width=".9" opacity=".65"/><circle cx="32" cy="27" r="5" fill="#ff4b62"/></svg>';
   var SLICE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q32 -2 58 12 L33 61 Z" fill="#f6c24b"/><path d="M4 12 Q32 -6 60 12 L57 18 Q32 4 7 18 Z" fill="#c98a45"/><circle cx="24" cy="21" r="5" fill="#c9371f"/><circle cx="41" cy="23" r="5" fill="#c9371f"/><circle cx="32" cy="38" r="5" fill="#c9371f"/><path d="M20 30 q2 8 3 13" stroke="#f6c24b" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
@@ -2012,10 +2488,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
     bricks: ['Click!', 'Check the list!', 'Ouch! Who left a brick on the floor?', 'Build it, then brush it!', 'Stack it up!', 'Got your backpack? I have two hands for that.'],
     miner: ['Diamonds!', 'Check the list!', 'Time to mine some homework.', 'Backpack in your inventory?', 'Night is coming... brush your teeth!', 'Just one more block...'],
+    pigs: PIG_THEME.eggLines,
     pitstop: ['Box, box, box!', 'Check the list!', 'Tires on, helmets on!', 'Backpack fueled up?', 'Green flag in five minutes!', 'Pit crew, ready!'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
-  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', calm: 'All done!' };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', pigs: PIG_THEME.cheer, calm: 'All done!' };
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
@@ -2164,6 +2641,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       function () { var st = document.querySelector('#leaves .stands'); if (!st) return; st.className += ' wild'; setTimeout(function () { st.className = 'stands'; }, 4500); },
       function () { fxOnFeed('<div class="fx-peek">' + crewFig('flag') + '</div><div class="fx-alert" style="color:#d62828">Box, box, box!</div>', 5200); }
     ],
+    pigs: [PIG_SCENES.parade, PIG_SCENES.chase, PIG_SCENES.wrestle, PIG_SCENES.lily, PIG_SCENES.mikawa, PIG_SCENES.couple, PIG_SCENES.dad, PIG_SCENES.rocket, PIG_SCENES.snack, PIG_SCENES.smug, PIG_SCENES.peeg],
     calm: [
       function () { fxAdd('<div class="fx-star">' + mascot() + '</div>', 2600); },
       function () { fxAdd('<div class="fx-cloud">' + CLOUD + '</div>', 17200); },
@@ -2302,6 +2780,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   var finaleWaiting = false;
   function bothFinished() {
     if (themeInfo().id === 'pitstop' && (raceOn || raceQueue.length)) return; // the race is the celebration
+    if (themeInfo().id === 'pigs') { queuePigFinale(); return; }
     if (themeInfo().id !== 'office') { fxCelebrate(); return; }
     if (tvEditing) finaleWaiting = true; else fxFinale();
   }
@@ -2320,6 +2799,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       fxAdd('<div class="fx-curtain">' + CREST + '<span>Welcome, young wizards</span></div>', 3100);
     } else if (id === 'bricks') {
       fxAdd('<div class="fx-curtain">' + BRICK_HEAD + '<span>Let\'s build!</span></div>', 3100);
+    } else if (id === 'pigs') {
+      fxAdd('<div class="fx-curtain">' + EMBLEM + '<span>' + esc(PIG_THEME.finaleCap) + '</span></div>', 3100);
+      themeSound('drum');
     } else if (id === 'pitstop') {
       fxAdd('<div class="fx-curtain">' + CHECKER + '<span>Start your engines!</span></div>', 3100);
       themeSound('rev');
@@ -2328,7 +2810,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
   }
   function confetti() {
-    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : id === 'pigs' ? ['#c8102e', '#f4c430', '#f3e7cf', '#1b1b1b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
     for (i = 0; i < 16; i++) {
       html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
     }
@@ -2392,6 +2874,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       times[i].className = ms < 0 ? 'ed-time over' : 'ed-time';
     }
     checkTimersDone();
+    pigTick();
   }
   var timerWas = {}, lastBell = 0;
   function checkTimersDone() {
@@ -2564,7 +3047,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [];
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false;
+    var everyoneIn = s.kids.length > 0 && partList(checkPart()).length > 0;
+    for (i = 0; i < s.kids.length; i++) if (doneCount(i, key, checkPart()) < partList(checkPart()).length) everyoneIn = false;
     for (i = 0; i < s.kids.length; i++) {
       var m = kidMinutes(i, key), total = partList(checkPart()).length, allDone = total > 0 && doneCount(i, key, checkPart()) === total;
       var chips = chipsHtml(i, key, shown, prev), justFinished = allDone && prev && !prev['all-' + i];
@@ -2573,7 +3058,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (allDone) shown['all-' + i] = true;
       if (justFinished) anyFinished = true;
       if (!allDone) everyoneDone = false;
-      var pitDone = pit ? doneCount(i, key, checkPart()) : 0;
+      var pitDone = pit || pigs ? doneCount(i, key, checkPart()) : 0;
+      if (pigs && justFinished) partyNow = true;
       if (pit && justFinished && $('tv').className.indexOf('hide') < 0) raceKids.push(i);
       html += '<div class="kid"' + (pit ? ' style="--car:' + esc(carFor(i).color) + '"' : '') + ' data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
         '</span><span class="feed-time"></span></div><div class="fx"></div><div class="kid-row"><div class="kid-main"><div class="kid-head"><div class="kid-name">' + esc(s.kids[i]) +
@@ -2582,7 +3068,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         blockBar('After school', m.leftAfter, s.blockMinutes, was && was.leftAfter, i + '-after') + blockBar('Evening', m.leftEvening, s.blockMinutes, was && was.leftEvening, i + '-evening') +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
-        (justFinished && !pit ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + '</div>';
+        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + '</div>';
     }
     lastChecks = shown;
     lastMins = mins;
@@ -2591,6 +3077,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     fitChips();
     animateMinutes();
     for (i = 0; i < raceKids.length; i++) queueRace(raceKids[i]);
+    if (partyNow) { themeSound('oink'); nextFxAt = Math.max(nextFxAt, Date.now() + 16000); }
     if (anyFinished && everyoneDone) bothFinished();
     if (camIndex >= 0) showCam(camIndex); // new panels were drawn, so re-enlarge the chosen one
   }
@@ -3001,6 +3488,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     $('btnEdit').focus();
     if (finaleWaiting) { finaleWaiting = false; fxFinale(); }
     nextRace();
+    if (pigWaiting) { pigWaiting = false; playPigFinale(); }
   }
   function toast(text, bad, undoId) {
     var t = $('toast');
@@ -3027,6 +3515,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     theme: function (a) { put('settings/theme', a); forceEditor(); },
     fxSound: function (a) { put('settings/fxSound', a === 'on'); forceEditor(); },
     pitReplay: function (a) { queueRace(+a, true); },
+    pigReplay: function () { playPigFinale(); },
     carColor: function (a) { var cp = a.split('-'); ed.draft.cars[+cp[0]].color = CAR_COLORS[+cp[1]][0]; forceEditor(); },
     moreOpen: function (a) { ed.more = a; ed.draft = null; ed.chanNames = {}; forceEditor(); window.scrollTo(0, 0); },
     closeEd: closeTvEditor,
@@ -3297,7 +3786,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     xhr.send();
   }
   var pollTimer = null;
-  if (DEMO) window.boardFx = { pitPlan: pitPlan, pitState: pitState, race: function (k) { queueRace(k, true); }, skipRace: endRace, check: function (kid, item, on) { put('checks/' + dateKey(new Date()) + '/' + kid + '/' + item, on ? true : null); }, checkUpdate: checkForUpdate, quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
+  if (DEMO) window.boardFx = { pigFinale: playPigFinale, pigSkip: endPigFinale, pigScenes: PIG_SCENES, pitPlan: pitPlan, pitState: pitState, race: function (k) { queueRace(k, true); }, skipRace: endRace, check: function (kid, item, on) { put('checks/' + dateKey(new Date()) + '/' + kid + '/' + item, on ? true : null); }, checkUpdate: checkForUpdate, quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };
   function begin() {
     if (EDIT_ONLY) { $('editor').className = ''; pruneLater = true; }
     else { $('tv').className = ''; fitTv(); window.addEventListener('resize', fitTv); $('btnMusic').focus(); setInterval(checkForUpdate, 300000); if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitChips); }

@@ -21,6 +21,7 @@ The family's TV dashboard: countdowns, calendar, screen-time minutes, music. Not
 - The phone editor is tap-first: prefer tap targets over typing and dropdowns, apply on the tap, and offer Undo instead of a confirm button. Lists that keep growing (themes, music channels) are dropdowns that apply on change.
 - Themes inspired by real toys or games stay generic, like Word Miner: no brand names, logos or named characters, and our own drawings.
 - Pit Stop (Logan's idea): each checked item plays the next pit job from `pitPlan()`, and finishing the list plays a race once per list per day on that screen (`queueRace`). Each kid's car number, color and sponsor live in `settings.cars` in the database (phone: More, then Race cars), since sponsors can include names.
+- Mother Pig Country (a silly barnyard propaganda-poster parody): every name, outfit, catchphrase and slogan is in `PIG_THEME`, and kid pigs follow the order of Kids' names. Each kid's sty trough shows their checklist, or their timer while one runs (`pigTick`). No real political emblems: the emblem is a star with an egg and spoon.
 - Keep the JavaScript in older syntax (`var`, XHR) and size the TV view in rem, because TV browsers are old and have odd viewports.
 
 ## Building a new game
