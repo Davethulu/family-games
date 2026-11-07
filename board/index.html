@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Family Board</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fredoka:wght@500;600&family=Pixelify+Sans:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
 <style>
 :root {
   /* The parents' notebook. Each TV theme sets its own colors on #tv. */
@@ -511,6 +511,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .hero-count { line-height: 1.12; }
 .hero-sub { font-size: 2.1rem; min-height: 2.8rem; }
 .hero-quote { margin-top: .5rem; min-height: 5.2rem; font-size: 2.1rem; line-height: 1.22; font-style: italic; color: var(--ink); }
+/* The quote takes the room between the count and the stops, so the panel has no empty band. */
+.hero-quote { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 0 1rem; font-size: 2.5rem; line-height: 1.25; }
+.hero-quote span { max-width: 34em; }
 .hero-quote span { display: block; animation: quoteIn 1.2s ease-out; }
 .hero-quote cite { font-size: .8em; font-style: normal; color: var(--muted); white-space: nowrap; }
 .theme-office .hero-quote { font-size: 2.6rem; line-height: 1.05; font-style: normal; color: var(--muted); }
@@ -717,6 +720,91 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-calm .tv-btn { background: none; border: .14rem solid var(--line); font-weight: 300; }
 .theme-calm .fx-cheer span { font-weight: 300; }
 
+/* ---------- Brick Builders: bright bricks on a studded baseplate ---------- */
+#tv.theme-bricks { --bg: #2f9e44; --panel: #fffdf5; --panel2: #ece8dc; --line: #ddd6c4; --ink: #1f1f1f; --muted: #5d5a52; --mint: #2558c0; --blue: #2558c0; --orange: #e07b00; --pink: #d6372b; --gold: #f5c518;
+  background: radial-gradient(circle, rgba(255,255,255,.15) 0 .62rem, rgba(0,0,0,.15) .7rem .82rem, transparent .86rem) 0 0 / 2.4rem 2.4rem, #2f9e44; font-family: Fredoka, "Trebuchet MS", Arial, sans-serif; }
+.theme-bricks .hero, .theme-bricks .kid, .theme-bricks .cal, .theme-bricks .player { --brick: #d6372b; --tile: #fffdf5; border: 0; border-radius: .5rem;
+  background: radial-gradient(circle, rgba(255,255,255,.4) 0 .5rem, rgba(0,0,0,.22) .58rem .74rem, transparent .78rem) .4rem .1rem / 2.5rem 2.5rem repeat-x,
+    linear-gradient(var(--tile), var(--tile)) .7rem 2.6rem / calc(100% - 1.4rem) calc(100% - 3.4rem) no-repeat, var(--brick);
+  box-shadow: inset 0 -.45rem 0 rgba(0,0,0,.2), 0 .4rem .7rem rgba(0,0,0,.28); }
+.theme-bricks .hero { padding: 3.3rem 2.2rem 1.5rem; }
+.theme-bricks .kid, .theme-bricks .cal { padding: 3rem 2rem 1.2rem; }
+.theme-bricks .kid:first-child { --brick: #2558c0; }
+.theme-bricks .kid:nth-child(2) { --brick: #f5c518; }
+.theme-bricks .cal { --brick: #e07b00; }
+.theme-bricks .player { --brick: #4a4a4a; --tile: #2a2a2a; color: #d8d8d8; }
+.theme-bricks .tv-date, .theme-bricks .tv-clock { color: #fff; font-weight: 600; text-shadow: 0 .25rem 0 rgba(0,0,0,.25); }
+.theme-bricks .hero-label { color: #2558c0; font-weight: 600; }
+.theme-bricks .hero-count { color: #c8281e; font-weight: 600; font-size: 10.5rem; }
+.theme-bricks .kid-name, .theme-bricks .cal h2 { font-weight: 600; color: var(--ink); }
+.theme-bricks .kid-total { color: #2558c0; font-weight: 600; }
+.theme-bricks .kid:nth-child(2) .kid-total { color: #b07800; }
+.theme-bricks .block-track { background: #e6e1d3; height: 1.7rem; border-radius: .35rem; }
+.theme-bricks .block-fill { border-radius: .35rem; background: radial-gradient(circle, rgba(255,255,255,.45) 0 .3rem, transparent .34rem) 0 50% / 1.7rem 100% repeat-x, var(--brick); }
+.theme-bricks .block-min, .theme-bricks .stop b, .theme-bricks .t-num { font-weight: 600; }
+.theme-bricks .stop.next { background: #f5c518; color: var(--ink); padding-left: .8rem; padding-right: .8rem; border-radius: .35rem; border-top-color: transparent; }
+.theme-bricks .stop.next span { color: var(--ink); }
+.theme-bricks .chip-ring { border-radius: .45rem; border-color: #8a8577; }
+.theme-bricks .chip.on .chip-text { font-weight: 600; }
+.theme-bricks .kid-flag { background: #1f1f1f; color: #f5c518; border-radius: .35rem; }
+.theme-bricks .ev-when { color: #c8281e; font-weight: 600; }
+.theme-bricks .kid-timer { background: #fffdf5; border: .35rem solid var(--brick); border-radius: .5rem; }
+.theme-bricks .t-fill { background: var(--brick); }
+.theme-bricks .tv-btn { background: #f5c518; color: #1f1f1f; border: 0; border-radius: .4rem; font-weight: 600; box-shadow: inset 0 -.4rem 0 rgba(0,0,0,.2); }
+#tv.theme-bricks button:focus { box-shadow: 0 0 0 .4rem #fff; }
+.theme-bricks .fx-cheer span { background: #f5c518; color: #1f1f1f; font-weight: 600; border-radius: .6rem; box-shadow: inset 0 -.5rem 0 rgba(0,0,0,.18); }
+.theme-bricks .fx-curtain { color: #fff; font-weight: 600; }
+.theme-bricks .fx-say { font-weight: 600; }
+.theme-bricks .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; height: 0; z-index: 3; pointer-events: none; }
+.pile { position: absolute; left: 44%; top: .5rem; width: 15rem; height: 7.4rem; }
+.pile > div { position: absolute; }
+.pile-b1 { left: 0; bottom: 0; width: 6.4rem; height: 4.4rem; }
+.pile-b2 { left: 2.6rem; bottom: 3.2rem; width: 6.4rem; height: 4.4rem; transform: rotate(-4deg); }
+.pile-head { left: 9.6rem; bottom: .1rem; width: 4.8rem; height: 4.8rem; }
+
+/* ---------- Block Miner: stone underground, grass up top, chunky game panels ---------- */
+#tv.theme-miner { --bg: #3d3d3d; --panel: #c6c6c6; --panel2: #8b8b8b; --line: #6f6f6f; --ink: #262626; --muted: #4f4f4f; --mint: #2f6f1a; --blue: #2f6f1a; --orange: #b8640f; --pink: #b8301f; --gold: #f5c518;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%208%208%27%20shape-rendering%3D%27crispEdges%27%3E%3Crect%20x%3D%270%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2357982f%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236cbf43%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%235fa83a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%2379553a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23866043%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23946b4b%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%236b4a33%27%2F%3E%3C%2Fsvg%3E") 0 0 / 5.2rem 5.2rem repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%208%208%27%20shape-rendering%3D%27crispEdges%27%3E%3Crect%20x%3D%270%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%270%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%271%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%272%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%273%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%274%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%275%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23575757%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%276%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%234a4a4a%27%2F%3E%3Crect%20x%3D%270%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%271%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%273%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23505050%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3Crect%20x%3D%275%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%276%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%233e3e3e%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%277%27%20width%3D%271%27%20height%3D%271%27%20fill%3D%27%23454545%27%2F%3E%3C%2Fsvg%3E") 0 0 / 5.2rem 5.2rem, #444; font-family: "Pixelify Sans", ui-monospace, monospace; }
+.theme-miner .tv-date, .theme-miner .tv-clock { color: #fff; font-weight: 700; text-shadow: .25rem .25rem 0 #2a2a2a; }
+.theme-miner .hero, .theme-miner .kid, .theme-miner .cal { background: #c6c6c6; border: .3rem solid #1b1b1b; border-radius: 0; box-shadow: inset .45rem .45rem 0 #f2f2f2, inset -.45rem -.45rem 0 #6f6f6f; }
+.theme-miner .player { background: #1b1b1b; border: .3rem solid #111; border-radius: 0; color: #cfcfcf; box-shadow: inset .45rem .45rem 0 #3a3a3a, inset -.45rem -.45rem 0 #0e0e0e; }
+.theme-miner .hero-label { color: #2f6f1a; font-weight: 700; }
+.theme-miner .hero-count { color: #262626; font-weight: 700; font-size: 10rem; text-shadow: .35rem .35rem 0 #9a9a9a; }
+.theme-miner .kid-name, .theme-miner .cal h2 { color: #262626; font-weight: 700; }
+.theme-miner .kid-total { color: #2f6f1a; font-weight: 700; }
+.theme-miner .block-min, .theme-miner .stop b { font-weight: 700; }
+.theme-miner .block-track { background: #3a3a3a; height: 1.6rem; border: .2rem solid #1b1b1b; border-radius: 0; }
+.theme-miner .block-fill { border-radius: 0; background: repeating-linear-gradient(90deg, #80d83a 0 2.1rem, #4f9a1f 2.1rem 2.4rem); }
+.theme-miner .stop { border-top-color: #9a9a9a; }
+.theme-miner .stop.next { background: #8b8b8b; color: #fff; padding-left: .8rem; padding-right: .8rem; border-top-color: transparent; box-shadow: inset .25rem .25rem 0 #5a5a5a, inset -.25rem -.25rem 0 #b5b5b5; }
+.theme-miner .stop.next span { color: #fff; }
+.theme-miner .chip-ring { border-radius: 0; border: .25rem solid #4f4f4f; }
+.theme-miner .chip.on .chip-text { font-weight: 700; }
+.theme-miner .kid-flag { background: #f5c518; color: #262626; border-radius: 0; }
+.theme-miner .ev-when { color: #2f6f1a; font-weight: 700; }
+.theme-miner .kid-timer { background: #8b8b8b; border: .25rem solid #1b1b1b; border-radius: 0; color: #fff; box-shadow: inset .3rem .3rem 0 #5a5a5a, inset -.3rem -.3rem 0 #b5b5b5; }
+.theme-miner .t-num { color: #fff; font-weight: 700; text-shadow: .2rem .2rem 0 #3a3a3a; }
+.theme-miner .t-track { background: #3a3a3a; border-radius: 0; }
+.theme-miner .t-fill { background: #80d83a; }
+.theme-miner .kid-timer.over .t-num { color: #ffb3a8; }
+.theme-miner .tv-btn { background: #7a7a7a; color: #fff; font-weight: 700; text-shadow: .15rem .15rem 0 #333; border: .25rem solid #1b1b1b; border-radius: 0; box-shadow: inset .3rem .3rem 0 #a8a8a8, inset -.3rem -.3rem 0 #4f4f4f; }
+#tv.theme-miner button:focus { border-color: #fff; }
+.theme-miner .fx-cheer span { background: #c6c6c6; color: #262626; font-weight: 700; border-radius: 0; border: .3rem solid #1b1b1b; box-shadow: inset .45rem .45rem 0 #f2f2f2, inset -.45rem -.45rem 0 #6f6f6f; }
+.theme-miner .fx-curtain { background: #3d3d3d; color: #fff; text-shadow: .3rem .3rem 0 #1b1b1b; }
+.theme-miner .fx-say { border-radius: 0; font-weight: 700; border: .25rem solid #1b1b1b; }
+.theme-miner .mascot[shape-rendering] { image-rendering: pixelated; }
+/* Pixelify's 5 reads as an S from the couch, so numbers use VT323, a pixel face with clear digits. */
+.theme-miner .hero-count, .theme-miner .kid-total, .theme-miner .block-min, .theme-miner .stop b, .theme-miner .t-num, .theme-miner .tv-clock, .theme-miner .hero-label small, .theme-miner .ev-when {
+  font-family: VT323, ui-monospace, monospace; font-weight: 400; }
+.theme-miner .hero-count { font-size: 13rem; line-height: 1; }
+.theme-miner .kid-total { font-size: 5.6rem; }
+.theme-miner .kid-total small { font-family: "Pixelify Sans", monospace; }
+.theme-miner .block-min { font-size: 2.6rem; }
+.theme-miner .stop b { font-size: 2.9rem; }
+.theme-miner .t-num { font-size: 6rem; line-height: 1; }
+.theme-miner .tv-clock { font-size: 4.4rem; }
+.theme-miner .ev-when { font-size: 2.2rem; }
+
 /* ---------- Parent editor: a paper notebook, made for thumbs ---------- */
 #editor, #gate { color: var(--ink); background: var(--bg) var(--grain); }
 #editor button, #gate button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; color: var(--ink); }
@@ -733,6 +821,9 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 #editor.overlay .ed-wrap { padding-bottom: 2em; }
 .card { background: var(--panel); border-radius: .3em; padding: .9em; margin-bottom: .8em; box-shadow: 0 .08em .25em rgba(70,50,20,.2); }
 .card h2 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.25em; margin: 0 0 .35em; }
+select.pick { min-height: 3.2em; padding: .5em 2.4em .5em .8em; font-weight: 700; -webkit-appearance: none; appearance: none;
+  background: #fffdf6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23574a3a' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right .9em center / .85em; }
+.card h2 .ed-time { float: right; font-size: 1.15em; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
 .ed-left { float: right; margin-top: .45em; font: 400 .62em/1.2 Karla, sans-serif; color: var(--muted); }
 .lab { margin: .85em 0 .3em; font-size: .92em; }
 .opts { margin: 0 -.15em; }
@@ -1239,7 +1330,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -1266,6 +1357,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L10 4 L24 12 Q32 9 40 12 L54 4 L50 18 Q58 30 54 44 Q50 60 32 60 Q14 60 10 44 Q6 30 14 18 Z" fill="#7d6242"/><path d="M20 40 Q32 62 44 40 Q42 54 32 56 Q22 54 20 40 Z" fill="#e8d7b5"/>' +
         '<circle cx="23" cy="27" r="10" fill="#f3e6c4"/><circle cx="41" cy="27" r="10" fill="#f3e6c4"/><circle cx="23" cy="27" r="5" fill="#1d1408"/><circle cx="41" cy="27" r="5" fill="#1d1408"/><circle cx="25" cy="25" r="1.6" fill="#fff"/><circle cx="43" cy="25" r="1.6" fill="#fff"/><polygon points="28,33 36,33 32,40" fill="#e6a42c"/></svg>';
     }
+    if (id === 'bricks') return BRICK_HEAD;
+    if (id === 'miner') return GEM;
     return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 35 C17 40 22 47 26 53 C34 37 43 22 55 11" fill="none" stroke="#e39a6d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
   // Wizard School's own crest. The motto is Latin for "brush your teeth".
@@ -1332,6 +1425,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         }
       }
       leaves.innerHTML = '<svg class="wire-svg" viewBox="0 0 1000 26" preserveAspectRatio="none" aria-hidden="true"><path d="' + wire + '" fill="none" stroke="#1b2b22" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>' + winter;
+    }
+    if (theme === 'bricks' && !leaves.innerHTML) {
+      leaves.innerHTML = '<div class="pile"><div class="pile-b1">' + brickArt('#2558c0', '#1d469a') + '</div><div class="pile-b2">' + brickArt('#d6372b', '#a82418') + '</div><div class="pile-head">' + BRICK_HEAD + '</div></div>';
     }
     if (theme === 'wizard' && !leaves.innerHTML) {
       var sky = '';
@@ -1408,9 +1504,84 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       '<path d="M32 80 l-5 8 M32 80 v9 M32 80 l5 8 M48 80 l-5 8 M48 80 v9 M48 80 l5 8" stroke="#e6a42c" stroke-width="2.4" stroke-linecap="round"/><polygon points="20,18 15,3 31,13" fill="#7d6242"/><polygon points="60,18 65,3 49,13" fill="#7d6242"/><ellipse cx="40" cy="46" rx="23" ry="36" fill="#7d6242"/><ellipse cx="40" cy="60" rx="16" ry="20" fill="#e8d7b5"/>' + chest +
       '<circle cx="30" cy="28" r="11" fill="#f3e6c4" stroke="#5f4a2f" stroke-width="1.5"/><circle cx="50" cy="28" r="11" fill="#f3e6c4" stroke="#5f4a2f" stroke-width="1.5"/>' + eyes(30, 50, 28, 6, 'a-look') + '<polygon points="36,34 44,34 40,42" fill="#e6a42c"/></svg>';
   })();
+  // Brick Builders: a little figure of our own, with a stud on top and C-shaped hands.
+  var BRICK_HEAD = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><rect x="24" y="3" width="16" height="8" rx="2" fill="#e8b400"/><rect x="26" y="4" width="5" height="6" rx="1" fill="#fff" opacity=".35"/>' +
+    '<rect x="12" y="10" width="40" height="42" rx="11" fill="#ffd23c"/><rect x="15" y="13" width="8" height="30" rx="4" fill="#fff" opacity=".25"/><circle cx="25" cy="28" r="3.2" fill="#1d1d1d"/><circle cx="39" cy="28" r="3.2" fill="#1d1d1d"/>' +
+    '<path d="M23 37 Q32 45 41 37" fill="none" stroke="#1d1d1d" stroke-width="3" stroke-linecap="round"/><rect x="22" y="52" width="20" height="7" fill="#e8b400"/></svg>';
+  var BRICK_FIG = '<svg class="mascot" viewBox="0 0 60 92" aria-hidden="true">' +
+    '<g class="a-legA"' + pivot(21, 63) + '><rect x="13" y="63" width="16" height="23" fill="#2558c0"/><rect x="13" y="84" width="16" height="6" rx="1" fill="#1d469a"/></g>' +
+    '<g class="a-legB"' + pivot(39, 63) + '><rect x="31" y="63" width="16" height="23" fill="#2a62d0"/><rect x="31" y="84" width="16" height="6" rx="1" fill="#1d469a"/></g>' +
+    '<rect x="13" y="57" width="34" height="7" rx="1" fill="#1d469a"/><path d="M19 32 H41 L46 58 H14 Z" fill="#d6372b"/><path d="M27 34 H33 L30 41 Z" fill="#fff" opacity=".85"/>' +
+    '<rect x="24" y="0" width="12" height="6" rx="1.5" fill="#e8b400"/><rect x="16" y="5" width="28" height="25" rx="8" fill="#ffd23c"/><circle cx="25" cy="16" r="2.3" fill="#1d1d1d"/><circle cx="35" cy="16" r="2.3" fill="#1d1d1d"/>' +
+    '<path d="M24 22 Q30 27 36 22" fill="none" stroke="#1d1d1d" stroke-width="2" stroke-linecap="round"/><rect x="24" y="29" width="12" height="4" fill="#e8b400"/>' +
+    '<g class="a-legB"' + pivot(18, 35) + '><path d="M19 33 L12 37 L8 53 L14 55 L18 41 Z" fill="#c22f24"/><path d="M6.5 56 a5 5 0 1 0 9 1" fill="none" stroke="#ffd23c" stroke-width="3.6" stroke-linecap="round"/></g>' +
+    '<g class="a-legA"' + pivot(42, 35) + '><path d="M41 33 L48 37 L52 53 L46 55 L42 41 Z" fill="#c22f24"/><path d="M44.5 57 a5 5 0 1 0 9 -1" fill="none" stroke="#ffd23c" stroke-width="3.6" stroke-linecap="round"/></g></svg>';
+  function brickArt(color, dark) {
+    var html = '<svg class="mascot" viewBox="0 0 64 44" aria-hidden="true">', i;
+    for (i = 0; i < 4; i++) html += '<rect x="' + (4 + i * 15) + '" y="1" width="11" height="10" rx="2" fill="' + color + '"/><rect x="' + (6 + i * 15) + '" y="2.5" width="3.5" height="7" rx="1" fill="#fff" opacity=".35"/>';
+    return html + '<rect x="0" y="9" width="64" height="35" rx="3" fill="' + color + '"/><rect x="0" y="35" width="64" height="9" rx="3" fill="' + dark + '"/><rect x="3" y="12" width="58" height="3" rx="1.5" fill="#fff" opacity=".25"/></svg>';
+  }
+  var BRICK_CAR = '<svg class="mascot" viewBox="0 0 120 70" aria-hidden="true"><rect x="4" y="40" width="112" height="10" rx="2" fill="#4a4a4a"/>' +
+    '<rect x="44" y="0" width="10" height="5" rx="1.5" fill="#e8b400"/><rect x="38" y="4" width="22" height="19" rx="6" fill="#ffd23c"/><circle cx="45" cy="12" r="1.8" fill="#1d1d1d"/><circle cx="53" cy="12" r="1.8" fill="#1d1d1d"/><path d="M44 17 Q49 21 54 17" fill="none" stroke="#1d1d1d" stroke-width="1.6" stroke-linecap="round"/>' +
+    '<rect x="8" y="22" width="72" height="20" rx="2" fill="#d6372b"/><rect x="12" y="17" width="9" height="6" rx="1.5" fill="#d6372b"/><rect x="26" y="17" width="9" height="6" rx="1.5" fill="#d6372b"/><rect x="80" y="20" width="6" height="22" fill="#9fd3ff"/>' +
+    '<rect x="86" y="28" width="28" height="14" rx="2" fill="#f5c518"/><rect x="108" y="31" width="5" height="4" rx="1" fill="#fff6b0"/>' +
+    '<g class="a-whirl"' + pivot(28, 54) + '><circle cx="28" cy="54" r="11" fill="#1d1d1d"/><circle cx="28" cy="54" r="4.5" fill="#bdbdbd"/><rect x="27" y="45" width="2" height="5" fill="#555"/></g>' +
+    '<g class="a-whirl"' + pivot(94, 54) + '><circle cx="94" cy="54" r="11" fill="#1d1d1d"/><circle cx="94" cy="54" r="4.5" fill="#bdbdbd"/><rect x="93" y="45" width="2" height="5" fill="#555"/></g></svg>';
+
+  // Block Miner: drawn on a pixel grid. Rows of letters, one color per letter.
+  function pixSvg(rows, pal) {
+    var html = '<svg class="mascot" viewBox="0 0 ' + rows[0].length + ' ' + rows.length + '" shape-rendering="crispEdges" aria-hidden="true">', x, y;
+    for (y = 0; y < rows.length; y++) {
+      for (x = 0; x < rows[y].length; x++) {
+        var ch = rows[y].charAt(x), run = 1;
+        if (!pal[ch]) continue;
+        while (rows[y].charAt(x + run) === ch) run++;
+        html += '<rect x="' + x + '" y="' + y + '" width="' + run + '" height="1" fill="' + pal[ch] + '"/>';
+        x += run - 1;
+      }
+    }
+    return html + '</svg>';
+  }
+  var GEM = pixSvg(['...kkkkkk...', '..kaabbbbk..', '.kaabbbbbbk.', 'kabbbbbbbbck', '.kbbbbbbbck.', '..kbbbbbck..', '...kbbbck...', '....kbck....', '.....kk.....'],
+    { k: '#0f4f4a', a: '#e8fffb', b: '#3fe0d0', c: '#1fa89c' });
+  function blockFigure(o) {
+    var r = function (x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; };
+    var html = '<svg class="mascot" viewBox="0 0 22 32" shape-rendering="crispEdges" aria-hidden="true">' +
+      '<g class="a-legA"' + pivot(9, 20) + '>' + r(7, 20, 4, 9, o.pants) + r(7, 29, 4, 2, o.boots) + '</g><g class="a-legB"' + pivot(13, 20) + '>' + r(11, 20, 4, 9, o.pants2) + r(11, 29, 4, 2, o.boots) + '</g>' +
+      r(7, 12, 8, 8, o.shirt) + r(7, 19, 8, 1, o.belt) + r(7, 4, 8, 8, o.skin) + r(9, 10, 4, 1, o.mouth);
+    html += o.helmet ? r(6, 2, 10, 3, '#f2c200') + r(6, 5, 10, 1, '#c99a00') + r(10, 2, 2, 2, '#fff6b0') : r(7, 4, 8, 2, o.hair);
+    html += o.zombie ? r(8, 7, 2, 1, '#111') + r(12, 7, 2, 1, '#111') : r(8, 7, 2, 1, '#fff') + r(9, 7, 1, 1, '#3a2a8a') + r(12, 7, 2, 1, '#fff') + r(12, 7, 1, 1, '#3a2a8a');
+    if (o.reach) return html + r(13, 12, 8, 3, o.shirt) + r(19, 12, 2, 3, o.skin) + r(13, 15, 8, 3, o.shirt2) + r(19, 15, 2, 3, o.skin) + '</svg>';
+    return html + '<g class="a-legB"' + pivot(5.5, 12) + '>' + r(4, 12, 3, 7, o.shirt2) + r(4, 19, 3, 2, o.skin) + '</g><g class="a-legA"' + pivot(16.5, 12) + '>' + r(15, 12, 3, 7, o.shirt2) + r(15, 19, 3, 2, o.skin) +
+      (o.pick ? r(18, 8, 1, 13, '#7a5230') + r(15, 7, 7, 1, '#9aa3a8') + r(15, 8, 1, 1, '#9aa3a8') + r(21, 8, 1, 1, '#9aa3a8') : '') + '</g></svg>';
+  }
+  var MINER = blockFigure({ skin: '#e0a878', shirt: '#2f8f9a', shirt2: '#28808a', pants: '#3a4a9a', pants2: '#34428a', boots: '#4a3a2a', belt: '#5a3a1a', mouth: '#9a5a3a', helmet: true, pick: true });
+  var ZOMBIE = blockFigure({ skin: '#6aa84f', shirt: '#2f8f9a', shirt2: '#28808a', pants: '#3a3a8a', pants2: '#34347a', boots: '#2a2a2a', belt: '#2f8f9a', hair: '#3f6f2f', mouth: '#2f4f1f', zombie: true, reach: true });
+  function blockArt(kind) {
+    // An 8 by 8 block. The speckle comes from the position, so each kind always looks the same.
+    var pals = { stone: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], dirt: ['#866043', '#79553a', '#946b4b', '#6b4a33'], gold: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], diamond: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], grass: ['#866043', '#79553a', '#946b4b', '#6b4a33'] };
+    var ore = { gold: ['#f5d33a', '#c99a1a'], diamond: ['#5ff0e0', '#2fb8aa'] }, rows = [], pal = { a: pals[kind][0], b: pals[kind][1], c: pals[kind][2], d: pals[kind][3], g: '#5fa83a', h: '#6cbf43', o: '', p: '' }, x, y;
+    if (ore[kind]) { pal.o = ore[kind][0]; pal.p = ore[kind][1]; }
+    for (y = 0; y < 8; y++) {
+      var row = '';
+      for (x = 0; x < 8; x++) {
+        var speck = 'abcd'.charAt((x * 7 + y * 13 + x * y * 3) % 4);
+        if (kind === 'grass' && y < [2, 3, 2, 2, 3, 2, 3, 2][x]) speck = (x + y) % 3 ? 'g' : 'h';
+        if (ore[kind] && ((x === 1 && y === 1) || (x === 2 && y === 1) || (x === 5 && y === 2) || (x === 2 && y === 5) || (x === 6 && y === 5) || (x === 5 && y === 6))) speck = (x + y) % 2 ? 'o' : 'p';
+        row += speck;
+      }
+      rows.push(row);
+    }
+    return pixSvg(rows, pal);
+  }
+  var MINECART = (function () {
+    var r = function (x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; };
+    return '<svg class="mascot" viewBox="0 0 32 22" shape-rendering="crispEdges" aria-hidden="true">' + r(12, 2, 8, 7, '#e0a878') + r(11, 0, 10, 3, '#f2c200') + r(15, 0, 2, 2, '#fff6b0') + r(13, 5, 2, 1, '#fff') + r(17, 5, 2, 1, '#fff') + r(13, 5, 1, 1, '#3a2a8a') + r(17, 5, 1, 1, '#3a2a8a') +
+      r(2, 8, 28, 2, '#5a5a5a') + r(3, 10, 26, 7, '#7d7d7d') + r(10, 10, 1, 7, '#5a5a5a') + r(21, 10, 1, 7, '#5a5a5a') + r(3, 16, 26, 1, '#5a5a5a') + r(5, 17, 5, 4, '#222') + r(22, 17, 5, 4, '#222') + r(6, 18, 3, 2, '#555') + r(23, 18, 3, 2, '#555') + '</svg>';
+  })();
   function actor() {
     var id = themeInfo().id;
-    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : mascot();
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : mascot();
   }
   var DESK_FAN = '<svg class="mascot" viewBox="0 0 64 68" aria-hidden="true"><path d="M32 40 V60" stroke="#6a7075" stroke-width="5"/><ellipse cx="32" cy="63" rx="17" ry="4.5" fill="#4c5257"/><circle cx="32" cy="27" r="25" fill="#10231b" stroke="#8a9398" stroke-width="2.4"/><g class="a-whirl"' + pivot(32, 27) + '><path d="M32 27 C24 8 42 4 42 15 Q42 22 32 27 Z M32 27 C51 19 55 37 44 37 Q37 37 32 27 Z M32 27 C40 46 22 50 22 39 Q22 32 32 27 Z M32 27 C13 35 9 17 20 17 Q27 17 32 27 Z" fill="#b9c4c9"/></g><path d="M7 27 H57 M32 2 V52 M14 9 L50 45 M50 9 L14 45" stroke="#8a9398" stroke-width=".9" opacity=".65"/><circle cx="32" cy="27" r="5" fill="#ff4b62"/></svg>';
   var SLICE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q32 -2 58 12 L33 61 Z" fill="#f6c24b"/><path d="M4 12 Q32 -6 60 12 L57 18 Q32 4 7 18 Z" fill="#c98a45"/><circle cx="24" cy="21" r="5" fill="#c9371f"/><circle cx="41" cy="23" r="5" fill="#c9371f"/><circle cx="32" cy="38" r="5" fill="#c9371f"/><path d="M20 30 q2 8 3 13" stroke="#f6c24b" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
@@ -1473,9 +1644,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.', 'Who ordered pizza?', 'Is this fan even on?'],
     harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
     christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
+    bricks: ['Click!', 'Check the list!', 'Ouch! Who left a brick on the floor?', 'Build it, then brush it!', 'Stack it up!', 'Got your backpack? I have two hands for that.'],
+    miner: ['Diamonds!', 'Check the list!', 'Time to mine some homework.', 'Backpack in your inventory?', 'Night is coming... brush your teeth!', 'Just one more block...'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
-  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', calm: 'All done!' };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', calm: 'All done!' };
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
@@ -1588,6 +1761,33 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       function () { fxOnFeed('<div class="fx-peek">' + CAT + '</div>', 5200); },
       function () { fxAdd('<div class="fx-fly" style="top:3%;width:34rem;height:18rem;animation-duration:10s"><div class="fx-hop">' + DRAGON + '</div></div>', 10200); },
       function () { fxAdd('<div class="fx-plane" style="width:12rem;height:9rem"><div class="fx-hop" style="animation-duration:.4s">' + FLY_BOOK + '</div></div>', 7200); }
+    ],
+    bricks: [
+      function () { fxWalker('', actor(), fxPickLine('bricks'), 12500); },
+      function () { fxWalker('', actor(), 'Wait for me!', 12500); fxWalker('', actor(), '', 13500, 'width:11rem;height:11rem;animation-delay:1.1s'); },
+      function () { fxWalker('fast', BRICK_CAR, 'Beep beep!', 4800, 'width:24rem;height:14rem'); },
+      function () {
+        var html = '', colors = [['#d6372b', '#a82418'], ['#2558c0', '#1d469a'], ['#f5c518', '#c99a00'], ['#2f9e44', '#237a34'], ['#e07b00', '#b05f00']], i;
+        for (i = 0; i < 9; i++) html += '<div class="fx-gift" style="left:' + (5 + i * 10.5) + '%;animation-delay:' + (i % 3 * .45 + i * .08) + 's">' + brickArt(colors[i % 5][0], colors[i % 5][1]) + '</div>';
+        fxAdd(html, 5200);
+      },
+      function () { fxOnFeed('<div class="fx-peek">' + BRICK_FIG + '</div><div class="fx-alert" style="color:#d6372b">Building something?</div>', 5200); }
+    ],
+    miner: [
+      function () { fxWalker('', actor(), fxPickLine('miner'), 12500); },
+      function () { fxWalker('', ZOMBIE, 'Braaains... for homework!', 18500, 'animation-duration:18s'); },
+      function () { fxWalker('', MINECART, 'Wheee!', 9300, 'width:18rem;height:12.5rem;animation-duration:9s'); },
+      function () {
+        var html = '', kinds = ['grass', 'dirt', 'stone', 'gold', 'diamond'], i;
+        for (i = 0; i < 9; i++) html += '<div class="fx-gift" style="left:' + (5 + i * 10.5) + '%;animation-delay:' + (i % 3 * .45 + i * .08) + 's">' + blockArt(kinds[i % 5]) + '</div>';
+        fxAdd(html, 5200);
+      },
+      function () { fxOnFeed('<div class="fx-peek">' + MINER + '</div><div class="fx-alert" style="color:#2f6f1a">Found diamonds!</div>', 5200); },
+      function () {
+        var html = '', i;
+        for (i = 0; i < 16; i++) html += '<div class="fx-spark" style="left:' + (Math.random() * 94) + '%;top:' + (Math.random() * 86) + '%;animation-delay:' + (Math.random() * 1.8) + 's">' + GEM + '</div>';
+        fxAdd(html, 4800);
+      }
     ],
     calm: [
       function () { fxAdd('<div class="fx-star">' + mascot() + '</div>', 2600); },
@@ -1742,10 +1942,14 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Merry Christmas!</span></div>', 3100);
     } else if (id === 'wizard') {
       fxAdd('<div class="fx-curtain">' + CREST + '<span>Welcome, young wizards</span></div>', 3100);
+    } else if (id === 'bricks') {
+      fxAdd('<div class="fx-curtain">' + BRICK_HEAD + '<span>Let\'s build!</span></div>', 3100);
+    } else if (id === 'miner') {
+      fxAdd('<div class="fx-curtain">' + GEM + '<span>Loading world...</span></div>', 3100);
     }
   }
   function confetti() {
-    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
     for (i = 0; i < 16; i++) {
       html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
     }
@@ -1907,7 +2111,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       html += '<button class="opt" data-act="screenGo" data-arg="' + b[0] + '" data-f="screenGo-' + b[0] + '">' + b[1] + '<small>' + parts.join(' · ') + '</small></button>';
     });
     html += '</div><span class="lab">Or a timer. Tap a time and it starts.</span><div class="opts">';
-    for (i = 0; i < TIMER_PRESETS.length; i++) html += optBtn('timerGo', i, TIMER_PRESETS[i].label ? TIMER_PRESETS[i].label + ' ' + TIMER_PRESETS[i].min : TIMER_PRESETS[i].min + ' min', false);
+    for (i = 0; i < TIMER_PRESETS.length; i++) {
+      var pre = TIMER_PRESETS[i];
+      html += pre.label ? '<button class="opt" data-act="timerGo" data-arg="' + i + '" data-f="timerGo-' + i + '">' + esc(pre.label) + '<small>' + pre.min + ' min</small></button>' : optBtn('timerGo', i, pre.min + ' min', false);
+    }
     html += '</div><span class="lab">Other</span><div class="stepper">' + optBtn('timerStep', -5, '−5', false) + '<b>' + ed.timerMins + ' min</b>' + optBtn('timerStep', 5, '+5', false) + '</div>' +
       '<button class="go" data-act="timerCustom" data-f="timerCustom">Start ' + ed.timerMins + ' min timer</button></div>';
     return html;
@@ -2113,6 +2320,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   function optBtn(act, arg, text, on) {
     return '<button class="opt' + (on ? ' on' : '') + '" data-act="' + act + '" data-arg="' + esc(arg) + '" data-f="' + act + '-' + esc(arg) + '">' + esc(text) + '</button>';
   }
+  function pickOpt(value, text, on) { return '<option value="' + esc(value) + '"' + (on ? ' selected' : '') + '>' + esc(text) + '</option>'; }
   function timeOptions(selected, allowBlank) {
     var html = allowBlank ? '<option value="">None</option>' : '', t, found = !selected;
     for (t = 300; t <= 1410; t += 5) {
@@ -2178,7 +2386,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var key = dateKey(new Date()), i, html = '';
     var hw = (data.homework && data.homework[key]) || '', hwTimes = ['15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30'];
     if (hw && hwTimes.indexOf(hw) < 0) hwTimes.push(hw);
-    html += '<div class="card"><h2>Homework done by</h2><div class="opts">' + optBtn('homework', '', 'No time', !hw);
+    html += '<div class="card"><h2>Homework done by</h2><div class="opts">' + optBtn('homework', '', 'None', !hw);
     for (i = 0; i < hwTimes.length; i++) html += optBtn('homework', hwTimes[i], time12(hwTimes[i]).replace(/ (am|pm)/, ''), hw === hwTimes[i]);
     return html + '</div></div>';
   }
@@ -2281,16 +2489,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (ed.more === 'calendar') return '<button class="small" style="margin-bottom:.6em" data-act="moreOpen" data-arg="" data-f="moreBack">&lsaquo; Back</button>' + calendarHtml();
     if (ed.more) return sectionHtml(ed.more);
     var s = settings(), src = musicSource(), list = channels(), known = false, i;
-    var html = '<div class="card"><h2>Music on the TV</h2><div class="opts">' + optBtn('music', 'off', 'Off', src === 'off');
+    // Dropdowns here, since these lists keep growing. Picking one applies it right away.
+    var html = '<div class="card"><h2>Music on the TV</h2><select class="pick" aria-label="Music on the TV" data-pick="music" data-f="pickMusic">' + pickOpt('off', 'Off', src === 'off');
     for (i = 0; i < list.length; i++) {
       var on = src === 'lofi' && lofiId() === list[i].id;
       if (on) known = true;
-      html += optBtn('music', list[i].id, list[i].text, on);
+      html += pickOpt(list[i].id, list[i].text, on);
     }
-    if (src === 'lofi' && !known) html += optBtn('music', lofiId(), 'Other video', true);
-    html += '</div><p class="hint">If it stays quiet, press OK on the Music button with the TV remote.</p></div><div class="card"><h2>Theme</h2><div class="opts">';
-    for (i = 0; i < THEMES.length; i++) html += optBtn('theme', THEMES[i].id, THEMES[i].text, s.theme === THEMES[i].id);
-    html += '</div>';
+    if (src === 'lofi' && !known) html += pickOpt(lofiId(), 'Other video', true);
+    html += '</select><p class="hint">If it stays quiet, press OK on the Music button with the TV remote.</p></div><div class="card"><h2>Theme</h2><select class="pick" aria-label="Theme" data-pick="theme" data-f="pickTheme">';
+    for (i = 0; i < THEMES.length; i++) html += pickOpt(THEMES[i].id, THEMES[i].text, s.theme === THEMES[i].id);
+    html += '</select>';
     if (s.theme === 'office') html += '<span class="lab">Cameras</span><div class="opts">' + optBtn('tour', 'on', 'Tour', !!s.camTour) + optBtn('tour', 'off', 'Stay on the wall', !s.camTour) + '</div>';
     if (s.theme === 'office' && tvEditing) html += '<div class="opts" style="margin-top:.4em">' + optBtn('testFinale', 'go', 'Play the finale now', false) + '</div>';
     html += '<span class="lab">Surprise animations</span><div class="opts">' + optBtn('fxLevel', 'often', 'Often', s.fxLevel === 'often') + optBtn('fxLevel', 'normal', 'Normal', s.fxLevel === 'normal') +
@@ -2588,6 +2797,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var el = e.target, v = el.type === 'checkbox' ? el.checked : el.value;
     var draft = el.getAttribute && el.getAttribute('data-draft');
     if (draft) { ed[draft] = v; return; }
+    var pick = el.getAttribute && el.getAttribute('data-pick');
+    if (pick) { if (e.type === 'change') ACTIONS[pick](v); return; }
     var chan = el.getAttribute && el.getAttribute('data-chan');
     if (chan !== null && chan !== undefined) { ed.chanNames[chan] = v; return; }
     var key = el.getAttribute && el.getAttribute('data-setup');
