@@ -852,6 +852,108 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes crowdBob { to { transform: translateY(-.28em); } }
 @keyframes flagWave { from { transform: rotate(-12deg); } to { transform: rotate(14deg); } }
 
+/* Block Miner: a slice of the world on each kid's card. Animals roam the grass; the miner digs one ore per checklist item. */
+.mine, .build { display: none; }
+.theme-miner .kid, .theme-bricks .kid { padding-right: 39.5rem; }
+.theme-miner .kid-timer, .theme-bricks .kid-timer { position: absolute; right: 1.6rem; top: 1.6rem; width: 14rem; margin: 0; padding: .6rem; z-index: 4; }
+.theme-bricks .kid-timer { right: 2.1rem; top: 3.6rem; }
+.theme-miner .kid-timer .t-num, .theme-bricks .kid-timer .t-num { font-size: 4rem; }
+.theme-miner .chips, .theme-bricks .chips { flex-wrap: wrap; }
+.theme-miner .chip:first-child:nth-last-child(n+5), .theme-miner .chip:first-child:nth-last-child(n+5) ~ .chip, .theme-bricks .chip:first-child:nth-last-child(n+5), .theme-bricks .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
+.theme-miner .mine { display: block; position: absolute; right: .8rem; top: .8rem; bottom: .8rem; width: 37.4rem; overflow: hidden; border: .3rem solid #1b1b1b; background: linear-gradient(#7cc4f4, #c9eaff); }
+.mine-sun { position: absolute; left: 46%; top: 1.2rem; width: 2.6rem; height: 2.6rem; background: #ffe066; box-shadow: 0 0 0 .45rem rgba(255,224,102,.35); }
+.mine-cloud { position: absolute; left: 0; top: 2.6rem; width: 7rem; height: 1.5rem; background: #fff; opacity: .92; box-shadow: 1.6rem -.9rem 0 -.2rem #fff; animation: mineCloud 80s linear -30s infinite; }
+@keyframes mineCloud { from { transform: translateX(-9rem); } to { transform: translateX(40rem); } }
+.mine-ground { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background-color: #7d7d7d; background-position: left 0 bottom 1.2rem; }
+.mine-grass { position: absolute; left: 0; right: 0; top: 0; height: .8rem; background: repeating-linear-gradient(90deg, #6cbf43 0 .6rem, #5fa83a .6rem 1.1rem, #79c94e 1.1rem 1.5rem); }
+.mine-dirt { position: absolute; left: 0; right: 0; top: .8rem; height: 1.2rem; background: repeating-linear-gradient(90deg, #866043 0 .7rem, #79553a .7rem 1.3rem, #946b4b 1.3rem 1.8rem); }
+.mine-air { position: absolute; left: 0; }
+.mine-ore { position: absolute; width: var(--b); height: var(--b); box-shadow: inset 0 0 0 .12rem rgba(0,0,0,.28); }
+.mine-crack { position: absolute; left: 0; top: 0; right: 0; bottom: 0; opacity: 0; animation: mineCrack 8s steps(1) var(--md) infinite; }
+@keyframes mineCrack { 0% { opacity: 0; } 63% { opacity: .35; } 70% { opacity: .65; } 77% { opacity: 1; } 90% { opacity: 0; } }
+.mine-break { z-index: 3; animation: mineBreak .5s ease-in both; }
+@keyframes mineBreak { 0%, 30% { transform: none; opacity: 1; } 100% { transform: scale(.25) rotate(25deg); opacity: 0; } }
+.mine-miner { position: absolute; z-index: 2; }
+.mine-miner .a-legA, .mine-miner .a-legB, .mine-hero .a-legA, .mine-hero .a-legB { animation: none; }
+/* Rest, then three swings of the pick. The crack and the chips land on the swings. */
+.mine-miner svg > g:last-of-type { animation: mineSwing 8s ease-in-out var(--md) infinite; }
+@keyframes mineSwing { 0%, 56% { transform: none; } 60% { transform: rotate(-35deg); } 63% { transform: rotate(55deg); } 67% { transform: rotate(-35deg); } 70% { transform: rotate(55deg); } 74% { transform: rotate(-35deg); } 77% { transform: rotate(55deg); } 84%, 100% { transform: none; } }
+.mine-miner.stepping { animation: minerStep 1s ease-out .4s both; }
+@keyframes minerStep { from { transform: translateX(var(--step)); } }
+.mine-chips { position: absolute; width: 1px; height: 1px; z-index: 3; }
+.mine-chips i { position: absolute; left: 0; top: 0; width: .55rem; height: .55rem; background: #8a8a8a; opacity: 0; --cx: -1.4rem; --cy: -1.8rem; animation: mineChip 8s ease-out var(--md) infinite; }
+.mine-chips i:nth-child(2) { --cx: -2.2rem; --cy: -.6rem; background: #6b6b6b; }
+.mine-chips i:nth-child(3) { --cx: -.8rem; --cy: -2.6rem; background: #a3a3a3; }
+@keyframes mineChip { 0%, 62.9% { opacity: 0; transform: none; } 63% { opacity: 1; transform: none; } 66% { opacity: 0; transform: translate(var(--cx), var(--cy)); } 69.9% { opacity: 0; transform: none; } 70% { opacity: 1; transform: none; } 73% { opacity: 0; transform: translate(var(--cx), var(--cy)); } 76.9% { opacity: 0; transform: none; } 77% { opacity: 1; transform: none; } 80%, 100% { opacity: 0; transform: translate(var(--cx), var(--cy)); } }
+.mine-bar { position: absolute; left: .8rem; top: .8rem; z-index: 3; display: flex; padding: .25rem; background: rgba(0,0,0,.45); border: .2rem solid #1b1b1b; }
+.mine-bar i { display: block; box-sizing: border-box; padding: .3rem; margin-right: .2rem; background: #8b8b8b; box-shadow: inset .15rem .15rem 0 #5a5a5a, inset -.15rem -.15rem 0 #b5b5b5; }
+.mine-bar i:last-child { margin-right: 0; }
+.mine-bar i.pop { animation: slotPop .6s ease-out .6s both; }
+@keyframes slotPop { from { transform: scale(1.7); } }
+.mine-hero { position: absolute; left: 17rem; z-index: 1; width: 3.9rem; height: 5.6rem; }
+.mine-hero svg > g:last-of-type { animation: mineCheer 6s ease-in-out infinite; }
+@keyframes mineCheer { 0%, 45%, 100% { transform: none; } 55%, 88% { transform: rotate(-150deg); } }
+.mine-trophy { position: absolute; left: 17.4rem; z-index: 3; width: 3.2rem; height: 2.4rem; animation: trophyFloat 3s ease-in-out infinite alternate; }
+@keyframes trophyFloat { to { transform: translateY(-.6rem); } }
+/* The animals */
+.mob { position: absolute; z-index: 1; animation: mobRoam var(--dur) ease-in-out var(--ph) infinite; }
+.mob-flip { width: 100%; height: 100%; animation: mobFlip var(--dur) steps(1) var(--ph) infinite; }
+@keyframes mobRoam { 0% { transform: none; } 35%, 50% { transform: translateX(var(--d)); } 85%, 100% { transform: none; } }
+@keyframes mobFlip { 0% { transform: none; } 50%, 100% { transform: scaleX(-1); } }
+.mob.walk .m-legA { animation: mobStep .5s ease-in-out infinite alternate; }
+.mob.walk .m-legB { animation: mobStep .5s ease-in-out infinite alternate-reverse; }
+@keyframes mobStep { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
+.mob-graze.rest .m-head { animation: mobGraze 5s ease-in-out infinite; }
+@keyframes mobGraze { 0%, 100% { transform: none; } 20%, 75% { transform: rotate(32deg); } 45% { transform: rotate(26deg); } }
+.mob-sniff.rest .m-head { animation: mobSniff 2.6s ease-in-out infinite; }
+@keyframes mobSniff { 0%, 60%, 100% { transform: none; } 70%, 90% { transform: rotate(10deg); } 80% { transform: rotate(4deg); } }
+.mob-hiss.rest svg { animation: hissFlash 2.4s ease-in .8s both; }
+@keyframes hissFlash { 0%, 100% { filter: none; transform: none; } 20%, 50%, 80% { filter: brightness(2.2); transform: scale(1.08); } 35%, 65% { filter: none; transform: none; } }
+.mob-say { position: absolute; left: 50%; bottom: 100%; margin-left: -3rem; width: 6rem; text-align: center; font: 700 1.6rem Karla, Arial, sans-serif; color: #fff; text-shadow: .15rem .15rem 0 #1b1b1b; opacity: 0; }
+.mob-hiss.rest .mob-say { animation: hissSay 2.6s ease .8s both; }
+@keyframes hissSay { 0%, 100% { opacity: 0; } 15%, 80% { opacity: 1; } }
+
+/* Brick Builders: each kid builds something new each day. The faint outline shows what's coming. */
+.theme-bricks .build { display: block; position: absolute; right: 1.3rem; top: 3.1rem; bottom: 1.4rem; width: 37rem; overflow: hidden; border-radius: .35rem;
+  background: radial-gradient(circle, #45b85b 0 .42rem, rgba(0,0,0,.18) .48rem .58rem, transparent .62rem) .4rem 100% / 1.6rem 2.2rem repeat-x, linear-gradient(#2f9e44, #2f9e44) 0 100% / 100% 2.2rem no-repeat, linear-gradient(#a8dcff, #e6f5ff); }
+.build-cloud { position: absolute; left: 0; top: 4.6rem; width: 6rem; height: 1.6rem; border-radius: 1rem; background: #fff; opacity: .9; box-shadow: 1.8rem -.8rem 0 -.1rem #fff; animation: mineCloud 90s linear -50s infinite; }
+.build-sign { position: absolute; left: .8rem; top: .8rem; z-index: 3; padding: .3rem .9rem; background: #1f1f1f; color: #f5c518; font-size: 1.7rem; font-weight: 600; border-radius: .35rem; }
+.build-sign b { color: #fff; margin-left: .3rem; font-weight: 600; }
+.build-art { position: absolute; left: 1.4rem; right: 10.5rem; top: 3.8rem; bottom: 1.9rem; }
+.build-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.build-svg .g-later { fill: rgba(255,255,255,.22); stroke: rgba(37,88,192,.4); stroke-width: .6; stroke-dasharray: 2 1.5; }
+.build-svg .g-next { fill: rgba(255,255,255,.4); stroke: #2558c0; stroke-width: .9; stroke-dasharray: 2 1.5; animation: ghostPulse 4s ease-in-out infinite; }
+@keyframes ghostPulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+.b-new { animation: brickDrop .6s cubic-bezier(.3,1.4,.6,1) both; }
+@keyframes brickDrop { from { transform: translateY(-60px); opacity: 0; } 30% { opacity: 1; } }
+.bw-smoke, .bw-flame { display: none; }
+.build.won .bw-smoke { display: inline; }
+.bw-smoke circle { fill: #e9e9e9; opacity: 0; transform-box: fill-box; transform-origin: center; animation: smokeUp 4.5s ease-out infinite; }
+.bw-smoke circle:nth-child(2) { animation-delay: 1.5s; } .bw-smoke circle:nth-child(3) { animation-delay: 3s; }
+@keyframes smokeUp { 0% { opacity: 0; transform: none; } 15% { opacity: .9; } 100% { opacity: 0; transform: translate(8px, -34px) scale(2.4); } }
+.build.won .b-t .m { fill: #ffd84a; animation: winGlow 3s ease-in-out infinite alternate; }
+@keyframes winGlow { to { fill: #fff2a8; } }
+/* The rocket hops now and then, and the flame only shows while it is up. */
+.build.won .bw-flame { display: inline; transform-box: fill-box; transform-origin: 50% 0; animation: flameHop 9s ease-in-out infinite; }
+@keyframes flameHop { 0%, 72%, 92%, 100% { transform: scaleY(0); } 78%, 86% { transform: scaleY(1); } 82% { transform: scaleY(.75); } }
+.build.won .bw-body { animation: rocketHop 9s ease-in-out infinite; }
+@keyframes rocketHop { 0%, 70%, 100% { transform: none; } 80%, 86% { transform: translateY(-14px); } }
+.build.won .b-f { transform-box: fill-box; transform-origin: 0 50%; animation: flagWave 2.4s ease-in-out infinite alternate; }
+@keyframes flagWave { from { transform: skewY(-10deg); } to { transform: skewY(10deg); } }
+/* The builder fetches the next brick now and then, and cheers when the build is done. */
+.build-fig { position: absolute; right: 2.6rem; bottom: 1.8rem; width: 5.2rem; height: 8rem; z-index: 2; }
+.build-fig .a-legA, .build-fig .a-legB { animation: none; }
+.build-fig svg > g:nth-of-type(3) { animation: figArmL 14s ease-in-out infinite; }
+.build-fig svg > g:nth-of-type(4) { animation: figArmR 14s ease-in-out infinite; }
+@keyframes figArmL { 0%, 70%, 96%, 100% { transform: none; } 75%, 90% { transform: rotate(150deg); } }
+@keyframes figArmR { 0%, 70%, 96%, 100% { transform: none; } 75%, 90% { transform: rotate(-150deg); } }
+.build-carry { position: absolute; left: 50%; top: -1.6rem; width: 3.6rem; height: 2.5rem; margin-left: -1.8rem; opacity: 0; animation: figCarry 14s ease-in-out infinite; }
+@keyframes figCarry { 0%, 72% { opacity: 0; transform: translateY(2.6rem); } 76%, 90% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(2.6rem); } }
+.build.won .build-carry { display: none; }
+.build.won .build-fig svg > g:nth-of-type(3) { animation: figArmL 6s ease-in-out infinite; }
+.build.won .build-fig svg > g:nth-of-type(4) { animation: figArmR 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .mob, .mob *, .mine *, .build * { animation: none !important; } .build-carry, .mine-crack, .mine-chips { display: none; } }
+
 /* A pit stall on each kid's card */
 .pit { display: none; }
 .theme-pitstop .kid { padding-right: 39.5rem; }
@@ -2078,8 +2180,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   var ZOMBIE = blockFigure({ skin: '#6aa84f', shirt: '#2f8f9a', shirt2: '#28808a', pants: '#3a3a8a', pants2: '#34347a', boots: '#2a2a2a', belt: '#2f8f9a', hair: '#3f6f2f', mouth: '#2f4f1f', zombie: true, reach: true });
   function blockArt(kind) {
     // An 8 by 8 block. The speckle comes from the position, so each kind always looks the same.
-    var pals = { stone: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], dirt: ['#866043', '#79553a', '#946b4b', '#6b4a33'], gold: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], diamond: ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], grass: ['#866043', '#79553a', '#946b4b', '#6b4a33'] };
-    var ore = { gold: ['#f5d33a', '#c99a1a'], diamond: ['#5ff0e0', '#2fb8aa'] }, rows = [], pal = { a: pals[kind][0], b: pals[kind][1], c: pals[kind][2], d: pals[kind][3], g: '#5fa83a', h: '#6cbf43', o: '', p: '' }, x, y;
+    var dirt = ['#866043', '#79553a', '#946b4b', '#6b4a33'], stone = ['#7d7d7d', '#747474', '#8a8a8a', '#6b6b6b'], pals = { dirt: dirt, grass: dirt };
+    if (!pals[kind]) pals[kind] = stone;
+    var ore = { gold: ['#f5d33a', '#c99a1a'], diamond: ['#5ff0e0', '#2fb8aa'], coal: ['#2a2a2a', '#151515'], iron: ['#e2c0a4', '#b88e70'], emerald: ['#41d86e', '#1f9a44'] }, rows = [], pal = { a: pals[kind][0], b: pals[kind][1], c: pals[kind][2], d: pals[kind][3], g: '#5fa83a', h: '#6cbf43', o: '', p: '' }, x, y;
     if (ore[kind]) { pal.o = ore[kind][0]; pal.p = ore[kind][1]; }
     for (y = 0; y < 8; y++) {
       var row = '';
@@ -2100,6 +2203,138 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     return '<svg class="mascot" viewBox="0 0 32 22" shape-rendering="crispEdges" aria-hidden="true">' + r(12, 2, 8, 7, '#e0a878') + r(11, 0, 10, 3, '#f2c200') + r(15, 0, 2, 2, '#fff6b0') + r(13, 5, 2, 1, '#fff') + r(17, 5, 2, 1, '#fff') + r(13, 5, 1, 1, '#3a2a8a') + r(17, 5, 1, 1, '#3a2a8a') +
       r(2, 8, 28, 2, '#5a5a5a') + r(3, 10, 26, 7, '#7d7d7d') + r(10, 10, 1, 7, '#5a5a5a') + r(21, 10, 1, 7, '#5a5a5a') + r(3, 16, 26, 1, '#5a5a5a') + r(5, 17, 5, 4, '#222') + r(22, 17, 5, 4, '#222') + r(6, 18, 3, 2, '#555') + r(23, 18, 3, 2, '#555') + '</svg>';
   })();
+  /* ---------- Block Miner scene: animals roam the grass, and the miner digs one ore per checklist item ---------- */
+  function px(x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; }
+  function mobSvg(w, h, parts) {
+    // parts: [class, pivot x, pivot y, rects]. Legs come first so the body covers their tops.
+    var html = '<svg class="mascot" viewBox="0 0 ' + w + ' ' + h + '" shape-rendering="crispEdges" aria-hidden="true">', i;
+    for (i = 0; i < parts.length; i++) html += parts[i][0] ? '<g class="' + parts[i][0] + '"' + pivot(parts[i][1], parts[i][2]) + '>' + parts[i][3] + '</g>' : parts[i][3];
+    return html + '</svg>';
+  }
+  var SHEEP = mobSvg(19, 13, [
+    ['m-legB', 3, 9, px(2, 9, 2, 4, '#b8a084')], ['m-legB', 12, 9, px(11, 9, 2, 4, '#b8a084')], ['m-legA', 5, 9, px(4, 9, 2, 4, '#cfb79a')], ['m-legA', 14, 9, px(13, 9, 2, 4, '#cfb79a')],
+    ['', 0, 0, px(1, 3, 15, 7, '#efefef') + px(2, 4, 2, 1, '#dadada') + px(7, 6, 2, 1, '#dadada') + px(11, 4, 2, 1, '#dadada') + px(4, 8, 3, 1, '#dadada') + px(10, 8, 2, 1, '#dadada') + px(1, 9, 15, 1, '#dcdcdc') + px(0, 4, 1, 2, '#efefef')],
+    ['m-head', 15, 5, px(14, 1, 5, 2, '#efefef') + px(14, 3, 5, 5, '#cfb79a') + px(13, 3, 1, 2, '#b8a084') + px(16, 4, 1, 1, '#fff') + px(17, 4, 1, 1, '#222') + px(18, 6, 1, 1, '#8a6a5a')]
+  ]);
+  var FARM_PIG = mobSvg(20, 11, [
+    ['m-legB', 3, 8, px(2, 8, 2, 3, '#d97f98')], ['m-legB', 12, 8, px(11, 8, 2, 3, '#d97f98')], ['m-legA', 5, 8, px(4, 8, 2, 3, '#ee93aa')], ['m-legA', 14, 8, px(13, 8, 2, 3, '#ee93aa')],
+    ['', 0, 0, px(1, 2, 15, 7, '#f4a6ba') + px(1, 8, 15, 1, '#e391a6') + px(3, 3, 3, 1, '#f8bccb') + px(0, 3, 1, 2, '#e391a6') + px(9, 5, 2, 2, '#eaa0b4')],
+    ['m-head', 15, 5, px(14, 1, 5, 6, '#f4a6ba') + px(14, 1, 2, 1, '#e391a6') + px(16, 3, 1, 1, '#fff') + px(17, 3, 1, 1, '#222') + px(19, 3, 1, 3, '#e8889f') + px(19, 4, 1, 1, '#a94a63')]
+  ]);
+  // A tall green critter that sneaks around and hisses. Its own face, not a copy of anyone's.
+  var HISSER = mobSvg(10, 18, [
+    ['m-legB', 2, 14, px(0, 14, 4, 4, '#3f8a30')], ['m-legA', 8, 14, px(6, 14, 4, 4, '#4ea33c')],
+    ['', 0, 0, px(3, 6, 4, 9, '#5bb84a') + px(4, 8, 1, 1, '#7ad06a') + px(5, 11, 1, 2, '#3f8a30') + px(3, 13, 1, 1, '#7ad06a')],
+    ['m-head', 5, 6, px(1, 0, 8, 6, '#5bb84a') + px(2, 1, 2, 1, '#7ad06a') + px(3, 4, 1, 1, '#3f8a30') + px(1, 3, 1, 1, '#7ad06a') + px(7, 1, 2, 2, '#1b1b1b') + px(8, 4, 1, 2, '#1b1b1b')]
+  ]);
+  // Each animal walks right, rests, turns, walks back and rests again. mineTick moves their legs only while they walk.
+  var MOBS = [
+    { art: SHEEP, rest: 'graze', left: 1, d: 13, p: 46000, o: 0, w: 5.7, h: 3.9 },
+    { art: FARM_PIG, rest: 'sniff', left: 6, d: 15, p: 38000, o: 9000, w: 6, h: 3.3 },
+    { art: HISSER, rest: 'hiss', left: 15, d: 8, p: 54000, o: 21000, w: 3, h: 5.4, say: 'sss...' }
+  ];
+  function mobWalking(p, o) { var f = ((Date.now() + o) % p) / p; return f < .35 || (f >= .5 && f < .85); }
+  function mobsHtml(kid, ground) {
+    var html = '', i, m, o;
+    for (i = 0; i < MOBS.length; i++) {
+      m = MOBS[i]; o = m.o + kid * 7000;
+      html += '<div class="mob mob-' + m.rest + (mobWalking(m.p, o) ? ' walk' : ' rest') + '" data-p="' + m.p + '" data-o="' + o + '" style="left:' + m.left + 'rem;bottom:' + ground.toFixed(2) + 'rem;width:' + m.w + 'rem;height:' + m.h + 'rem;--d:' + m.d + 'rem;--dur:' + (m.p / 1000) + 's;--ph:' + (-((Date.now() + o) % m.p) / 1000).toFixed(2) + 's">' +
+        '<div class="mob-flip">' + m.art + '</div>' + (m.say ? '<div class="mob-say">' + m.say + '</div>' : '') + '</div>';
+    }
+    return html;
+  }
+  function mineTick() {
+    var mobs = document.querySelectorAll('.mob'), i;
+    for (i = 0; i < mobs.length; i++) {
+      var walk = mobWalking(+mobs[i].getAttribute('data-p'), +mobs[i].getAttribute('data-o'));
+      if (mobs[i].classList.contains('walk') !== walk) { mobs[i].classList[walk ? 'add' : 'remove']('walk'); mobs[i].classList[walk ? 'remove' : 'add']('rest'); }
+    }
+  }
+  function svgUrl(svg) { return 'url("data:image/svg+xml,' + encodeURIComponent(svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ')) + '")'; }
+  var MINE_ORES = ['coal', 'iron', 'gold', 'emerald'], mineSeen = {}, mineStyled = false;
+  var CRACK = pixSvg(['........', '..k.....', '...k..k.', '...kkk..', '..k..k..', '.k....kk', '.....k..', '........'], { k: 'rgba(0,0,0,.7)' });
+  function mineHtml(i, total, done) {
+    // The tunnel starts two blocks deep. Each checklist item is one ore to dig; the last one is a diamond.
+    var n = Math.max(total, 1), b = Math.min(3.6, 34 / (n + 2)), floor = 1.2, ground = floor + 2 * b + 1 + 1.2 + .8, won = total > 0 && done >= total;
+    var from = mineSeen[i], k, html, bar = '', slot = Math.min(2.6, 22 / n);
+    mineSeen[i] = done;
+    if (from === undefined || from > done) from = done;
+    if (!mineStyled) {
+      mineStyled = true;
+      var css = document.createElement('style'), stone = svgUrl(blockArt('stone'));
+      css.textContent = '.mine-ground { background-image: ' + stone + '; } .mine-air { background-image: linear-gradient(rgba(24,18,14,.74), rgba(24,18,14,.74)), ' + stone + '; }';
+      document.head.appendChild(css);
+    }
+    var air = (2 + done) * b, kind = function (k) { return k === n - 1 ? 'diamond' : MINE_ORES[k % MINE_ORES.length]; };
+    html = '<div class="mine' + (won ? ' won' : '') + '" style="--b:' + b.toFixed(2) + 'rem;--md:' + (-i * 4) + 's"><div class="mine-sun"></div><div class="mine-cloud"></div>' + mobsHtml(i, ground - .15) +
+      '<div class="mine-ground" style="height:' + ground.toFixed(2) + 'rem;background-size:' + b.toFixed(2) + 'rem ' + b.toFixed(2) + 'rem"><div class="mine-grass"></div><div class="mine-dirt"></div>' +
+      '<div class="mine-air" style="width:' + air.toFixed(2) + 'rem;height:' + (2 * b).toFixed(2) + 'rem;bottom:' + floor + 'rem;background-size:auto, ' + b.toFixed(2) + 'rem ' + b.toFixed(2) + 'rem"></div>';
+    for (k = 0; k < n && total; k++) {
+      var at = 'left:' + ((2 + k) * b).toFixed(2) + 'rem;bottom:' + floor + 'rem';
+      if (k >= done) html += '<div class="mine-ore" style="' + at + '">' + blockArt(kind(k)) + (k === done ? '<div class="mine-crack">' + CRACK + '</div>' : '') + '</div>';
+      else if (k >= from) html += '<div class="mine-ore mine-break" style="' + at + ';animation-delay:' + ((k - from) * .3).toFixed(1) + 's">' + blockArt(kind(k)) + '</div>';
+      bar += '<i' + (k >= from && k < done ? ' class="pop"' : '') + ' style="width:' + slot.toFixed(2) + 'rem;height:' + slot.toFixed(2) + 'rem">' + (k < done ? (k === n - 1 ? GEM : blockArt(kind(k))) : '') + '</i>';
+    }
+    if (!won) {
+      var mh = 2 * b * .97, mw = mh * 22 / 32, mx = air - mw + .25 * b;
+      html += '<div class="mine-miner' + (from < done ? ' stepping' : '') + '" style="left:' + mx.toFixed(2) + 'rem;bottom:' + floor + 'rem;width:' + mw.toFixed(2) + 'rem;height:' + mh.toFixed(2) + 'rem;--step:' + (-(done - from) * b).toFixed(2) + 'rem">' + MINER + '</div>';
+      if (total) html += '<div class="mine-chips" style="left:' + air.toFixed(2) + 'rem;bottom:' + (floor + b * .6).toFixed(2) + 'rem"><i></i><i></i><i></i></div>';
+    }
+    html += '</div>';
+    // Done: the miner climbs out and holds up the diamond.
+    if (won) html += '<div class="mine-hero" style="bottom:' + (ground - .15).toFixed(2) + 'rem">' + MINER + '</div><div class="mine-trophy" style="bottom:' + (ground + 6.2).toFixed(2) + 'rem">' + GEM + '</div>';
+    return html + (total ? '<div class="mine-bar">' + bar + '</div>' : '') + '</div>';
+  }
+
+  /* ---------- Brick Builders scene: each kid builds something new each day, a few bricks per checklist item ---------- */
+  var BRICK_COLORS = { r: '#d6372b', b: '#2558c0', y: '#f5c518', w: '#f4f1e8', k: '#4a4a4a', s: '#9aa0a8', o: '#e07b00', t: '#9fd3ff', d: '#7a4a24', f: '#d6372b', p: '#6b6b6b' };
+  // Rows run top to bottom, one letter per stud. Runs of a letter become bricks of up to four studs.
+  var BUILDS = [
+    { name: 'House', fx: '<g class="bw-smoke"><circle cx="110" cy="0" r="4"/><circle cx="110" cy="0" r="4"/><circle cx="110" cy="0" r="4"/></g>',
+      rows: ['..........kk..', '.....bbbb.kk..', '....bbbbbbkk..', '...bbbbbbbb...', '..bbbbbbbbbb..', '.bbbbbbbbbbbb.', '.rrrrrrrrrrrr.', '.rttrrddrrttr.', '.rttrrddrrttr.', '.rrrrrddrrrrr.', 'wwwwwwwwwwwwww'] },
+    { name: 'Rocket', base: 'p', fx: '<path class="bw-flame" d="M42 136 L60 162 L78 136 Z" fill="#ffb02e"/>',
+      rows: ['.....rr.....', '....rrrr....', '....wwww....', '...wwttww...', '...wwttww...', '...wwwwww...', '...bbbbbb...', '...wwwwww...', '..rwwwwwwr..', '.rrwwwwwwrr.', '.rr.oooo.rr.', 'pppppppppppp'] },
+    { name: 'Castle', fx: '',
+      rows: ['..kff........kff', '..k..........k..', 's.s.s......s.s.s', 'sssss.s..s.sssss', 'ssssssssssssssss', 'sstsssssssssssts', 'ssssssddddssssss', 'sstsssddddssstss', 'ssssssddddssssss', 'kkkkkkkkkkkkkkkk'] }
+  ];
+  var buildSeen = {};
+  function buildHtml(i, total, done) {
+    var day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000), plan = BUILDS[(day + i) % BUILDS.length];
+    var rows = plan.rows, R = rows.length, C = rows[0].length, bricks = [], n = Math.max(total, 1), won = total > 0 && done >= total, r, k, j, fresh = 0, next = '';
+    var from = buildSeen[i];
+    buildSeen[i] = done;
+    if (from === undefined || from > done) from = done;
+    for (r = R - 1; r >= 0; r--) {
+      var row = rows[r], c = 0;
+      while (c < C) {
+        var ch = row.charAt(c), run = 1;
+        if (ch === '.') { c++; continue; }
+        while (row.charAt(c + run) === ch) run++;
+        // Alternate rows start with a short brick so the seams stagger like a real wall.
+        var at = c, left = run, first = (R - 1 - r) % 2 ? 2 : 4;
+        while (left > 0) { var len = Math.min(left, at === c ? first : 4); bricks.push({ x: at, y: r, w: len, ch: ch }); at += len; left -= len; }
+        c += run;
+      }
+    }
+    var base = '', body = '', ghost = '';
+    for (k = 0; k < bricks.length; k++) {
+      var bk = bricks[k], st = total ? Math.floor(k * n / bricks.length) : n, x = bk.x * 10, y = 4 + bk.y * 12, w = bk.w * 10, col = BRICK_COLORS[bk.ch];
+      if (st >= done) {
+        if (st === done && !next) next = col;
+        ghost += '<rect class="' + (st === done ? 'g-next' : 'g-later') + '" x="' + (x + .8) + '" y="' + (y + .8) + '" width="' + (w - 1.6) + '" height="10.4" rx="1"/>';
+        continue;
+      }
+      var g = '<g class="b-' + bk.ch + (st >= from ? ' b-new' : '') + '"' + (st >= from ? ' style="animation-delay:' + (fresh++ * .06).toFixed(2) + 's"' : '') + '>';
+      for (j = 0; j < bk.w; j++) g += '<rect class="m" x="' + (x + 2.5 + j * 10) + '" y="' + (y - 2.6) + '" width="5" height="3" rx=".8" fill="' + col + '"/>';
+      g += '<rect class="m" x="' + (x + .4) + '" y="' + y + '" width="' + (w - .8) + '" height="12" rx="1" fill="' + col + '"/><rect x="' + (x + .4) + '" y="' + (y + 9.5) + '" width="' + (w - .8) + '" height="2.5" fill="#000" opacity=".18"/>' +
+        '<rect x="' + (x + 1.5) + '" y="' + (y + 1.5) + '" width="' + (w - 3) + '" height="1.6" rx=".8" fill="#fff" opacity=".3"/></g>';
+      if (plan.base && bk.ch === plan.base) base += g; else body += g;
+    }
+    var svg = '<svg class="build-svg" viewBox="0 0 ' + C * 10 + ' ' + (R * 12 + 4) + '" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' + base + '<g class="bw-body">' + (plan.base ? plan.fx : '') + body + '</g>' + (plan.base ? '' : plan.fx) + ghost + '</svg>';
+    return '<div class="build' + (won ? ' won' : '') + '"><div class="build-cloud"></div><div class="build-sign">' + plan.name + (won ? ' <b>built!</b>' : ' <b>' + done + '/' + total + '</b>') + '</div>' +
+      '<div class="build-art">' + svg + '</div><div class="build-fig">' + BRICK_FIG + '<div class="build-carry">' + brickArt(next || '#f5c518', 'rgba(0,0,0,.25)') + '</div></div></div>';
+  }
+
   /* ---------- Pit Stop: the car, the crew, the jobs and the race ---------- */
   var CHECKER = (function () {
     var html = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 6 V60" stroke="#6b6b6b" stroke-width="3.5" stroke-linecap="round"/><path d="M14 8 Q36 2 58 9 V37 Q36 30 14 36 Z" fill="#fff"/>', x, y;
@@ -3072,6 +3307,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     checkTimersDone();
     pigTick();
+    mineTick();
   }
   var timerWas = {}, lastBell = 0;
   function checkTimersDone() {
@@ -3244,7 +3480,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false;
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false, mine = themeInfo().id === 'miner', build = themeInfo().id === 'bricks';
     var everyoneIn = s.kids.length > 0 && partList(checkPart()).length > 0;
     for (i = 0; i < s.kids.length; i++) if (doneCount(i, key, checkPart()) < partList(checkPart()).length) everyoneIn = false;
     for (i = 0; i < s.kids.length; i++) {
@@ -3255,7 +3491,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (allDone) shown['all-' + i] = true;
       if (justFinished) anyFinished = true;
       if (!allDone) everyoneDone = false;
-      var pitDone = pit || pigs ? doneCount(i, key, checkPart()) : 0;
+      var pitDone = pit || pigs || mine || build ? doneCount(i, key, checkPart()) : 0;
       if (pigs && justFinished) partyNow = true;
       if (pit && justFinished && $('tv').className.indexOf('hide') < 0) raceKids.push(i);
       html += '<div class="kid"' + (pit ? ' style="--car:' + esc(carFor(i).color) + '"' : '') + ' data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
@@ -3265,7 +3501,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         blockBar('After school', m.leftAfter, s.blockMinutes, was && was.leftAfter, i + '-after') + blockBar('Evening', m.leftEvening, s.blockMinutes, was && was.leftEvening, i + '-evening') +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
-        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + '</div>';
+        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + (mine ? mineHtml(i, total, pitDone) : '') + (build ? buildHtml(i, total, pitDone) : '') + '</div>';
     }
     lastChecks = shown;
     lastMins = mins;
