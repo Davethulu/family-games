@@ -1886,7 +1886,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     toast('Timer started');
   }
-  function timersHtml() {
+  function timersHtml(middle) {
+    // The most-used things share the first tab: running timers, then the checklist, then starting a timer.
     var s = settings(), html = '', k, i;
     for (k = 0; k < s.kids.length; k++) {
       var t = liveTimer(k);
@@ -1895,7 +1896,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       html += '<div class="card"><h2>' + esc(s.kids[k]) + (t.label ? ': ' + esc(t.label) : '') + '<span class="ed-time" data-kid="' + k + '"></span></h2><div class="opts">' +
         (t.screen ? '' : optBtn('timerAdd', k, '+1 min', false)) + optBtn('timerPause', k, paused ? 'Resume' : 'Pause', false) + optBtn('timerStop', k, 'Stop', false) + '</div></div>';
     }
-    html += '<div class="card"><h2>Start</h2><div class="who">';
+    html += (middle || '') + '<div class="card"><h2>Start a timer</h2><div class="who">';
     for (k = 0; k < s.kids.length; k++) html += optBtn('timerWho', k, s.kids[k], String(ed.timerWho) === String(k));
     html += optBtn('timerWho', 'both', 'Both', ed.timerWho === 'both') + '</div><span class="lab">Use up screen time. Tap to start.</span><div class="who">';
     var who = ed.timerWho === 'both' ? [0, 1] : [+ed.timerWho], key = dateKey(new Date());
@@ -2088,8 +2089,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '<span class="ed-date">' + DAY_NAMES[today.getDay()] + ', ' + MONTHS[today.getMonth()].slice(0, 3) + ' ' + today.getDate() + '</span>') + '</div>';
     if (tvEditing && !pinOk) html += pinHtml();
     else {
-      html += '<div class="tabs">' + tabBtn('list', 'Checklist') + tabBtn('minutes', 'Minutes') + tabBtn('timers', 'Timers') + tabBtn('calendar', 'Calendar') + tabBtn('more', 'More') + '</div>';
-      html += ed.tab === 'list' ? listHtml() : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'timers' ? timersHtml() : ed.tab === 'calendar' ? calendarHtml() : moreHtml();
+      html += '<div class="tabs">' + tabBtn('list', 'Today') + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('more', 'More') + '</div>';
+      html += ed.tab === 'list' ? timersHtml(listHtml()) : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : moreHtml();
     }
     el.innerHTML = html + '</div>';
     updateTimers();
@@ -2118,7 +2119,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   function listHtml() {
     var s = settings(), key = dateKey(new Date()), part = ed.listPart || checkPart(), list = partList(part), i, k;
-    var html = '<div class="card"><div class="opts" style="margin-bottom:.5em">' + optBtn('listPart', 'am', 'Morning', part === 'am') + optBtn('listPart', 'pm', 'After 3 pm', part === 'pm') + '</div>';
+    var html = '<div class="card"><h2>Checklist</h2><div class="opts" style="margin-bottom:.5em">' + optBtn('listPart', 'am', 'Morning', part === 'am') + optBtn('listPart', 'pm', 'After 3 pm', part === 'pm') + '</div>';
     for (i = 0; i < list.length; i++) {
       html += '<div class="list-row"><div class="list-name">' + esc(list[i]) + '</div>';
       for (k = 0; k < s.kids.length; k++) {
