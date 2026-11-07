@@ -746,6 +746,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .nums .opt { background: var(--panel); flex: 1 1 18%; min-width: 3em; }
 .go { min-height: 3.2em; margin-top: .85em; background: var(--gold); border: 0; border-radius: .35em; }
 #editor .go { color: var(--panel); }
+a.go { display: flex; align-items: center; justify-content: center; box-sizing: border-box; text-decoration: none; font-weight: 700; }
 .go:disabled { opacity: .4; }
 .small { min-height: 2.8em; padding: .3em .8em; border-radius: .35em; flex-shrink: 0; }
 .linkish { display: block; width: 100%; min-height: 3em; margin-top: .6em; padding: .3em; background: none; border: .08em dashed var(--muted); border-radius: .35em; }
@@ -2197,12 +2198,13 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       html += '<button class="go" data-act="syncNow" data-f="syncNow"' + (ed.syncing ? ' disabled' : '') + '>' + (ed.syncing ? 'Syncing, about a minute...' : 'Sync now') + '</button>' +
         '<button class="linkish" data-act="syncKeyRemove" data-f="syncKeyRemove">Remove sync key</button>';
     } else {
-      html += '<button class="go" disabled>Sync now</button><button class="linkish" data-act="syncSetup" data-f="syncSetup">Turn on this button</button>';
+      html += '<a class="go" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml" data-f="syncGithub">Sync on GitHub</a>' +
+        '<p class="hint">On GitHub, tap <b>Run workflow</b>, then the green <b>Run workflow</b> button. The calendar updates here in about a minute.</p>' +
+        '<button class="linkish" data-act="syncSetup" data-f="syncSetup">Set up one-tap sync instead</button>';
       if (ed.syncSetup) {
         html += '<p class="hint">Paste a limited GitHub key. It only needs Actions access to the family-games repository.</p>' +
           '<label class="lab" for="sk">GitHub key</label><input id="sk" type="password" autocomplete="off" spellcheck="false" data-draft="syncKeyDraft" data-f="sk" value="' + esc(ed.syncKeyDraft || '') + '">' +
-          '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>' +
-          '<a class="sync-link" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml">Or sync on GitHub</a>';
+          '<button class="go" data-act="syncKeySave" data-f="syncKeySave">Save key</button>';
       }
     }
     return html + '</div>';
@@ -2299,7 +2301,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     var soon = upcoming().length;
     return html + '</div><div class="card"><h2>Calendar</h2><button class="reason" data-act="moreOpen" data-arg="calendar" data-f="more-calendar"><span>Add events, sync iCloud</span><i>' +
-      (soon ? soon + ' coming up ' : '') + '&rsaquo;</i></button></div>';
+      (soon ? soon + ' coming up ' : '') + '&rsaquo;</i></button>' +
+      (data.syncKey ? '' : '<a class="go" target="_blank" rel="noopener" href="https://github.com/Davethulu/family-games/actions/workflows/icloud-sync.yml" data-f="syncGithubMore">Sync iCloud on GitHub</a>') + '</div>';
   }
   function sectionHtml(id) {
     if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
