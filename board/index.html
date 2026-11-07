@@ -1034,12 +1034,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-pigs .chip:first-child:nth-last-child(n+5), .theme-pigs .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
 
 /* The science pig never stops: pour, shake, ponder, repeat. Paused while eating, being nagged, or celebrating. */
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: noahPour 7s ease-in-out infinite; }
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: noahPonder 7s ease-in-out infinite; }
-.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: noahBrow 7s ease-in-out infinite; }
-@keyframes noahPour { 0%, 12% { transform: none; } 24% { transform: rotate(-55deg); } 30%, 40% { transform: rotate(-80deg); } 43% { transform: rotate(-72deg); } 46% { transform: rotate(-84deg); } 49% { transform: rotate(-72deg); } 56%, 100% { transform: none; } }
-@keyframes noahPonder { 0%, 58% { transform: none; } 66%, 92% { transform: rotate(7deg); } 100% { transform: none; } }
-@keyframes noahBrow { 0%, 60% { transform: none; } 68%, 90% { transform: translateY(-4px) rotate(-12deg); } 100% { transform: none; } }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: sciencePour 7s ease-in-out infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: sciencePonder 7s ease-in-out infinite; }
+.sty-science:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: scienceBrow 7s ease-in-out infinite; }
+@keyframes sciencePour { 0%, 12% { transform: none; } 24% { transform: rotate(-55deg); } 30%, 40% { transform: rotate(-80deg); } 43% { transform: rotate(-72deg); } 46% { transform: rotate(-84deg); } 49% { transform: rotate(-72deg); } 56%, 100% { transform: none; } }
+@keyframes sciencePonder { 0%, 58% { transform: none; } 66%, 92% { transform: rotate(7deg); } 100% { transform: none; } }
+@keyframes scienceBrow { 0%, 60% { transform: none; } 68%, 90% { transform: translateY(-4px) rotate(-12deg); } 100% { transform: none; } }
 .sty-think { position: absolute; left: 11.4rem; top: 1rem; width: 11rem; height: 7rem; z-index: 3; }
 .sty-think i { position: absolute; border-radius: 50%; background: #fff; border: .18rem solid #1b1b1b; }
 .sty-think i:nth-child(1) { left: .2rem; bottom: .2rem; width: 1rem; height: 1rem; }
@@ -1052,12 +1052,12 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .sty-think.say .think-cloud { left: 0; border-radius: .8rem; }
 .sty-think.say .think-cloud::after { content: ""; position: absolute; left: 1.6rem; bottom: -1.1rem; border: .55rem solid transparent; border-top: .8rem solid #1b1b1b; }
 .sty-think.say .think-cloud span { color: #2f8a4a; font-size: 2rem; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: loganCount 8s ease-in-out infinite; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browL, .sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: loganBrow 8s ease-in-out infinite; }
-.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: loganNod 8s ease-in-out infinite; }
-@keyframes loganCount { 0%, 6% { transform: none; } 12% { transform: rotate(-70deg); } 16% { transform: rotate(-58deg); } 20% { transform: rotate(-70deg); } 24% { transform: rotate(-58deg); } 28% { transform: rotate(-70deg); } 34%, 64% { transform: none; } 72%, 80% { transform: rotate(-95deg) scaleY(1.5); } 88%, 100% { transform: none; } }
-@keyframes loganBrow { 0%, 38% { transform: none; } 40%, 44%, 48%, 52% { transform: translateY(-4px); } 42%, 46%, 50% { transform: none; } 54%, 100% { transform: none; } }
-@keyframes loganNod { 0%, 8% { transform: none; } 12%, 30% { transform: rotate(-5deg); } 36%, 100% { transform: none; } }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-armR { animation: snackTally 8s ease-in-out infinite; }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browL, .sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-browR { animation: snackBrow 8s ease-in-out infinite; }
+.sty-snack:not(.eating):not(.nag):not(.party) .sty-pig .p-head { animation: snackNod 8s ease-in-out infinite; }
+@keyframes snackTally { 0%, 6% { transform: none; } 12% { transform: rotate(-70deg); } 16% { transform: rotate(-58deg); } 20% { transform: rotate(-70deg); } 24% { transform: rotate(-58deg); } 28% { transform: rotate(-70deg); } 34%, 64% { transform: none; } 72%, 80% { transform: rotate(-95deg) scaleY(1.5); } 88%, 100% { transform: none; } }
+@keyframes snackBrow { 0%, 38% { transform: none; } 40%, 44%, 48%, 52% { transform: translateY(-4px); } 42%, 46%, 50% { transform: none; } 54%, 100% { transform: none; } }
+@keyframes snackNod { 0%, 8% { transform: none; } 12%, 30% { transform: rotate(-5deg); } 36%, 100% { transform: none; } }
 .sty-coins { position: absolute; left: 12.4rem; bottom: 9.6rem; width: 2.4rem; height: 2.4rem; z-index: 3; }
 .sty-coins b { position: absolute; left: 0; top: 0; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #f4c430; border: .2rem solid #a07a10; color: #a07a10; font: 700 1.4rem/1.8rem Oswald, Arial; text-align: center; opacity: 0; animation: coinUp 8s ease-out infinite; }
 .sty-coins b:nth-child(2) { animation-delay: .6s; } .sty-coins b:nth-child(3) { animation-delay: 1.2s; }
@@ -1077,8 +1077,8 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes crewWipe { 0%, 60% { transform: none; } 66%, 78%, 90% { transform: rotate(-70deg); } 72%, 84% { transform: rotate(-45deg); } 96%, 100% { transform: none; } }
 @keyframes gunSpin { 0%, 80% { transform: none; } 83%, 89% { transform: rotate(-20deg); } 86%, 92% { transform: rotate(-8deg); } 96%, 100% { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .sty-snack .sty-pig *, .sty-coins b, .hdr-pig *, .c-oil .j-armR, .c-tire .j-foreR { animation: none !important; } }
-.sty-poof { position: absolute; right: 9.6rem; bottom: 10.4rem; width: 3rem; height: 3rem; border-radius: 50%; background: radial-gradient(circle, rgba(222,150,235,.9), rgba(198,79,209,0) 70%); z-index: 3; opacity: 0; animation: noahPoof 7s ease-out 3.1s infinite; }
-@keyframes noahPoof { 0% { opacity: 0; transform: scale(.3); } 6% { opacity: 1; transform: scale(1.2); } 18% { opacity: 0; transform: translateY(-2.6rem) scale(2); } 100% { opacity: 0; } }
+.sty-poof { position: absolute; right: 9.6rem; bottom: 10.4rem; width: 3rem; height: 3rem; border-radius: 50%; background: radial-gradient(circle, rgba(222,150,235,.9), rgba(198,79,209,0) 70%); z-index: 3; opacity: 0; animation: sciencePoof 7s ease-out 3.1s infinite; }
+@keyframes sciencePoof { 0% { opacity: 0; transform: scale(.3); } 6% { opacity: 1; transform: scale(1.2); } 18% { opacity: 0; transform: translateY(-2.6rem) scale(2); } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sty-science .sty-pig *, .think-cloud span, .sty-poof { animation: none !important; } }
 
 /* A kid finishing their own list */
