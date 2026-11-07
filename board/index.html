@@ -733,6 +733,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 #editor.overlay .ed-wrap { padding-bottom: 2em; }
 .card { background: var(--panel); border-radius: .3em; padding: .9em; margin-bottom: .8em; box-shadow: 0 .08em .25em rgba(70,50,20,.2); }
 .card h2 { font-family: Kalam, "Segoe Print", Georgia, serif; font-size: 1.25em; margin: 0 0 .35em; }
+.ed-left { float: right; margin-top: .45em; font: 400 .62em/1.2 Karla, sans-serif; color: var(--muted); }
 .lab { margin: .85em 0 .3em; font-size: .92em; }
 .opts { margin: 0 -.15em; }
 .opt, .mark, .reason, .small, .keypad button { background: var(--panel2); border: .08em solid var(--line); }
@@ -2089,8 +2090,12 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       (tvEditing ? '<button class="small" data-act="closeEd" data-f="close">Back to board</button>' : '<span class="ed-date">' + DAY_NAMES[today.getDay()] + ', ' + MONTHS[today.getMonth()].slice(0, 3) + ' ' + today.getDate() + '</span>') + '</div>';
     if (tvEditing && !pinOk) html += pinHtml();
     else {
-      html += '<div class="tabs">' + tabBtn('list', 'Today') + tabBtn('minutes', 'Minutes') + tabBtn('calendar', 'Calendar') + tabBtn('more', 'More') + '</div>';
-      html += ed.tab === 'list' ? timersHtml(listHtml()) : ed.tab === 'minutes' ? minutesHtml() : ed.tab === 'calendar' ? calendarHtml() : moreHtml();
+      var kids = settings().kids, k;
+      html += '<div class="tabs">' + tabBtn('list', 'Today');
+      for (k = 0; k < kids.length; k++) html += tabBtn('k' + k, kids[k]);
+      html += tabBtn('more', 'More') + '</div>';
+      if (/^k\d$/.test(ed.tab)) ed.kid = +ed.tab.charAt(1);
+      html += ed.tab === 'list' ? timersHtml(listHtml()) + homeworkHtml() : /^k\d$/.test(ed.tab) ? minutesHtml() : moreHtml();
     }
     el.innerHTML = html + '</div>';
     updateTimers();
@@ -2102,7 +2107,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   var editorForced = false;
   function forceEditor() { editorForced = true; renderEditor(); }
   function tabBtn(id, text) {
-    return '<button class="tab' + (ed.tab === id ? ' on' : '') + '" data-act="tab" data-arg="' + id + '" data-f="tab-' + id + '">' + text + '</button>';
+    return '<button class="tab' + (ed.tab === id ? ' on' : '') + '" data-act="tab" data-arg="' + id + '" data-f="tab-' + id + '">' + esc(text) + '</button>';
   }
   function optBtn(act, arg, text, on) {
     return '<button class="opt' + (on ? ' on' : '') + '" data-act="' + act + '" data-arg="' + esc(arg) + '" data-f="' + act + '-' + esc(arg) + '">' + esc(text) + '</button>';
@@ -2134,12 +2139,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     return html + '. The lists clear themselves each morning.</p></div>';
   }
   function minutesHtml() {
-    var s = settings(), key = dateKey(new Date()), block = ed.block || nextBlock(), i, html = '<div class="card"><div class="who">';
-    for (i = 0; i < s.kids.length; i++) {
-      var m = kidMinutes(i, key);
-      html += '<button class="opt' + (ed.kid === i ? ' on' : '') + '" data-act="kid" data-arg="' + i + '" data-f="kid-' + i + '">' + esc(s.kids[i]) + '<small>' + m.left + ' of ' + m.full + ' min</small></button>';
-    }
-    html += '</div><span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', block === 'after') + optBtn('block', 'evening', 'Evening', block === 'evening') + '</div>' +
+    var s = settings(), key = dateKey(new Date()), block = ed.block || nextBlock(), m = kidMinutes(ed.kid, key), i;
+    var html = '<div class="card"><h2>' + esc(s.kids[ed.kid]) + '<span class="ed-left">' + m.left + ' of ' + m.full + ' min left</span></h2>' +
+      '<p class="hint" style="margin-top:0">After school ' + m.leftAfter + ' · Evening ' + m.leftEvening + '</p><span class="lab">Comes off</span><div class="opts">' + optBtn('block', 'after', 'After school', block === 'after') + optBtn('block', 'evening', 'Evening', block === 'evening') + '</div>' +
       '<span class="lab">Tap what happened</span>';
     for (i = 0; i < REASONS.length; i++) {
       var x = REASONS[i];
@@ -2155,11 +2157,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     html += '</div>';
 
     html += '<div class="card"><h2>Today so far</h2>';
-    var log = (data.log && data.log[key]) || {}, ids = Object.keys(log).sort();
+    var log = (data.log && data.log[key]) || {}, ids = Object.keys(log).sort().filter(function (id) { return log[id].kid === ed.kid; });
     if (!ids.length) html += '<p class="hint">Nothing taken off today.</p>';
     for (i = ids.length - 1; i >= 0; i--) {
       var e = log[ids[i]];
-      html += '<div class="row"><div>' + (e.min < 0 ? '+' + (-e.min) : '−' + e.min) + ' · ' + esc(s.kids[e.kid]) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
+      html += '<div class="row"><div>' + (e.min < 0 ? '+' + (-e.min) : '−' + e.min) + '<em>' + esc(e.reason) + ' · ' + (e.block === 'after' ? 'After school' : 'Evening') + '</em></div>' +
         '<button class="small" data-act="undo" data-arg="' + esc(ids[i]) + '" data-f="undo-' + esc(ids[i]) + '">Undo</button></div>';
     }
     html += '<button class="linkish" data-act="giveToggle" data-f="giveToggle">' + (ed.giveOpen ? 'Close' : 'Give minutes back') + '</button>';
@@ -2169,8 +2171,10 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       for (i = 0; i < backs.length; i++) html += optBtn('give', backs[i], '+' + backs[i], false);
       html += '</div>';
     }
-    html += '</div>';
-
+    return html + '</div>';
+  }
+  function homeworkHtml() {
+    var key = dateKey(new Date()), i, html = '';
     var hw = (data.homework && data.homework[key]) || '', hwTimes = ['15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30'];
     if (hw && hwTimes.indexOf(hw) < 0) hwTimes.push(hw);
     html += '<div class="card"><h2>Homework done by</h2><div class="opts">' + optBtn('homework', '', 'No time', !hw);
@@ -2272,6 +2276,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   var MORE_SECTIONS = [['kids', "Kids' names"], ['morning', 'Morning times'], ['evening', 'Evening and bedtime'], ['checklist', 'Checklist items'], ['rules', 'Screen time rules'], ['pin', 'TV PIN'], ['channels', 'Music channels'], ['share', 'Share with your partner']];
   function moreHtml() {
+    if (ed.more === 'calendar') return '<button class="small" style="margin-bottom:.6em" data-act="moreOpen" data-arg="" data-f="moreBack">&lsaquo; Back</button>' + calendarHtml();
     if (ed.more) return sectionHtml(ed.more);
     var s = settings(), src = musicSource(), list = channels(), known = false, i;
     var html = '<div class="card"><h2>Music on the TV</h2><div class="opts">' + optBtn('music', 'off', 'Off', src === 'off');
@@ -2292,7 +2297,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (MORE_SECTIONS[i][0] === 'share' && DEMO) continue;
       html += '<button class="reason" data-act="moreOpen" data-arg="' + MORE_SECTIONS[i][0] + '" data-f="more-' + MORE_SECTIONS[i][0] + '"><span>' + MORE_SECTIONS[i][1] + '</span><i>&rsaquo;</i></button>';
     }
-    return html + '</div>';
+    var soon = upcoming().length;
+    return html + '</div><div class="card"><h2>Calendar</h2><button class="reason" data-act="moreOpen" data-arg="calendar" data-f="more-calendar"><span>Add events, sync iCloud</span><i>' +
+      (soon ? soon + ' coming up ' : '') + '&rsaquo;</i></button></div>';
   }
   function sectionHtml(id) {
     if (!ed.draft) ed.draft = JSON.parse(JSON.stringify(settings()));
