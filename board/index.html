@@ -654,6 +654,47 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .bulb { margin-left: -.55rem; }
 .bulb::before { content: ""; position: absolute; left: .3rem; top: -.28rem; width: .5rem; height: .4rem; background: #1b2b22; border-radius: .1rem; }
 
+/* ---------- Old-Fashioned Christmas: a cold night, big bulbs on everything ---------- */
+#tv.theme-lights { --bg: #0b1226; --panel: #16213f; --panel2: #1f2d52; --line: #2c3d6b; --ink: #fff7e8; --muted: #a9b6d3;
+  --mint: #3fd36b; --blue: #ffd23f; --orange: #ff8a3d; --pink: #ff6b5e; --gold: #ffd23f;
+  background: radial-gradient(ellipse at 50% 120%, #1d2c5a 0%, #0b1226 65%); color: var(--ink); font-family: Cabin, "Trebuchet MS", Arial, sans-serif; padding-top: 3.4rem; }
+.theme-lights .hero, .theme-lights .kid, .theme-lights .cal, .theme-lights .player { position: relative; background: var(--panel); border: .25rem solid var(--line); border-radius: 1rem;
+  box-shadow: 0 0 2.4rem rgba(255,210,63,.09), 0 .4rem .9rem rgba(0,0,0,.5); }
+/* A string of big old bulbs along the top of every panel. */
+.theme-lights .hero::before, .theme-lights .kid::before, .theme-lights .cal::before, .theme-lights .player::before { content: ""; position: absolute; left: 1.4rem; right: 1.4rem; top: -.75rem; height: 1.9rem; z-index: 2; pointer-events: none;
+  background: radial-gradient(.5rem .75rem at 50% 62%, #ff4b3e 92%, transparent) 0 0 / 8rem 1.9rem repeat-x, radial-gradient(.5rem .75rem at 50% 62%, #ffd23f 92%, transparent) 2rem 0 / 8rem 1.9rem repeat-x,
+    radial-gradient(.5rem .75rem at 50% 62%, #3fd36b 92%, transparent) 4rem 0 / 8rem 1.9rem repeat-x, radial-gradient(.5rem .75rem at 50% 62%, #4fb3ff 92%, transparent) 6rem 0 / 8rem 1.9rem repeat-x,
+    linear-gradient(#070b18, #070b18) 0 .45rem / 100% .16rem no-repeat;
+  filter: drop-shadow(0 0 .35rem rgba(255,220,120,.55)); animation: c9Glow 8s ease-in-out infinite alternate; }
+.theme-lights .kid::before { top: -.55rem; }
+@keyframes c9Glow { from { filter: drop-shadow(0 0 .25rem rgba(255,220,120,.4)) brightness(.85); } to { filter: drop-shadow(0 0 .55rem rgba(255,220,120,.7)) brightness(1.1); } }
+.theme-lights .tv-date, .theme-lights .kid-name, .theme-lights .cal h2, .theme-lights .hero-label, .theme-lights .tv-banner { font-family: Bevan, Georgia, serif; font-weight: 400; }
+.theme-lights .tv-date, .theme-lights .hero-label { color: #ffd23f; }
+.theme-lights .hero-count, .theme-lights .kid-total, .theme-lights .t-num, .theme-lights .tv-clock { font-family: Bevan, Georgia, serif; font-weight: 400; }
+.theme-lights .hero-count { font-size: 11rem; line-height: 1.15; color: #fff7e8; text-shadow: 0 0 2.4rem rgba(255,190,80,.4); }
+.theme-lights .kid-total { color: #ffd23f; }
+.theme-lights .block-track { background: #0d1530; border-radius: 1rem; height: 1.7rem; }
+.theme-lights .block-fill { border-radius: 1rem; background: repeating-linear-gradient(90deg, #ff4b3e 0 1.2rem, #ffd23f 1.2rem 2.4rem, #3fd36b 2.4rem 3.6rem, #4fb3ff 3.6rem 4.8rem); }
+.theme-lights .stop.next { background: #ffd23f; color: #16213f; padding-left: .8rem; padding-right: .8rem; border-radius: .4rem; border-top-color: transparent; }
+.theme-lights .stop.next span { color: #16213f; }
+.theme-lights .chip { background: rgba(255,255,255,.04); border: .16rem solid var(--line); border-radius: .6rem; }
+.theme-lights .chip.on { background: rgba(255,210,63,.14); border-color: #ffd23f; }
+.theme-lights .chip-text { color: var(--ink); }
+.theme-lights .chip.on .chip-text { color: #ffd23f; font-weight: 700; }
+.theme-lights .chip-ring { border-color: rgba(255,247,232,.7); border-radius: 50%; }
+.theme-lights .kid-flag { background: #ff4b3e; color: #fff; border-radius: .3rem; }
+.theme-lights .ev-when { color: #ffd23f; }
+.theme-lights .tv-btn { background: #1f2d52; color: #fff7e8; border: .2rem solid rgba(255,210,63,.45); }
+#tv.theme-lights button:focus { color: #16213f; }
+.theme-lights .kid-timer { background: rgba(9,14,32,.82); border: .2rem solid var(--line); border-radius: .8rem; }
+.theme-lights .fx-cheer span { font-family: Bevan, Georgia, serif; font-weight: 400; background: #16213f; color: #ffd23f; border: .3rem solid #ffd23f; box-shadow: 0 0 3rem rgba(255,210,63,.45); }
+.theme-lights .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.theme-lights .leaves .bulb { animation-duration: 6s !important; }
+.theme-lights .tv-banner .mascot { transform-origin: 50% 100%; animation: bannerBob 2.6s ease-in-out infinite alternate; }
+.fx-surge { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 40%, rgba(255,236,170,.85), rgba(255,200,90,.35) 60%, rgba(255,200,90,0)); animation: surgeFlash 3s ease-out forwards; }
+@keyframes surgeFlash { 0% { opacity: 0; } 8% { opacity: 1; } 14% { opacity: .1; } 22% { opacity: 1; } 30% { opacity: .2; } 40% { opacity: .9; } 100% { opacity: 0; } }
+.fx-walker .ld-cord, .parade .ld-cord, .fx-peek .ld-cord { display: none; }
+
 /* ---------- Wizard School: torn parchment under a candlelit ceiling ---------- */
 #tv.theme-wizard { --panel: #efe0b9; --panel2: #e3cf9f; --line: #c4ab74;
   background: radial-gradient(ellipse at 50% 115%, #252c63 0%, #0c0f2a 70%); font-family: Almendra, "Palatino Linotype", "Book Antiqua", Palatino, serif; }
@@ -953,6 +994,55 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .build.won .build-fig svg > g:nth-of-type(3) { animation: figArmL 6s ease-in-out infinite; }
 .build.won .build-fig svg > g:nth-of-type(4) { animation: figArmR 6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .mob, .mob *, .mine *, .build * { animation: none !important; } .build-carry, .mine-crack, .mine-chips { display: none; } }
+
+/* Old-Fashioned Christmas: each kid's house lights up a section per checklist item. Dad keeps trying the plug; it only works once the list is done. */
+.lights-scene { display: none; }
+.theme-lights .kid { padding-right: 39.5rem; }
+.theme-lights .kid-timer { position: absolute; right: 1.6rem; top: 1.6rem; width: 14rem; margin: 0; padding: .6rem; z-index: 4; }
+.theme-lights .kid-timer .t-num { font-size: 4rem; }
+.theme-lights .chips { flex-wrap: wrap; }
+.theme-lights .chip:first-child:nth-last-child(n+5), .theme-lights .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
+.theme-lights .lights-scene { display: block; position: absolute; right: .8rem; top: .8rem; bottom: .8rem; width: 37.4rem; overflow: hidden; border-radius: .7rem;
+  background: radial-gradient(circle at 12% 22%, #fff4cf 0 1.1rem, rgba(255,244,207,.12) 1.2rem 2.2rem, transparent 2.3rem),
+    radial-gradient(circle at 30% 12%, #fff 0 .12rem, transparent .2rem), radial-gradient(circle at 44% 30%, #fff 0 .1rem, transparent .18rem), radial-gradient(circle at 70% 40%, #fff 0 .12rem, transparent .2rem),
+    radial-gradient(circle at 86% 46%, #fff 0 .1rem, transparent .18rem), radial-gradient(circle at 22% 44%, #fff 0 .1rem, transparent .18rem), radial-gradient(circle at 58% 8%, #fff 0 .12rem, transparent .2rem),
+    linear-gradient(#081030, #1c2a55 80%); }
+.lights-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+.lights-sign { position: absolute; left: .8rem; top: .8rem; z-index: 3; padding: .3rem .9rem; background: rgba(8,12,30,.78); color: #ffd23f; font: 400 1.7rem Bevan, Georgia, serif; border-radius: .4rem; }
+.lights-sign b { color: #fff7e8; font-weight: 400; margin-left: .3rem; }
+.lights-svg .lh { fill: var(--c); opacity: 0; }
+.lights-svg .lb { fill: #2a3148; stroke: #141a2c; stroke-width: .6; }
+.lights-svg .ls.on .lb { fill: var(--c); stroke: none; }
+.lights-svg .ls.on .lh { opacity: .26; }
+.lights-svg .ls.on .b:nth-child(3n+1) { animation: lbTwinkle 7s ease-in-out infinite alternate; }
+.lights-svg .ls.on .b:nth-child(3n+2) { animation: lbTwinkle 9s ease-in-out -3s infinite alternate; }
+@keyframes lbTwinkle { 0%, 55% { opacity: 1; } 100% { opacity: .5; } }
+/* A section that just came on flickers, then holds. */
+.lights-svg .ls.on.new .b:nth-child(n) { animation: lsFlick 1.6s linear var(--d, 0s) both; }
+@keyframes lsFlick { 0% { opacity: .1; } 12% { opacity: 1; } 22% { opacity: .15; } 36% { opacity: 1; } 46% { opacity: .3; } 60%, 100% { opacity: 1; } }
+.lights-svg .lstar { fill: #39415c; stroke: #141a2c; stroke-width: .8; }
+.lights-svg .ls.on .lstar { fill: #ffd23f; stroke: #fff2a8; filter: drop-shadow(0 0 3px #ffd23f); }
+.lights-svg .ldeer-wire { fill: none; stroke: #4f5975; stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; }
+.lights-svg .ls.on .ldeer-wire { stroke: #dfe7f5; }
+.lights-svg .lw { fill: #1b2340; transition: fill 1.2s; }
+.lights.won .lights-svg .lw { fill: #ffcf70; }
+.lights-svg .l-aura { opacity: 0; }
+.lights.won .lights-svg .l-aura { opacity: 1; animation: auraPulse 6s ease-in-out infinite alternate; }
+@keyframes auraPulse { from { opacity: .7; } to { opacity: 1; } }
+.lights.plugged .lights-svg { animation: plugFlash 2.6s ease-out both; }
+@keyframes plugFlash { 0% { filter: brightness(.35); } 10% { filter: brightness(1.9); } 18% { filter: brightness(.45); } 30% { filter: brightness(2.1); } 45% { filter: brightness(1.25); } 100% { filter: none; } }
+.lights.plugged .lights-scene::after { content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #fff3c4; pointer-events: none; animation: plugWhite 2.6s ease-out both; }
+@keyframes plugWhite { 0%, 100% { opacity: 0; } 30% { opacity: .55; } }
+.lights-svg .ld .ld-armL { animation: plugTryL 16s ease-in-out infinite; }
+.lights-svg .ld .ld-armR { animation: plugTryR 16s ease-in-out infinite; }
+@keyframes plugTryL { 0%, 62%, 90%, 100% { transform: none; } 70%, 82% { transform: rotate(-45deg); } }
+@keyframes plugTryR { 0%, 62%, 90%, 100% { transform: none; } 70%, 82% { transform: rotate(45deg); } }
+.lights-svg .ld .ld-spark { opacity: 0; animation: sparkPop 16s linear infinite; }
+@keyframes sparkPop { 0%, 72% { opacity: 0; } 73% { opacity: 1; } 75% { opacity: .1; } 77% { opacity: 1; } 79%, 100% { opacity: 0; } }
+.lights.won .lights-svg .ld .ld-armL { animation: figArmL 6s ease-in-out infinite; }
+.lights.won .lights-svg .ld .ld-armR { animation: figArmR 6s ease-in-out infinite; }
+.lights.won .lights-svg .ld .ld-spark, .lights.won .lights-svg .ld .ld-cord { display: none; }
+@media (prefers-reduced-motion: reduce) { .lights-scene *, .lights-scene::after, .theme-lights .kid::before, .theme-lights .hero::before, .theme-lights .cal::before, .theme-lights .player::before, .fx-surge { animation: none !important; } }
 
 /* A pit stall on each kid's card */
 .pit { display: none; }
@@ -2052,7 +2142,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'pigs', text: 'Mother Pig Country', flag: 'Glorious!', cal: 'The Plan' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'lights', text: 'Old-Fashioned Christmas', flag: 'Lit up!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'pigs', text: 'Mother Pig Country', flag: 'Glorious!', cal: 'The Plan' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -2079,6 +2169,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       return '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L10 4 L24 12 Q32 9 40 12 L54 4 L50 18 Q58 30 54 44 Q50 60 32 60 Q14 60 10 44 Q6 30 14 18 Z" fill="#7d6242"/><path d="M20 40 Q32 62 44 40 Q42 54 32 56 Q22 54 20 40 Z" fill="#e8d7b5"/>' +
         '<circle cx="23" cy="27" r="10" fill="#f3e6c4"/><circle cx="41" cy="27" r="10" fill="#f3e6c4"/><circle cx="23" cy="27" r="5" fill="#1d1408"/><circle cx="41" cy="27" r="5" fill="#1d1408"/><circle cx="25" cy="25" r="1.6" fill="#fff"/><circle cx="43" cy="25" r="1.6" fill="#fff"/><polygon points="28,33 36,33 32,40" fill="#e6a42c"/></svg>';
     }
+    if (id === 'lights') return MOOSE_MUG;
     if (id === 'bricks') return BRICK_HEAD;
     if (id === 'miner') return GEM;
     if (id === 'pitstop') return CHECKER;
@@ -2110,7 +2201,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       else if (days === 1) html = 'Thanksgiving is tomorrow!';
       else if (days > 1 && days <= 60) html = days + ' days until Thanksgiving';
       if (html) html = mascot() + '<span>' + html + '</span>';
-    } else if (themeInfo().id === 'christmas') {
+    } else if (themeInfo().id === 'christmas' || themeInfo().id === 'lights') {
       var christmas = new Date(now.getFullYear(), 11, 25), toGo = Math.round((christmas - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / DAY_MS);
       if (toGo === 0) html = 'Merry Christmas!';
       else if (toGo === 1) html = "It's Christmas Eve!";
@@ -2138,7 +2229,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (theme === 'office' && !leaves.innerHTML) {
       leaves.innerHTML = '<div class="room"><div class="room-fan">' + DESK_FAN + '</div><div class="room-pizza"><div class="pz-steam"><i></i><i></i><i></i></div>' + PIZZA_BOX + '</div><div class="room-balloons">' + BALLOON_BUNCH + '</div></div>';
     }
-    if (theme === 'christmas' && !leaves.innerHTML) {
+    if ((theme === 'christmas' || theme === 'lights') && !leaves.innerHTML) {
       var winter = '', bulbs = ['#ff5a4d', '#ffd24d', '#5fe08a', '#5ac8ff', '#ff5a4d', '#5fe08a', '#ffd24d'], wire = 'M0 2', spans = 8, s2, f;
       for (i = 0; i < 26; i++) {
         var size = .3 + (i * 7) % 5 * .16;
@@ -2442,6 +2533,134 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var svg = '<svg class="build-svg" viewBox="0 0 ' + C * 10 + ' ' + (R * 12 + 4) + '" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' + base + '<g class="bw-body">' + (plan.base ? plan.fx : '') + body + '</g>' + (plan.base ? '' : plan.fx) + ghost + '</svg>';
     return '<div class="build' + (won ? ' won' : '') + '"><div class="build-cloud"></div><div class="build-sign">' + plan.name + (won ? ' <b>built!</b>' : ' <b>' + done + '/' + total + '</b>') + '</div>' +
       '<div class="build-art">' + svg + '</div><div class="build-fig">' + BRICK_FIG + '<div class="build-carry">' + brickArt(next || '#f5c518', 'rgba(0,0,0,.25)') + '</div></div></div>';
+  }
+
+  /* ---------- Old-Fashioned Christmas: the house lights up as the list gets done ---------- */
+  var LIGHT_COLORS = ['#ff4b3e', '#ffd23f', '#3fd36b', '#4fb3ff', '#ff8a3d'];
+  // A moose-head mug of eggnog, for the checklist and the banner.
+  var MOOSE_MUG = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true">' +
+    '<path d="M19 22 C9 21 3 13 5 5 C8 10 10 10 10 5 C13 10 15 10 15 5 C18 11 21 15 22 21 Z" fill="#d9b77a"/><path d="M45 22 C55 21 61 13 59 5 C56 10 54 10 54 5 C51 10 49 10 49 5 C46 11 43 15 42 21 Z" fill="#d9b77a"/>' +
+    '<ellipse cx="15" cy="26" rx="5" ry="3" fill="#6f4526" transform="rotate(-25 15 26)"/><ellipse cx="49" cy="26" rx="5" ry="3" fill="#6f4526" transform="rotate(25 49 26)"/>' +
+    '<rect x="16" y="18" width="32" height="42" rx="7" fill="#8a5a34"/><ellipse cx="32" cy="19" rx="16" ry="4.5" fill="#6b4426"/><ellipse cx="32" cy="19" rx="13.5" ry="3.3" fill="#f6ebcf"/>' +
+    '<circle cx="25.5" cy="32" r="2.6" fill="#1d1208"/><circle cx="38.5" cy="32" r="2.6" fill="#1d1208"/><circle cx="26.3" cy="31.2" r=".9" fill="#fff"/><circle cx="39.3" cy="31.2" r=".9" fill="#fff"/>' +
+    '<ellipse cx="32" cy="46" rx="11.5" ry="8.5" fill="#b8814f"/><ellipse cx="28" cy="45" rx="2" ry="2.8" fill="#4a2a14"/><ellipse cx="36" cy="45" rx="2" ry="2.8" fill="#4a2a14"/><path d="M27 51 Q32 54 37 51" fill="none" stroke="#4a2a14" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  // Dad in his winter hat, holding the two ends of the extension cord.
+  var LIGHTS_DAD = '<svg class="mascot" viewBox="0 0 40 64" aria-hidden="true">' +
+        '<rect x="13" y="44" width="6" height="15" rx="2" fill="#2f3f66"/><rect x="21" y="44" width="6" height="15" rx="2" fill="#2f3f66"/><rect x="11" y="57" width="9" height="5" rx="2" fill="#4a2e18"/><rect x="20" y="57" width="9" height="5" rx="2" fill="#4a2e18"/>' +
+    '<rect x="10" y="23" width="20" height="24" rx="6" fill="#c99a5b"/><path d="M20 25 V46" stroke="#9c733e" stroke-width="1.2"/><circle cx="17" cy="31" r=".9" fill="#7a5a2e"/><circle cx="17" cy="37" r=".9" fill="#7a5a2e"/>' +
+    '<path d="M13 22 H27 V26 H13 Z" fill="#2f8a4a"/><path d="M24 25 L27 33 L23 33 Z" fill="#2f8a4a"/>' +
+    '<circle cx="20" cy="15" r="7.5" fill="#f0c9a0"/><circle cx="17" cy="15" r="2.4" fill="none" stroke="#2a2a2a" stroke-width=".9"/><circle cx="23" cy="15" r="2.4" fill="none" stroke="#2a2a2a" stroke-width=".9"/><path d="M19.4 15 H20.6" stroke="#2a2a2a" stroke-width=".9"/>' +
+    '<path d="M17 19.5 Q20 21.5 23 19.5" fill="none" stroke="#7a3b22" stroke-width="1" stroke-linecap="round"/>' +
+    '<path d="M12 12 Q12 2 20 2 Q28 2 28 12 Z" fill="#c8302a"/><rect x="11" y="10" width="18" height="3.6" rx="1.6" fill="#f3efe6"/><circle cx="20" cy="2" r="2.6" fill="#f3efe6"/>' +
+    '<g class="ld-armL"' + pivot(12, 27) + '><path d="M12 27 L8 42" stroke="#c99a5b" stroke-width="5" stroke-linecap="round"/><circle cx="8" cy="43" r="2.7" fill="#2f8a4a"/><g class="ld-cord"><path d="M8 45 Q6 50 7 55" fill="none" stroke="#2c7a3f" stroke-width="1.4"/><rect x="9" y="41" width="4" height="3" rx=".6" fill="#3a3a3a"/><path d="M13 41.6 h1.6 M13 43.4 h1.6" stroke="#c9c9c9" stroke-width=".7"/></g></g>' +
+    '<g class="ld-armR"' + pivot(28, 27) + '><path d="M28 27 L32 42" stroke="#c99a5b" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="43" r="2.7" fill="#2f8a4a"/><g class="ld-cord"><path d="M32 45 Q34 50 33 55" fill="none" stroke="#e07b00" stroke-width="1.4"/><rect x="26.5" y="41" width="4" height="3" rx=".6" fill="#e07b00"/></g></g>' +
+    '<g class="ld-spark"><path d="M20 37 L21 40.5 L24.5 40 L21.6 42 L23.5 45 L20 43 L16.5 45 L18.4 42 L15.5 40 L19 40.5 Z" fill="#fff3a0"/></g></svg>';
+  // A wood-panel wagon with a tree that's much too big tied on the roof.
+  var WAGON = '<svg class="mascot" viewBox="-28 -12 230 76" aria-hidden="true"><ellipse cx="98" cy="62" rx="92" ry="4" fill="rgba(0,0,0,.3)"/>' +
+    '<path d="M12 18 Q12 14 18 14 L128 14 L146 29 L178 32 Q186 33 186 40 V50 Q186 54 182 54 H16 Q12 54 12 50 Z" fill="#7d9460"/>' +
+    '<path d="M18 18 H48 V28 H18 Z M54 18 H88 V28 H54 Z M94 18 H126 L138 28 H94 Z" fill="#a9cde3"/>' +
+    '<rect x="14" y="33" width="160" height="13" rx="1.5" fill="#8a5a2c" stroke="#e0bd83" stroke-width="1.6"/><path d="M20 37 H60 M70 41 H120 M128 37 H168" stroke="#6b4320" stroke-width=".8"/>' +
+    '<path d="M51 29 V52 M91 29 V52 M132 29 V52" stroke="rgba(0,0,0,.35)" stroke-width="1"/>' +
+    '<rect x="182" y="44" width="9" height="6" rx="1.5" fill="#cfd6dc"/><rect x="7" y="44" width="7" height="6" rx="1.5" fill="#cfd6dc"/><rect x="182" y="36" width="5" height="5" rx="1" fill="#ffe9a0"/><rect x="11" y="34" width="3" height="7" fill="#d4262c"/>' +
+    '<circle cx="44" cy="54" r="9" fill="#1b1b1b"/><circle cx="44" cy="54" r="4" fill="#9aa3ab"/><circle cx="150" cy="54" r="9" fill="#1b1b1b"/><circle cx="150" cy="54" r="4" fill="#9aa3ab"/>' +
+    '<rect x="-26" y="1" width="24" height="7" rx="1.5" fill="#6b4426"/>' +
+    '<path d="M-6 -10 L20 -6 L18 -9 L50 -4 L47 -7 L80 -2 L77 -5 L110 0 L107 -3 L140 1 L138 -1 L170 3 L198 5 L170 8 L172 11 L140 11 L142 14 L110 13 L112 16 L80 14 L82 17 L50 15 L52 18 L20 16 L22 19 L-6 16 Z" fill="#2f6f3a"/>' +
+    '<path d="M0 -2 L40 0 L80 4 L120 5 L160 6" fill="none" stroke="#3f8a4a" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M58 14 L56 -5 M108 14 L106 -1" stroke="#e8d5a8" stroke-width="1.6"/></svg>';
+  // Dad on a saucer sled, going much too fast.
+  var SAUCER = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M2 54 L9 52 M1 58 L8 57 M4 50 L10 49" stroke="#ffb23f" stroke-width="1.6" stroke-linecap="round"/>' +
+    '<ellipse cx="34" cy="54" rx="26" ry="6" fill="#cfd6dc" stroke="#8a949c" stroke-width="1.5"/>' +
+    '<path d="M34 47 L54 44" stroke="#2f3f66" stroke-width="5.5" stroke-linecap="round"/><rect x="51" y="40" width="7" height="6" rx="2" fill="#4a2e18"/>' +
+    '<ellipse cx="29" cy="40" rx="8" ry="10" fill="#c99a5b" transform="rotate(-22 29 40)"/><path d="M27 33 L16 21 M31 33 L40 18" stroke="#c99a5b" stroke-width="4.5" stroke-linecap="round"/><circle cx="15" cy="20" r="2.6" fill="#2f8a4a"/><circle cx="41" cy="17" r="2.6" fill="#2f8a4a"/>' +
+    '<circle cx="25" cy="24" r="7" fill="#f0c9a0"/><circle cx="22.5" cy="23.5" r="2.2" fill="none" stroke="#2a2a2a" stroke-width=".9"/><circle cx="28" cy="23.5" r="2.2" fill="none" stroke="#2a2a2a" stroke-width=".9"/><ellipse cx="25.5" cy="28.5" rx="2" ry="2.4" fill="#7a3b22"/>' +
+    '<path d="M18 21 Q16 12 24 12 Q30 12 31 18 Z" fill="#c8302a"/><circle cx="14" cy="13" r="2.4" fill="#f3efe6"/></svg>';
+  var JELLY = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="18" width="36" height="40" rx="6" fill="#7e1a46"/><rect x="18" y="22" width="5" height="30" rx="2.5" fill="#fff" opacity=".22"/>' +
+    '<rect x="12" y="9" width="40" height="10" rx="2" fill="#c9a24a"/><path d="M14 12 H50 M14 16 H50" stroke="#9c7a2c" stroke-width=".8"/>' +
+    '<rect x="19" y="30" width="26" height="15" rx="2" fill="#fff7e8"/><text x="32" y="41" font-family="Bevan, Georgia, serif" font-size="7.2" fill="#7e1a46" text-anchor="middle">JELLY</text>' +
+    '<path d="M32 9 C26 2 20 4 24 8 Z M32 9 C38 2 44 4 40 8 Z" fill="#d6372b"/></svg>';
+  function lineBulbs(x1, y1, x2, y2, count, skipFirst) {
+    var pts = [], k;
+    for (k = skipFirst ? 1 : 0; k < count; k++) pts.push([x1 + (x2 - x1) * k / (count - 1), y1 + (y2 - y1) * k / (count - 1)]);
+    return pts;
+  }
+  function rectBulbs(x1, y1, x2, y2, across, down) {
+    return lineBulbs(x1, y1, x2, y1, across).concat(lineBulbs(x2, y1, x2, y2, down, true), lineBulbs(x2, y2, x1, y2, across, true), lineBulbs(x1, y2, x1, y1, down, true).slice(0, -1));
+  }
+  function ringBulbs(cx, cy, r, count) {
+    var pts = [], k;
+    for (k = 0; k < count; k++) pts.push([cx + r * Math.cos(k / count * 2 * Math.PI), cy + r * Math.sin(k / count * 2 * Math.PI)]);
+    return pts;
+  }
+  function bulbsHtml(pts, start) {
+    var h = '', k;
+    for (k = 0; k < pts.length; k++) {
+      var x = pts[k][0].toFixed(1), y = pts[k][1].toFixed(1);
+      h += '<g class="b" style="--c:' + LIGHT_COLORS[(start + k) % LIGHT_COLORS.length] + '"><circle class="lh" cx="' + x + '" cy="' + y + '" r="5"/><circle class="lb" cx="' + x + '" cy="' + y + '" r="2.6"/></g>';
+    }
+    return h;
+  }
+  function starPath(cx, cy, r) {
+    var d = '', k;
+    for (k = 0; k < 10; k++) { var a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * .45 : r; d += (k ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1); }
+    return d + 'Z';
+  }
+  // The deer on the lawn is a wire frame with bulbs at the corners.
+  var DEER_PTS = [[304, 160], [313, 157], [323, 156], [333, 156], [340, 151], [345, 143], [350, 139], [358, 143], [352, 148], [346, 154], [344, 164], [334, 168], [320, 168], [309, 166], [304, 160]];
+  var DEER_LEGS = [[[342, 167], [344, 184]], [[337, 168], [337, 184]], [[311, 167], [309, 184]], [[317, 168], [317, 184]], [[348, 140], [344, 128]], [[344, 128], [338, 122]], [[344, 128], [350, 122]], [[352, 140], [356, 128]], [[356, 128], [362, 123]]];
+  var TREE_ROWS = [[112, 1], [125, 2], [138, 3], [151, 4], [164, 4], [177, 5]];
+  var LIGHT_SECTIONS = (function () {
+    var deerPts = DEER_PTS.slice(0, -1), treePts = [], k, j;
+    for (k = 0; k < DEER_LEGS.length; k++) deerPts.push(DEER_LEGS[k][1]);
+    for (k = 0; k < TREE_ROWS.length; k++) {
+      var y = TREE_ROWS[k][0], c = TREE_ROWS[k][1], half = 26 * (y - 96) / 88 * .8;
+      for (j = 0; j < c; j++) treePts.push([c === 1 ? 40 : 40 - half + 2 * half * j / (c - 1), y + (j % 2 ? 3 : 0)]);
+    }
+    return [
+      lineBulbs(100, 112, 192, 54, 9).concat(lineBulbs(192, 54, 284, 112, 9, true)),
+      rectBulbs(126, 132, 162, 166, 5, 4).concat(rectBulbs(222, 132, 258, 166, 5, 4), lineBulbs(178, 188, 178, 148, 5), lineBulbs(178, 148, 206, 148, 5, true), lineBulbs(206, 148, 206, 188, 5, true)),
+      [[120, 180], [127, 175], [135, 174], [143, 177], [148, 182], [124, 185], [134, 181], [142, 186], [236, 180], [243, 175], [251, 174], [259, 177], [264, 182], [240, 185], [250, 181], [258, 186]],
+      treePts,
+      deerPts,
+      lineBulbs(233, 62, 257, 62, 4).concat(ringBulbs(192, 88, 14, 8))
+    ];
+  })();
+  var lightsSeen = {};
+  function lightsHtml(i, total, done) {
+    var n = Math.max(total, 1), won = total > 0 && done >= total, S = LIGHT_SECTIONS.length, from = lightsSeen[i], s, k, fresh = 0, deer = '';
+    lightsSeen[i] = done;
+    if (from === undefined || from > done) from = done;
+    var lit = [], isNew = [];
+    for (s = 0; s < S; s++) {
+      var st = total ? Math.floor(s * n / S) : -1;
+      lit.push(st < done);
+      isNew.push(st < done && st >= from);
+    }
+    function sect(s, inner) {
+      return '<g class="ls' + (lit[s] ? ' on' : '') + (isNew[s] ? ' new' : '') + '"' + (isNew[s] ? ' style="--d:' + (fresh++ * .5).toFixed(1) + 's"' : '') + '>' + inner + '</g>';
+    }
+    var wire = 'M' + DEER_PTS.map(function (pt) { return pt[0] + ' ' + pt[1]; }).join(' L');
+    for (k = 0; k < DEER_LEGS.length; k++) wire += ' M' + DEER_LEGS[k][0].join(' ') + ' L' + DEER_LEGS[k][1].join(' ');
+    var svg = '<svg class="lights-svg" viewBox="0 0 374 216" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
+      '<defs><radialGradient id="lglow' + i + '"><stop offset="0" stop-color="#ffc85a" stop-opacity=".45"/><stop offset="1" stop-color="#ffc85a" stop-opacity="0"/></radialGradient></defs>' +
+      '<ellipse class="l-aura" cx="192" cy="130" rx="150" ry="95" fill="url(#lglow' + i + ')"/>' +
+      '<rect x="236" y="66" width="18" height="34" fill="#5a3a2e"/><rect x="233" y="61" width="24" height="6" rx="2" fill="#eef4ff"/>' +
+      '<rect x="114" y="108" width="156" height="82" fill="#3d4c70"/><path d="M114 122 H270 M114 136 H270 M114 150 H270 M114 164 H270 M114 178 H270" stroke="rgba(0,0,0,.14)" stroke-width="1"/>' +
+      '<path d="M100 112 L192 54 L284 112 Z" fill="#262f4a"/><path d="M97 114 L192 52 L287 114" fill="none" stroke="#eef4ff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle class="lw" cx="192" cy="88" r="10"/><path d="M182 88 H202 M192 78 V98" stroke="#3d4c70" stroke-width="1.6"/>' +
+      '<rect class="lw" x="129" y="135" width="30" height="28"/><rect class="lw" x="225" y="135" width="30" height="28"/><path d="M144 135 V163 M129 149 H159 M240 135 V163 M225 149 H255" stroke="#3d4c70" stroke-width="2"/>' +
+      '<rect x="181" y="151" width="22" height="39" fill="#7a2a24"/><rect class="lw" x="186" y="155" width="12" height="7"/><circle cx="198" cy="172" r="1.4" fill="#d9b44a"/><circle cx="192" cy="168" r="5.5" fill="none" stroke="#2f7a45" stroke-width="3"/>' +
+      '<path d="M8 188 Q90 182 187 189 T374 186 V216 H0 V188 Z" fill="#e6eefa"/>' +
+      '<ellipse cx="134" cy="185" rx="18" ry="10" fill="#1f4a35"/><ellipse cx="250" cy="185" rx="18" ry="10" fill="#1f4a35"/>' +
+      '<rect x="37" y="178" width="6" height="10" fill="#4a2e18"/><path d="M40 96 L66 180 H14 Z" fill="#1d4d33"/><path d="M40 96 L58 150 H22 Z" fill="#245c3d"/>' +
+      '<path d="' + wire + '" class="ldeer-wire"/>' +
+      '<path d="M114 189 Q106 191 96 190" fill="none" stroke="#2c7a3f" stroke-width="1.4"/><path d="M74 190 Q40 196 0 194" fill="none" stroke="#e07b00" stroke-width="1.4"/>' +
+      sect(0, bulbsHtml(LIGHT_SECTIONS[0], 0)) + sect(1, bulbsHtml(LIGHT_SECTIONS[1], 1)) + sect(2, bulbsHtml(LIGHT_SECTIONS[2], 2)) +
+      sect(3, bulbsHtml(LIGHT_SECTIONS[3], 3) + '<path class="lstar" d="' + starPath(40, 92, 7) + '"/>') + sect(4, bulbsHtml(LIGHT_SECTIONS[4], 4)) +
+      sect(5, bulbsHtml(LIGHT_SECTIONS[5], 0) + '<path class="lstar" d="' + starPath(192, 40, 11) + '"/>') +
+      LIGHTS_DAD.replace('<svg class="mascot"', '<svg class="ld" x="70" y="139" width="32" height="51"') + '</svg>';
+    var plugged = won && from < done;
+    return '<div class="lights' + (won ? ' won' : '') + (plugged ? ' plugged' : '') + '"><div class="lights-scene">' + svg +
+      '<div class="lights-sign">' + (won ? 'All lit!' : 'Lights <b>' + done + '/' + total + '</b>') + '</div></div></div>';
   }
 
   /* ---------- Pit Stop: the car, the crew, the jobs and the race ---------- */
@@ -2950,7 +3169,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   function actor() {
     var id = themeInfo().id;
-    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : id === 'pigs' ? eggArt('march') : mascot();
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'lights' ? LIGHTS_DAD : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : id === 'pigs' ? eggArt('march') : mascot();
   }
   var DESK_FAN = '<svg class="mascot" viewBox="0 0 64 68" aria-hidden="true"><path d="M32 40 V60" stroke="#6a7075" stroke-width="5"/><ellipse cx="32" cy="63" rx="17" ry="4.5" fill="#4c5257"/><circle cx="32" cy="27" r="25" fill="#10231b" stroke="#8a9398" stroke-width="2.4"/><g class="a-whirl"' + pivot(32, 27) + '><path d="M32 27 C24 8 42 4 42 15 Q42 22 32 27 Z M32 27 C51 19 55 37 44 37 Q37 37 32 27 Z M32 27 C40 46 22 50 22 39 Q22 32 32 27 Z M32 27 C13 35 9 17 20 17 Q27 17 32 27 Z" fill="#b9c4c9"/></g><path d="M7 27 H57 M32 2 V52 M14 9 L50 45 M50 9 L14 45" stroke="#8a9398" stroke-width=".9" opacity=".65"/><circle cx="32" cy="27" r="5" fill="#ff4b62"/></svg>';
   var SLICE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q32 -2 58 12 L33 61 Z" fill="#f6c24b"/><path d="M4 12 Q32 -6 60 12 L57 18 Q32 4 7 18 Z" fill="#c98a45"/><circle cx="24" cy="21" r="5" fill="#c9371f"/><circle cx="41" cy="23" r="5" fill="#c9371f"/><circle cx="32" cy="38" r="5" fill="#c9371f"/><path d="M20 30 q2 8 3 13" stroke="#f6c24b" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
@@ -3013,13 +3232,14 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     office: ['Just checking the cameras...', 'Has anyone seen my flashlight?', 'All quiet on Cam 2.', 'Check the list!', 'Who left this backpack here?', 'I could use a coffee.', 'Who ordered pizza?', 'Is this fan even on?'],
     harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
     christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
+    lights: ['A fun old-fashioned family Christmas!', 'Check the list twice!', 'Who unplugged the lights?', 'Twenty-five thousand bulbs!', 'Is the tree a little too big?', 'Jelly of the month, anyone?', 'Save me some eggnog!', 'Backpack packed yet?'],
     bricks: ['Click!', 'Check the list!', 'Ouch! Who left a brick on the floor?', 'Build it, then brush it!', 'Stack it up!', 'Got your backpack? I have two hands for that.'],
     miner: ['Diamonds!', 'Check the list!', 'Time to mine some homework.', 'Backpack in your inventory?', 'Night is coming... brush your teeth!', 'Just one more block...'],
     pigs: PIG_THEME.eggLines,
     pitstop: ['Box, box, box!', 'Check the list!', 'Tires on, helmets on!', 'Backpack fueled up?', 'Green flag in five minutes!', 'Pit crew, ready!'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
-  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', pigs: PIG_THEME.cheer, calm: 'All done!' };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', lights: 'The whole house is lit!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', pigs: PIG_THEME.cheer, calm: 'All done!' };
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
@@ -3107,6 +3327,15 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         }
         fxAdd(html, 6000);
       }
+    ],
+    lights: [
+      function () { fxWalker('', actor(), fxPickLine('lights'), 12500); },
+      function () { fxAdd('<div class="fx-train">' + WAGON + '</div>', 13200); },
+      function () { fxOnFeed('<div class="fx-peek">' + SQUIRREL + '</div><div class="fx-alert" style="color:#ff7b6e">Squirrel!</div>', 5200); },
+      function () { fxWalker('fast', '<div class="fx-speed"><i></i><i></i><i></i></div>' + SAUCER, 'Wheeeee!', 4800); },
+      function () { fxAdd('<div class="fx-surge"></div>', 3200); fxOnFeed('<div class="fx-alert" style="color:#ffd23f">It works!</div>', 3200, $('hero')); },
+      function () { fxOnFeed('<div class="fx-peek">' + JELLY + '</div><div class="fx-alert" style="color:#ffd23f">Jelly of the Month Club!</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + MOOSE_MUG + '</div><div class="fx-alert" style="color:#ffd23f">Eggnog time?</div>', 5200); }
     ],
     wizard: [
       function () { fxWalker('', actor(), fxPickLine('wizard'), 12500); },
@@ -3236,6 +3465,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     var id = themeInfo().id, look = actor();
     fxAdd(confetti().replace(/class="bit"/g, 'class="bit far"') + confetti().replace(/class="bit"/g, 'class="bit far"') + '<div class="fx-cheer"><span>' + esc(CHEERS[id]) + '</span></div>', 7100);
     if (id === 'harvest') fxGust(14);
+    if (id === 'lights') fxAdd('<div class="fx-surge"></div>', 3200);
     fxWalker('', look, '', 12500);
     fxWalker('', look, '', 13500, 'animation-delay:1s');
   }
@@ -3336,6 +3566,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Happy Harvest!</span></div>', 3100);
     } else if (id === 'christmas') {
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Merry Christmas!</span></div>', 3100);
+    } else if (id === 'lights') {
+      fxAdd('<div class="fx-curtain">' + MOOSE_MUG + '<span>A fun old-fashioned Christmas!</span></div>', 3100);
     } else if (id === 'wizard') {
       fxAdd('<div class="fx-curtain">' + CREST + '<span>Welcome, young wizards</span></div>', 3100);
     } else if (id === 'bricks') {
@@ -3351,7 +3583,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
   }
   function confetti() {
-    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : id === 'pigs' ? ['#c8102e', '#f4c430', '#f3e7cf', '#1b1b1b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'lights' ? ['#ff4b3e', '#ffd23f', '#3fd36b', '#4fb3ff', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : id === 'pigs' ? ['#c8102e', '#f4c430', '#f3e7cf', '#1b1b1b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
     for (i = 0; i < 16; i++) {
       html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
     }
@@ -3589,7 +3821,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false, mine = themeInfo().id === 'miner', build = themeInfo().id === 'bricks';
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false, mine = themeInfo().id === 'miner', build = themeInfo().id === 'bricks', lit = themeInfo().id === 'lights';
     var everyoneIn = s.kids.length > 0 && partList(checkPart()).length > 0;
     for (i = 0; i < s.kids.length; i++) if (doneCount(i, key, checkPart()) < partList(checkPart()).length) everyoneIn = false;
     for (i = 0; i < s.kids.length; i++) {
@@ -3600,7 +3832,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (allDone) shown['all-' + i] = true;
       if (justFinished) anyFinished = true;
       if (!allDone) everyoneDone = false;
-      var pitDone = pit || pigs || mine || build ? doneCount(i, key, checkPart()) : 0;
+      var pitDone = pit || pigs || mine || build || lit ? doneCount(i, key, checkPart()) : 0;
       if (pigs && justFinished) partyNow = true;
       if (pit && justFinished && $('tv').className.indexOf('hide') < 0) raceKids.push(i);
       html += '<div class="kid"' + (pit ? ' style="--car:' + esc(carFor(i).color) + '"' : '') + ' data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
@@ -3610,7 +3842,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         blockBar('After school', m.leftAfter, s.blockMinutes, was && was.leftAfter, i + '-after') + blockBar('Evening', m.leftEvening, s.blockMinutes, was && was.leftEvening, i + '-evening') +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
-        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + (mine ? mineHtml(i, total, pitDone) : '') + (build ? buildHtml(i, total, pitDone) : '') + '</div>';
+        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + (mine ? mineHtml(i, total, pitDone) : '') + (build ? buildHtml(i, total, pitDone) : '') + (lit ? lightsHtml(i, total, pitDone) : '') + '</div>';
     }
     lastChecks = shown;
     lastMins = mins;
