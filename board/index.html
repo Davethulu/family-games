@@ -715,6 +715,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .fx-walker .un-legB { animation: aSwing .7s ease-in-out infinite alternate-reverse; }
 .lights.won .un-wave, .rv-uncle .un-wave { animation: unWaveLoop 1.3s ease-in-out infinite; }
 .lights-svg .un-bub { opacity: 0; animation: unBub 18s ease-in-out infinite; }
+.lights-svg .un-bub2 { animation-delay: -9s; }
 .lights.won .lights-svg .un-bub { opacity: 1; animation: none; }
 .rv-uncle { position: absolute; left: 37%; bottom: .6rem; width: 6.5rem; height: 10.5rem; opacity: 0; animation: rvUncle 15s linear forwards; }
 .fx-rv .rv-hose { display: none; }
@@ -732,7 +733,24 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes rvStink { from { transform: translateY(0); opacity: .9; } to { transform: translateY(-3px); opacity: .4; } }
 @keyframes csBuzz { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(.5px, -.5px); } }
 @keyframes csDust { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(7px, -6px); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .un-sip, .un-wave, .cs-saw, .cs-dust circle, .rv-hose .rv-stink { animation: none !important; } .lights-svg .un-bub { opacity: 1; animation: none; } }
+@media (prefers-reduced-motion: reduce) { .un-sip, .un-wave, .cs-saw, .cs-dust circle, .rv-hose .rv-stink { animation: none !important; } .lights-svg .un-bub { opacity: 1; animation: none; } .lights-svg .un-bub2 { display: none; } }
+.ol-puff { animation: olPuff 12s ease-in-out infinite; }
+.ol-wig { animation: olWig 16s ease-in-out infinite; }
+.ol-smoke circle { animation: olSmoke 2.4s linear infinite; }
+.ol-smoke circle:nth-child(2) { animation-delay: -.8s; } .ol-smoke circle:nth-child(3) { animation-delay: -1.6s; }
+.fx-peek.tp { width: 30rem; margin-left: -15rem; }
+.tp-green { animation: tpGreen 5s linear forwards; }
+.tp-burnt { opacity: 0; animation: tpBurnt 5s linear forwards; }
+.tp-fire { opacity: 0; animation: tpFire 5s linear forwards; }
+.tp-smoke { opacity: 0; animation: tpSmoke 5s ease-out forwards; }
+@keyframes olPuff { 0%, 60% { transform: rotate(0); } 66%, 74% { transform: rotate(140deg); } 80%, 100% { transform: rotate(0); } }
+@keyframes olWig { 0%, 80% { transform: translateY(0) rotate(0); } 83% { transform: translateY(-4px) rotate(-12deg); } 87%, 100% { transform: translateY(0) rotate(0); } }
+@keyframes olSmoke { from { transform: translate(0, 0); opacity: .8; } to { transform: translate(-2px, -9px); opacity: 0; } }
+@keyframes tpGreen { 0%, 40% { opacity: 1; } 46%, 100% { opacity: 0; } }
+@keyframes tpBurnt { 0%, 42% { opacity: 0; } 48%, 100% { opacity: 1; } }
+@keyframes tpFire { 0%, 36% { opacity: 0; transform: scale(.4); } 41% { opacity: 1; transform: scale(1.1); } 47% { opacity: 1; transform: scale(1); } 52%, 100% { opacity: 0; transform: scale(.8); } }
+@keyframes tpSmoke { 0%, 46% { opacity: 0; transform: translateY(0); } 54% { opacity: .9; } 85%, 100% { opacity: 0; transform: translateY(-14px); } }
+@media (prefers-reduced-motion: reduce) { .ol-puff, .ol-wig, .ol-smoke circle { animation: none !important; } }
 @keyframes rtPuff { 0%, 37% { opacity: 0; transform: translateY(0); } 45% { opacity: .95; } 75%, 100% { opacity: 0; transform: translateY(-16px); } }
 
 /* ---------- Wizard School: torn parchment under a candlelit ceiling ---------- */
@@ -2665,8 +2683,34 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     '<rect x="36" y="33.5" width="25" height="6" rx="3" fill="#b8c0c8" stroke="#3a3a3a" stroke-width="1" stroke-dasharray="1.4 1"/><rect x="24" y="31" width="14" height="11" rx="2.5" fill="#e8731c"/><path d="M26 31 Q29 25 36 29" fill="none" stroke="#2a2a2a" stroke-width="2"/>' +
     '<circle cx="27" cy="38.5" r="2.7" fill="#2f8a4a"/><circle cx="33" cy="36" r="2.7" fill="#2f8a4a"/></g>' +
     '<g class="cs-dust"><circle cx="60" cy="34" r="1.1" fill="#d9b27a"/><circle cx="58" cy="33" r=".9" fill="#e9c48c"/><circle cx="61" cy="36" r=".8" fill="#d9b27a"/><circle cx="59" cy="35" r="1" fill="#c99a5b"/></g></svg>';
-  var UNCLE_YARD = ['Get my stogie!', 'Got any eggnog?', 'Need a hand?', 'Nice house!', 'I\u2019ll stay a while!', 'Is it on yet?', 'Get my stogie!'];
-  var UNCLE_LINES = ['Get my stogie!', 'Get my stogie!', 'Surprise! I\u2019m staying till New Year\u2019s!', 'Got any more eggnog?', 'Don\u2019t mind me, I\u2019ll sleep in the camper!', 'Homework? I never finished mine!', 'Save me a seat at the kids\u2019 table!', 'Who wants to see my camper?', 'Brush those teeth, kiddo!', 'Pooper was full!'];
+  var UNCLE_YARD = ['Back in my day...', 'Is it time to eat?', 'Hmm? What?', 'Nice lights!', 'Where\u2019s my glasses?'];
+  var UNCLE_LINES = ['Surprise! I\u2019m staying till New Year\u2019s!', 'Got any more eggnog?', 'Don\u2019t mind me, I\u2019ll sleep in the camper!', 'Homework? I never finished mine!', 'Save me a seat at the kids\u2019 table!', 'Who wants to see my camper?', 'Brush those teeth, kiddo!', 'Pooper was full!'];
+  // The older uncle: crooked toupee, glasses, cardigan and bow tie, and a lit stogie he never puts down.
+  var OLD_UNCLE = '<svg class="mascot" viewBox="0 0 46 72" aria-hidden="true">' +
+    '<g class="un-legA"' + pivot(18, 50) + '><rect x="15" y="50" width="6" height="15" rx="2" fill="#6b4c32"/><ellipse cx="17" cy="66.5" rx="5.5" ry="2.6" fill="#1d1208"/></g>' +
+    '<g class="un-legB"' + pivot(26, 50) + '><rect x="23" y="50" width="6" height="15" rx="2" fill="#6b4c32"/><ellipse cx="27" cy="66.5" rx="5.5" ry="2.6" fill="#1d1208"/></g>' +
+    '<path d="M11 28 Q9 44 12 52 H32 Q35 44 33 28 Q22 24 11 28 Z" fill="#8a8f96"/><path d="M18 27 L22 36 L26 27 Z" fill="#f3efe6"/><path d="M22 36 V52" stroke="#6f747b" stroke-width="1.2"/>' +
+    '<path d="M19 28 L22 29.5 L19 31 Z M25 28 L22 29.5 L25 31 Z" fill="#c8302a"/><circle cx="20.5" cy="40" r=".8" fill="#4a4f56"/><circle cx="20.5" cy="46" r=".8" fill="#4a4f56"/><path d="M12 46 H32" stroke="#767b82" stroke-width="1"/>' +
+    '<g class="un-wave"' + pivot(12, 30) + '><path d="M12 30 L8 44" stroke="#8a8f96" stroke-width="5.5" stroke-linecap="round"/><circle cx="8" cy="45" r="2.5" fill="#f2cfae"/></g>' +
+    '<ellipse cx="13.4" cy="18" rx="2.2" ry="3.2" fill="#e8b994"/><ellipse cx="30.6" cy="18" rx="2.2" ry="3.2" fill="#e8b994"/><circle cx="22" cy="17" r="8.5" fill="#f2cfae"/>' +
+    '<path d="M14.2 12.5 q-1.2 3 0 6 M29.8 12.5 q1.2 3 0 6" fill="none" stroke="#ececec" stroke-width="2" stroke-linecap="round"/><path d="M18 25 Q22 26.5 26 25" fill="none" stroke="#d9a985" stroke-width=".7"/>' +
+    '<circle cx="18.5" cy="17" r="2.7" fill="rgba(255,255,255,.3)" stroke="#2a2a2a" stroke-width=".8"/><circle cx="25.5" cy="17" r="2.7" fill="rgba(255,255,255,.3)" stroke="#2a2a2a" stroke-width=".8"/><path d="M21.2 17 H22.8" stroke="#2a2a2a" stroke-width=".8"/>' +
+    '<circle cx="18.5" cy="17.3" r=".9" fill="#2a1a10"/><circle cx="25.5" cy="17.3" r=".9" fill="#2a1a10"/><path d="M15.6 13.2 Q18.5 11.6 21 13.2 M23 13.2 Q25.5 11.6 28.4 13.2" fill="none" stroke="#f3f3f3" stroke-width="1.7" stroke-linecap="round"/>' +
+    '<path d="M19 22.2 Q22 23.6 25 22.2" fill="none" stroke="#7a3b22" stroke-width="1" stroke-linecap="round"/>' +
+    '<g class="ol-wig"' + pivot(22, 9) + '><path d="M14.5 10.5 Q15.5 4 22 4.6 Q28.5 4.2 29 9.4 Q25.5 7.6 22 8.6 Q18 7.6 14.5 10.5 Z" fill="#6b4426" transform="rotate(-7 22 8)"/></g>' +
+    '<g class="ol-puff"' + pivot(32, 30) + '><path d="M32 30 L35 42" stroke="#8a8f96" stroke-width="5.5" stroke-linecap="round"/><rect x="35" y="41.2" width="8.5" height="2.6" rx="1.2" fill="#7a4a24"/><rect x="42.6" y="41.2" width="1.8" height="2.6" rx=".6" fill="#ff7a2a"/><circle cx="35" cy="43" r="2.5" fill="#f2cfae"/>' +
+    '<g class="ol-smoke"><circle cx="44" cy="38.5" r="1.6" fill="#d8dde3"/><circle cx="44.6" cy="36" r="1.3" fill="#d8dde3"/><circle cx="43.6" cy="34" r="1.1" fill="#d8dde3"/></g></g></svg>';
+  // A little tree next to the stogie. Fwoomp.
+  var TREE_POOF = (function () {
+    var tree = 'M30 8 L46 34 H39 L52 56 H8 L21 34 H14 Z';
+    return '<svg class="mascot" viewBox="0 0 104 72" aria-hidden="true"><rect x="27" y="56" width="6" height="10" fill="#4a2e18"/>' +
+      '<g class="tp-green"><path d="' + tree + '" fill="#2f7a45"/><circle cx="24" cy="30" r="2" fill="#ff5a4f"/><circle cx="36" cy="42" r="2" fill="#ffd23f"/><circle cx="20" cy="50" r="2" fill="#5fb3ff"/><circle cx="40" cy="52" r="2" fill="#ff5a4f"/><path d="M30 2 L32 7 L37 7 L33 10 L35 15 L30 12 L25 15 L27 10 L23 7 L28 7 Z" fill="#ffd23f"/></g>' +
+      '<g class="tp-burnt"><path d="' + tree + '" fill="#2a2522"/><path d="M18 40 L26 36 M30 48 L40 44 M22 22 L32 20" stroke="#4a403a" stroke-width="1.2"/></g>' +
+      '<g class="tp-fire"' + pivot(30, 56) + '><path d="M10 56 Q4 36 16 26 Q14 38 22 34 Q20 18 30 6 Q36 22 40 30 Q46 24 44 16 Q58 34 50 56 Z" fill="#ff8a1f"/><path d="M18 56 Q14 42 24 36 Q26 44 30 40 Q32 30 36 26 Q44 40 42 56 Z" fill="#ffd23f"/></g>' +
+      '<g class="tp-smoke"><circle cx="24" cy="14" r="6" fill="#9aa0a8"/><circle cx="34" cy="10" r="7" fill="#aab0b8"/><circle cx="30" cy="2" r="5" fill="#b8bec6"/></g>' +
+      OLD_UNCLE.replace('<svg class="mascot"', '<svg x="56" y="0" width="46" height="72"') + '</svg>';
+  })();
+  var OLD_LINES = ['Get my stogie!', 'Get my stogie!', 'Where\u2019s my stogie?', 'Back in my day, we walked to school uphill!', 'Is it time to eat yet?', 'Speak up, kiddo!'];
   var JELLY = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="18" width="36" height="40" rx="6" fill="#7e1a46"/><rect x="18" y="22" width="5" height="30" rx="2.5" fill="#fff" opacity=".22"/>' +
     '<rect x="12" y="9" width="40" height="10" rx="2" fill="#c9a24a"/><path d="M14 12 H50 M14 16 H50" stroke="#9c7a2c" stroke-width=".8"/>' +
     '<rect x="19" y="30" width="26" height="15" rx="2" fill="#fff7e8"/><text x="32" y="41" font-family="Bevan, Georgia, serif" font-size="7.2" fill="#7e1a46" text-anchor="middle">JELLY</text>' +
@@ -2731,10 +2775,13 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     function sect(s, inner) {
       return '<g class="ls' + (lit[s] ? ' on' : '') + (isNew[s] ? ' new' : '') + '"' + (isNew[s] ? ' style="--d:' + (fresh++ * .5).toFixed(1) + 's"' : '') + '>' + inner + '</g>';
     }
-    var ul = won ? 'Now THAT\u2019s lit!' : UNCLE_YARD[(Math.floor(Date.now() / 600000) + i) % UNCLE_YARD.length];
-    var bw = ul.length * 5.6 + 12, bx = Math.min(286 - bw / 2, 370 - bw);
-    var unBub = '<g class="un-bub"><rect x="' + bx.toFixed(1) + '" y="116" width="' + bw.toFixed(1) + '" height="15" rx="5" fill="#fff"/><path d="M281 130 L285 137 L289 130 Z" fill="#fff"/>' +
-      '<text x="' + (bx + bw / 2).toFixed(1) + '" y="126.5" font-family="Bevan, Georgia, serif" font-size="8" fill="#2a1a10" text-anchor="middle">' + esc(ul) + '</text></g>';
+    // His favorite line takes every other bubble; the other one changes every ten minutes.
+    function bubble(line, cls) {
+      var bw = line.length * 5.6 + 12, bx = Math.min(286 - bw / 2, 370 - bw);
+      return '<g class="un-bub' + cls + '"><rect x="' + bx.toFixed(1) + '" y="116" width="' + bw.toFixed(1) + '" height="15" rx="5" fill="#fff"/><path d="M281 130 L285 137 L289 130 Z" fill="#fff"/>' +
+        '<text x="' + (bx + bw / 2).toFixed(1) + '" y="126.5" font-family="Bevan, Georgia, serif" font-size="8" fill="#2a1a10" text-anchor="middle">' + esc(line) + '</text></g>';
+    }
+    var unBub = won ? bubble('Now THAT\u2019s lit!', '') : bubble('Get my stogie!', '') + bubble(UNCLE_YARD[(Math.floor(Date.now() / 600000) + i) % UNCLE_YARD.length], ' un-bub2');
     var wire = 'M' + DEER_PTS.map(function (pt) { return pt[0] + ' ' + pt[1]; }).join(' L');
     for (k = 0; k < DEER_LEGS.length; k++) wire += ' M' + DEER_LEGS[k][0].join(' ') + ' L' + DEER_LEGS[k][1].join(' ');
     var svg = '<svg class="lights-svg" viewBox="0 0 374 216" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
@@ -2755,7 +2802,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       sect(3, bulbsHtml(LIGHT_SECTIONS[3], 3) + '<path class="lstar" d="' + starPath(40, 92, 7) + '"/>') + sect(4, bulbsHtml(LIGHT_SECTIONS[4], 4)) +
       sect(5, bulbsHtml(LIGHT_SECTIONS[5], 0) + '<path class="lstar" d="' + starPath(192, 40, 11) + '"/>') +
       LIGHTS_DAD.replace('<svg class="mascot"', '<svg class="ld" x="70" y="139" width="32" height="51"') +
-      UNCLE.replace('<svg class="mascot"', '<svg class="un" x="271" y="140" width="30" height="49"') + unBub + '</svg>';
+      OLD_UNCLE.replace('<svg class="mascot"', '<svg class="un" x="270" y="140" width="31" height="49"') + unBub + '</svg>';
     var plugged = won && from < done;
     return '<div class="lights' + (won ? ' won' : '') + (plugged ? ' plugged' : '') + '"><div class="lights-scene">' + svg +
       '<div class="lights-sign">' + (won ? 'All lit!' : 'Lights <b>' + done + '/' + total + '</b>') + '</div></div></div>';
@@ -3437,8 +3484,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       function () { fxAdd('<div class="fx-rv"><div class="fx-say">Surprise! Company’s here!</div>' + CAMPER + '<div class="rv-uncle">' + UNCLE + '</div></div>', 15200); },
       function () { fxAdd('<div class="fx-rv dump"><div class="fx-say">Pooper was full!</div>' + CAMPER + '<div class="rv-uncle">' + UNCLE + '</div></div>', 15200); },
       function () { fxWalker('', UNCLE, pick(UNCLE_LINES), 12500, 'width:10rem;height:16rem'); },
-      function () { fxWalker('', UNCLE, 'Get my stogie!', 12500, 'width:10rem;height:16rem'); },
-      function () { fxOnFeed('<div class="fx-peek">' + UNCLE + '</div><div class="fx-alert" style="color:#9fd8ff">Get my stogie!</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + UNCLE + '</div><div class="fx-alert" style="color:#9fd8ff">Hey there, kiddo!</div>', 5200); },
+      function () { fxWalker('', OLD_UNCLE, 'Get my stogie!', 17500, 'width:10rem;height:16rem;animation-duration:17s'); },
+      function () { fxWalker('', OLD_UNCLE, pick(OLD_LINES), 17500, 'width:10rem;height:16rem;animation-duration:17s'); },
+      function () { fxOnFeed('<div class="fx-peek">' + OLD_UNCLE + '</div><div class="fx-alert" style="color:#ffb23f">Get my stogie!</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek tp">' + TREE_POOF + '</div><div class="fx-alert" style="color:#ff8a1f">Fwoomp!</div>', 5200); },
       function () { fxWalker('', CHAINSAW_DAD, pick(['Just a little trim!', 'Bzzzzzzz!']), 12500); },
       function () { fxOnFeed('<div class="fx-peek">' + ROAST + '</div><div class="fx-alert" style="color:#ffb23f">Is it supposed to do that?</div>', 5200); }
     ],
