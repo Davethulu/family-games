@@ -1108,7 +1108,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
   background: radial-gradient(ellipse at 50% -10%, #3a1d4a 0%, #1c1226 55%, #120a18 100%); color: var(--ink); font-family: Cabin, "Trebuchet MS", Arial, sans-serif; }
 .theme-pizza .hero, .theme-pizza .kid, .theme-pizza .cal, .theme-pizza .player { position: relative; background: var(--panel); border: .25rem solid var(--line); border-radius: 1rem; box-shadow: 0 .4rem .9rem rgba(0,0,0,.5); }
 /* A neon tube around each panel. Only its opacity flickers, which old TVs handle cheaply. */
-.theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after { content: ""; position: absolute; left: -.25rem; top: -.25rem; right: -.25rem; bottom: -.25rem; border-radius: 1rem; pointer-events: none; z-index: 5;
+.theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after { content: ""; position: absolute; left: -.25rem; top: -.25rem; right: -.25rem; bottom: -.25rem; border-radius: 1rem; pointer-events: none; z-index: 3;
   border: .22rem solid var(--neon, #ff5fa2); box-shadow: 0 0 .7rem var(--neon, #ff5fa2), inset 0 0 .7rem var(--neon, #ff5fa2); animation: ppBuzz var(--buzz, 13s) linear infinite; }
 .theme-pizza .hero { --neon: #3fa9ff; --buzz: 17s; }
 .theme-pizza .kid { --neon: #ff5fa2; --buzz: 11s; }
@@ -1169,6 +1169,29 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 @keyframes ppSay { 0%, 38% { opacity: 0; } 46%, 80% { opacity: 1; } 88%, 100% { opacity: 0; } }
 .fx-walker.sneak .fx-hop { animation: ppSneak 1.6s ease-in-out infinite; }
 @keyframes ppSneak { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.4rem); } }
+/* The cupcake: shakes, lunges at the glass, splats, and slides down leaving a frosting streak. All one 7s timeline. */
+.pp-cup-dim { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.6); opacity: 0; animation: ppCupDim 7s linear forwards; }
+@keyframes ppCupDim { 0% { opacity: 0; } 8%, 84% { opacity: 1; } 100% { opacity: 0; } }
+.pp-cup { position: absolute; left: 50%; top: 46%; width: 26rem; height: 31.6rem; margin: -15.8rem 0 0 -13rem; opacity: 0; animation: ppCupLunge 7s forwards; }
+.pp-cup-j { width: 100%; height: 100%; animation: ppCupJit .14s linear infinite; }
+@keyframes ppCupLunge { 0% { transform: scale(.1); opacity: 0; } 6% { transform: scale(1); opacity: 1; } 20% { transform: scale(1.12); } 27% { transform: scale(.85); } 30% { transform: scale(.85); opacity: 1; } 36% { transform: scale(5); opacity: 1; } 36.5%, 100% { transform: scale(5); opacity: 0; } }
+@keyframes ppCupJit { 0%, 100% { transform: translate(0, 0) rotate(-4deg); } 50% { transform: translate(.2rem, -.15rem) rotate(4deg); } }
+.pp-flash { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #fff; opacity: 0; animation: ppFlash 7s linear forwards; }
+@keyframes ppFlash { 0%, 35.9% { opacity: 0; } 36% { opacity: .75; } 41%, 100% { opacity: 0; } }
+.pp-trail { position: absolute; left: 50%; top: calc(20% + 19rem); width: 19rem; height: 58vh; margin-left: -9.5rem; border-radius: 0 0 9.5rem 9.5rem; opacity: 0; transform-origin: 50% 0; transform: scaleY(0);
+  background: linear-gradient(90deg, rgba(214,74,146,.85), rgba(255,143,198,.92) 25%, rgba(255,190,222,.95) 48%, rgba(255,143,198,.92) 72%, rgba(214,74,146,.85)); animation: ppTrail 7s forwards; }
+@keyframes ppTrail { 0%, 36% { opacity: 0; transform: scaleY(0); } 37%, 48% { opacity: 1; transform: scaleY(0); } 88% { opacity: 1; transform: scaleY(1); } 100% { opacity: 0; transform: scaleY(1); } }
+.pp-splat { position: absolute; left: 50%; top: 20%; width: 50rem; height: 38rem; margin-left: -25rem; opacity: 0; animation: ppSplat 7s forwards; }
+@keyframes ppSplat { 0%, 35.9% { opacity: 0; transform: translateY(0) scale(1.5, .7); } 36% { opacity: 1; transform: translateY(0) scale(1.5, .7); } 39% { transform: translateY(0) scale(.92, 1.08); } 42%, 48% { transform: translateY(0) scale(1, 1); } 88% { opacity: 1; transform: translateY(58vh) scale(.9, 1.12); } 100% { opacity: 0; transform: translateY(58vh) scale(.9, 1.12); } }
+.pp-cup-say { position: absolute; left: 0; right: 0; top: 12%; text-align: center; font: 600 4rem Fredoka, sans-serif; color: #ff8fc6; text-shadow: 0 0 1rem rgba(255,95,162,.6); opacity: 0; animation: ppCupSay 7s linear forwards; }
+@keyframes ppCupSay { 0%, 6% { opacity: 0; } 9%, 28% { opacity: 1; } 30%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pp-cup-j { animation: none; } }
+/* The screen goes black and a speech bubble flickers: IT'S ME. */
+.pp-black { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; opacity: 0; animation: ppBlack 6.2s linear forwards; }
+@keyframes ppBlack { 0% { opacity: 0; } 4%, 88% { opacity: 1; } 100% { opacity: 0; } }
+.pp-itsme { position: absolute; left: 50%; top: 42%; margin-left: -22rem; width: 44rem; padding: 2.4rem 0; text-align: center; background: #f3efe6; color: #141414; font: 700 7rem "Courier New", Courier, monospace; letter-spacing: .12em; border-radius: 3rem; opacity: 0; animation: ppItsMe 6.2s linear forwards; }
+.pp-itsme::after { content: ""; position: absolute; left: 22%; bottom: -2.6rem; border-left: 1.4rem solid transparent; border-right: 1.8rem solid transparent; border-top: 2.8rem solid #f3efe6; }
+@keyframes ppItsMe { 0%, 16% { opacity: 0; } 18% { opacity: 1; } 20% { opacity: 0; } 23% { opacity: 1; } 25% { opacity: .1; } 28%, 44% { opacity: 1; } 45% { opacity: 0; } 47%, 58% { opacity: 1; } 59% { opacity: 0; } 61% { opacity: .8; } 62% { opacity: 0; } 64%, 78% { opacity: 1; } 80%, 100% { opacity: 0; } }
 /* The stage on each kid's card: band members come out one checked item at a time. */
 .pp-stage { display: none; }
 .theme-pizza .kid { padding-right: 39.5rem; }
@@ -2770,6 +2793,31 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     '<text x="32" y="35.6" font-family="Fredoka, Arial, sans-serif" font-weight="600" font-size="7.5" fill="#b3261e" text-anchor="middle">FIZZ</text><circle cx="24" cy="48" r="1.6" fill="#fff" opacity=".5"/><circle cx="38" cy="52" r="1.2" fill="#fff" opacity=".5"/><circle cx="30" cy="44" r="1" fill="#fff" opacity=".5"/></svg>';
   var PP_PIZZA = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#c98a45"/><circle cx="32" cy="32" r="24.5" fill="#f6c24b"/><path d="M32 8 V56 M8 32 H56 M15 15 L49 49 M49 15 L15 49" stroke="#e0a63a" stroke-width="1.2"/>' +
     '<circle cx="22" cy="20" r="4" fill="#c9371f"/><circle cx="41" cy="22" r="4" fill="#c9371f"/><circle cx="20" cy="40" r="4" fill="#c9371f"/><circle cx="40" cy="43" r="4" fill="#c9371f"/><circle cx="31" cy="31" r="4" fill="#c9371f"/></svg>';
+  // The wild-eyed cupcake: pink frosting, one candle, mismatched eyes and a toothy grin.
+  var PP_CUPCAKE = '<svg class="mascot" viewBox="0 -6 64 78" aria-hidden="true">' +
+    '<path d="M10 42 H54 L48 70 H16 Z" fill="#efe6f5"/><path d="M15 42 L19 70 M23 42 L25 70 M31 42 L32 70 M39 42 L38 70 M47 42 L44 70" stroke="#ff8fc6" stroke-width="3"/>' +
+    '<path d="M6 44 Q2 34 12 32 Q10 22 22 22 Q26 12 36 16 Q46 12 48 22 Q60 22 56 33 Q64 38 58 45 Q32 50 6 44 Z" fill="#ff7ab8"/><path d="M14 30 Q24 26 30 30 M36 26 Q44 23 50 28" stroke="#ffb3d9" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<rect x="30" y="2" width="5" height="15" rx="1.4" fill="#5fc4ff"/><path d="M30 6 L35 4 M30 10 L35 8 M30 14 L35 12" stroke="#fff" stroke-width="1.2"/><path d="M32.5 -4 Q37 1 32.5 3 Q28 1 32.5 -4 Z" fill="#ffb02e"/>' +
+    '<circle cx="22" cy="35" r="7.5" fill="#fff"/><circle cx="43" cy="34" r="5.6" fill="#fff"/><circle cx="23.5" cy="36" r="2.2" fill="#1a1a1a"/><circle cx="41.5" cy="33" r="3" fill="#1a1a1a"/><circle cx="24.2" cy="35.2" r=".7" fill="#fff"/><circle cx="42.4" cy="32" r="1" fill="#fff"/>' +
+    '<path d="M13 27 L27 30 M49 26 L38 29" stroke="#7a1a4a" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M14 42 Q32 54 52 41 Q34 47 14 42 Z" fill="#5a0f2a"/><path d="M16 42.4 L19 46.4 L22 43.3 L25 47.5 L28 44 L31 48 L34 44 L37 47.5 L40 43.6 L43 46.8 L46 42.8 L49 45 L51 41.6" fill="#fff" stroke="#fff" stroke-width=".6" stroke-linejoin="round"/></svg>';
+  // The splat it leaves on the glass, with one eye and the candle still stuck in it.
+  var PP_SPLAT = (function () {
+    var bumps = [12, -4, 16, 0, 10, -6, 18, 2, 8, -4, 14, 0, 12, -2, 16, 4], d = '', k;
+    for (k = 0; k < bumps.length; k++) {
+      var a = k / bumps.length * Math.PI * 2, r = 62 + bumps[k];
+      d += (k ? 'L' : 'M') + (100 + Math.cos(a) * r * 1.15).toFixed(1) + ' ' + (78 + Math.sin(a) * r * .82).toFixed(1);
+    }
+    return '<svg class="mascot" viewBox="0 0 200 170" aria-hidden="true"><path d="' + d + 'Z" fill="#ff7ab8" stroke="#ff7ab8" stroke-width="14" stroke-linejoin="round"/>' +
+      '<path d="M70 120 V150 Q70 158 76 158 Q82 158 82 150 V124 Z M108 126 V164 Q108 170 114 170 Q120 170 120 164 V126 Z M136 118 V140 Q136 146 141 146 Q146 146 146 140 V118 Z" fill="#ff7ab8"/>' +
+      '<circle cx="18" cy="40" r="7" fill="#ff7ab8"/><circle cx="186" cy="58" r="9" fill="#ff7ab8"/><circle cx="176" cy="132" r="6" fill="#ff7ab8"/><circle cx="26" cy="124" r="8" fill="#ff7ab8"/><circle cx="104" cy="6" r="5" fill="#ff7ab8"/>' +
+      '<path d="M54 60 Q80 40 110 52 M96 94 Q126 84 150 96" stroke="#ffb3d9" stroke-width="6" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="78" cy="78" r="17" fill="#fff"/><circle cx="82" cy="81" r="5.5" fill="#1a1a1a"/><circle cx="84" cy="78.5" r="1.8" fill="#fff"/>' +
+      '<path d="M118 70 L134 66 M118 78 L134 82" stroke="#5a0f2a" stroke-width="4" stroke-linecap="round"/>' +
+      '<g transform="rotate(38 140 50)"><rect x="135" y="22" width="10" height="34" rx="2.5" fill="#5fc4ff"/><path d="M135 30 L145 26 M135 40 L145 36 M135 50 L145 46" stroke="#fff" stroke-width="2"/></g>' +
+      '<path d="M60 112 L68 104 L74 114 L82 104 L88 114 L96 106" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/>' +
+      '<rect x="128" y="104" width="16" height="9" rx="1.5" fill="#efe6f5" transform="rotate(-18 136 108)"/><rect x="42" y="88" width="12" height="7" rx="1.5" fill="#efe6f5" transform="rotate(24 48 91)"/></svg>';
+  })();
   var PP_RUNNERS = [['#2f8a4a', '#3a2414', '#f0c9a0', '#ff5a6a'], ['#e07b00', '#d9a441', '#c98a5b', '#3fa9ff'], ['#8e5bd6', '#1a1a1a', '#8a5a3a', '#f4c430']];
   // Each kid's stage. Bulbs, then the bunny, the chicken, the fox, the party table, and finally the spotlight on the bear.
   var ppSeen = {};
@@ -3712,7 +3760,13 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       function () { fxOnFeed('<div class="fx-peek">' + PP_SODA + '</div><div class="fx-alert" style="color:#3fa9ff">Refill!</div>', 5200); },
       function () { fxOnFeed('<div class="fx-peek">' + PP_FOX + '</div><div class="fx-alert" style="color:#ff8a3d">Peekaboo!</div>', 5200); },
       function () { fxAdd('<div class="pp-dark"><div class="pp-eyes"><i></i><i></i></div><div class="pp-dark-say">I always come back.</div></div>', 6600); },
-      function () { ppBalloons(12); }
+      function () { ppBalloons(12); },
+      function () {
+        // The cupcake jumpscare: it shakes, lunges at the glass, splats, and slides down in a pink streak.
+        fxAdd('<div class="pp-cup-dim"></div><div class="pp-cup-say">Hee hee hee!</div><div class="pp-trail"></div><div class="pp-splat">' + PP_SPLAT + '</div>' +
+          '<div class="pp-cup"><div class="pp-cup-j">' + PP_CUPCAKE + '</div></div><div class="pp-flash"></div>', 7300);
+      },
+      function () { fxAdd('<div class="pp-black"><div class="pp-itsme">IT\u2019S ME</div></div>', 6400); }
     ],
     lights: [
       function () { fxWalker('', actor(), fxPickLine('lights'), 12500); },
