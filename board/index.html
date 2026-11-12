@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Family Board</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fredoka:wght@500;600&family=Pixelify+Sans:wght@400;700&family=Racing+Sans+One&family=Russo+One&family=Oswald:wght@500;700&family=Barlow+Semi+Condensed:wght@500;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Berkshire+Swash&family=Cinzel:wght@500;700&family=Bevan&family=Cabin:wght@400;700&family=Fredoka:wght@500;600&family=Pixelify+Sans:wght@400;700&family=Racing+Sans+One&family=Russo+One&family=Oswald:wght@500;700&family=Barlow+Semi+Condensed:wght@500;700&family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Kalam:wght@400;700&family=Karla:wght@400;700&family=VT323&family=Monoton&display=swap">
 <style>
 :root {
   /* The parents' notebook. Each TV theme sets its own colors on #tv. */
@@ -1102,6 +1102,98 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .lights.won .lights-svg .ld .ld-spark, .lights.won .lights-svg .ld .ld-cord { display: none; }
 @media (prefers-reduced-motion: reduce) { .lights-scene *, .lights-scene::after, .theme-lights .kid::before, .theme-lights .hero::before, .theme-lights .cal::before, .theme-lights .player::before, .fx-surge { animation: none !important; } }
 
+/* ---------- Pizzeria after dark: neon tubes, balloons, and a stage on every kid's card ---------- */
+#tv.theme-pizza { --bg: #1c1226; --panel: #2a1d36; --panel2: #3d2b4d; --line: #5b3f73; --ink: #fff3d6; --muted: #c9b8d8;
+  --mint: #9fe3a0; --blue: #3fa9ff; --orange: #ff8a3d; --pink: #ff5fa2; --gold: #f4c430;
+  background: radial-gradient(ellipse at 50% -10%, #3a1d4a 0%, #1c1226 55%, #120a18 100%); color: var(--ink); font-family: Cabin, "Trebuchet MS", Arial, sans-serif; }
+.theme-pizza .hero, .theme-pizza .kid, .theme-pizza .cal, .theme-pizza .player { position: relative; background: var(--panel); border: .25rem solid var(--line); border-radius: 1rem; box-shadow: 0 .4rem .9rem rgba(0,0,0,.5); }
+/* A neon tube around each panel. Only its opacity flickers, which old TVs handle cheaply. */
+.theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after { content: ""; position: absolute; left: -.25rem; top: -.25rem; right: -.25rem; bottom: -.25rem; border-radius: 1rem; pointer-events: none; z-index: 5;
+  border: .22rem solid var(--neon, #ff5fa2); box-shadow: 0 0 .7rem var(--neon, #ff5fa2), inset 0 0 .7rem var(--neon, #ff5fa2); animation: ppBuzz var(--buzz, 13s) linear infinite; }
+.theme-pizza .hero { --neon: #3fa9ff; --buzz: 17s; }
+.theme-pizza .kid { --neon: #ff5fa2; --buzz: 11s; }
+.theme-pizza .kid + .kid { --neon: #9fe3a0; --buzz: 14s; }
+.theme-pizza .cal { --neon: #f4c430; --buzz: 19s; }
+.theme-pizza .player { --neon: #b388ff; --buzz: 23s; }
+@keyframes ppBuzz { 0%, 90% { opacity: 1; } 91% { opacity: .15; } 92% { opacity: .9; } 94% { opacity: .2; } 95%, 100% { opacity: 1; } }
+.theme-pizza .tv-date, .theme-pizza .kid-name, .theme-pizza .cal h2, .theme-pizza .hero-label { font-family: Fredoka, "Trebuchet MS", sans-serif; font-weight: 600; }
+.theme-pizza .tv-date, .theme-pizza .hero-label { color: #f4c430; }
+.theme-pizza .hero-count, .theme-pizza .kid-total, .theme-pizza .t-num, .theme-pizza .tv-clock { font-family: Fredoka, "Trebuchet MS", sans-serif; font-weight: 600; }
+.theme-pizza .hero-count { color: #fff3d6; }
+.theme-pizza .kid-total { color: #f4c430; }
+.theme-pizza .block-track { background: #160d1e; border-radius: 1rem; height: 1.7rem; }
+.theme-pizza .block-fill { border-radius: 1rem; background: radial-gradient(circle, #b3261e 0 .42rem, transparent .48rem) 0 50% / 2.2rem 100% repeat-x, #f4c430; }
+.theme-pizza .stop.next { background: #f4c430; color: #2a1d36; padding-left: .8rem; padding-right: .8rem; border-radius: .4rem; border-top-color: transparent; }
+.theme-pizza .stop.next span { color: #2a1d36; }
+.theme-pizza .chip { background: rgba(255,255,255,.04); border: .16rem solid var(--line); border-radius: .6rem; }
+.theme-pizza .chip.on { background: rgba(159,227,160,.14); border-color: #9fe3a0; }
+.theme-pizza .chip-text { color: var(--ink); }
+.theme-pizza .chip.on .chip-text { color: #9fe3a0; font-weight: 700; }
+.theme-pizza .chip-ring { border-color: rgba(255,243,214,.7); border-radius: 50%; }
+.theme-pizza .kid-flag { background: #b3261e; color: #fff3d6; border-radius: .3rem; }
+.theme-pizza .ev-when { color: #f4c430; }
+.theme-pizza .tv-btn { background: #3d2b4d; color: #fff3d6; border: .2rem solid rgba(255,95,162,.5); }
+#tv.theme-pizza button:focus { color: #2a1d36; }
+.theme-pizza .kid-timer { background: rgba(18,10,24,.85); border: .2rem solid var(--line); border-radius: .8rem; }
+.theme-pizza .fx-cheer span { font-family: Fredoka, sans-serif; font-weight: 600; background: #b3261e; color: #fff3d6; border: .3rem solid #f4c430; }
+.theme-pizza .fx-curtain { font-family: Monoton, Fredoka, sans-serif; font-weight: 400; color: #ff8fc8; text-shadow: 0 0 .5rem #ff5fa2, 0 0 1.4rem #ff2d8a; }
+/* The header sign: neon letters with a slice and a bolt on either side. */
+.theme-pizza .tv-banner { gap: 1.2rem; }
+.pp-neon { font: 400 3.1rem Monoton, Fredoka, sans-serif; letter-spacing: .08em; color: #ffb3da; text-shadow: 0 0 .3rem #ff5fa2, 0 0 1rem #ff2d8a, 0 0 2rem #ff2d8a; animation: ppBuzz 9s linear infinite; white-space: nowrap; }
+.pp-ico { display: block; width: 3.6rem; height: 3.6rem; filter: drop-shadow(0 0 .35rem #ffcf3f); animation: ppBuzz 15s linear -4s infinite; }
+.pp-ico.blue { filter: drop-shadow(0 0 .35rem #3fa9ff); animation-duration: 12s; animation-delay: -7s; }
+/* Every few quotes, the creepy line comes back. */
+.hero-quote.pp-creep span { font-family: Georgia, serif; color: #ff8a7a; text-shadow: 0 0 1rem rgba(255,60,60,.45); animation: quoteIn 1.2s ease-out, ppBuzz 7s linear 1.2s infinite; }
+/* Balloons drift up the room. */
+.theme-pizza .leaves { display: block; position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.pp-float { position: absolute; bottom: -7rem; width: 3rem; height: 4.8rem; opacity: .8; animation: ppRise 40s linear infinite; }
+.pp-up { position: absolute; bottom: -9rem; width: 4.6rem; height: 7.4rem; animation: ppRise 9s ease-in forwards; }
+@keyframes ppRise { from { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-60vh) rotate(4deg); } to { transform: translateY(-125vh) rotate(-4deg); } }
+/* Lights out: the room goes dark and two eyes look back. */
+.pp-dark { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; opacity: 0; animation: ppDark 6.4s linear forwards; }
+@keyframes ppDark { 0% { opacity: 0; } 4% { opacity: .9; } 6% { opacity: .15; } 9% { opacity: .95; } 12%, 86% { opacity: .96; } 100% { opacity: 0; } }
+.pp-eyes { position: absolute; left: 50%; top: 34%; width: 15rem; margin-left: -7.5rem; display: flex; justify-content: space-between; opacity: 0; animation: ppEyes 6.4s linear forwards; }
+.pp-eyes i { display: block; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: radial-gradient(circle, #f2fbff 0 22%, #3fa9ff 42%, rgba(63,169,255,0) 70%); }
+@keyframes ppEyes { 0%, 18% { opacity: 0; } 24%, 46% { opacity: 1; } 48%, 50% { opacity: 0; } 52%, 80% { opacity: 1; } 86%, 100% { opacity: 0; } }
+.pp-dark-say { position: absolute; left: 0; right: 0; top: 52%; text-align: center; font: italic 4.4rem Georgia, serif; color: #ff8a7a; text-shadow: 0 0 1.2rem rgba(255,60,60,.6); opacity: 0; animation: ppSay 6.4s linear forwards; }
+@keyframes ppSay { 0%, 38% { opacity: 0; } 46%, 80% { opacity: 1; } 88%, 100% { opacity: 0; } }
+.fx-walker.sneak .fx-hop { animation: ppSneak 1.6s ease-in-out infinite; }
+@keyframes ppSneak { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.4rem); } }
+/* The stage on each kid's card: band members come out one checked item at a time. */
+.pp-stage { display: none; }
+.theme-pizza .kid { padding-right: 39.5rem; }
+.theme-pizza .kid-timer { position: absolute; right: 1.6rem; top: 1.6rem; width: 14rem; margin: 0; padding: .6rem; z-index: 4; }
+.theme-pizza .kid-timer .t-num { font-size: 4rem; }
+.theme-pizza .chips { flex-wrap: wrap; }
+.theme-pizza .chip:first-child:nth-last-child(n+5), .theme-pizza .chip:first-child:nth-last-child(n+5) ~ .chip { flex: 1 0 30%; height: 4.6rem; margin-bottom: .5rem; }
+.theme-pizza .pp-stage { display: block; position: absolute; right: .8rem; top: .8rem; bottom: .8rem; width: 37.4rem; overflow: hidden; border-radius: .7rem; background: linear-gradient(#2c1238, #140a1c 80%); }
+.pp-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+.pp-sign { position: absolute; left: 4.6rem; top: 2.8rem; z-index: 3; padding: .2rem .8rem; background: rgba(18,10,24,.8); color: #f4c430; font: 600 1.6rem Fredoka, sans-serif; border-radius: .4rem; }
+.pp-sign b { color: #fff3d6; font-weight: 600; margin-left: .3rem; }
+.pp-svg .ps { opacity: 0; }
+.pp-svg .ps.on { opacity: 1; }
+.pp-svg .ps.on.new { animation: ppPop 1.1s ease-out var(--d, 0s) both; }
+@keyframes ppPop { 0% { opacity: 0; transform: translateY(30px); } 60% { opacity: 1; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+.pp-svg .pb { fill: #4a3a55; }
+.pp-svg .bulbs.on .pb { fill: #ffd86b; }
+.pp-svg .bulbs.on .pb:nth-child(odd) { animation: ppChase 1.6s steps(1) infinite; }
+.pp-svg .bulbs.on .pb:nth-child(even) { animation: ppChase 1.6s steps(1) -.8s infinite; }
+@keyframes ppChase { 0% { fill: #ffd86b; } 50% { fill: #ff8a3d; } }
+.pp-svg .bulbs { opacity: 1; }
+.pp-svg .pp-shade { fill: #0a0612; opacity: .8; transition: opacity 1.2s; }
+.pp-svg .pp-glow { animation: ppBlink 6s linear infinite; }
+@keyframes ppBlink { 0%, 46%, 50%, 100% { opacity: 1; } 47%, 49% { opacity: 0; } }
+.pp-svg .pp-spot { opacity: 0; transition: opacity 1.2s; }
+.pp-svg .bear-lit .pp-shade, .pp-svg .bear-lit .pp-glow { opacity: 0; animation: none; }
+.pp-svg .bear-lit .pp-spot { opacity: .16; }
+.pp-stage.won .pp-dance { animation: ppBob .7s ease-in-out infinite alternate; }
+.pp-stage.won .pp-dance.b { animation-delay: -.35s; }
+@keyframes ppBob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+.pp-stage.showtime .pp-svg { animation: plugFlash 2.6s ease-out both; }
+.pp-svg .pp-greg { animation: ppGreg 40s linear infinite; }
+@keyframes ppGreg { 0% { transform: translateX(0); } 45%, 100% { transform: translateX(440px); } }
+@media (prefers-reduced-motion: reduce) { .pp-stage *, .theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after, .pp-neon, .pp-ico, .pp-float, .hero-quote.pp-creep span { animation: none !important; } }
+
 /* A pit stall on each kid's card */
 .pit { display: none; }
 .theme-pitstop .kid { padding-right: 39.5rem; }
@@ -1698,6 +1790,9 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     theme: 'office',
     camTour: false,
     fxLevel: 'normal',
+    // Pizzeria theme: the sign text and the quote's credit are set in the database, so family wording stays out of this public file.
+    pizzaSign: 'Mega Pizza Place',
+    pizzaQuoteBy: '',
     // Pit Stop cars, one per kid. Real names and sponsors are set from the phone, so they stay out of this public file.
     cars: [{ number: '67', color: '#1d5fd1', sponsor: 'Testing Lab' }, { number: '76', color: '#d62828', sponsor: 'Snack Stand' }],
     fxSound: false, // theme sounds on the TV (Pit Stop, Mother Pig Country)
@@ -2194,13 +2289,17 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     // Worked out from the time, so every screen shows the same line and nothing needs saving.
     // Stepping by 37 mixes the kinds together. The list's length must not be a multiple of 37.
     var turn = Math.floor(now.getTime() / 45000), q = QUOTES[turn * 37 % QUOTES.length], el = $('heroQuote');
+    // The pizzeria's creepy line comes back every third turn.
+    var creep = themeInfo().id === 'pizza' && turn % 3 === 0;
+    if (creep) q = ['I always come back.', settings().pizzaQuoteBy];
+    el.className = 'hero-quote' + (creep ? ' pp-creep' : '');
     if (el.getAttribute('data-q') === q[0]) return;
     el.setAttribute('data-q', q[0]);
     el.innerHTML = '<span>' + esc(q[0]) + (q[1] ? ' <cite>' + esc(q[1]) + '</cite>' : '') + '</span>';
   }
 
   /* ---------- Themes and camera switching ---------- */
-  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'lights', text: 'Old-Fashioned Christmas', flag: 'Lit up!', cal: 'Coming up' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'pigs', text: 'Mother Pig Country', flag: 'Glorious!', cal: 'The Plan' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
+  var THEMES = [{ id: 'office', text: 'Security Office', flag: 'ALL CLEAR', cal: 'Coming up' }, { id: 'harvest', text: 'Thanksgiving', flag: 'Gobble gobble!', cal: 'On the calendar' }, { id: 'christmas', text: 'Christmas', flag: 'Ho ho ho!', cal: 'Coming up' }, { id: 'lights', text: 'Old-Fashioned Christmas', flag: 'Lit up!', cal: 'Coming up' }, { id: 'pizza', text: 'Pizzeria After Dark', flag: 'Showtime!', cal: 'Party schedule' }, { id: 'wizard', text: 'Wizard School', flag: 'Spell complete!', cal: 'Notices' }, { id: 'bricks', text: 'Brick Builders', flag: 'Built it!', cal: 'Build plan' }, { id: 'miner', text: 'Block Miner', flag: 'Mined it!', cal: 'Quests' }, { id: 'pitstop', text: 'Pit Stop', flag: 'Pit done!', cal: 'Race schedule' }, { id: 'pigs', text: 'Mother Pig Country', flag: 'Glorious!', cal: 'The Plan' }, { id: 'calm', text: 'Calm', flag: 'All done', cal: 'Coming up' }];
   var LEAF_COLORS = ['#c9481f', '#e9862c', '#d9a02b', '#a8321a', '#e9862c', '#c9481f', '#d9a02b'];
   function themeInfo() {
     var theme = settings().theme, i;
@@ -2228,6 +2327,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         '<circle cx="23" cy="27" r="10" fill="#f3e6c4"/><circle cx="41" cy="27" r="10" fill="#f3e6c4"/><circle cx="23" cy="27" r="5" fill="#1d1408"/><circle cx="41" cy="27" r="5" fill="#1d1408"/><circle cx="25" cy="25" r="1.6" fill="#fff"/><circle cx="43" cy="25" r="1.6" fill="#fff"/><polygon points="28,33 36,33 32,40" fill="#e6a42c"/></svg>';
     }
     if (id === 'lights') return MOOSE_MUG;
+    if (id === 'pizza') return SLICE;
     if (id === 'bricks') return BRICK_HEAD;
     if (id === 'miner') return GEM;
     if (id === 'pitstop') return CHECKER;
@@ -2266,6 +2366,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       else if (toGo > 1 && toGo <= 60) html = toGo + ' days until Christmas';
       if (html) html = mascot() + '<span>' + html + '</span>';
     }
+    if (themeInfo().id === 'pizza') html = '<span class="pp-ico">' + NEON_SLICE + '</span><span class="pp-neon">' + esc(settings().pizzaSign) + '</span><span class="pp-ico blue">' + NEON_BOLT + '</span>';
     if (themeInfo().id === 'pigs') {
       var sl = PIG_THEME.slogans[Math.floor(now.getTime() / 60000) % PIG_THEME.slogans.length];
       html = '<span class="hdr-pig">' + pigArt(PIG_THEME.mama) + '</span><span class="slogan"><b>' + esc(sl[0]) + '</b><small>' + esc(sl[1]) + '</small></span><span class="hdr-pig">' + pigArt(PIG_THEME.dad) + '</span>';
@@ -2304,6 +2405,11 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       leaves.innerHTML = '<svg class="wire-svg" viewBox="0 0 1000 26" preserveAspectRatio="none" aria-hidden="true"><path d="' + wire + '" fill="none" stroke="#1b2b22" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>' + winter;
     }
     if (theme === 'pitstop' && !leaves.innerHTML) leaves.innerHTML = crowdHtml(2, 38);
+    if (theme === 'pizza' && !leaves.innerHTML) {
+      var party = '', spots = [2, 24, 47, 70, 95], tints = ['#ff5a6a', '#3fa9ff', '#f4c430', '#b388ff', '#9fe3a0'];
+      for (i = 0; i < spots.length; i++) party += '<div class="pp-float" style="left:' + spots[i] + '%;animation-delay:' + (-i * 8.3) + 's;animation-duration:' + (36 + i * 3) + 's">' + balloonArt(tints[i]) + '</div>';
+      leaves.innerHTML = party;
+    }
     if (theme === 'miner' && !leaves.innerHTML) leaves.innerHTML = '<div class="torch torch-l">' + TORCH + '</div><div class="torch torch-r">' + TORCH + '</div>';
     if (theme === 'bricks' && !leaves.innerHTML) {
       leaves.innerHTML = '<div class="pile"><div class="pile-b1">' + brickArt('#2558c0', '#1d469a') + '</div><div class="pile-b2">' + brickArt('#d6372b', '#a82418') + '</div><div class="pile-head">' + BRICK_HEAD + '</div></div>';
@@ -2593,6 +2699,108 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       '<div class="build-art">' + svg + '</div><div class="build-fig">' + BRICK_FIG + '<div class="build-carry">' + brickArt(next || '#f5c518', 'rgba(0,0,0,.25)') + '</div></div></div>';
   }
 
+  /* ---------- Pizzeria after dark: our own band of party animals ---------- */
+  var NEON_SLICE = '<svg class="mascot" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 9 Q20 2 34 9 L20 37 Z" fill="none" stroke="#ffcf3f" stroke-width="2.6" stroke-linejoin="round"/><circle cx="15.5" cy="14" r="2.6" fill="none" stroke="#ff6a5f" stroke-width="2"/><circle cx="24.5" cy="16" r="2.6" fill="none" stroke="#ff6a5f" stroke-width="2"/><circle cx="19.5" cy="25" r="2.2" fill="none" stroke="#ff6a5f" stroke-width="2"/></svg>';
+  var NEON_BOLT = '<svg class="mascot" viewBox="0 0 40 40" aria-hidden="true"><path d="M23 3 L10 22 H19 L15 37 L30 16 H21 L26 3 Z" fill="none" stroke="#3fa9ff" stroke-width="2.6" stroke-linejoin="round"/></svg>';
+  // The bear: tiny top hat, bow tie, microphone, and a blue lightning bolt on his chest.
+  var PP_BEAR = '<svg class="mascot" viewBox="0 0 60 100" aria-hidden="true">' +
+    '<g class="un-legA"' + pivot(23, 80) + '><rect x="17" y="78" width="12" height="16" rx="5" fill="#6b4022"/><ellipse cx="23" cy="95" rx="8" ry="4" fill="#4a2a14"/></g><g class="un-legB"' + pivot(37, 80) + '><rect x="31" y="78" width="12" height="16" rx="5" fill="#6b4022"/><ellipse cx="37" cy="95" rx="8" ry="4" fill="#4a2a14"/></g>' +
+    '<rect x="12" y="44" width="36" height="40" rx="15" fill="#7a4a28"/><ellipse cx="30" cy="66" rx="11.5" ry="14" fill="#c8915e"/>' +
+    '<path d="M32 54 L23 68 H29 L26 80 L37 64 H31 L35 54 Z" fill="#3fa9ff" stroke="#1a5fa8" stroke-width=".8" stroke-linejoin="round"/>' +
+    '<path d="M24 43 L30 46 L24 49 Z M36 43 L30 46 L36 49 Z" fill="#1a1a1a"/><circle cx="30" cy="46" r="1.6" fill="#1a1a1a"/>' +
+    '<rect x="6" y="48" width="10" height="24" rx="5" fill="#7a4a28" transform="rotate(12 11 50)"/>' +
+    '<rect x="44" y="34" width="10" height="20" rx="5" fill="#7a4a28" transform="rotate(-24 49 50)"/><rect x="50.5" y="22" width="3.5" height="10" rx="1" fill="#333"/><circle cx="52.2" cy="21" r="3.4" fill="#555"/>' +
+    '<circle cx="14" cy="15" r="7" fill="#7a4a28"/><circle cx="46" cy="15" r="7" fill="#7a4a28"/><circle cx="14" cy="15" r="3.4" fill="#c8915e"/><circle cx="46" cy="15" r="3.4" fill="#c8915e"/>' +
+    '<circle cx="30" cy="28" r="17" fill="#7a4a28"/><ellipse cx="30" cy="35.5" rx="9.5" ry="7" fill="#c8915e"/><ellipse cx="30" cy="31.5" rx="3.6" ry="2.6" fill="#2a1408"/><path d="M25.5 37.5 Q30 41 34.5 37.5" fill="none" stroke="#2a1408" stroke-width="1.3" stroke-linecap="round"/>' +
+    '<circle cx="23.5" cy="25" r="3.6" fill="#fff"/><circle cx="36.5" cy="25" r="3.6" fill="#fff"/><circle cx="24" cy="25.5" r="1.8" fill="#2a8fd8"/><circle cx="37" cy="25.5" r="1.8" fill="#2a8fd8"/><path d="M19 20 L27 21.5 M41 20 L33 21.5" stroke="#3d220f" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<g transform="rotate(-10 34 11)"><rect x="25" y="9.5" width="17" height="2.6" rx="1.2" fill="#1a1a1a"/><rect x="28.5" y="1" width="10" height="9.5" rx="1" fill="#1a1a1a"/><rect x="28.5" y="7" width="10" height="2" fill="#b3261e"/></g></svg>';
+  // The same bear as a dark shape, laid over him until his spotlight comes on.
+  var PP_BEAR_SHADE = PP_BEAR.replace(/fill="#[0-9a-f]{3,6}"/gi, 'fill="#0d0814"').replace(/stroke="#[0-9a-f]{3,6}"/gi, 'stroke="#0d0814"').replace('<svg class="mascot"', '<svg class="pp-shade" x="150" y="64" width="64" height="106"');
+  // The bunny on guitar.
+  var PP_BUNNY = '<svg class="mascot" viewBox="0 0 60 100" aria-hidden="true">' +
+    '<ellipse cx="22" cy="12" rx="5.5" ry="14" fill="#7d6bd6" transform="rotate(-10 22 24)"/><ellipse cx="22" cy="13" rx="2.6" ry="10" fill="#e8b8d8" transform="rotate(-10 22 24)"/><ellipse cx="38" cy="12" rx="5.5" ry="14" fill="#7d6bd6" transform="rotate(10 38 24)"/><ellipse cx="38" cy="13" rx="2.6" ry="10" fill="#e8b8d8" transform="rotate(10 38 24)"/>' +
+    '<g class="un-legA"' + pivot(23, 80) + '><rect x="17" y="78" width="12" height="15" rx="5" fill="#5f4fb8"/><ellipse cx="22" cy="94" rx="8.5" ry="4" fill="#c9c0f2"/></g><g class="un-legB"' + pivot(37, 80) + '><rect x="31" y="78" width="12" height="15" rx="5" fill="#5f4fb8"/><ellipse cx="38" cy="94" rx="8.5" ry="4" fill="#c9c0f2"/></g>' +
+    '<rect x="13" y="46" width="34" height="38" rx="14" fill="#7d6bd6"/><ellipse cx="30" cy="66" rx="11" ry="13" fill="#c9c0f2"/><path d="M24 45 L30 48 L24 51 Z M36 45 L30 48 L36 51 Z" fill="#c8302a"/>' +
+    '<path d="M24 72 L49 49" stroke="#5a3a20" stroke-width="3"/><rect x="46.5" y="44" width="6" height="6" rx="1" fill="#3a1010" transform="rotate(-42 49.5 47)"/><ellipse cx="24" cy="72" rx="10" ry="7.5" fill="#c8302a" transform="rotate(-38 24 72)"/><circle cx="24.5" cy="71.5" r="2.2" fill="#3a1010"/>' +
+    '<path d="M16 53 L22 70" stroke="#7d6bd6" stroke-width="7" stroke-linecap="round"/><path d="M45 53 L41 59" stroke="#7d6bd6" stroke-width="7" stroke-linecap="round"/>' +
+    '<circle cx="30" cy="32" r="15" fill="#7d6bd6"/><ellipse cx="30" cy="39" rx="8.5" ry="6" fill="#c9c0f2"/><ellipse cx="30" cy="35.5" rx="2.6" ry="1.9" fill="#e85d9a"/><rect x="28" y="40" width="4" height="3.4" rx=".6" fill="#fff" stroke="#b9b0e0" stroke-width=".4"/>' +
+    '<circle cx="24" cy="28" r="3.4" fill="#fff"/><circle cx="36" cy="28" r="3.4" fill="#fff"/><circle cx="24.4" cy="28.4" r="1.8" fill="#d6336c"/><circle cx="36.4" cy="28.4" r="1.8" fill="#d6336c"/><path d="M20 23.5 L27 24.5 M40 23.5 L33 24.5" stroke="#4a3a9a" stroke-width="1.4" stroke-linecap="round"/></svg>';
+  // The chicken in her party bib, with a slice to share.
+  var PP_CHICK = '<svg class="mascot" viewBox="0 0 60 100" aria-hidden="true">' +
+    '<g class="un-legA"' + pivot(24, 82) + '><path d="M24 82 V93 M24 93 L19 97 M24 93 L28 97" stroke="#e8862a" stroke-width="2.8" stroke-linecap="round" fill="none"/></g><g class="un-legB"' + pivot(36, 82) + '><path d="M36 82 V93 M36 93 L32 97 M36 93 L41 97" stroke="#e8862a" stroke-width="2.8" stroke-linecap="round" fill="none"/></g>' +
+    '<path d="M12 52 Q12 86 30 86 Q48 86 48 52 Q48 40 30 40 Q12 40 12 52 Z" fill="#f2c230"/><path d="M18 46 H42 L40 66 Q30 72 20 66 Z" fill="#fff"/><text x="30" y="58.5" font-family="Fredoka, Arial, sans-serif" font-weight="600" font-size="6.4" fill="#b3261e" text-anchor="middle">PARTY!</text>' +
+    '<ellipse cx="12" cy="60" rx="5" ry="11" fill="#e6b020" transform="rotate(14 12 60)"/><ellipse cx="48" cy="52" rx="5" ry="10" fill="#e6b020" transform="rotate(-36 48 52)"/>' +
+    '<path d="M47 40 L59 37 L53 27 Z" fill="#f6c24b" stroke="#c98a45" stroke-width="1"/><circle cx="53" cy="35" r="1.5" fill="#c9371f"/><circle cx="55" cy="38" r="1.1" fill="#c9371f"/>' +
+    '<path d="M28 13 Q25 4 30 6 Q32 1 34 7 Q38 5 35 13 Z" fill="#e6b020"/><circle cx="30" cy="26" r="14" fill="#f2c230"/>' +
+    '<path d="M23.5 30 L30 26.5 L36.5 30 Z" fill="#f5a23a"/><path d="M23.5 30 H36.5 L30 37.5 Z" fill="#ef8a1f"/>' +
+    '<circle cx="24" cy="22.5" r="3.5" fill="#fff"/><circle cx="36" cy="22.5" r="3.5" fill="#fff"/><circle cx="24.4" cy="23" r="1.8" fill="#6a3fb0"/><circle cx="36.4" cy="23" r="1.8" fill="#6a3fb0"/><circle cx="20" cy="29" r="2" fill="#ff8a6a" opacity=".55"/><circle cx="40" cy="29" r="2" fill="#ff8a6a" opacity=".55"/></svg>';
+  // The pirate fox: eye patch, hook, big grin.
+  var PP_FOX = '<svg class="mascot" viewBox="0 0 60 100" aria-hidden="true"><path d="M44 72 Q62 68 58 48 Q54 62 42 64 Z" fill="#c8502a"/><path d="M56 52 Q58 47 58 48 Q59 55 55 58 Z" fill="#f3efe6"/>' +
+    '<g class="un-legA"' + pivot(23, 80) + '><rect x="17" y="78" width="11" height="15" rx="5" fill="#a8401f"/><ellipse cx="22" cy="94" rx="7.5" ry="3.6" fill="#3a1a10"/></g><g class="un-legB"' + pivot(37, 80) + '><rect x="32" y="78" width="11" height="15" rx="5" fill="#a8401f"/><ellipse cx="38" cy="94" rx="7.5" ry="3.6" fill="#3a1a10"/></g>' +
+    '<rect x="14" y="44" width="32" height="40" rx="13" fill="#c8502a"/><ellipse cx="30" cy="66" rx="10" ry="13" fill="#f3c9a0"/>' +
+    '<rect x="7" y="48" width="9" height="22" rx="4.5" fill="#c8502a" transform="rotate(10 11 50)"/><rect x="44" y="48" width="9" height="19" rx="4.5" fill="#c8502a" transform="rotate(-10 48 50)"/><path d="M52 66 Q59 68 57 75 Q54 79 51 75" fill="none" stroke="#c9d1d8" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<path d="M16 22 L14 2 L28 14 Z M44 22 L46 2 L32 14 Z" fill="#c8502a"/><path d="M18 18 L17 8 L24 14 Z M42 18 L43 8 L36 14 Z" fill="#f3c9a0"/>' +
+    '<circle cx="30" cy="26" r="15" fill="#c8502a"/><ellipse cx="30" cy="35" rx="9.5" ry="6.5" fill="#f3c9a0"/><circle cx="30" cy="30.5" r="2.6" fill="#1a1a1a"/><path d="M23.5 37 Q30 42.5 36.5 37" fill="none" stroke="#3a1a10" stroke-width="1.3" stroke-linecap="round"/><path d="M27 38.6 L28.4 41 L29.6 38.9 Z" fill="#fff"/>' +
+    '<circle cx="23.5" cy="22" r="3.4" fill="#fff"/><circle cx="23.9" cy="22.4" r="1.9" fill="#f4c430"/><circle cx="23.9" cy="22.4" r=".8" fill="#1a1a1a"/><path d="M17 14 L45 28" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="36.5" cy="22" r="4.2" fill="#1a1a1a"/></svg>';
+  // A party kid running with a balloon.
+  function ppKid(shirt, hair, skin, balloon) {
+    return '<svg class="mascot" viewBox="0 0 40 90" aria-hidden="true"><path d="M30 24 Q26 34 27 46" stroke="#ddd" stroke-width=".8" fill="none"/><ellipse cx="30" cy="12" rx="9" ry="11" fill="' + balloon + '"/><ellipse cx="27" cy="8" rx="2" ry="3.5" fill="#fff" opacity=".45"/><path d="M28.5 22.5 L31.5 22.5 L30 25 Z" fill="' + balloon + '"/>' +
+      '<g class="un-legA"' + pivot(17, 64) + '><rect x="14" y="62" width="5" height="19" rx="2" fill="#2f3f66"/><ellipse cx="16" cy="82" rx="4" ry="2" fill="#f3f3f3"/></g><g class="un-legB"' + pivot(22, 64) + '><rect x="20" y="62" width="5" height="19" rx="2" fill="#2f3f66"/><ellipse cx="23" cy="82" rx="4" ry="2" fill="#f3f3f3"/></g>' +
+      '<rect x="12" y="47" width="14" height="18" rx="5" fill="' + shirt + '"/><path d="M24 50 L27 46 M13 51 L7 58" stroke="' + skin + '" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<circle cx="19" cy="39" r="8" fill="' + skin + '"/><path d="M11 38 Q11 29 19 29 Q27 29 27 37 Q22 33 11 38 Z" fill="' + hair + '"/><circle cx="16" cy="40" r="1.1" fill="#1a1a1a"/><circle cx="22" cy="40" r="1.1" fill="#1a1a1a"/><ellipse cx="19" cy="44.2" rx="1.8" ry="2" fill="#5a1a1a"/></svg>';
+  }
+  // The sneaky boy: navy shirt, black pants, tiptoeing with a finger to his lips.
+  var PP_SNEAK = '<svg class="mascot" viewBox="0 0 40 72" aria-hidden="true">' +
+    '<g class="un-legA"' + pivot(16, 48) + '><path d="M16 48 L12 59 L15 67" fill="none" stroke="#1b1b1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="16.5" cy="68.5" rx="4.5" ry="2" fill="#f3f3f3"/></g><g class="un-legB"' + pivot(22, 48) + '><path d="M22 48 L27 58 L24 67" fill="none" stroke="#1b1b1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="25.5" cy="68.5" rx="4.5" ry="2" fill="#f3f3f3"/></g>' +
+    '<g transform="rotate(14 19 40)"><rect x="12" y="27" width="14" height="23" rx="5" fill="#1f2f5c"/><path d="M16 27.5 Q19 30 22 27.5" fill="none" stroke="#3a4f86" stroke-width="1.2"/></g>' +
+    '<path d="M15 33 L9 42" stroke="#1f2f5c" stroke-width="4.5" stroke-linecap="round"/><circle cx="8.5" cy="43" r="2.1" fill="#f0c9a0"/><path d="M25 31 L29 25 L26.5 21" fill="none" stroke="#1f2f5c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="20" r="2.1" fill="#f0c9a0"/>' +
+    '<circle cx="22" cy="15" r="8" fill="#f0c9a0"/><path d="M14 13 Q14 4 23 5 Q30 6 30 12 L27 10 L25 12.5 L22 9.5 L19 12.5 L16 10 Z" fill="#6b4426"/>' +
+    '<circle cx="24.5" cy="15.5" r="1.1" fill="#1a1a1a"/><circle cx="28.6" cy="15.5" r="1.1" fill="#1a1a1a"/><path d="M23 12.6 L26 12.9 M27.4 12.9 L30 12.6" stroke="#4a2e18" stroke-width=".9" stroke-linecap="round"/><path d="M24.8 20 H27.4" stroke="#7a3b22" stroke-width=".9" stroke-linecap="round"/><rect x="25.4" y="16.5" width="1.4" height="4.6" rx=".7" fill="#f0c9a0"/></svg>';
+  var PP_SODA = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M36 11 L44 1" stroke="#3fa9ff" stroke-width="3" stroke-linecap="round"/><rect x="13" y="9" width="38" height="5" rx="2" fill="#e9e3d6"/><path d="M16 14 H48 L44 62 H20 Z" fill="#b3261e"/><path d="M17.4 28 H46.6 L45.8 38 H18.2 Z" fill="#fff3d6"/>' +
+    '<text x="32" y="35.6" font-family="Fredoka, Arial, sans-serif" font-weight="600" font-size="7.5" fill="#b3261e" text-anchor="middle">FIZZ</text><circle cx="24" cy="48" r="1.6" fill="#fff" opacity=".5"/><circle cx="38" cy="52" r="1.2" fill="#fff" opacity=".5"/><circle cx="30" cy="44" r="1" fill="#fff" opacity=".5"/></svg>';
+  var PP_PIZZA = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#c98a45"/><circle cx="32" cy="32" r="24.5" fill="#f6c24b"/><path d="M32 8 V56 M8 32 H56 M15 15 L49 49 M49 15 L15 49" stroke="#e0a63a" stroke-width="1.2"/>' +
+    '<circle cx="22" cy="20" r="4" fill="#c9371f"/><circle cx="41" cy="22" r="4" fill="#c9371f"/><circle cx="20" cy="40" r="4" fill="#c9371f"/><circle cx="40" cy="43" r="4" fill="#c9371f"/><circle cx="31" cy="31" r="4" fill="#c9371f"/></svg>';
+  var PP_RUNNERS = [['#2f8a4a', '#3a2414', '#f0c9a0', '#ff5a6a'], ['#e07b00', '#d9a441', '#c98a5b', '#3fa9ff'], ['#8e5bd6', '#1a1a1a', '#8a5a3a', '#f4c430']];
+  // Each kid's stage. Bulbs, then the bunny, the chicken, the fox, the party table, and finally the spotlight on the bear.
+  var ppSeen = {};
+  function stageHtml(i, total, done) {
+    var n = Math.max(total, 1), won = total > 0 && done >= total, S = 6, from = ppSeen[i], s, k, fresh = 0;
+    ppSeen[i] = done;
+    if (from === undefined || from > done) from = done;
+    var lit = [], isNew = [];
+    for (s = 0; s < S; s++) {
+      var st = total ? Math.floor(s * n / S) : -1;
+      lit.push(st < done);
+      isNew.push(st < done && st >= from);
+    }
+    function cls(s, base) { return base + (lit[s] ? ' on' : '') + (isNew[s] ? ' new' : '') + '"' + (isNew[s] ? ' style="--d:' + (fresh++ * .5).toFixed(1) + 's"' : ''); }
+    function put(art, x, y, w, h, b) { return '<g class="pp-dance' + (b ? ' b' : '') + '">' + art.replace('<svg class="mascot"', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"') + '</g>'; }
+    var bulbs = '', floor = '', val = 'M0 0 H374 V16', c;
+    for (k = 0; k < 16; k++) bulbs += '<circle class="pb" cx="' + (52 + k * 18) + '" cy="27" r="3"/>';
+    for (k = 0; k < 11; k++) val += ' Q' + (374 - k * 34 - 17) + ' 28 ' + (374 - (k + 1) * 34) + ' 16';
+    for (k = 0; k < 32; k++) for (c = 0; c < 2; c++) if ((k + c) % 2) floor += '<rect x="' + k * 12 + '" y="' + (192 + c * 12) + '" width="12" height="12"/>';
+    var svg = '<svg class="pp-svg" viewBox="0 0 374 216" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
+      '<path d="M90 60 l2 5 5 .5 -4 3 1.5 5 -4.5 -3 -4.5 3 1.5 -5 -4 -3 5 -.5 Z M290 70 l2 5 5 .5 -4 3 1.5 5 -4.5 -3 -4.5 3 1.5 -5 -4 -3 5 -.5 Z M250 44 l1.4 3.5 3.5 .4 -2.8 2 1 3.5 -3.1 -2 -3.1 2 1 -3.5 -2.8 -2 3.5 -.4 Z" fill="#f4c430" opacity=".35"/>' +
+      '<g class="' + (lit[5] ? 'bear-lit' : '') + '"><path class="pp-spot" d="M168 0 H206 L240 178 H134 Z" fill="#fff2b8" opacity=".14"/></g>' +
+      '<rect x="0" y="168" width="374" height="6" fill="#6b4426"/><rect x="0" y="174" width="374" height="18" fill="#3a2414"/><rect x="0" y="192" width="374" height="24" fill="#e9e3d6"/><g fill="#1a1a1a">' + floor + '</g>' +
+      '<g' + cls(1, ' class="ps') + '>' + put(PP_BUNNY, 66, 84, 52, 86) + '</g>' +
+      '<g' + cls(2, ' class="ps') + '>' + put(PP_CHICK, 256, 84, 52, 86, true) + '</g>' +
+      '<g class="' + (lit[5] ? 'bear-lit' : '') + '">' + put(PP_BEAR, 150, 64, 64, 106, true) + '' + PP_BEAR_SHADE + '' +
+      '<g class="pp-glow"><circle cx="175.6" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="189.4" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="175.6" cy="91" r="2.2" fill="#e8f6ff"/><circle cx="189.4" cy="91" r="2.2" fill="#e8f6ff"/></g></g>' +
+      '<g' + cls(3, ' class="ps') + '>' + put(PP_FOX, 306, 96, 46, 76) + '</g>' +
+      '<path d="M0 0 H46 Q34 60 42 120 Q32 150 36 192 H0 Z" fill="#8c1a2a"/><path d="M14 20 Q10 100 16 190 M28 20 Q24 100 26 190" stroke="#6e1220" stroke-width="2" fill="none"/>' +
+      '<path d="M374 0 H328 Q340 60 332 120 Q342 150 338 192 H374 Z" fill="#8c1a2a"/><path d="M360 20 Q364 100 358 190 M346 20 Q350 100 348 190" stroke="#6e1220" stroke-width="2" fill="none"/>' +
+      '<path d="' + val + ' V0 Z" fill="#6e1220"/><path d="M0 16 H374" stroke="#f4c430" stroke-width="1.6" opacity=".7"/>' +
+      '<g class="bulbs' + (lit[0] ? ' on' : '') + '">' + bulbs + '</g>' +
+      '<g' + cls(4, ' class="ps') + '><path d="M364 180 Q356 120 352 68 M364 180 Q366 110 366 56 M364 180 Q348 120 338 62" stroke="#ddd" stroke-width=".8" fill="none"/><ellipse cx="352" cy="57" rx="9" ry="11" fill="#ff5a6a"/><ellipse cx="366" cy="45" rx="9" ry="11" fill="#3fa9ff"/><ellipse cx="338" cy="51" rx="9" ry="11" fill="#f4c430"/>' +
+      '<path d="M292 186 V212 M360 186 V212" stroke="#6b4426" stroke-width="3"/><rect x="284" y="181" width="84" height="6" rx="1.5" fill="#f3efe6"/><path d="M290 181 V187 M302 181 V187 M314 181 V187 M326 181 V187 M338 181 V187 M350 181 V187 M362 181 V187" stroke="#b3261e" stroke-width="3"/>' +
+      '<ellipse cx="304" cy="178" rx="14" ry="4.2" fill="#c98a45"/><ellipse cx="304" cy="177.4" rx="11.5" ry="3.2" fill="#f6c24b"/><circle cx="300" cy="177.4" r="1.3" fill="#c9371f"/><circle cx="308" cy="177" r="1.3" fill="#c9371f"/>' +
+      '<path d="M328 169 H338 L336.5 181 H329.5 Z M344 169 H354 L352.5 181 H345.5 Z" fill="#b3261e"/><path d="M328.6 174 H337.4 M344.6 174 H353.4" stroke="#fff3d6" stroke-width="1.6"/><path d="M334 169 L337 162 M350 169 L353 162" stroke="#3fa9ff" stroke-width="1.4"/></g>' +
+      '<g class="pp-greg">' + PP_SNEAK.replace('<svg class="mascot"', '<svg x="-40" y="166" width="26" height="46"') + '</g></svg>';
+    var showtime = won && from < done;
+    return '<div class="pp-stage' + (won ? ' won' : '') + (showtime ? ' showtime' : '') + '">' + svg +
+      '<div class="pp-sign">' + (won ? 'Showtime!' : 'Show <b>' + done + '/' + total + '</b>') + '</div></div>';
+  }
   /* ---------- Old-Fashioned Christmas: the house lights up as the list gets done ---------- */
   var LIGHT_COLORS = ['#ff4b3e', '#ffd23f', '#3fd36b', '#4fb3ff', '#ff8a3d'];
   // A moose-head mug of eggnog, for the checklist and the banner.
@@ -3314,7 +3522,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   function actor() {
     var id = themeInfo().id;
-    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'lights' ? LIGHTS_DAD : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : id === 'pigs' ? eggArt('march') : mascot();
+    return id === 'office' ? BEAR : id === 'harvest' ? TURKEY : id === 'wizard' ? OWL : id === 'christmas' ? SNOWMAN : id === 'lights' ? LIGHTS_DAD : id === 'pizza' ? PP_BEAR : id === 'bricks' ? BRICK_FIG : id === 'miner' ? MINER : id === 'pitstop' ? crewFig('flag') : id === 'pigs' ? eggArt('march') : mascot();
   }
   var DESK_FAN = '<svg class="mascot" viewBox="0 0 64 68" aria-hidden="true"><path d="M32 40 V60" stroke="#6a7075" stroke-width="5"/><ellipse cx="32" cy="63" rx="17" ry="4.5" fill="#4c5257"/><circle cx="32" cy="27" r="25" fill="#10231b" stroke="#8a9398" stroke-width="2.4"/><g class="a-whirl"' + pivot(32, 27) + '><path d="M32 27 C24 8 42 4 42 15 Q42 22 32 27 Z M32 27 C51 19 55 37 44 37 Q37 37 32 27 Z M32 27 C40 46 22 50 22 39 Q22 32 32 27 Z M32 27 C13 35 9 17 20 17 Q27 17 32 27 Z" fill="#b9c4c9"/></g><path d="M7 27 H57 M32 2 V52 M14 9 L50 45 M50 9 L14 45" stroke="#8a9398" stroke-width=".9" opacity=".65"/><circle cx="32" cy="27" r="5" fill="#ff4b62"/></svg>';
   var SLICE = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 12 Q32 -2 58 12 L33 61 Z" fill="#f6c24b"/><path d="M4 12 Q32 -6 60 12 L57 18 Q32 4 7 18 Z" fill="#c98a45"/><circle cx="24" cy="21" r="5" fill="#c9371f"/><circle cx="41" cy="23" r="5" fill="#c9371f"/><circle cx="32" cy="38" r="5" fill="#c9371f"/><path d="M20 30 q2 8 3 13" stroke="#f6c24b" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
@@ -3378,15 +3586,21 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     harvest: ['Gobble gobble!', 'Is it pie time yet?', "I'm thankful for you!", 'Have you flossed today?', 'Nice feathers, right?', 'Check the list!'],
     christmas: ['Snow day? Nope, school day!', 'Check the list twice!', 'Brr! Is it cold in here?', 'Stay on the nice list!', 'Have you seen my carrot?', 'Backpack packed yet?'],
     lights: ['A fun old-fashioned family Christmas!', 'Check the list twice!', 'Who unplugged the lights?', 'Twenty-five thousand bulbs!', 'Is the tree a little too big?', 'Jelly of the month, anyone?', 'Save me some eggnog!', 'Backpack packed yet?'],
+    pizza: ['Pizza time!', 'Who\u2019s ready for the show?', 'Homework first, then games!', 'Brush those teeth!', 'I always come back.', 'Did someone say party?', 'Check the list!', 'Save me a slice!'],
     bricks: ['Click!', 'Check the list!', 'Ouch! Who left a brick on the floor?', 'Build it, then brush it!', 'Stack it up!', 'Got your backpack? I have two hands for that.'],
     miner: ['Diamonds!', 'Check the list!', 'Time to mine some homework.', 'Backpack in your inventory?', 'Night is coming... brush your teeth!', 'Just one more block...'],
     pigs: PIG_THEME.eggLines,
     pitstop: ['Box, box, box!', 'Check the list!', 'Tires on, helmets on!', 'Backpack fueled up?', 'Green flag in five minutes!', 'Pit crew, ready!'],
     wizard: ['Hoo hoo!', 'Check the list!', 'Is your spellbook packed?', 'Wands at the ready!', 'An owl never forgets.', 'Have you brushed your teeth, young wizard?']
   };
-  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', lights: 'The whole house is lit!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', pigs: PIG_THEME.cheer, calm: 'All done!' };
+  var CHEERS = { office: 'ALL CAMERAS CLEAR', harvest: "Everybody's ready!", christmas: 'Nice list, both of you!', lights: 'The whole house is lit!', pizza: 'Showtime, both of you!', wizard: 'All spells cast!', bricks: 'Awesome build, both of you!', miner: 'Level up!', pitstop: 'Both cars in victory lane!', pigs: PIG_THEME.cheer, calm: 'All done!' };
   var STAR = '<svg class="mascot" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 40,24 60,25 44,38 50,58 32,47 14,58 20,38 4,25 24,24" fill="#ffd95e"/></svg>';
   var LETTER = '<svg class="mascot" viewBox="0 0 40 26" aria-hidden="true"><rect width="40" height="26" rx="2" fill="#f7efd9"/><path d="M0 2 L20 15 L40 2" fill="none" stroke="#b8923a" stroke-width="2"/><circle cx="20" cy="16" r="4" fill="#7a1f2b"/></svg>';
+  function ppBalloons(count) {
+    var html = '', tints = ['#ff5a6a', '#3fa9ff', '#f4c430', '#b388ff', '#9fe3a0'], k;
+    for (k = 0; k < count; k++) html += '<div class="pp-up" style="left:' + (3 + Math.random() * 90) + '%;animation-delay:' + (Math.random() * 1.6).toFixed(2) + 's">' + balloonArt(tints[k % tints.length]) + '</div>';
+    fxAdd(html, 11000);
+  }
   function fxPickLine(id) { var l = FX_SAYS[id]; return l[Math.floor(Math.random() * l.length)]; }
   function fxGust(count) {
     var html = '', i;
@@ -3472,6 +3686,23 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         }
         fxAdd(html, 6000);
       }
+    ],
+    pizza: [
+      function () { fxWalker('', PP_BEAR, fxPickLine('pizza'), 12500, 'width:11rem;height:18rem'); },
+      function () { fxWalker('', PP_BUNNY, pick(['Rock on!', 'Who wants a song?', 'Check out this riff!']), 12500, 'width:11rem;height:18rem'); },
+      function () { fxWalker('', PP_CHICK + '<div class="fx-carry" style="top:30%">' + PIZZA_BOX + '</div>', 'Pizza delivery!', 12500, 'width:11rem;height:18rem'); },
+      function () { fxWalker('fast', '<div class="fx-speed"><i></i><i></i><i></i></div>' + PP_FOX, 'Arrr!', 4800, 'width:11rem;height:18rem'); },
+      function () {
+        // Party kids run for it, and the bear follows them.
+        for (var k = 0; k < 3; k++) fxWalker('', ppKid.apply(null, PP_RUNNERS[k]), k === 0 ? 'Run!' : '', 8200, 'width:6rem;height:13.5rem;animation-duration:7s;animation-delay:' + (k * .6) + 's');
+        fxWalker('', PP_BEAR, 'Come back! It\u2019s showtime!', 11500, 'width:11rem;height:18rem;animation-duration:9s;animation-delay:2s');
+      },
+      function () { fxWalker('sneak', PP_SNEAK, 'Shhh...', 20500, 'width:7rem;height:12.5rem;animation-duration:20s'); },
+      function () { fxWalker('roll', PP_PIZZA, '', 9300); },
+      function () { fxOnFeed('<div class="fx-peek">' + PP_SODA + '</div><div class="fx-alert" style="color:#3fa9ff">Refill!</div>', 5200); },
+      function () { fxOnFeed('<div class="fx-peek">' + PP_FOX + '</div><div class="fx-alert" style="color:#ff8a3d">Peekaboo!</div>', 5200); },
+      function () { fxAdd('<div class="pp-dark"><div class="pp-eyes"><i></i><i></i></div><div class="pp-dark-say">I always come back.</div></div>', 6600); },
+      function () { ppBalloons(12); }
     ],
     lights: [
       function () { fxWalker('', actor(), fxPickLine('lights'), 12500); },
@@ -3621,6 +3852,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     fxAdd(confetti().replace(/class="bit"/g, 'class="bit far"') + confetti().replace(/class="bit"/g, 'class="bit far"') + '<div class="fx-cheer"><span>' + esc(CHEERS[id]) + '</span></div>', 7100);
     if (id === 'harvest') fxGust(14);
     if (id === 'lights') fxAdd('<div class="fx-surge"></div>', 3200);
+    if (id === 'pizza') ppBalloons(16);
     fxWalker('', look, '', 12500);
     fxWalker('', look, '', 13500, 'animation-delay:1s');
   }
@@ -3723,6 +3955,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       fxAdd('<div class="fx-curtain">' + mascot() + '<span>Merry Christmas!</span></div>', 3100);
     } else if (id === 'lights') {
       fxAdd('<div class="fx-curtain">' + MOOSE_MUG + '<span>A fun old-fashioned Christmas!</span></div>', 3100);
+    } else if (id === 'pizza') {
+      fxAdd('<div class="fx-curtain">' + PP_BEAR + '<span>' + esc(settings().pizzaSign) + '</span></div>', 3100);
     } else if (id === 'wizard') {
       fxAdd('<div class="fx-curtain">' + CREST + '<span>Welcome, young wizards</span></div>', 3100);
     } else if (id === 'bricks') {
@@ -3738,7 +3972,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
   }
   function confetti() {
-    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'lights' ? ['#ff4b3e', '#ffd23f', '#3fd36b', '#4fb3ff', '#fff'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : id === 'pigs' ? ['#c8102e', '#f4c430', '#f3e7cf', '#1b1b1b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
+    var id = themeInfo().id, colors = id === 'harvest' ? LEAF_COLORS : id === 'office' ? ['#5dffa0', '#ffc83d', '#d9ffe9'] : id === 'wizard' ? ['#e6c65c', '#7a1f2b', '#2a2f5c'] : id === 'christmas' ? ['#ff5a4d', '#5fe08a', '#ffd24d', '#fff'] : id === 'lights' ? ['#ff4b3e', '#ffd23f', '#3fd36b', '#4fb3ff', '#fff'] : id === 'pizza' ? ['#f4c430', '#b3261e', '#3fa9ff', '#ff5fa2', '#fff3d6'] : id === 'bricks' ? ['#d6372b', '#2558c0', '#f5c518', '#2f9e44'] : id === 'miner' ? ['#80d83a', '#3fe0d0', '#f5c518', '#8b8b8b'] : id === 'pitstop' ? ['#d62828', '#f2c200', '#ffffff', '#1d5fd1'] : id === 'pigs' ? ['#c8102e', '#f4c430', '#f3e7cf', '#1b1b1b'] : ['#ffd95e', '#a8c7ff', '#9fe3bf'], html = '', i;
     for (i = 0; i < 16; i++) {
       html += '<span class="bit" style="left:' + (2 + Math.random() * 95) + '%;background:' + colors[i % colors.length] + ';animation-delay:' + (Math.random() * .9) + 's"></span>';
     }
@@ -3976,7 +4210,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if ($('stops').getAttribute('data-h') !== html) { $('stops').innerHTML = html; $('stops').setAttribute('data-h', html); }
   }
   function renderKids() {
-    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false, mine = themeInfo().id === 'miner', build = themeInfo().id === 'bricks', lit = themeInfo().id === 'lights';
+    var s = settings(), key = dateKey(new Date()), html = '', i, shown = {}, prev = lastChecks, mins = {}, anyFinished = false, everyoneDone = s.kids.length > 0, pit = themeInfo().id === 'pitstop', raceKids = [], pigs = themeInfo().id === 'pigs', partyNow = false, mine = themeInfo().id === 'miner', build = themeInfo().id === 'bricks', lit = themeInfo().id === 'lights', pz = themeInfo().id === 'pizza';
     var everyoneIn = s.kids.length > 0 && partList(checkPart()).length > 0;
     for (i = 0; i < s.kids.length; i++) if (doneCount(i, key, checkPart()) < partList(checkPart()).length) everyoneIn = false;
     for (i = 0; i < s.kids.length; i++) {
@@ -3987,7 +4221,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       if (allDone) shown['all-' + i] = true;
       if (justFinished) anyFinished = true;
       if (!allDone) everyoneDone = false;
-      var pitDone = pit || pigs || mine || build || lit ? doneCount(i, key, checkPart()) : 0;
+      var pitDone = pit || pigs || mine || build || lit || pz ? doneCount(i, key, checkPart()) : 0;
       if (pigs && justFinished) partyNow = true;
       if (pit && justFinished && $('tv').className.indexOf('hide') < 0) raceKids.push(i);
       html += '<div class="kid"' + (pit ? ' style="--car:' + esc(carFor(i).color) + '"' : '') + ' data-cam="' + esc(s.kids[i]) + '"><div class="feed-tag"><span><span class="rec">&#9679;</span> CAM ' + (i + 2) + ' &middot; ' + esc(s.kids[i]).toUpperCase() +
@@ -3997,7 +4231,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
         blockBar('After school', m.leftAfter, s.blockMinutes, was && was.leftAfter, i + '-after') + blockBar('Evening', m.leftEvening, s.blockMinutes, was && was.leftEvening, i + '-evening') +
         (change ? '<div class="kid-float' + (change > 0 ? ' up' : '') + '">' + (change > 0 ? '+' + change : '−' + (-change)) + '</div>' : '') +
         (m.over ? '<div class="kid-note">At the floor: bedtime 10 min earlier, or a chore</div>' : '') + chips + '</div>' + timerTile(i) + '</div>' +
-        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + (mine ? mineHtml(i, total, pitDone) : '') + (build ? buildHtml(i, total, pitDone) : '') + (lit ? lightsHtml(i, total, pitDone) : '') + '</div>';
+        (justFinished && !pit && !pigs ? '<div class="parade">' + actor() + '</div>' + confetti() : '') + (pit ? pitStall(i, total, pitDone, !!prev) : '') + (pigs ? styHtml(i, total, pitDone, justFinished, everyoneIn) : '') + (mine ? mineHtml(i, total, pitDone) : '') + (build ? buildHtml(i, total, pitDone) : '') + (lit ? lightsHtml(i, total, pitDone) : '') + (pz ? stageHtml(i, total, pitDone) : '') + '</div>';
     }
     lastChecks = shown;
     lastMins = mins;

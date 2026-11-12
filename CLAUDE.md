@@ -22,6 +22,7 @@ The family's TV dashboard: countdowns, calendar, screen-time minutes, music. Not
 - Themes inspired by real toys or games stay generic, like Word Miner: no brand names, logos or named characters, and our own drawings.
 - Pit Stop (a kid's idea): each checked item plays the next pit job from `pitPlan()`, and finishing the list plays a race once per list per day on that screen (`queueRace`). Each kid's car number, color and sponsor live in `settings.cars` in the database (phone: More, then Race cars), since sponsors can include names.
 - Mother Pig Country (a silly barnyard propaganda-poster parody): every name, outfit, catchphrase and slogan is in `PIG_THEME`, and kid pigs follow the order of Kids' names. Each kid's sty trough shows their checklist, or their timer while one runs (`pigTick`). No real political emblems: the emblem is a star with an egg and spoon.
+- Pizzeria After Dark (a kid's idea): our own party-animal band on each kid's stage card, joining one checked item at a time (`stageHtml`). The header sign text and the quote's credit come from `settings.pizzaSign` and `settings.pizzaQuoteBy` in the database, so game and character names stay out of this file.
 - Keep the JavaScript in older syntax (`var`, XHR) and size the TV view in rem, because TV browsers are old and have odd viewports.
 
 ## Building a new game
