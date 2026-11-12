@@ -1121,8 +1121,18 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-pizza .hero-count, .theme-pizza .kid-total, .theme-pizza .t-num, .theme-pizza .tv-clock { font-family: Fredoka, "Trebuchet MS", sans-serif; font-weight: 600; }
 .theme-pizza .hero-count { color: #fff3d6; }
 .theme-pizza .kid-total { color: #f4c430; }
-.theme-pizza .block-track { background: #160d1e; border-radius: 1rem; height: 1.7rem; }
-.theme-pizza .block-fill { border-radius: 1rem; background: radial-gradient(circle, #b3261e 0 .42rem, transparent .48rem) 0 50% / 2.2rem 100% repeat-x, #f4c430; }
+/* Each minute bar is a flashlight. The beam is as long as the time left, and it dims, then flickers, as the minutes run low. */
+.theme-pizza .block-track { position: relative; height: 2.4rem; padding-left: 3.8rem; background: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)) 3.8rem 50% / calc(100% - 3.8rem) 1.2rem no-repeat; border-radius: 0; overflow: visible; }
+.theme-pizza .block-track::before { content: ""; position: absolute; left: 0; top: 50%; width: 3.9rem; height: 2.4rem; margin-top: -1.2rem; background: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2036%2022%22%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%2220%22%20height%3D%228%22%20rx%3D%222%22%20fill%3D%22%233a3f47%22%2F%3E%3Cpath%20d%3D%22M3%207.6%20V14.4%20M6%207.6%20V14.4%20M9%207.6%20V14.4%22%20stroke%3D%22%23262a30%22%20stroke-width%3D%221%22%2F%3E%3Crect%20x%3D%2212%22%20y%3D%228.6%22%20width%3D%225%22%20height%3D%224.8%22%20rx%3D%221%22%20fill%3D%22%23b3261e%22%2F%3E%3Cpath%20d%3D%22M21%207%20L30%203%20V19%20L21%2015%20Z%22%20fill%3D%22%235a6068%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%223%22%20width%3D%223.2%22%20height%3D%2216%22%20rx%3D%221%22%20fill%3D%22%23ffe9a0%22%2F%3E%3C%2Fsvg%3E") no-repeat center / contain; }
+.theme-pizza .block-fill { border-radius: 0; background: linear-gradient(90deg, rgba(255,246,200,.95), rgba(255,232,150,.2)); -webkit-clip-path: polygon(0 32%, 100% 0, 100% 100%, 0 68%); clip-path: polygon(0 32%, 100% 0, 100% 100%, 0 68%); }
+.theme-pizza .block-fill::after { display: none; }
+.theme-pizza .block[data-lv="mid"] .block-fill { opacity: .7; }
+.theme-pizza .block[data-lv="low"] .block-fill { opacity: .5; animation: ppFlickLow 2.8s linear infinite; }
+.theme-pizza .block[data-lv="out"] .block-fill { opacity: .3; animation: ppFlickOut 1.3s linear infinite; }
+.theme-pizza .block[data-lv="out"] .block-track::before { opacity: .7; }
+.theme-pizza .kid + .kid .block .block-fill { animation-delay: -.9s; }
+@keyframes ppFlickLow { 0%, 58%, 100% { opacity: .5; } 62% { opacity: .1; } 66% { opacity: .5; } 78% { opacity: .18; } 82% { opacity: .5; } }
+@keyframes ppFlickOut { 0%, 26%, 100% { opacity: .3; } 30% { opacity: .03; } 40% { opacity: .3; } 56% { opacity: .05; } 62% { opacity: .24; } 78% { opacity: .02; } 88% { opacity: .28; } }
 .theme-pizza .stop.next { background: #f4c430; color: #2a1d36; padding-left: .8rem; padding-right: .8rem; border-radius: .4rem; border-top-color: transparent; }
 .theme-pizza .stop.next span { color: #2a1d36; }
 .theme-pizza .chip { background: rgba(255,255,255,.04); border: .16rem solid var(--line); border-radius: .6rem; }
@@ -1192,7 +1202,7 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .pp-stage.showtime .pp-svg { animation: plugFlash 2.6s ease-out both; }
 .pp-svg .pp-greg { animation: ppGreg 40s linear infinite; }
 @keyframes ppGreg { 0% { transform: translateX(0); } 45%, 100% { transform: translateX(440px); } }
-@media (prefers-reduced-motion: reduce) { .pp-stage *, .theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after, .pp-neon, .pp-ico, .pp-float, .hero-quote.pp-creep span { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .pp-stage *, .theme-pizza .hero::after, .theme-pizza .kid::after, .theme-pizza .cal::after, .theme-pizza .player::after, .pp-neon, .pp-ico, .pp-float, .hero-quote.pp-creep span, .theme-pizza .block-fill { animation: none !important; } }
 
 /* A pit stall on each kid's card */
 .pit { display: none; }
@@ -2715,7 +2725,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     '<circle cx="23.5" cy="25" r="3.6" fill="#fff"/><circle cx="36.5" cy="25" r="3.6" fill="#fff"/><circle cx="24" cy="25.5" r="1.8" fill="#2a8fd8"/><circle cx="37" cy="25.5" r="1.8" fill="#2a8fd8"/><path d="M19 20 L27 21.5 M41 20 L33 21.5" stroke="#3d220f" stroke-width="1.5" stroke-linecap="round"/>' +
     '<g transform="rotate(-10 34 11)"><rect x="25" y="9.5" width="17" height="2.6" rx="1.2" fill="#1a1a1a"/><rect x="28.5" y="1" width="10" height="9.5" rx="1" fill="#1a1a1a"/><rect x="28.5" y="7" width="10" height="2" fill="#b3261e"/></g></svg>';
   // The same bear as a dark shape, laid over him until his spotlight comes on.
-  var PP_BEAR_SHADE = PP_BEAR.replace(/fill="#[0-9a-f]{3,6}"/gi, 'fill="#0d0814"').replace(/stroke="#[0-9a-f]{3,6}"/gi, 'stroke="#0d0814"').replace('<svg class="mascot"', '<svg class="pp-shade" x="150" y="64" width="64" height="106"');
+  var PP_BEAR_SHADE = PP_BEAR.replace(/fill="#[0-9a-f]{3,6}"/gi, 'fill="#0d0814"').replace(/stroke="#[0-9a-f]{3,6}"/gi, 'stroke="#0d0814"').replace('<svg class="mascot"', '<svg class="pp-shade" x="120" y="64" width="64" height="106"');
   // The bunny on guitar.
   var PP_BUNNY = '<svg class="mascot" viewBox="0 0 60 100" aria-hidden="true">' +
     '<ellipse cx="22" cy="12" rx="5.5" ry="14" fill="#7d6bd6" transform="rotate(-10 22 24)"/><ellipse cx="22" cy="13" rx="2.6" ry="10" fill="#e8b8d8" transform="rotate(-10 22 24)"/><ellipse cx="38" cy="12" rx="5.5" ry="14" fill="#7d6bd6" transform="rotate(10 38 24)"/><ellipse cx="38" cy="13" rx="2.6" ry="10" fill="#e8b8d8" transform="rotate(10 38 24)"/>' +
@@ -2781,13 +2791,13 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     for (k = 0; k < 32; k++) for (c = 0; c < 2; c++) if ((k + c) % 2) floor += '<rect x="' + k * 12 + '" y="' + (192 + c * 12) + '" width="12" height="12"/>';
     var svg = '<svg class="pp-svg" viewBox="0 0 374 216" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
       '<path d="M90 60 l2 5 5 .5 -4 3 1.5 5 -4.5 -3 -4.5 3 1.5 -5 -4 -3 5 -.5 Z M290 70 l2 5 5 .5 -4 3 1.5 5 -4.5 -3 -4.5 3 1.5 -5 -4 -3 5 -.5 Z M250 44 l1.4 3.5 3.5 .4 -2.8 2 1 3.5 -3.1 -2 -3.1 2 1 -3.5 -2.8 -2 3.5 -.4 Z" fill="#f4c430" opacity=".35"/>' +
-      '<g class="' + (lit[5] ? 'bear-lit' : '') + '"><path class="pp-spot" d="M168 0 H206 L240 178 H134 Z" fill="#fff2b8" opacity=".14"/></g>' +
+      '<g class="' + (lit[5] ? 'bear-lit' : '') + '"><path class="pp-spot" d="M133 0 H171 L205 178 H99 Z" fill="#fff2b8" opacity=".14"/></g>' +
       '<rect x="0" y="168" width="374" height="6" fill="#6b4426"/><rect x="0" y="174" width="374" height="18" fill="#3a2414"/><rect x="0" y="192" width="374" height="24" fill="#e9e3d6"/><g fill="#1a1a1a">' + floor + '</g>' +
-      '<g' + cls(1, ' class="ps') + '>' + put(PP_BUNNY, 66, 84, 52, 86) + '</g>' +
-      '<g' + cls(2, ' class="ps') + '>' + put(PP_CHICK, 256, 84, 52, 86, true) + '</g>' +
-      '<g class="' + (lit[5] ? 'bear-lit' : '') + '">' + put(PP_BEAR, 150, 64, 64, 106, true) + '' + PP_BEAR_SHADE + '' +
-      '<g class="pp-glow"><circle cx="175.6" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="189.4" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="175.6" cy="91" r="2.2" fill="#e8f6ff"/><circle cx="189.4" cy="91" r="2.2" fill="#e8f6ff"/></g></g>' +
-      '<g' + cls(3, ' class="ps') + '>' + put(PP_FOX, 306, 96, 46, 76) + '</g>' +
+      '<g' + cls(1, ' class="ps') + '>' + put(PP_BUNNY, 59, 84, 52, 86) + '</g>' +
+      '<g' + cls(2, ' class="ps') + '>' + put(PP_CHICK, 193, 84, 52, 86, true) + '</g>' +
+      '<g class="' + (lit[5] ? 'bear-lit' : '') + '">' + put(PP_BEAR, 120, 64, 64, 106, true) + '' + PP_BEAR_SHADE + '' +
+      '<g class="pp-glow"><circle cx="145.6" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="159.4" cy="91" r="5.5" fill="#3fa9ff" opacity=".35"/><circle cx="145.6" cy="91" r="2.2" fill="#e8f6ff"/><circle cx="159.4" cy="91" r="2.2" fill="#e8f6ff"/></g></g>' +
+      '<g' + cls(3, ' class="ps') + '>' + put(PP_FOX, 263, 94, 46, 76) + '</g>' +
       '<path d="M0 0 H46 Q34 60 42 120 Q32 150 36 192 H0 Z" fill="#8c1a2a"/><path d="M14 20 Q10 100 16 190 M28 20 Q24 100 26 190" stroke="#6e1220" stroke-width="2" fill="none"/>' +
       '<path d="M374 0 H328 Q340 60 332 120 Q342 150 338 192 H374 Z" fill="#8c1a2a"/><path d="M360 20 Q364 100 358 190 M346 20 Q350 100 348 190" stroke="#6e1220" stroke-width="2" fill="none"/>' +
       '<path d="' + val + ' V0 Z" fill="#6e1220"/><path d="M0 16 H374" stroke="#f4c430" stroke-width="1.6" opacity=".7"/>' +
@@ -4246,7 +4256,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
   }
   function blockBar(name, min, full, was, id) {
     var target = Math.round(min / full * 100), start = was === undefined || was === null || was === 0 ? target : Math.round(was / full * 100);
-    return '<div class="block" data-b="' + id + '"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' + start +
+    var frac = full ? min / full : 0, lv = frac >= .5 ? 'hi' : frac >= .25 ? 'mid' : frac >= .1 ? 'low' : 'out';
+    return '<div class="block" data-b="' + id + '" data-lv="' + lv + '"><div class="block-name">' + name + '</div><div class="block-track"><div class="block-fill" style="width:' + start +
       '%"' + (start !== target ? ' data-w="' + target + '"' : '') + '></div></div><div class="block-min">' + min + ' min</div></div>';
   }
   function whenText(e, today) {
