@@ -4531,7 +4531,8 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     }
     if (src === 'lofi' && !known) html += pickOpt(lofiId(), 'Other video', true);
     html += '</select><p class="hint">If it stays quiet, press OK on the Music button with the TV remote.</p></div><div class="card"><h2>Theme</h2><select class="pick" aria-label="Theme" data-pick="theme" data-f="pickTheme">';
-    for (i = 0; i < THEMES.length; i++) html += pickOpt(THEMES[i].id, THEMES[i].text, s.theme === THEMES[i].id);
+    // The pizzeria shows under the family's own sign name, which lives in the database.
+    for (i = 0; i < THEMES.length; i++) html += pickOpt(THEMES[i].id, THEMES[i].id === 'pizza' && s.pizzaSign !== DEFAULT_SETTINGS.pizzaSign ? s.pizzaSign : THEMES[i].text, s.theme === THEMES[i].id);
     html += '</select>';
     if (s.theme === 'office') html += '<span class="lab">Cameras</span><div class="opts">' + optBtn('tour', 'on', 'Tour', !!s.camTour) + optBtn('tour', 'off', 'Stay on the wall', !s.camTour) + '</div>';
     if (s.theme === 'pitstop' || s.theme === 'pigs') html += '<span class="lab">Theme sounds on the TV</span><div class="opts">' + optBtn('fxSound', 'off', 'Off', !s.fxSound) + optBtn('fxSound', 'on', 'On', !!s.fxSound) + '</div>';
