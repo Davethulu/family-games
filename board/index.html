@@ -526,6 +526,14 @@ input, select, textarea { width: 100%; min-height: 2.7em; padding: .4em .6em; ba
 .theme-harvest .hero-count { line-height: 1; }
 #tv.theme-harvest .hero-count { margin-top: .2rem; }
 #tv.theme-harvest .stop { padding-top: .05rem; padding-bottom: .05rem; line-height: 1.15; }
+/* School lunch: one small line under the stops. */
+.hero-lunch { margin-top: .5rem; padding-top: .5rem; border-top: .12rem solid var(--line); font-size: 1.75rem; line-height: 1.2; color: var(--ink); }
+.hero-lunch:empty { display: none; }
+.hero-lunch b { display: block; font-size: 1.35rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hero-lunch.one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero-lunch.one b { display: inline; margin-right: .6em; }
+.theme-miner .hero-lunch { color: #1a1a1a; }
+.theme-miner .hero-lunch b { color: #3a3a3a; }
 @keyframes quoteIn { from { opacity: 0; } to { opacity: 1; } }
 .hero-label small { font-size: .78em; font-weight: 400; opacity: .85; margin-left: .4rem; }
 .block-track, .block-fill { border-radius: 0; }
@@ -1778,6 +1786,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       <div class="hero-sub" id="heroSub"></div>
       <div class="hero-quote" id="heroQuote"></div>
       <div class="stops" id="stops"></div>
+      <div class="hero-lunch" id="heroLunch"></div>
     </div>
     <div class="kids" id="kids"></div>
   </div>
@@ -2097,6 +2106,7 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     hero.classList[level === 'soon' ? 'add' : 'remove']('soon');
     renderQuote(now);
     renderStops(today, now, tomorrow ? null : next);
+    renderLunch(now);
     var stamp = pad(now.getMonth() + 1) + '/' + pad(now.getDate()) + ' ' + pad(h) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
     var stamps = document.querySelectorAll('.feed-time');
     for (i = 0; i < stamps.length; i++) stamps[i].innerHTML = stamp;
@@ -2329,6 +2339,45 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
     if (el.getAttribute('data-q') === q[0]) return;
     el.setAttribute('data-q', q[0]);
     el.innerHTML = '<span>' + esc(q[0]) + (q[1] ? ' <cite>' + esc(q[1]) + '</cite>' : '') + '</span>';
+  }
+
+  /* ---------- School lunch: the main choices for each school day, from the monthly menu ---------- */
+  // Add each new month's days here. Days that aren't listed, and no-school days, show nothing.
+  var LUNCH = {
+    '2026-11-16': ['Macaroni & Cheese', 'Spicy Breaded Chicken Sandwich', 'Sunbutter & Jelly Sandwich'],
+    '2026-11-17': ['Cheesy Beef Nachos', 'Bean & Cheese Burrito', 'Ham & Cheese Sandwich'],
+    '2026-11-18': ['Mini French Toast', 'Blueberry Yogurt Parfait'],
+    '2026-11-19': ['Cheeseburger on a Bun', 'Egg & Cheese English Muffin', 'Turkey Ranch Sub'],
+    '2026-11-20': ['French Bread Cheese Pizza', 'Chicken Garden Salad'],
+    '2026-11-30': ['Breaded Chicken Breast Patty Sandwich', 'Cheesy Baked Potato', 'Sunbutter & Jelly Sandwich'],
+    '2026-12-01': ['Beef & Cheese Tacos', 'Vegan Tacos', 'Ham & Cheese Sandwich'],
+    '2026-12-02': ['Waffles with Syrup & Turkey Sausage Links', 'Strawberry Yogurt Parfait'],
+    '2026-12-03': ['Rotini Marinara & Meatballs', 'Turkey & Cheese Sandwich', 'Hummus & Chips'],
+    '2026-12-04': ['Pizza Dippers', 'Chicken Caesar Salad with Dinner Roll']
+  };
+  function renderLunch(now) {
+    // Today's lunch until lunchtime is over, then the next school day's, so the evening shows what's coming.
+    var el = $('heroLunch'), html = '', i, d, items;
+    for (i = now.getHours() < 13 ? 0 : 1; i < 7 && !html; i++) {
+      d = addDays(now, i); items = LUNCH[dateKey(d)];
+      if (!items || isNoSchool(d)) continue;
+      html = '<b>' + (i === 0 ? "Today's" : i === 1 ? "Tomorrow's" : DAY_NAMES[d.getDay()] + "'s") + ' school lunch</b>' + esc(items.join(' · '));
+    }
+    if (el.getAttribute('data-h') !== html) { el.innerHTML = html; el.setAttribute('data-h', html); }
+    // Refit when anything that changes the panel's height does, and every 10 seconds in case a web font arrived late.
+    var sig = html + $('stops').getAttribute('data-h') + $('tv').className + document.documentElement.style.fontSize + Math.floor(now.getTime() / 10000);
+    if (sig !== lunchSig) { lunchSig = sig; fitLunch(); }
+  }
+  var lunchSig = '';
+  function fitLunch() {
+    // On days with a long list of stops the lunch goes to one line, then the countdown gives up a little size.
+    var hero = $('hero'), count = $('heroCount'), el = $('heroLunch'), rem = parseFloat(getComputedStyle(document.documentElement).fontSize), size, min;
+    function over() { return el.offsetTop + el.offsetHeight > hero.clientHeight - parseFloat(getComputedStyle(hero).paddingBottom) + 2; } // the 2 allows for rounding
+    count.style.fontSize = ''; el.className = 'hero-lunch';
+    if (!el.innerHTML || !over()) return;
+    el.className = 'hero-lunch one';
+    size = parseFloat(getComputedStyle(count).fontSize); min = size * .8;
+    while (size > min && over()) { size -= rem * .25; count.style.fontSize = size + 'px'; }
   }
 
   /* ---------- Themes and camera switching ---------- */
