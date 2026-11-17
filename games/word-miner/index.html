@@ -435,24 +435,28 @@ if (window.self !== window.top) document.body.classList.add('in-arcade');
 
 /* ================= Word list ================= */
 // This week's school list (root word / -ed / -ing). Used whenever no custom list has been saved.
-const SAMPLE_LIST = `finish - Finish your homework before dinner.
-finished - I finished my book last night.
-finishing - She is finishing her drawing.
-discuss - Let's discuss the plan together.
-discussed - We discussed the story in class.
-discussing - The class is discussing the field trip.
-stretch - Stretch your arms up high.
-stretched - The cat stretched out in the sun.
-stretching - I am stretching before the race.
-hop - Frogs hop from lily pad to lily pad.
-hopped - The bunny hopped across the yard.
-hopping - The kids are hopping on one foot.
-plan - We made a plan for the weekend.
-planned - Mom planned a fun party.
-planning - We are planning a trip to the lake.
-ship - The ship sailed across the sea.
-shipped - The store shipped my new shoes.
-shipping - They are shipping the box today.`;
+const SAMPLE_LIST = `puppy - The puppy wagged its tail.
+puppies - The puppies are sleeping in a pile.
+penny - I found a penny on the sidewalk.
+pennies - I saved ten pennies in my jar.
+study - I study my spelling words every night.
+studies - My sister studies for her math test.
+carry - Can you carry the bag for me?
+carries - Dad carries the groceries inside.
+butterfly - A butterfly landed on the flower.
+butterflies - The butterflies flew over the garden.
+lady - The lady at the library helped me.
+ladies - The ladies sat down for lunch.
+bunny - The bunny hopped across the yard.
+bunnies - The bunnies nibbled on carrots.
+dry - Use a towel to dry your hands.
+dries - The sun dries the wet sidewalk.
+hurry - Hurry, or we will miss the bus!
+hurries - The dog hurries to the door.
+marry - They will marry in the summer.
+marries - The prince marries the princess at the end of the story.
+along - Sing along with the song.
+put - Put your shoes by the door.`;
 
 function parseList(text) {
   const out = [], seen = new Set();
