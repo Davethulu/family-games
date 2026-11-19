@@ -1937,6 +1937,128 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
 @keyframes gvSay { 0%, 57% { opacity: 0; } 59%, 70% { opacity: 1; } 71%, 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .gv, .mp-walk { display: none; } }
 
+
+/* ---------- Polish: depth, highlights and faux glass ----------
+   Everything here is static (drawn once), so it costs nothing per frame on the TV. Rules for keeping it that way:
+   never animate box-shadow, filter or gradients; no backdrop-filter blur; only transform and opacity ever move. */
+
+/* A soft vignette under everything, so the panels stand forward. Each theme can tint it with --vig. */
+#tv { z-index: 0; }
+#tv::before { content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, var(--vig, rgba(0,0,0,.3)) 100%); }
+
+/* Bars: a recessed track, and a fill with a glossy top edge. */
+.block-track { box-shadow: inset 0 .2rem .35rem rgba(0,0,0,.24); }
+.block-fill { box-shadow: inset 0 .3rem 0 rgba(255,255,255,.24), inset 0 -.25rem 0 rgba(0,0,0,.14); }
+.theme-calm .block-track, .theme-calm .block-fill, .theme-pizza .block-track, .theme-pizza .block-fill { box-shadow: none; }
+
+/* The next stop sits up off the card; buttons get a little bevel. */
+.stop.next { box-shadow: inset 0 .18rem 0 rgba(255,255,255,.22), 0 .3rem .7rem rgba(0,0,0,.22); }
+.tv-btn { box-shadow: inset 0 .15rem 0 rgba(255,255,255,.16), inset 0 -.2rem 0 rgba(0,0,0,.14), 0 .25rem .5rem rgba(0,0,0,.25); }
+
+/* Each kid's scene reads as a window set into the card. */
+.mine::after, .lights-scene::after, .pp-stage::after, .pit::after, .sty::after, .pcb::after { content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
+  border-radius: inherit; box-shadow: inset 0 .5rem 1.1rem rgba(0,0,0,.32), inset 0 -.15rem .3rem rgba(255,255,255,.12); }
+
+/* Security Office: CRT monitors in a beveled bezel, with a faint glass glare. */
+#tv.theme-office { --vig: rgba(0,0,0,.6); }
+.theme-office .hero, .theme-office .kid, .theme-office .cal, .theme-office .feedbox {
+  border-color: #3b4346 #1c2123 #101314 #22282a;
+  background: linear-gradient(118deg, rgba(200,255,225,.065) 0, rgba(200,255,225,.025) 24%, transparent 24.3%), radial-gradient(ellipse at center, #0d1d15 0%, #040906 100%);
+  box-shadow: 0 0 0 .14rem #000, 0 .25rem .35rem rgba(0,0,0,.6), 0 1.1rem 2.4rem rgba(0,0,0,.55), inset 0 0 4rem rgba(0,0,0,.75), inset 0 0 0 .2rem rgba(0,0,0,.55); }
+.theme-office .block-fill { box-shadow: 0 0 .6rem rgba(93,255,160,.35); }
+.theme-office .chip.on { box-shadow: inset 0 0 .9rem rgba(93,255,160,.22); }
+.theme-office .tv-btn { box-shadow: inset 0 .15rem 0 rgba(255,255,255,.08), 0 .25rem .5rem rgba(0,0,0,.5); }
+
+/* Thanksgiving: paper lifted off the wood, aged at the edges, with see-through tape. */
+#tv.theme-harvest { --vig: rgba(25,10,2,.5); }
+.theme-harvest .hero, .theme-harvest .kid, .theme-harvest .cal, .theme-harvest .player {
+  box-shadow: .1rem .15rem .2rem rgba(30,12,2,.35), .3rem .7rem 1.6rem rgba(30,12,2,.45), inset 0 0 2.6rem rgba(160,110,40,.2); }
+.theme-harvest .kid::before, .theme-harvest .hero::before { background: linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0) 65%), rgba(226,203,150,.68);
+  -webkit-clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%); }
+.theme-harvest .hero-count { text-shadow: 0 .15rem 0 rgba(255,255,255,.65); }
+
+/* Christmas: frosted felt panes with a little glass shine. */
+#tv.theme-christmas { --vig: rgba(25,0,4,.55); }
+.theme-christmas .hero, .theme-christmas .kid, .theme-christmas .cal, .theme-christmas .player {
+  background: linear-gradient(125deg, rgba(255,255,255,.09) 0, rgba(255,255,255,.03) 30%, transparent 30.3%), #17402f var(--felt);
+  box-shadow: inset 0 .2rem 0 rgba(255,255,255,.12), inset 0 0 3rem rgba(0,0,0,.25), 0 .2rem .3rem rgba(40,0,0,.5), 0 1rem 2.2rem rgba(40,0,0,.45); }
+.theme-christmas .hero-count { text-shadow: 0 .3rem .7rem rgba(0,0,0,.35); }
+
+/* Old-Fashioned Christmas: the bulbs throw warm light down onto each panel. */
+#tv.theme-lights { --vig: rgba(0,0,10,.55); }
+.theme-lights .hero, .theme-lights .kid, .theme-lights .cal, .theme-lights .player {
+  background: radial-gradient(ellipse 70% 6rem at 50% 0, rgba(255,205,110,.16), transparent), linear-gradient(rgba(255,255,255,.04), transparent 40%), var(--panel);
+  box-shadow: 0 0 2.4rem rgba(255,210,63,.09), inset 0 .15rem 0 rgba(255,255,255,.08), 0 .2rem .3rem rgba(0,0,0,.5), 0 1rem 2.2rem rgba(0,0,0,.45); }
+
+/* Pizzeria: arcade-cabinet bevels under the neon. */
+#tv.theme-pizza { --vig: rgba(0,0,0,.55); }
+.theme-pizza .hero, .theme-pizza .kid, .theme-pizza .cal, .theme-pizza .player {
+  background: linear-gradient(rgba(255,255,255,.05), transparent 35%), var(--panel);
+  box-shadow: inset 0 .2rem 0 rgba(255,255,255,.08), inset 0 -.35rem 0 rgba(0,0,0,.3), 0 .2rem .3rem rgba(0,0,0,.5), 0 1rem 2.2rem rgba(0,0,0,.45); }
+.theme-pizza .hero-count { text-shadow: 0 0 1.4rem rgba(255,95,162,.35), 0 .3rem 0 rgba(0,0,0,.35); }
+
+/* Wizard School: scorched parchment edges, and candlelight pooling on the night sky. */
+#tv.theme-wizard { --vig: rgba(0,0,10,.5); }
+#tv.theme-wizard::before { background: radial-gradient(ellipse 16% 14% at 38% 0, rgba(255,200,110,.2), transparent), radial-gradient(ellipse 16% 14% at 62% 0, rgba(255,200,110,.2), transparent),
+  radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(0,0,10,.5) 100%); }
+.theme-wizard .hero, .theme-wizard .kid, .theme-wizard .cal { box-shadow: inset 0 0 1.2rem rgba(90,50,10,.45), inset 0 0 4.5rem rgba(122,78,24,.5); }
+.theme-wizard .hero-count { text-shadow: 0 .12rem 0 rgba(255,245,215,.7); }
+
+/* Brick Builders: shaded studs and a glossy plastic top edge. */
+#tv.theme-bricks { --vig: rgba(0,40,0,.3); }
+.theme-bricks .hero, .theme-bricks .kid, .theme-bricks .cal, .theme-bricks .player {
+  background: radial-gradient(circle at 42% 38%, rgba(255,255,255,.6) 0 .22rem, rgba(255,255,255,.28) .42rem, rgba(0,0,0,.24) .58rem .74rem, transparent .78rem) .4rem .1rem / 2.5rem 2.5rem repeat-x,
+    linear-gradient(var(--tile), var(--tile)) .7rem 2.6rem / calc(100% - 1.4rem) calc(100% - 3.4rem) no-repeat, linear-gradient(rgba(255,255,255,.18), transparent 1.2rem), var(--brick);
+  box-shadow: inset 0 .25rem 0 rgba(255,255,255,.3), inset 0 -.45rem 0 rgba(0,0,0,.2), 0 .2rem .25rem rgba(0,0,0,.25), 0 .8rem 1.5rem rgba(0,0,0,.22); }
+.theme-bricks .hero-count { text-shadow: .25rem .3rem 0 rgba(0,0,0,.14); }
+
+/* Block Miner: a hard pixel drop shadow, and checklist icons in inventory slots. */
+#tv.theme-miner { --vig: rgba(0,0,0,.45); }
+.theme-miner .hero, .theme-miner .kid, .theme-miner .cal { box-shadow: inset .45rem .45rem 0 #f2f2f2, inset -.45rem -.45rem 0 #6f6f6f, .5rem .5rem 0 rgba(0,0,0,.35); }
+.theme-miner .chip-icon { background: #8b8b8b; box-shadow: inset .22rem .22rem 0 #373737, inset -.22rem -.22rem 0 #fff; }
+.theme-miner .block-track { box-shadow: inset .2rem .2rem 0 rgba(0,0,0,.35); border-radius: 0; }
+.theme-miner .block-fill { box-shadow: inset 0 .3rem 0 rgba(255,255,255,.35), inset 0 -.3rem 0 rgba(0,0,0,.3); border-radius: 0; }
+
+/* Pit Stop: glossy paint with a chrome pinstripe. */
+#tv.theme-pitstop { --vig: rgba(0,0,0,.45); }
+.theme-pitstop .hero, .theme-pitstop .kid, .theme-pitstop .cal {
+  background: repeating-linear-gradient(90deg, #d62828 0 2.4rem, #fff 2.4rem 4.8rem) 0 0 / 100% .9rem no-repeat, linear-gradient(rgba(255,255,255,.7), rgba(255,255,255,0) 30%), #f7f7f2;
+  box-shadow: inset 0 0 0 .2rem #fff, inset 0 0 0 .35rem #c9ccd1, 0 .2rem .3rem rgba(0,0,0,.4), 0 1rem 2.2rem rgba(0,0,0,.35); }
+.theme-pitstop .hero-count { text-shadow: .2rem .25rem 0 rgba(0,0,0,.12); }
+
+/* Mother Pig Country: posters pasted up, with ink worn at the edges. */
+#tv.theme-pigs { --vig: rgba(60,0,0,.35); }
+.theme-pigs .hero, .theme-pigs .kid, .theme-pigs .cal { box-shadow: .8rem .8rem 0 #1b1b1b, inset 0 0 3rem rgba(120,80,20,.2); }
+.theme-pigs .hero-count { text-shadow: .3rem .3rem 0 rgba(0,0,0,.14); }
+
+/* Porcelain Invasion: a curved glaze shine and chrome trim. */
+#tv.theme-porcelain { --vig: rgba(60,80,100,.22); }
+.theme-porcelain .hero, .theme-porcelain .kid, .theme-porcelain .cal, .theme-porcelain .player {
+  border-color: #e3eaef #b9c6cf #a6b5c0 #c9d4dc;
+  background: radial-gradient(ellipse 80% 3.2rem at 30% 0, rgba(255,255,255,1), rgba(255,255,255,0)), linear-gradient(170deg, #fff 0, #f6f9fb 30%, #eaf0f4 100%);
+  box-shadow: inset 0 .25rem 0 #fff, inset 0 -.3rem 0 #dfe7ec, 0 .15rem .25rem rgba(40,60,80,.18), 0 .7rem 1.6rem rgba(40,60,80,.22); }
+.theme-porcelain .hero-count { text-shadow: 0 .25rem .5rem rgba(23,34,45,.16); }
+.tank-body::after { content: ""; position: absolute; left: 12%; top: 8%; bottom: 8%; width: 14%; border-radius: 1rem; background: linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.1)); z-index: 2; pointer-events: none; }
+
+/* Calm: liquid-glass cards floating over soft, still color. All faked with gradients; no blur. */
+#tv.theme-calm { --vig: rgba(0,0,0,.45);
+  background: radial-gradient(ellipse 45% 55% at 12% 18%, rgba(227,154,109,.24), transparent 70%), radial-gradient(ellipse 40% 50% at 88% 80%, rgba(120,150,190,.2), transparent 70%),
+    radial-gradient(ellipse 35% 40% at 62% 8%, rgba(233,180,95,.14), transparent 70%), #1f1b17 var(--grain); }
+.theme-calm .hero, .theme-calm .kid, .theme-calm .cal, .theme-calm .player { border-radius: 2.2rem; border: .12rem solid rgba(255,255,255,.12); border-top-color: rgba(255,255,255,.3); border-left-color: rgba(255,255,255,.2);
+  background: linear-gradient(115deg, transparent 0, transparent 30%, rgba(255,255,255,.045) 30.5%, rgba(255,255,255,.012) 46%, transparent 46.5%), linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.035) 45%, rgba(255,255,255,.06));
+  box-shadow: inset 0 .15rem .1rem rgba(255,255,255,.12), inset 0 -1.6rem 3rem rgba(0,0,0,.12), 0 1.2rem 3rem rgba(0,0,0,.35); }
+.theme-calm .hero { padding: 2.4rem 3rem; margin-right: 1.8rem; border-right-color: rgba(255,255,255,.12); }
+.theme-calm .kid { padding: 1.3rem 2.2rem; margin-bottom: 1.8rem; border-bottom-color: rgba(255,255,255,.12); }
+.theme-calm .kid:last-child { margin-bottom: 0; border-bottom-width: .12rem; }
+.theme-calm .cal { padding: 1.5rem 2.2rem; }
+.theme-calm .player { border-left-color: rgba(255,255,255,.2); }
+.theme-calm .tv-top { border-bottom-color: rgba(239,230,214,.35); }
+.theme-calm .tv-bottom { border-top: 0; padding-top: 0; }
+.theme-calm .hero-count { text-shadow: 0 .4rem 1.6rem rgba(0,0,0,.4); }
+.theme-calm .tv-btn { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); }
+
 </style>
 </head>
 <body>
@@ -5453,6 +5575,20 @@ input, select, textarea { background: #fffdf6; border: .08em solid var(--line); 
       location.replace(location.pathname + search + (search ? '&' : '?') + 'r=' + Date.now() + location.hash);
     };
     xhr.send();
+  }
+  // Add ?fps to the board address to check how smoothly the TV is drawing. Shows frames per second and the slowest frame.
+  if (params.indexOf('fps') >= 0) {
+    var fpsEl = document.createElement('div'), fpsRaf = window.requestAnimationFrame || window.webkitRequestAnimationFrame, fpsN = 0, fpsSince = Date.now(), fpsLast = fpsSince, fpsWorst = 0;
+    fpsEl.style.cssText = 'position:fixed;left:.6rem;top:.6rem;z-index:9999;padding:.2rem .7rem;border-radius:.4rem;background:rgba(0,0,0,.75);color:#5dff9a;font:700 2rem monospace;pointer-events:none';
+    fpsEl.innerHTML = 'fps ...';
+    document.body.appendChild(fpsEl);
+    var fpsTick = function () {
+      var now = Date.now();
+      fpsWorst = Math.max(fpsWorst, now - fpsLast); fpsLast = now; fpsN++;
+      if (now - fpsSince >= 1000) { fpsEl.innerHTML = Math.round(fpsN * 1000 / (now - fpsSince)) + ' fps &middot; slowest ' + fpsWorst + ' ms'; fpsN = 0; fpsSince = now; fpsWorst = 0; }
+      fpsRaf(fpsTick);
+    };
+    if (fpsRaf) fpsRaf(fpsTick); else fpsEl.innerHTML = 'fps: not supported';
   }
   var pollTimer = null;
   if (DEMO) window.boardFx = { pigFinale: playPigFinale, pigSkip: endPigFinale, pigScenes: PIG_SCENES, gravy: fxGravy, mashy: fxMashy, pitPlan: pitPlan, pitState: pitState, race: function (k) { queueRace(k, true); }, pcFinale: function (k) { queuePc(k, true); }, pcPeek: pcPeek, skipRace: endRace, check: function (kid, item, on) { put('checks/' + dateKey(new Date()) + '/' + kid + '/' + item, on ? true : null); }, checkUpdate: checkForUpdate, quotes: QUOTES, play: playFx, scenes: FX_SCENES, timeUp: fxTimeUp, celebrate: fxCelebrate, intro: playIntro, finale: fxFinale };

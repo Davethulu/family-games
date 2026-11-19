@@ -26,6 +26,7 @@ The family's TV dashboard: countdowns, calendar, screen-time minutes, music. Not
 - Porcelain Invasion (a kid's idea, a generic parody of a toilet-invasion web series): no show names, our own drawings. Each kid's agent (camera, speaker or TV head, plus suit color) lives in `settings.agents` (phone: More, then Agents, applies on tap). Each checked item flushes one toilet and ranks the agent up (`pcHtml`); finishing the list plays the titan finale once per list per day on that screen (`queuePc`). The countdown's tank drains over the last 30 minutes.
 - Thanksgiving has Mashy Potuffins, the Thanksgiving gremlin (a kid's idea, our own creature: drumstick legs, mashed-potato body, green-bean arms, dinner-roll head). He introduces himself in `fxMashy`, pops up in the gravy flood (`fxGravy`), and joins the celebration.
 - After a push, the TV reloads itself within about 5 minutes (`checkForUpdate`). Until then a phone already on the new version can pick a theme the TV doesn't know yet, and the TV falls back to plain styling.
+- Polish (depth, highlights, faux glass) lives in the "Polish" block at the end of the CSS. Keep it static: never animate box-shadow, filter or gradients, and no backdrop-filter. Add `?fps` to the board address to see frame rate on the TV.
 - Keep the JavaScript in older syntax (`var`, XHR) and size the TV view in rem, because TV browsers are old and have odd viewports.
 
 ## Building a new game
